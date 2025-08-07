@@ -1,24 +1,32 @@
 export type LimitedPromiseSettledResult<T> = PromiseSettledResult<Awaited<T>>
-export type AttemptSettledResult<T> =
+export type AttemptSettledResult<T, K = unknown> =
   | { success: true; value: T; error: null }
-  | { success: false; value: null; error: unknown }
+  | { success: false; value: null; error: K }
 
-export function attempt<T>(callback: () => Promise<T>): Promise<AttemptSettledResult<T>>
-export function attempt<T>(callback: () => T): AttemptSettledResult<T>
-export function attempt<T>(
-  callback: () => T | Promise<T>
-): AttemptSettledResult<T> | Promise<AttemptSettledResult<T>> {
+export function attempt<T, K = unknown>(c: () => Promise<T>): Promise<AttemptSettledResult<T, K>>
+export function attempt<T, K = unknown>(c: () => T): AttemptSettledResult<T, K>
+export function attempt<T, K = unknown>(
+  c: () => T | Promise<T>
+): AttemptSettledResult<T, K> | Promise<AttemptSettledResult<T, K>> {
   try {
-    const result = callback()
+    const result = c()
     if (result instanceof Promise) {
       return result
         .then((value) => ({ success: true, value, error: null }) as const)
-        .catch((error: unknown) => ({ success: false, value: null, error }) as const)
+        .catch((error: K) => ({ success: false, value: null, error }) as const)
     } else {
-      return { success: true, value: result, error: null }
+      return {
+        success: true,
+        value: result,
+        error: null
+      }
     }
   } catch (error) {
-    return { success: false, value: null, error }
+    return {
+      success: false,
+      value: null,
+      error: error as K
+    }
   }
 }
 
