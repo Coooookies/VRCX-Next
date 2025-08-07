@@ -1,4 +1,4 @@
-import { fromPromise, assign, setup } from 'xstate'
+import { fromPromise, assign, setup, enqueueActions } from 'xstate'
 import { AuthenticationStateLogic } from './state-logic'
 import type { VRChatAPI } from '../vrchat-api'
 import type { AuthenticationContext, AuthenticationEvent } from './types'
@@ -19,6 +19,20 @@ import type { AuthenticationContext, AuthenticationEvent } from './types'
 //     error --> unauthenticated : RESET
 //     authenticated --> unauthenticated : LOGOUT
 
+function createInitialContext(): AuthenticationContext {
+  return {
+    authSuccess: false,
+    verify2FASuccess: false,
+    twoFactorAuthRequired: false,
+    twoFactorAuthMethods: [],
+    authToken: undefined,
+    userOverview: undefined,
+    userInfo: undefined,
+    twoFactorAuthToken: undefined,
+    error: undefined
+  }
+}
+
 export function createAuthenticationMachine(api: VRChatAPI) {
   const logic = new AuthenticationStateLogic(api)
   const prebuild = setup({
@@ -27,25 +41,29 @@ export function createAuthenticationMachine(api: VRChatAPI) {
       events: {} as AuthenticationEvent
     },
     actors: {
-      credential_login: fromPromise(({ input }: { input: { event: AuthenticationEvent } }) => {
-        if (input.event.type !== 'LOGIN_WITH_CREDENTIAL') {
-          throw new Error('Unknown event type for login')
-        }
+      credential_login: fromPromise(
+        ({ input }: { input: { context: AuthenticationContext; event: AuthenticationEvent } }) => {
+          if (input.event.type !== 'LOGIN_WITH_CREDENTIAL') {
+            throw new Error('Unknown event type for login')
+          }
 
-        return logic.loginWithCredential(
-          input.event.username,
-          input.event.password,
-          input.event.twoFactorAuthToken
-        )
-      }),
-      authtoken_login: fromPromise(({ input }: { input: { context: AuthenticationContext } }) => {
-        const { context } = input
-        return logic.loginWithAuthToken(
-          context.authToken!,
-          context.userOverview!,
-          context.twoFactorAuthToken!
-        )
-      }),
+          return logic.loginWithCredential(
+            input.event.username,
+            input.event.password,
+            input.event.twoFactorAuthToken
+          )
+        }
+      ),
+      authtoken_login: fromPromise(
+        ({ input }: { input: { context: AuthenticationContext; event: AuthenticationEvent } }) => {
+          const { context } = input
+          return logic.loginWithAuthToken(
+            context.authToken!,
+            context.userOverview!,
+            context.twoFactorAuthToken!
+          )
+        }
+      ),
       verify2FA: fromPromise(
         ({ input }: { input: { context: AuthenticationContext; event: AuthenticationEvent } }) => {
           const { context, event } = input
@@ -89,25 +107,10 @@ export function createAuthenticationMachine(api: VRChatAPI) {
   return prebuild.createMachine({
     id: 'vrchat-authentication',
     initial: 'unauthenticated',
-    context: {
-      authSuccess: false,
-      verify2FASuccess: false,
-      twoFactorAuthRequired: false,
-      twoFactorAuthMethods: []
-    },
+    context: createInitialContext(),
     states: {
       unauthenticated: {
-        entry: assign(() => ({
-          authSuccess: false,
-          authToken: undefined,
-          verify2FASuccess: false,
-          userOverview: undefined,
-          userInfo: undefined,
-          twoFactorAuthToken: undefined,
-          twoFactorAuthRequired: false,
-          twoFactorAuthMethods: [],
-          error: undefined
-        })),
+        entry: assign(() => createInitialContext()),
         on: {
           LOGIN_WITH_CREDENTIAL: {
             target: 'credential_authenticating',
@@ -136,16 +139,35 @@ export function createAuthenticationMachine(api: VRChatAPI) {
           input: (ctx) => ctx,
           onDone: {
             target: 'authenticating_redirect',
-            actions: assign(({ event }) => ({
-              authSuccess: event.output.success,
-              userOverview: event.output.userOverview,
-              userInfo: event.output.userInfo,
-              authToken: event.output.authToken,
-              twoFactorAuthToken: event.output.twoFactorAuthToken,
-              twoFactorAuthRequired: event.output.twoFactorAuthRequired,
-              twoFactorAuthMethods: event.output.twoFactorAuthMethods || [],
-              error: event.output.error
-            }))
+            actions: enqueueActions(({ enqueue, event }) => {
+              enqueue.assign({
+                authSuccess: event.output.success,
+                error: event.output.error
+              })
+
+              if (event.output.success) {
+                enqueue.assign({
+                  userOverview: event.output.userOverview,
+                  userInfo: event.output.userInfo,
+                  authToken: event.output.authToken,
+                  twoFactorAuthToken: event.output.twoFactorAuthToken
+                })
+
+                if (event.output.twoFactorAuthRequired) {
+                  enqueue.assign({
+                    twoFactorAuthRequired: true,
+                    twoFactorAuthMethods: event.output.twoFactorAuthMethods || []
+                  })
+                }
+              }
+
+              enqueue(({ context }) => {
+                console.log('Authentication result:', {
+                  success: context.authSuccess,
+                  requires2FA: context.twoFactorAuthRequired
+                })
+              })
+            })
           }
         }
       },
@@ -156,16 +178,35 @@ export function createAuthenticationMachine(api: VRChatAPI) {
           input: (ctx) => ctx,
           onDone: {
             target: 'authenticating_redirect',
-            actions: assign(({ event }) => ({
-              authSuccess: event.output.success,
-              userOverview: event.output.userOverview,
-              userInfo: event.output.userInfo,
-              authToken: event.output.authToken,
-              twoFactorAuthToken: event.output.twoFactorAuthToken,
-              twoFactorAuthRequired: event.output.twoFactorAuthRequired,
-              twoFactorAuthMethods: event.output.twoFactorAuthMethods || [],
-              error: event.output.error
-            }))
+            actions: enqueueActions(({ enqueue, event }) => {
+              enqueue.assign({
+                authSuccess: event.output.success,
+                error: event.output.error
+              })
+
+              if (event.output.success) {
+                enqueue.assign({
+                  userOverview: event.output.userOverview,
+                  userInfo: event.output.userInfo,
+                  authToken: event.output.authToken,
+                  twoFactorAuthToken: event.output.twoFactorAuthToken
+                })
+
+                if (event.output.twoFactorAuthRequired) {
+                  enqueue.assign({
+                    twoFactorAuthRequired: true,
+                    twoFactorAuthMethods: event.output.twoFactorAuthMethods || []
+                  })
+                }
+              }
+
+              enqueue(({ context }) => {
+                console.log('Authentication result:', {
+                  success: context.authSuccess,
+                  requires2FA: context.twoFactorAuthRequired
+                })
+              })
+            })
           }
         }
       },

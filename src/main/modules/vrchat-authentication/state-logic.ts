@@ -111,6 +111,7 @@ export class AuthenticationStateLogic {
     const profileIcon = getProfileIconUrl(value.body)
     const { fileId, version } = parseFileUrl(profileIcon)
 
+    overview.displayName = value.body.displayName
     overview.profileThumbnailImageFileId = fileId
     overview.profileThumbnailImageFileVersion = version
 
