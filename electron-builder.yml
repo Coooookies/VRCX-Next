@@ -1,5 +1,5 @@
 appId: com.electron.app
-productName: electron-template-desktop
+productName: vrcx-next
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: electron-template-desktop
+  executableName: vrcx-next
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}

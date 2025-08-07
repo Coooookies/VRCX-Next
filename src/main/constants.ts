@@ -4,8 +4,8 @@ import { is } from '@electron-toolkit/utils'
 import { app } from 'electron'
 
 export const APP_NAME = app.getName()
-export const APP_ID = 'com.mitay.electron-template-desktop'
-export const APP_PROTOCOL = 'electron-template-desktop'
+export const APP_ID = 'com.mitay.vrcx-next'
+export const APP_PROTOCOL = 'vrcx-next'
 export const APP_ENCODING = 'utf-8'
 export const APP_VERSION = app.getVersion()
 

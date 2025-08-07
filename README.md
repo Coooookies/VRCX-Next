@@ -1,4 +1,4 @@
-# electron-template-desktop
+# vrcx-next
 
 An Electron application with Vue and TypeScript
 
