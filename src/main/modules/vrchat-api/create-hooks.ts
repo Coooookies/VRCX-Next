@@ -2,6 +2,7 @@ import type { Options, RequestError, Response } from 'got'
 
 type HooksInput = {
   onRequest?: (requestOption: Options) => void
+  onResponse?: (response: Response<unknown>) => void
   onRetry?: (error: RequestError<unknown>, count: number) => void
   onUnauthorized?: (res: Response<unknown>) => void
   onBadRequest?: (res: Response<unknown>) => void
@@ -26,6 +27,7 @@ export function createHooks(hooks: HooksInput = {}): Partial<Options['hooks']> {
     afterResponse: [
       (response) => {
         const { statusCode } = response
+        hooks.onResponse?.(response)
 
         switch (statusCode) {
           case 400:

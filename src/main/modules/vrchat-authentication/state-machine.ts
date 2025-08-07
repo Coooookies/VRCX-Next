@@ -141,32 +141,30 @@ export function createAuthenticationMachine(api: VRChatAPI) {
             target: 'authenticating_redirect',
             actions: enqueueActions(({ enqueue, event }) => {
               enqueue.assign({
+                userOverview: event.output.userOverview,
                 authSuccess: event.output.success,
                 error: event.output.error
               })
 
               if (event.output.success) {
                 enqueue.assign({
-                  userOverview: event.output.userOverview,
                   userInfo: event.output.userInfo,
                   authToken: event.output.authToken,
                   twoFactorAuthToken: event.output.twoFactorAuthToken
                 })
 
-                if (event.output.twoFactorAuthRequired) {
-                  enqueue.assign({
-                    twoFactorAuthRequired: true,
-                    twoFactorAuthMethods: event.output.twoFactorAuthMethods || []
-                  })
-                }
+                enqueue.assign(
+                  event.output.twoFactorAuthRequired
+                    ? {
+                        twoFactorAuthRequired: true,
+                        twoFactorAuthMethods: event.output.twoFactorAuthMethods || []
+                      }
+                    : {
+                        twoFactorAuthRequired: false,
+                        twoFactorAuthMethods: []
+                      }
+                )
               }
-
-              enqueue(({ context }) => {
-                console.log('Authentication result:', {
-                  success: context.authSuccess,
-                  requires2FA: context.twoFactorAuthRequired
-                })
-              })
             })
           }
         }
@@ -180,32 +178,30 @@ export function createAuthenticationMachine(api: VRChatAPI) {
             target: 'authenticating_redirect',
             actions: enqueueActions(({ enqueue, event }) => {
               enqueue.assign({
+                userOverview: event.output.userOverview,
                 authSuccess: event.output.success,
                 error: event.output.error
               })
 
               if (event.output.success) {
                 enqueue.assign({
-                  userOverview: event.output.userOverview,
                   userInfo: event.output.userInfo,
                   authToken: event.output.authToken,
                   twoFactorAuthToken: event.output.twoFactorAuthToken
                 })
 
-                if (event.output.twoFactorAuthRequired) {
-                  enqueue.assign({
-                    twoFactorAuthRequired: true,
-                    twoFactorAuthMethods: event.output.twoFactorAuthMethods || []
-                  })
-                }
+                enqueue.assign(
+                  event.output.twoFactorAuthRequired
+                    ? {
+                        twoFactorAuthRequired: true,
+                        twoFactorAuthMethods: event.output.twoFactorAuthMethods || []
+                      }
+                    : {
+                        twoFactorAuthRequired: false,
+                        twoFactorAuthMethods: []
+                      }
+                )
               }
-
-              enqueue(({ context }) => {
-                console.log('Authentication result:', {
-                  success: context.authSuccess,
-                  requires2FA: context.twoFactorAuthRequired
-                })
-              })
             })
           }
         }
