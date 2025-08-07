@@ -5,6 +5,8 @@ import { IPCModule } from './ipc'
 import { MainWindow } from './main-window'
 import { SettingModule } from './setting'
 import { Database } from './database'
+import { VRChatAPI } from './vrchat-api'
+import { VRChatAuthentication } from './vrchat-authentication'
 import type { ModuleConstructor } from '@shared/module-constructor/types'
 
 export const APP_MODULES: Record<string, ModuleConstructor> = {
@@ -14,5 +16,7 @@ export const APP_MODULES: Record<string, ModuleConstructor> = {
   MainWindow,
   ProtocolServer,
   IPCModule,
-  DemoModule
+  DemoModule,
+  VRChatAPI,
+  VRChatAuthentication
 }
