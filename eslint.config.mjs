@@ -23,6 +23,9 @@ export default tseslint.config(
   {
     files: ['**/*.{ts,mts,tsx,vue}'],
     rules: {
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
       'linebreak-style': ['error', 'windows'],
       'vue/require-default-prop': 'off',
       'vue/multi-word-component-names': 'off',
