@@ -1,0 +1,24 @@
+{
+  "extends": "@electron-toolkit/tsconfig/tsconfig.web.json",
+  "include": [
+    "src/renderer/src-main/env.d.ts",
+    "src/renderer/src-main/**/*",
+    "src/renderer/src-main/**/*.vue",
+    "src/renderer/shared/env.d.ts",
+    "src/renderer/shared/**/*",
+    "src/renderer/shared/**/*.vue",
+    "src/preload/*.d.ts",
+    "src/shared/**/*",
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "baseUrl": ".",
+    "noEmit": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "paths": {
+      "@renderer/*": ["src/renderer/*"],
+      "@shared/*": ["src/shared/*"]
+    }
+  }
+}
