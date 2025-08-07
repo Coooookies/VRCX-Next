@@ -43,7 +43,6 @@ export class ProtocolServer extends Module {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   public register<T extends Record<string, string> = {}>(
     hostname: string,
     path: string,
