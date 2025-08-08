@@ -32,13 +32,15 @@ export class AuthenticationRepository {
   }
 
   public deleteCredentialByUserId(userId: string) {
-    return this.repository.delete({ userId })
+    return this.repository.delete({ userId }).then(() => {})
   }
 
   public upsertCredential(entity: CredentialEntity) {
-    return this.repository.upsert(entity, {
+    const option = {
       conflictPaths: ['userId'],
       skipUpdateIfNoValuesChanged: true
-    })
+    }
+
+    return this.repository.upsert(entity, option).then(() => {})
   }
 }

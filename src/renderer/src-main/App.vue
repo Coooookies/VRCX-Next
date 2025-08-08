@@ -10,48 +10,53 @@ ipc.listener.on('vrchat-authentication:state:update', (_, ...args) => {
 })
 
 const form = reactive({
+  userId: '',
   username: '',
   password: '',
-  authToken: '',
-  twoFactorAuthToken: '',
   twoFactorAuthCode: ''
 })
 
-function loginWithCredential(): void {
-  ipc.emitter.invoke(
-    'vrchat-authentication:login-with-credential',
-    form.username,
-    form.password,
-    form.twoFactorAuthToken
-  )
+function login(): void {
+  ipc.emitter.invoke('vrchat-authentication:login', form.username, form.password)
 }
 
-function loginWithAuthToken(): void {
-  ipc.emitter.invoke(
-    'vrchat-authentication:login-with-authtoken',
-    { displayName: 'ButterCookies', username: 'buttercookies' },
-    form.authToken,
-    form.twoFactorAuthToken
-  )
+function loginWithSavedCredential(): void {
+  ipc.emitter.invoke('vrchat-authentication:login-with-saved-credential', form.userId)
 }
+
 function verifyTOTP(): void {
   ipc.emitter.invoke('vrchat-authentication:verify-totp', form.twoFactorAuthCode)
 }
+
 function verifyEmailOTP(): void {
   ipc.emitter.invoke('vrchat-authentication:verify-email-otp', form.twoFactorAuthCode)
 }
+
 function verifyRecoveryOTP(): void {
   ipc.emitter.invoke('vrchat-authentication:verify-recovery-otp', form.twoFactorAuthCode)
 }
+
 function logout(): void {
   ipc.emitter.invoke('vrchat-authentication:logout')
 }
+
+function getAllCredentials(): void {
+  ipc.emitter.invoke('vrchat-authentication:get-all-credentials').then((credentials) => {
+    console.log('All credentials:', credentials)
+  })
+}
+
+function getState(): void {
+  ipc.emitter.invoke('vrchat-authentication:state').then((state) => {
+    console.log('State:', state)
+  })
+}
+
 function reset(): void {
-  ipc.emitter.invoke('vrchat-authentication:reset')
+  ipc.emitter.invoke('vrchat-authentication:signout')
+  form.userId = ''
   form.username = ''
   form.password = ''
-  form.authToken = ''
-  form.twoFactorAuthToken = ''
   form.twoFactorAuthCode = ''
 }
 </script>
@@ -61,12 +66,11 @@ function reset(): void {
     <div>
       <input v-model="form.username" placeholder="Username" />
       <input v-model="form.password" placeholder="Password" />
-      <button @click="loginWithCredential">Credential Login</button>
+      <button @click="login">Login</button>
     </div>
     <div>
-      <input v-model="form.authToken" placeholder="Auth Token" />
-      <input v-model="form.twoFactorAuthToken" placeholder="Auth Token" />
-      <button @click="loginWithAuthToken">AuthToken Login</button>
+      <input v-model="form.userId" placeholder="UserId" />
+      <button @click="loginWithSavedCredential">Resume Login</button>
     </div>
     <div>
       <input v-model="form.twoFactorAuthCode" placeholder="2FA Code" />
@@ -77,6 +81,8 @@ function reset(): void {
     <div>
       <button @click="logout">Logout</button>
       <button @click="reset">Reset</button>
+      <button @click="getAllCredentials">Get All Credentials</button>
+      <button @click="getState">Get State</button>
     </div>
   </div>
 </template>

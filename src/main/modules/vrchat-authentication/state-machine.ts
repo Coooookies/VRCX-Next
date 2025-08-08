@@ -222,7 +222,8 @@ export function createAuthenticationMachine(logic: AuthenticationStateLogic) {
       },
       authenticated: {
         on: {
-          LOGOUT: 'logging_out'
+          LOGOUT: 'logging_out',
+          RESET: 'unauthenticated'
         }
       },
       logging_out: {

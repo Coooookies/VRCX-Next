@@ -1,10 +1,12 @@
 import type { VRChatAuthentication } from '.'
 import type { IPCModule } from '../ipc'
+import type { AuthenticationRepository } from './repository'
 
 export class AuthenticationIPCBinding {
   constructor(
     private self: VRChatAuthentication,
-    private ipc: IPCModule
+    private ipc: IPCModule,
+    private repository: AuthenticationRepository
   ) {}
 
   public bindEvents() {
@@ -14,12 +16,16 @@ export class AuthenticationIPCBinding {
   }
 
   public bindInvokes() {
-    this.ipc.listener.handle('vrchat-authentication:login-with-credential', (_, ...args) => {
-      return this.self.loginWithCredential(...args)
+    this.ipc.listener.handle('vrchat-authentication:state', () => {
+      return this.self.currentState
     })
 
-    this.ipc.listener.handle('vrchat-authentication:login-with-authtoken', (_, ...args) => {
-      return this.self.loginWithAuthToken(...args)
+    this.ipc.listener.handle('vrchat-authentication:login', (_, ...args) => {
+      return this.self.login(...args)
+    })
+
+    this.ipc.listener.handle('vrchat-authentication:login-with-saved-credential', (_, ...args) => {
+      return this.self.loginWithSavedCredential(...args)
     })
 
     this.ipc.listener.handle('vrchat-authentication:verify-totp', (_, code) => {
@@ -38,8 +44,16 @@ export class AuthenticationIPCBinding {
       return this.self.logout()
     })
 
-    this.ipc.listener.handle('vrchat-authentication:reset', () => {
-      return this.self.reset()
+    this.ipc.listener.handle('vrchat-authentication:signout', () => {
+      return this.self.signout()
+    })
+
+    this.ipc.listener.handle('vrchat-authentication:get-all-credentials', () => {
+      return this.repository.getAllCredentials()
+    })
+
+    this.ipc.listener.handle('vrchat-authentication:delete-credential', (_, userId) => {
+      return this.repository.deleteCredentialByUserId(userId)
     })
   }
 }

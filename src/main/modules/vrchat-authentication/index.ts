@@ -1,7 +1,9 @@
 import { createActor } from 'xstate'
+import { createLogger } from '@main/logger'
 import { createAuthenticationMachine } from './state-machine'
 import { createAuthenticationLogic } from './state-logic'
 import { snapshotToAuthenticationState } from './factory'
+import { AuthenticationRepository } from './repository'
 import { AuthenticationIPCBinding } from './ipc-binding'
 import { Dependency, Module } from '@shared/module-constructor'
 import type { ActorRefFrom, SnapshotFrom } from 'xstate'
@@ -10,8 +12,6 @@ import type { Database } from '../database'
 import type { VRChatAPI } from '../vrchat-api'
 import type { SettingModule } from '../setting'
 import type { AuthenticationState, AuthenticationUserOverview } from './types'
-import { AuthenticationRepository } from './repository'
-import { CredentialEntity } from '../database/entities/credential'
 
 export class VRChatAuthentication extends Module<{
   'state:update': (state: AuthenticationState) => void
@@ -20,6 +20,8 @@ export class VRChatAuthentication extends Module<{
   @Dependency('Database') declare private database: Database
   @Dependency('IPCModule') declare private ipc: IPCModule
   @Dependency('VRChatAPI') declare private api: VRChatAPI
+
+  private readonly logger = createLogger('VRChatAuthentication')
 
   private state!: ActorRefFrom<typeof createAuthenticationMachine>
   private binding!: AuthenticationIPCBinding
@@ -30,7 +32,7 @@ export class VRChatAuthentication extends Module<{
     const machine = createAuthenticationMachine(logic)
 
     this.repository = new AuthenticationRepository(this.database)
-    this.binding = new AuthenticationIPCBinding(this, this.ipc)
+    this.binding = new AuthenticationIPCBinding(this, this.ipc, this.repository)
     this.state = createActor(machine)
     this.state.start()
     this.binding.bindEvents()
@@ -44,6 +46,7 @@ export class VRChatAuthentication extends Module<{
 
   private bindEvents() {
     this.state.subscribe(({ context, value }) => {
+      this.logger.info('State updated:', value)
       this.emit('state:update', snapshotToAuthenticationState(context, value))
     })
 
@@ -69,8 +72,7 @@ export class VRChatAuthentication extends Module<{
           })
         }
       } else {
-        this.setting.update('vrchat_authentication', 'logged_in', false)
-        this.setting.update('vrchat_authentication', 'logged_in_user_id', '')
+        this.cancelAutoLoginSession()
       }
     })
   }
@@ -83,9 +85,22 @@ export class VRChatAuthentication extends Module<{
     }
   }
 
+  private async cancelAutoLoginSession() {
+    if (!this.currentSetting.logged_in) {
+      return
+    }
+
+    await this.setting.update('vrchat_authentication', 'logged_in', false)
+    await this.setting.update('vrchat_authentication', 'logged_in_user_id', '')
+  }
+
   public async login(username: string, password: string) {
     const credential = await this.repository.getCredentialByUserName(username)
     const twoFactorAuthToken = credential?.twoFactorToken
+
+    this.logger.debug('twoFactorAuthToken', twoFactorAuthToken)
+
+    await this.signout()
     return this.loginWithCredential(username, password, twoFactorAuthToken)
   }
 
@@ -103,7 +118,8 @@ export class VRChatAuthentication extends Module<{
       profileThumbnailImageFileVersion: credential.profileIconFileVersion
     }
 
-    this.loginWithAuthToken(overview, credential.token, credential.twoFactorToken)
+    await this.signout()
+    return this.loginWithAuthToken(overview, credential.token, credential.twoFactorToken)
   }
 
   private loginWithCredential(username: string, password: string, twoFactorAuthToken?: string) {
@@ -141,11 +157,17 @@ export class VRChatAuthentication extends Module<{
   }
 
   public logout() {
+    if (this.currentState.type === 'authenticated') {
+      this.repository.deleteCredentialByUserId(this.currentState.userInfo.id)
+    }
+
     this.state.send({ type: 'LOGOUT' })
+    return this.cancelAutoLoginSession()
   }
 
-  public reset() {
+  public signout() {
     this.state.send({ type: 'RESET' })
+    return this.cancelAutoLoginSession()
   }
 
   public get currentState(): AuthenticationState {
