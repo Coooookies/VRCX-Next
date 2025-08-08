@@ -1,12 +1,12 @@
-import { App, getCurrentInstance } from 'vue'
 import { Module, ModuleManager } from '@shared/module-constructor'
+import { App, getCurrentInstance } from 'vue'
 import type { ModuleConstructor } from '@shared/module-constructor/types'
 
 export function createModuleManager(): {
   install(app: App): void
   resolve<T extends Module>(identifier: string): T
   register(identifier: string, module: ModuleConstructor): void
-  setup(): void
+  setup(): Promise<void>
 } {
   const moduleManager = new ModuleManager()
 
@@ -17,11 +17,11 @@ export function createModuleManager(): {
     resolve<T extends Module>(identifier: string): T {
       return moduleManager.resolve<T>(identifier)
     },
-    register(identifier: string, module: ModuleConstructor) {
-      moduleManager.register(identifier, module)
+    register(identifier: string, module: ModuleConstructor): void {
+      return moduleManager.register(identifier, module)
     },
-    setup() {
-      moduleManager.setup()
+    setup(): Promise<void> {
+      return moduleManager.setup()
     }
   }
 }
