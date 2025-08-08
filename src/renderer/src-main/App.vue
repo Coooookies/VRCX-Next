@@ -5,32 +5,8 @@ import { reactive } from 'vue'
 
 const ipc = useModule<IPCRenderer>('IPCRenderer')
 
-ipc.listener.on('vrchat-authentication:state:error', (_, ...args) => {
-  console.log('Authentication error:', ...args)
-})
-
-ipc.listener.on('vrchat-authentication:state:logging-out', () => {
-  console.log('Logging out...')
-})
-
-ipc.listener.on('vrchat-authentication:state:unauthenticated', () => {
-  console.log('Unauthenticated')
-})
-
-ipc.listener.on('vrchat-authentication:state:authenticating', (_, ...args) => {
-  console.log('Authenticating...', ...args)
-})
-
-ipc.listener.on('vrchat-authentication:state:authenticated', (_, ...args) => {
-  console.log('Authenticated:', ...args)
-})
-
-ipc.listener.on('vrchat-authentication:state:twofa-verifying', (_, ...args) => {
-  console.log('Verifying 2FA...', ...args)
-})
-
-ipc.listener.on('vrchat-authentication:state:twofa-required', (_, ...args) => {
-  console.log('2FA required:', ...args)
+ipc.listener.on('vrchat-authentication:state:update', (_, ...args) => {
+  console.log('update:', ...args)
 })
 
 const form = reactive({
