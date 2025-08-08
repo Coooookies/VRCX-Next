@@ -8,5 +8,6 @@
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "files.eol": "\r\n"
+  "files.eol": "\r\n",
+  "css.customData": [".vscode/tailwind.json"]
 }

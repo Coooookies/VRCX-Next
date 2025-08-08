@@ -1,4 +1,5 @@
 import 'reflect-metadata'
+import '@renderer/shared/styles/main.css'
 
 import entry from './app.vue'
 import { module } from './module'

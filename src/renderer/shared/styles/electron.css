@@ -1,0 +1,26 @@
+.electron-drag {
+  -webkit-app-region: drag;
+}
+
+.electron-no-drag {
+  -webkit-app-region: no-drag;
+}
+
+span,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+a,
+button,
+label,
+div {
+  @apply select-none;
+}
+
+img {
+  -webkit-user-drag: none;
+}

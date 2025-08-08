@@ -95,16 +95,14 @@ export class VRChatAuthentication extends Module<{
   }
 
   public async login(username: string, password: string) {
+    await this.signout()
     const credential = await this.repository.getCredentialByUserName(username)
     const twoFactorAuthToken = credential?.twoFactorToken
-
-    this.logger.debug('twoFactorAuthToken', twoFactorAuthToken)
-
-    await this.signout()
     return this.loginWithCredential(username, password, twoFactorAuthToken)
   }
 
   public async loginWithSavedCredential(userId: string) {
+    await this.signout()
     const credential = await this.repository.getCredentialByUserId(userId)
 
     if (!credential) {
@@ -118,7 +116,6 @@ export class VRChatAuthentication extends Module<{
       profileThumbnailImageFileVersion: credential.profileIconFileVersion
     }
 
-    await this.signout()
     return this.loginWithAuthToken(overview, credential.token, credential.twoFactorToken)
   }
 
@@ -161,12 +158,18 @@ export class VRChatAuthentication extends Module<{
       this.repository.deleteCredentialByUserId(this.currentState.userInfo.id)
     }
 
-    this.state.send({ type: 'LOGOUT' })
+    if (this.currentState.type !== 'unauthenticated') {
+      this.state.send({ type: 'LOGOUT' })
+    }
+
     return this.cancelAutoLoginSession()
   }
 
   public signout() {
-    this.state.send({ type: 'RESET' })
+    if (this.currentState.type !== 'unauthenticated') {
+      this.state.send({ type: 'RESET' })
+    }
+
     return this.cancelAutoLoginSession()
   }
 

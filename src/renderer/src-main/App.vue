@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { useModule } from '@renderer/shared/hook/use-module'
-import { VRChatAuthentication } from '@renderer/shared/modules/vrchat-authentication'
 import { reactive } from 'vue'
+import { useModule } from '@renderer/shared/hooks/use-module'
+import { Button } from '@renderer/shared/components/ui/button'
+import { Input } from '@renderer/shared/components/ui/input'
+import { VRChatAuthentication } from '@renderer/shared/modules/vrchat-authentication'
 
 const auth = useModule<VRChatAuthentication>('VRChatAuthentication')
 
@@ -63,25 +65,25 @@ function reset(): void {
 <template>
   <div>
     <div>
-      <input v-model="form.username" placeholder="Username" />
-      <input v-model="form.password" placeholder="Password" />
-      <button @click="login">Login</button>
+      <Input v-model="form.username" placeholder="Username" />
+      <Input v-model="form.password" placeholder="Password" />
+      <Button @click="login">Login</Button>
     </div>
     <div>
-      <input v-model="form.userId" placeholder="UserId" />
-      <button @click="loginWithSavedCredential">Resume Login</button>
+      <Input v-model="form.userId" placeholder="UserId" />
+      <Button @click="loginWithSavedCredential">Resume Login</Button>
     </div>
     <div>
-      <input v-model="form.twoFactorAuthCode" placeholder="2FA Code" />
-      <button @click="verifyTOTP">VerifyTOTP</button>
-      <button @click="verifyEmailOTP">VerifyEmailOTP</button>
-      <button @click="verifyRecoveryOTP">VerifyRecoveryOTP</button>
+      <Input v-model="form.twoFactorAuthCode" placeholder="2FA Code" />
+      <Button @click="verifyTOTP">VerifyTOTP</Button>
+      <Button @click="verifyEmailOTP">VerifyEmailOTP</Button>
+      <Button @click="verifyRecoveryOTP">VerifyRecoveryOTP</Button>
     </div>
     <div>
-      <button @click="logout">Logout</button>
-      <button @click="reset">Reset</button>
-      <button @click="getAllCredentials">Get All Credentials</button>
-      <button @click="getState">Get State</button>
+      <Button @click="logout">Logout</Button>
+      <Button @click="reset">Reset</Button>
+      <Button @click="getAllCredentials">Get All Credentials</Button>
+      <Button @click="getState">Get State</Button>
     </div>
   </div>
 </template>

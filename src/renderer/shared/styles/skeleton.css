@@ -1,0 +1,21 @@
+.skeleton-block {
+  background-size: 300% 100%;
+  background-image: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--accent) 0%, transparent) 33.333%,
+    color-mix(in oklab, var(--accent) 50%, transparent) 50%,
+    color-mix(in oklab, var(--accent) 50%, transparent) 53%,
+    color-mix(in oklab, var(--accent) 0%, transparent) 66.666%
+  );
+
+  animation: anime-loading-background 1s infinite linear reverse;
+}
+
+@keyframes anime-loading-background {
+  0% {
+    background-position: 0% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}

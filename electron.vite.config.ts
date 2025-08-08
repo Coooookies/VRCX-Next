@@ -1,8 +1,8 @@
 import { resolve } from 'path'
 import { defineConfig, externalizeDepsPlugin, swcPlugin } from 'electron-vite'
-
 import vue from '@vitejs/plugin-vue'
 import svgLoader from 'vite-svg-loader'
+import tailwindcss from '@tailwindcss/vite'
 
 const minify = process.env.NODE_ENV === 'production'
 
@@ -34,7 +34,7 @@ export default defineConfig({
         '@shared': resolve('src/shared')
       }
     },
-    plugins: [vue(), svgLoader()],
+    plugins: [vue(), svgLoader(), tailwindcss()],
     build: {
       minify,
       rollupOptions: {

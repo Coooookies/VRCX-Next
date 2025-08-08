@@ -1,5 +1,5 @@
 import type { ModuleConstructor } from '@shared/module-constructor/types'
-import { createModuleManager } from '@renderer/shared/hook/use-module'
+import { createModuleManager } from '@renderer/shared/hooks/use-module'
 import { IPCRenderer } from '@renderer/shared/modules/ipc'
 import { AppLoader } from '@renderer/shared/modules/loader'
 import { VRChatAuthentication } from '@renderer/shared/modules/vrchat-authentication'
