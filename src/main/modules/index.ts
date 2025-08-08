@@ -1,4 +1,3 @@
-import { DemoModule } from './demo'
 import { ElectronModule } from './electron'
 import { ProtocolServer } from './protocol-server'
 import { IPCModule } from './ipc'
@@ -16,7 +15,6 @@ export const APP_MODULES: Record<string, ModuleConstructor> = {
   MainWindow,
   ProtocolServer,
   IPCModule,
-  DemoModule,
   VRChatAPI,
   VRChatAuthentication
 }
