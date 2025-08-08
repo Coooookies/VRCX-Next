@@ -171,3 +171,7 @@ export class AuthenticationStateLogic {
     }
   }
 }
+
+export function createAuthenticationLogic(api: VRChatAPI): AuthenticationStateLogic {
+  return new AuthenticationStateLogic(api)
+}

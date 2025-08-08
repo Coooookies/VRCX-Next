@@ -1,7 +1,6 @@
 import { fromPromise, assign, setup, enqueueActions } from 'xstate'
 import { AuthenticationStateLogic } from './state-logic'
-import type { VRChatAPI } from '../vrchat-api'
-import type { AuthenticationContext, AuthenticationEvent } from './types'
+import type { AuthenticationContext, AuthenticationEvent, AuthenticationLoginResult } from './types'
 
 // stateDiagram-v2
 //     [*] --> unauthenticated
@@ -33,8 +32,34 @@ function createInitialContext(): AuthenticationContext {
   }
 }
 
-export function createAuthenticationMachine(api: VRChatAPI) {
-  const logic = new AuthenticationStateLogic(api)
+function assignLoginResult(output: AuthenticationLoginResult) {
+  let result: Partial<AuthenticationContext> = {
+    userOverview: output.userOverview,
+    authSuccess: output.success,
+    error: output.error
+  }
+
+  if (output.success) {
+    result = {
+      ...result,
+      userInfo: output.userInfo,
+      authToken: output.authToken,
+      twoFactorAuthToken: output.twoFactorAuthToken
+    }
+
+    if (output.twoFactorAuthRequired) {
+      result.twoFactorAuthRequired = true
+      result.twoFactorAuthMethods = output.twoFactorAuthMethods || []
+    } else {
+      result.twoFactorAuthRequired = false
+      result.twoFactorAuthMethods = []
+    }
+  }
+
+  return result
+}
+
+export function createAuthenticationMachine(logic: AuthenticationStateLogic) {
   const prebuild = setup({
     types: {
       context: {} as AuthenticationContext,
@@ -139,33 +164,9 @@ export function createAuthenticationMachine(api: VRChatAPI) {
           input: (ctx) => ctx,
           onDone: {
             target: 'authenticating_redirect',
-            actions: enqueueActions(({ enqueue, event }) => {
-              enqueue.assign({
-                userOverview: event.output.userOverview,
-                authSuccess: event.output.success,
-                error: event.output.error
-              })
-
-              if (event.output.success) {
-                enqueue.assign({
-                  userInfo: event.output.userInfo,
-                  authToken: event.output.authToken,
-                  twoFactorAuthToken: event.output.twoFactorAuthToken
-                })
-
-                enqueue.assign(
-                  event.output.twoFactorAuthRequired
-                    ? {
-                        twoFactorAuthRequired: true,
-                        twoFactorAuthMethods: event.output.twoFactorAuthMethods || []
-                      }
-                    : {
-                        twoFactorAuthRequired: false,
-                        twoFactorAuthMethods: []
-                      }
-                )
-              }
-            })
+            actions: enqueueActions(({ enqueue, event }) =>
+              enqueue.assign(assignLoginResult(event.output))
+            )
           }
         }
       },
@@ -176,33 +177,9 @@ export function createAuthenticationMachine(api: VRChatAPI) {
           input: (ctx) => ctx,
           onDone: {
             target: 'authenticating_redirect',
-            actions: enqueueActions(({ enqueue, event }) => {
-              enqueue.assign({
-                userOverview: event.output.userOverview,
-                authSuccess: event.output.success,
-                error: event.output.error
-              })
-
-              if (event.output.success) {
-                enqueue.assign({
-                  userInfo: event.output.userInfo,
-                  authToken: event.output.authToken,
-                  twoFactorAuthToken: event.output.twoFactorAuthToken
-                })
-
-                enqueue.assign(
-                  event.output.twoFactorAuthRequired
-                    ? {
-                        twoFactorAuthRequired: true,
-                        twoFactorAuthMethods: event.output.twoFactorAuthMethods || []
-                      }
-                    : {
-                        twoFactorAuthRequired: false,
-                        twoFactorAuthMethods: []
-                      }
-                )
-              }
-            })
+            actions: enqueueActions(({ enqueue, event }) =>
+              enqueue.assign(assignLoginResult(event.output))
+            )
           }
         }
       },
