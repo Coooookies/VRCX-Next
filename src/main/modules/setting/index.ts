@@ -27,7 +27,7 @@ export class SettingModule extends Module<{
   }
 
   private async preload(): Promise<void> {
-    const savedSettings = await this.database.settingRepository.find()
+    const savedSettings = await this.repository.find()
     const savedSettingInstances = savedSettings.map(transformEntityToPropertyInstance)
 
     for (const instance of savedSettingInstances) {
@@ -84,7 +84,7 @@ export class SettingModule extends Module<{
 
   private upsert(entity: SettingEntity): Promise<InsertResult> {
     try {
-      return this.database.settingRepository.upsert(
+      return this.repository.upsert(
         {
           namespace: entity.namespace,
           key: entity.key,
@@ -147,5 +147,9 @@ export class SettingModule extends Module<{
     this.logger.debug(`Setting updated: ${namespace}.${propertyKey} = ${propertyValue}`)
 
     return result
+  }
+
+  private get repository() {
+    return this.database.source.getRepository(SettingEntity)
   }
 }

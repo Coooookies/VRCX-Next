@@ -8,6 +8,15 @@ export interface AuthenticationUserOverview {
   profileThumbnailImageFileVersion?: number
 }
 
+export interface AuthenticationCredentialEntity {
+  userId: string
+  userName: string
+  displayName: string
+  profileIconFileId: string
+  profileIconFileVersion: number
+  createdAt: Date
+}
+
 export interface AuthenticationStateUnauthenticated {
   type: 'unauthenticated'
 }

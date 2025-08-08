@@ -11,6 +11,7 @@ export const DEFAULT_SETTING: FunctionProperties<SettingDefinition> = {
   },
   vrchat_authentication: {
     logged_in: () => false,
-    logged_in_user_id: () => ''
+    logged_in_user_id: () => '',
+    auto_save_credentials: () => true
   }
 }

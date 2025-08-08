@@ -30,5 +30,6 @@ export interface SettingDefinition {
   vrchat_authentication: {
     logged_in: boolean
     logged_in_user_id: string
+    auto_save_credentials: boolean
   }
 }

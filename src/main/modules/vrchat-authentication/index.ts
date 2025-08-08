@@ -10,6 +10,8 @@ import type { Database } from '../database'
 import type { VRChatAPI } from '../vrchat-api'
 import type { SettingModule } from '../setting'
 import type { AuthenticationState, AuthenticationUserOverview } from './types'
+import { AuthenticationRepository } from './repository'
+import { CredentialEntity } from '../database/entities/credential'
 
 export class VRChatAuthentication extends Module<{
   'state:update': (state: AuthenticationState) => void
@@ -21,11 +23,13 @@ export class VRChatAuthentication extends Module<{
 
   private state!: ActorRefFrom<typeof createAuthenticationMachine>
   private binding!: AuthenticationIPCBinding
+  private repository!: AuthenticationRepository
 
   protected async onInit(): Promise<void> {
     const logic = createAuthenticationLogic(this.api)
     const machine = createAuthenticationMachine(logic)
 
+    this.repository = new AuthenticationRepository(this.database)
     this.binding = new AuthenticationIPCBinding(this, this.ipc)
     this.state = createActor(machine)
     this.state.start()
@@ -34,13 +38,75 @@ export class VRChatAuthentication extends Module<{
     this.bindEvents()
   }
 
+  protected onLoad(): void {
+    this.resumeLoginSession()
+  }
+
   private bindEvents() {
     this.state.subscribe(({ context, value }) => {
       this.emit('state:update', snapshotToAuthenticationState(context, value))
     })
+
+    // auto save credentials when authenticated
+    this.on('state:update', (state) => {
+      const { auto_save_credentials } = this.currentSetting
+
+      if (state.type === 'authenticated') {
+        if (auto_save_credentials) {
+          const userId = state.userInfo.id
+
+          this.setting.update('vrchat_authentication', 'logged_in', true)
+          this.setting.update('vrchat_authentication', 'logged_in_user_id', userId)
+          this.repository.upsertCredential({
+            userId,
+            userName: state.overview.username,
+            displayName: state.overview.displayName,
+            profileIconFileId: state.overview.profileThumbnailImageFileId || '',
+            profileIconFileVersion: state.overview.profileThumbnailImageFileVersion || 0,
+            token: state.authToken,
+            twoFactorToken: state.twoFactorAuthToken,
+            createdAt: new Date()
+          })
+        }
+      } else {
+        this.setting.update('vrchat_authentication', 'logged_in', false)
+        this.setting.update('vrchat_authentication', 'logged_in_user_id', '')
+      }
+    })
   }
 
-  public loginWithCredential(username: string, password: string, twoFactorAuthToken?: string) {
+  private async resumeLoginSession() {
+    const { logged_in, logged_in_user_id } = this.currentSetting
+
+    if (logged_in && logged_in_user_id) {
+      this.loginWithSavedCredential(logged_in_user_id)
+    }
+  }
+
+  public async login(username: string, password: string) {
+    const credential = await this.repository.getCredentialByUserName(username)
+    const twoFactorAuthToken = credential?.twoFactorToken
+    return this.loginWithCredential(username, password, twoFactorAuthToken)
+  }
+
+  public async loginWithSavedCredential(userId: string) {
+    const credential = await this.repository.getCredentialByUserId(userId)
+
+    if (!credential) {
+      return
+    }
+
+    const overview: AuthenticationUserOverview = {
+      displayName: credential.displayName,
+      username: credential.userName,
+      profileThumbnailImageFileId: credential.profileIconFileId,
+      profileThumbnailImageFileVersion: credential.profileIconFileVersion
+    }
+
+    this.loginWithAuthToken(overview, credential.token, credential.twoFactorToken)
+  }
+
+  private loginWithCredential(username: string, password: string, twoFactorAuthToken?: string) {
     this.state.send({
       type: 'LOGIN_WITH_CREDENTIAL',
       username,
@@ -49,7 +115,7 @@ export class VRChatAuthentication extends Module<{
     })
   }
 
-  public loginWithAuthToken(
+  private loginWithAuthToken(
     overview: AuthenticationUserOverview,
     authToken: string,
     twoFactorAuthToken?: string
@@ -85,6 +151,10 @@ export class VRChatAuthentication extends Module<{
   public get currentState(): AuthenticationState {
     const { context, value } = this.snapshot
     return snapshotToAuthenticationState(context, value)
+  }
+
+  public get currentSetting() {
+    return this.setting.resolveNamespace('vrchat_authentication')
   }
 
   public get snapshot(): SnapshotFrom<typeof createAuthenticationMachine> {
