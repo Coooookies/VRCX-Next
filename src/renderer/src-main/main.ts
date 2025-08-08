@@ -1,16 +1,14 @@
 import 'reflect-metadata'
 
-import App from './App.vue'
-import { createApp } from 'vue'
+import entry from './app.vue'
 import { module } from './module'
+import { createApp } from 'vue'
 import type { AppLoader } from '@renderer/shared/modules/loader'
-
-const app = createApp(App)
-
-app.use(module)
 
 await module.setup()
 
+const app = createApp(entry)
+app.use(module)
 app.mount('#app').$nextTick(onLoad)
 
 function onLoad(): void {

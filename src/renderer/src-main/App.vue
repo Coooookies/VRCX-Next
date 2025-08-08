@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { useModule } from '@renderer/shared/hook/use-module'
-import { IPCRenderer } from '@renderer/shared/modules/ipc'
+import { VRChatAuthentication } from '@renderer/shared/modules/vrchat-authentication'
 import { reactive } from 'vue'
 
-const ipc = useModule<IPCRenderer>('IPCRenderer')
+const auth = useModule<VRChatAuthentication>('VRChatAuthentication')
 
-ipc.listener.on('vrchat-authentication:state:update', (_, ...args) => {
-  console.log('update:', ...args)
+auth.on('state:update', (state) => {
+  console.log('Authentication state updated:', state)
 })
 
 const form = reactive({
@@ -17,43 +17,42 @@ const form = reactive({
 })
 
 function login(): void {
-  ipc.emitter.invoke('vrchat-authentication:login', form.username, form.password)
+  auth.login(form.username, form.password)
 }
 
 function loginWithSavedCredential(): void {
-  ipc.emitter.invoke('vrchat-authentication:login-with-saved-credential', form.userId)
+  auth.loginWithSavedCredential(form.userId)
 }
-
 function verifyTOTP(): void {
-  ipc.emitter.invoke('vrchat-authentication:verify-totp', form.twoFactorAuthCode)
+  auth.verifyTOTP(form.twoFactorAuthCode)
 }
 
 function verifyEmailOTP(): void {
-  ipc.emitter.invoke('vrchat-authentication:verify-email-otp', form.twoFactorAuthCode)
+  auth.verifyEmailOTP(form.twoFactorAuthCode)
 }
 
 function verifyRecoveryOTP(): void {
-  ipc.emitter.invoke('vrchat-authentication:verify-recovery-otp', form.twoFactorAuthCode)
+  auth.verifyRecoveryOTP(form.twoFactorAuthCode)
 }
 
 function logout(): void {
-  ipc.emitter.invoke('vrchat-authentication:logout')
+  auth.logout()
 }
 
 function getAllCredentials(): void {
-  ipc.emitter.invoke('vrchat-authentication:get-all-credentials').then((credentials) => {
+  auth.getAllCredentials().then((credentials) => {
     console.log('All credentials:', credentials)
   })
 }
 
 function getState(): void {
-  ipc.emitter.invoke('vrchat-authentication:state').then((state) => {
+  auth.getState().then((state) => {
     console.log('State:', state)
   })
 }
 
 function reset(): void {
-  ipc.emitter.invoke('vrchat-authentication:signout')
+  auth.signout()
   form.userId = ''
   form.username = ''
   form.password = ''
