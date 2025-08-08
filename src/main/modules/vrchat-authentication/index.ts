@@ -1,32 +1,18 @@
 import { createActor } from 'xstate'
 import { createAuthenticationMachine } from './state-machine'
+import { createAuthenticationLogic } from './state-logic'
+import { snapshotToAuthenticationState } from './factory'
 import { AuthenticationIPCBinding } from './ipc-binding'
 import { Dependency, Module } from '@shared/module-constructor'
-import type { ActorRefFrom } from 'xstate'
+import type { ActorRefFrom, SnapshotFrom } from 'xstate'
 import type { IPCModule } from '../ipc'
 import type { Database } from '../database'
 import type { VRChatAPI } from '../vrchat-api'
 import type { SettingModule } from '../setting'
-import type { AuthenticationUserOverview } from './types'
-import type { CurrentUser, TwoFactorTypes } from '@shared/types/vrchat-api-response'
-import type { ResponseErrorReason } from '@shared/types/vrchat-api-status'
+import type { AuthenticationState, AuthenticationUserOverview } from './types'
 
 export class VRChatAuthentication extends Module<{
-  'state:error': (userOverview: AuthenticationUserOverview, error: ResponseErrorReason) => void
-  'state:logging-out': () => void
-  'state:unauthenticated': () => void
-  'state:authenticating': (userOverview: AuthenticationUserOverview) => void
-  'state:authenticated': (
-    userOverview: AuthenticationUserOverview,
-    userInfo: CurrentUser,
-    authToken: string,
-    twoFactorAuthToken: string
-  ) => void
-  'state:twofa-verifying': (userOverview: AuthenticationUserOverview) => void
-  'state:twofa-required': (
-    userOverview: AuthenticationUserOverview,
-    twoFactorAuthMethods: TwoFactorTypes[]
-  ) => void
+  'state:update': (state: AuthenticationState) => void
 }> {
   @Dependency('SettingModule') declare private setting: SettingModule
   @Dependency('Database') declare private database: Database
@@ -37,7 +23,8 @@ export class VRChatAuthentication extends Module<{
   private binding!: AuthenticationIPCBinding
 
   protected async onInit(): Promise<void> {
-    const machine = createAuthenticationMachine(this.api)
+    const logic = createAuthenticationLogic(this.api)
+    const machine = createAuthenticationMachine(logic)
 
     this.binding = new AuthenticationIPCBinding(this, this.ipc)
     this.state = createActor(machine)
@@ -49,46 +36,7 @@ export class VRChatAuthentication extends Module<{
 
   private bindEvents() {
     this.state.subscribe(({ context, value }) => {
-      const { authToken, userOverview, userInfo, twoFactorAuthToken, twoFactorAuthMethods, error } =
-        context
-
-      switch (value) {
-        case 'error': {
-          this.emit('state:error', userOverview!, error!)
-          break
-        }
-        case 'unauthenticated': {
-          this.emit('state:unauthenticated')
-          break
-        }
-        case 'credential_authenticating':
-        case 'authtoken_authenticating': {
-          this.emit('state:authenticating', userOverview!)
-          break
-        }
-        case 'authenticated': {
-          this.emit(
-            'state:authenticated',
-            userOverview!,
-            userInfo!,
-            authToken!,
-            twoFactorAuthToken!
-          )
-          break
-        }
-        case 'twofa_required': {
-          this.emit('state:twofa-required', userOverview!, twoFactorAuthMethods)
-          break
-        }
-        case 'twofa_verifying': {
-          this.emit('state:twofa-verifying', userOverview!)
-          break
-        }
-        case 'logging_out': {
-          this.emit('state:logging-out')
-          break
-        }
-      }
+      this.emit('state:update', snapshotToAuthenticationState(context, value))
     })
   }
 
@@ -132,5 +80,14 @@ export class VRChatAuthentication extends Module<{
 
   public reset() {
     this.state.send({ type: 'RESET' })
+  }
+
+  public get currentState(): AuthenticationState {
+    const { context, value } = this.snapshot
+    return snapshotToAuthenticationState(context, value)
+  }
+
+  public get snapshot(): SnapshotFrom<typeof createAuthenticationMachine> {
+    return this.state.getSnapshot()
   }
 }

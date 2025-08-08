@@ -1,4 +1,4 @@
-import type { AuthenticationUserOverview } from '@main/modules/vrchat-authentication/types'
+import { AuthenticationUserOverview } from '@shared/types/vrchat-authentication'
 
 export type IpcInvokeEvents = {
   'vrchat-authentication:login-with-credential': (

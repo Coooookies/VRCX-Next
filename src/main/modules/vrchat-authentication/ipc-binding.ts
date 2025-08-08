@@ -8,32 +8,8 @@ export class AuthenticationIPCBinding {
   ) {}
 
   public bindEvents() {
-    this.self.on('state:error', (...args) => {
-      this.ipc.send('vrchat-authentication:state:error', ...args)
-    })
-
-    this.self.on('state:logging-out', () => {
-      this.ipc.send('vrchat-authentication:state:logging-out')
-    })
-
-    this.self.on('state:unauthenticated', () => {
-      this.ipc.send('vrchat-authentication:state:unauthenticated')
-    })
-
-    this.self.on('state:authenticating', (...args) => {
-      this.ipc.send('vrchat-authentication:state:authenticating', ...args)
-    })
-
-    this.self.on('state:authenticated', (...args) => {
-      this.ipc.send('vrchat-authentication:state:authenticated', ...args)
-    })
-
-    this.self.on('state:twofa-verifying', (...args) => {
-      this.ipc.send('vrchat-authentication:state:twofa-verifying', ...args)
-    })
-
-    this.self.on('state:twofa-required', (...args) => {
-      this.ipc.send('vrchat-authentication:state:twofa-required', ...args)
+    this.self.on('state:update', (...args) => {
+      this.ipc.send('vrchat-authentication:state:update', ...args)
     })
   }
 

@@ -1,3 +1,4 @@
+import type { AuthenticationUserOverview } from '@shared/types/vrchat-authentication'
 import type { CurrentUser, TwoFactorTypes } from '@shared/types/vrchat-api-response'
 import type { ResponseErrorReason } from '@shared/types/vrchat-api-status'
 
@@ -79,13 +80,6 @@ export type AuthenticationVerify2FAResult =
   | AuthenticationVerify2FASuccessResponse
   | AuthenticationVerify2FAFailedResponse
 
-export interface AuthenticationUserOverview {
-  displayName: string
-  username: string
-  profileThumbnailImageFileId?: string
-  profileThumbnailImageFileVersion?: number
-}
-
 export interface AuthenticationContext {
   authToken?: string
   authSuccess: boolean
@@ -97,3 +91,6 @@ export interface AuthenticationContext {
   twoFactorAuthMethods: TwoFactorTypes[]
   error?: ResponseErrorReason
 }
+
+export type { AuthenticationUserOverview } from '@shared/types/vrchat-authentication'
+export type { AuthenticationState } from '@shared/types/vrchat-authentication'
