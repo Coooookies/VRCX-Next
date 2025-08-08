@@ -4,13 +4,20 @@ import type { SettingNamespace, SettingProperty } from '@shared/types/setting'
 
 @Entity('setting')
 export class SettingEntity {
-  @PrimaryColumn('varchar')
+  @PrimaryColumn({
+    name: 'key',
+    type: 'varchar'
+  })
   declare key: string
 
-  @PrimaryColumn('varchar')
+  @PrimaryColumn({
+    name: 'namespace',
+    type: 'varchar'
+  })
   declare namespace: SettingNamespace
 
   @Column({
+    name: 'value',
     type: 'text',
     ...propertyTransformer
   })

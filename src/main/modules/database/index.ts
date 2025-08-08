@@ -1,5 +1,5 @@
+import { DataSource } from 'typeorm'
 import { join } from 'node:path'
-import { DataSource, Repository } from 'typeorm'
 import { Module } from '@shared/module-constructor'
 import { DatabaseLogger } from './logger'
 import { SettingEntity } from './entities/setting'
@@ -36,13 +36,5 @@ export class Database extends Module {
 
   public get source(): DataSource {
     return this._source
-  }
-
-  public get settingRepository(): Repository<SettingEntity> {
-    return this.source.getRepository(SettingEntity)
-  }
-
-  public get credentialRepository(): Repository<CredentialEntity> {
-    return this.source.getRepository(CredentialEntity)
   }
 }

@@ -13,9 +13,13 @@ export class CreateCredentialsTable1710000000000 implements MigrationInterface {
         "profile_icon_file_version" integer NOT NULL,
         "token" varchar(127) NOT NULL,
         "two_factor_token" text NOT NULL,
-        "created_at" datetime DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)),
+        "updated_at" datetime DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)),
         PRIMARY KEY ("user_id")
       );
+    `)
+
+    await queryRunner.query(`
+      CREATE INDEX "idx_credentials_user_name" ON "credentials" ("user_name");
     `)
   }
 
