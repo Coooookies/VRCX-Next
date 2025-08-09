@@ -18,6 +18,7 @@ export type AuthenticationEvent =
   | { type: 'VERIFY_TOTP'; code: string }
   | { type: 'VERIFY_EMAIL_OTP'; code: string }
   | { type: 'VERIFY_RECOVERY_OTP'; code: string }
+  | { type: 'RESEND_EMAIL_OTP' }
   | { type: 'LOGOUT' }
   | { type: 'RESET' }
 
@@ -86,6 +87,7 @@ export interface AuthenticationContext {
   verify2FASuccess: boolean
   userOverview?: AuthenticationUserOverview
   userInfo?: CurrentUser
+  password?: string
   twoFactorAuthToken?: string
   twoFactorAuthRequired: boolean
   twoFactorAuthMethods: TwoFactorTypes[]

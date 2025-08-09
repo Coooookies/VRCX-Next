@@ -28,6 +28,10 @@ export class AuthenticationIPCBinding {
       return this.self.loginWithSavedCredential(...args)
     })
 
+    this.ipc.listener.handle('vrchat-authentication:resend-email-otp', () => {
+      return this.self.resendEmailOTP()
+    })
+
     this.ipc.listener.handle('vrchat-authentication:verify-totp', (_, code) => {
       return this.self.verifyTOTP(code)
     })

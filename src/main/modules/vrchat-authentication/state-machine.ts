@@ -13,6 +13,9 @@ import type { AuthenticationContext, AuthenticationEvent, AuthenticationLoginRes
 //     authtoken_authenticating --> twofa_required : Require 2FA
 //     authtoken_authenticating --> error : Login Failed
 //     twofa_required --> twofa_verifying : VERIFY_TOTP / VERIFY_EMAIL_OTP / VERIFY_RECOVERY_OTP
+//     twofa_required --> credential_authenticating : RESEND_EMAIL_OTP
+//     twofa_required --> unauthenticated : RESET
+//     twofa_required --> logging_out : LOGOUT
 //     twofa_verifying --> authtoken_authenticating : 2FA Success and Relogin
 //     twofa_verifying --> twofa_required : 2FA Failed
 //     error --> unauthenticated : RESET
@@ -74,9 +77,9 @@ export function createAuthenticationMachine(logic: AuthenticationStateLogic) {
           }
 
           return logic.loginWithCredential(
-            input.event.username,
-            input.event.password,
-            input.event.twoFactorAuthToken
+            input.context.userOverview!.username,
+            input.context.password!,
+            input.context.twoFactorAuthToken!
           )
         }
       ),
@@ -142,6 +145,7 @@ export function createAuthenticationMachine(logic: AuthenticationStateLogic) {
             target: 'credential_authenticating',
             actions: assign(({ event }) => ({
               twoFactorAuthToken: event.twoFactorAuthToken,
+              password: event.password,
               userOverview: {
                 displayName: event.username,
                 username: event.username
@@ -196,6 +200,7 @@ export function createAuthenticationMachine(logic: AuthenticationStateLogic) {
           VERIFY_TOTP: 'twofa_verifying',
           VERIFY_EMAIL_OTP: 'twofa_verifying',
           VERIFY_RECOVERY_OTP: 'twofa_verifying',
+          RESEND_EMAIL_OTP: 'credential_authenticating',
           RESET: 'unauthenticated',
           LOGOUT: 'logging_out'
         }

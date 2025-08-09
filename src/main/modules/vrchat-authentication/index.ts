@@ -157,6 +157,10 @@ export class VRChatAuthentication extends Module<{
     })
   }
 
+  public resendEmailOTP() {
+    this.state.send({ type: 'RESEND_EMAIL_OTP' })
+  }
+
   public verifyTOTP(code: string) {
     this.state.send({ type: 'VERIFY_TOTP', code })
   }

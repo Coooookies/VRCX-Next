@@ -11,6 +11,7 @@ export type IpcInvokeEvents = {
   'vrchat-authentication:state': () => AuthenticationState
   'vrchat-authentication:login': (username: string, password: string) => void
   'vrchat-authentication:login-with-saved-credential': (userId: string) => void
+  'vrchat-authentication:resend-email-otp': () => void
   'vrchat-authentication:verify-totp': (code: string) => void
   'vrchat-authentication:verify-email-otp': (code: string) => void
   'vrchat-authentication:verify-recovery-otp': (code: string) => void
