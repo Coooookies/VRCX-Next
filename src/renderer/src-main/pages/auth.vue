@@ -1,92 +1,51 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
-import { useModule } from '@renderer/shared/hooks/use-module'
-import { Button } from '@renderer/shared/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@renderer/shared/components/ui/card'
+import { Label } from '@renderer/shared/components/ui/label'
 import { Input } from '@renderer/shared/components/ui/input'
-import { VRChatAuthentication } from '@renderer/shared/modules/vrchat-authentication'
-
-const auth = useModule<VRChatAuthentication>('VRChatAuthentication')
-
-auth.on('state:update', (state) => {
-  console.log('Authentication state updated:', state)
-})
-
-const state = auth.state
-
-const form = reactive({
-  userId: '',
-  username: '',
-  password: '',
-  twoFactorAuthCode: ''
-})
-
-function login(): void {
-  auth.login(form.username, form.password)
-}
-
-function loginWithSavedCredential(): void {
-  auth.loginWithSavedCredential(form.userId)
-}
-function verifyTOTP(): void {
-  auth.verifyTOTP(form.twoFactorAuthCode)
-}
-
-function verifyEmailOTP(): void {
-  auth.verifyEmailOTP(form.twoFactorAuthCode)
-}
-
-function verifyRecoveryOTP(): void {
-  auth.verifyRecoveryOTP(form.twoFactorAuthCode)
-}
-
-function logout(): void {
-  auth.logout()
-}
-
-function getAllCredentials(): void {
-  auth.getAllCredentials().then((credentials) => {
-    console.log('All credentials:', credentials)
-  })
-}
-
-function getState(): void {
-  auth.getState().then((state) => {
-    console.log('State:', state)
-  })
-}
-
-function reset(): void {
-  auth.signout()
-  form.userId = ''
-  form.username = ''
-  form.password = ''
-  form.twoFactorAuthCode = ''
-}
+import { Button } from '@renderer/shared/components/ui/button'
 </script>
 
 <template>
   <div class="w-full h-full">
-    <div>
-      <Input v-model="form.username" placeholder="Username" />
-      <Input v-model="form.password" placeholder="Password" />
-      <Button @click="login">Login</Button>
-    </div>
-    <div>
-      <Input v-model="form.userId" placeholder="UserId" />
-      <Button @click="loginWithSavedCredential">Resume Login</Button>
-    </div>
-    <div>
-      <Input v-model="form.twoFactorAuthCode" placeholder="2FA Code" />
-      <Button @click="verifyTOTP">VerifyTOTP</Button>
-      <Button @click="verifyEmailOTP">VerifyEmailOTP</Button>
-      <Button @click="verifyRecoveryOTP">VerifyRecoveryOTP</Button>
-    </div>
-    <div>
-      <Button @click="logout">Logout</Button>
-      <Button @click="reset">Reset</Button>
-      <Button @click="getAllCredentials">Get All Credentials</Button>
-      <Button @click="getState">Get State</Button>
-    </div>
-    {{ state.type }}
+    <Card class="w-full max-w-sm">
+      <CardHeader>
+        <CardTitle>Login to your account</CardTitle>
+        <CardDescription> Enter your email below to login to your account </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form>
+          <div class="flex flex-col gap-6">
+            <div class="grid gap-2">
+              <Label html-for="email">Email</Label>
+              <Input id="email" type="email" placeholder="m@example.com" required />
+            </div>
+            <div class="grid gap-2">
+              <div class="flex items-center">
+                <Label html-for="password">Password</Label>
+                <a href="#" class="ml-auto inline-block text-sm underline-offset-4 hover:underline">
+                  Forgot your password?
+                </a>
+              </div>
+              <Input id="password" type="password" required />
+            </div>
+          </div>
+        </form>
+      </CardContent>
+      <CardFooter class="flex-col gap-2">
+        <Button type="submit" class="w-full"> Login </Button>
+        <Button variant="outline" class="w-full"> Login with Google </Button>
+        <div class="mt-4 text-center text-sm">
+          Don't have an account?
+          <a href="#" class="underline underline-offset-4"> Sign up </a>
+        </div>
+      </CardFooter>
+    </Card>
   </div>
 </template>
