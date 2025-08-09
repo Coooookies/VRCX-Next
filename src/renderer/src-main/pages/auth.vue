@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ImageContext, ImageFallback, ImageRoot } from '@renderer/shared/components/ui/image'
+
 // import { reactive } from 'vue'
 // import { useModule } from '@renderer/shared/hooks/use-module'
 // import { Button } from '@renderer/shared/components/ui/button'
@@ -88,5 +90,62 @@
       <Button @click="getState">Get State</Button>
     </div>
     {{ state.type }} -->
+
+    <div class="w-fit h-full overflow-y-scroll">
+      <div class="flex flex-col">
+        <ImageRoot class="block w-75 h-50">
+          <ImageContext src="https://picsum.photos/300/200?random=1" lazy />
+          <ImageFallback>test</ImageFallback>
+        </ImageRoot>
+        <ImageRoot class="block w-75 h-50">
+          <ImageContext src="https://picsum.photos/300/200?random=2" lazy />
+          <ImageFallback>test</ImageFallback>
+        </ImageRoot>
+        <ImageRoot class="block w-75 h-50">
+          <ImageContext src="https://picsum.photos/300/200?random=3" lazy />
+          <ImageFallback>test</ImageFallback>
+        </ImageRoot>
+        <ImageRoot class="block w-75 h-50">
+          <ImageContext src="https://picsum.photos/300/200?random=4" lazy />
+          <ImageFallback>test</ImageFallback>
+        </ImageRoot>
+        <ImageRoot class="block w-75 h-50">
+          <ImageContext src="https://picsum.photos/300/200?random=5" lazy />
+          <ImageFallback>test</ImageFallback>
+        </ImageRoot>
+        <ImageRoot class="block w-75 h-50">
+          <ImageContext src="https://picsum.photos/300/200?random=6" lazy />
+          <ImageFallback>test</ImageFallback>
+        </ImageRoot>
+        <ImageRoot class="block w-75 h-50">
+          <ImageContext src="https://picsum.photos/300/200?random=7" lazy />
+          <ImageFallback>test</ImageFallback>
+        </ImageRoot>
+        <ImageRoot class="block w-75 h-50">
+          <ImageContext src="https://picsum.photos/300/200?random=8" lazy />
+          <ImageFallback>test</ImageFallback>
+        </ImageRoot>
+        <ImageRoot class="block w-75 h-50">
+          <ImageContext src="https://picsum.photos/300/200?random=9" lazy />
+          <ImageFallback>test</ImageFallback>
+        </ImageRoot>
+        <ImageRoot class="block w-75 h-50">
+          <ImageContext src="https://picsum.photos/300/200?random=10" lazy />
+          <ImageFallback>test</ImageFallback>
+        </ImageRoot>
+        <ImageRoot class="block w-75 h-50">
+          <ImageContext src="https://picsum.photos/300/200?random=11" lazy />
+          <ImageFallback>test</ImageFallback>
+        </ImageRoot>
+        <ImageRoot class="block w-75 h-50">
+          <ImageContext src="https://picsum.photos/300/200?random=12" lazy />
+          <ImageFallback>test</ImageFallback>
+        </ImageRoot>
+        <ImageRoot class="block w-75 h-50">
+          <ImageContext src="https://picsum.photos/300/200?random=13" lazy />
+          <ImageFallback>test</ImageFallback>
+        </ImageRoot>
+      </div>
+    </div>
   </div>
 </template>
