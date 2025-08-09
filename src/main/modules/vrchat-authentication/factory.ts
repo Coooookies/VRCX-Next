@@ -36,7 +36,8 @@ export function snapshotToAuthenticationState(
       return {
         type: 'twofa-required',
         overview: userOverview!,
-        twoFactorAuthMethods: twoFactorAuthMethods
+        twoFactorAuthMethods: twoFactorAuthMethods,
+        error: error
       }
     }
     case 'twofa_verifying': {

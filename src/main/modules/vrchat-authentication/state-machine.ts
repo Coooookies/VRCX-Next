@@ -50,6 +50,7 @@ function assignLoginResult(output: AuthenticationLoginResult) {
     if (output.twoFactorAuthRequired) {
       result.twoFactorAuthRequired = true
       result.twoFactorAuthMethods = output.twoFactorAuthMethods || []
+      result.error = undefined
     } else {
       result.twoFactorAuthRequired = false
       result.twoFactorAuthMethods = []

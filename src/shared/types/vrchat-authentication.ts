@@ -48,6 +48,7 @@ export interface AuthenticationStateTwoFARequired {
   type: 'twofa-required'
   overview: AuthenticationUserOverview
   twoFactorAuthMethods: TwoFactorTypes[]
+  error?: ResponseErrorReason
 }
 
 export interface AuthenticationStateTwoFAVerifying {
