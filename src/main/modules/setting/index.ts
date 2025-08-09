@@ -144,7 +144,7 @@ export class SettingModule extends Module<{
 
     this.set(accessKey, propertyValue)
     this.emit('update', propertyInstance)
-    this.logger.debug(`Setting updated: ${namespace}.${propertyKey} = ${propertyValue}`)
+    this.logger.trace(`Setting updated: ${namespace}.${propertyKey} = ${propertyValue}`)
 
     return result
   }
