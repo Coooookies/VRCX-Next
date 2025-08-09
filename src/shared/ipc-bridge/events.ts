@@ -5,5 +5,9 @@ export type IpcListenerEvents = {
 }
 
 export type IpcRendererEvent = {
-  'vrchat-authentication:state:update': [AuthenticationState]
+  // MobxState
+  'mobx-state:target:update': [namespace: string, path: string, value: unknown]
+
+  // VRChatAuthentication
+  'vrchat-authentication:state:update': [state: AuthenticationState]
 }
