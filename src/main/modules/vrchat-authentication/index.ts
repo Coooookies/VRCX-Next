@@ -10,15 +10,18 @@ import type { ActorRefFrom, SnapshotFrom } from 'xstate'
 import type { IPCModule } from '../ipc'
 import type { Database } from '../database'
 import type { VRChatAPI } from '../vrchat-api'
+import type { MobxState } from '../mobx-state'
 import type { SettingModule } from '../setting'
 import type { AuthenticationState, AuthenticationUserOverview } from './types'
+import type { AuthenticationSharedState } from '@shared/types/mobx-shared'
 
 export class VRChatAuthentication extends Module<{
   'state:update': (state: AuthenticationState) => void
 }> {
   @Dependency('SettingModule') declare private setting: SettingModule
-  @Dependency('Database') declare private database: Database
   @Dependency('IPCModule') declare private ipc: IPCModule
+  @Dependency('Database') declare private database: Database
+  @Dependency('MobxState') declare private mobx: MobxState
   @Dependency('VRChatAPI') declare private api: VRChatAPI
 
   private readonly logger = createLogger('VRChatAuthentication')
@@ -26,6 +29,7 @@ export class VRChatAuthentication extends Module<{
   private state!: ActorRefFrom<typeof createAuthenticationMachine>
   private binding!: AuthenticationIPCBinding
   private repository!: AuthenticationRepository
+  private $!: AuthenticationSharedState
 
   protected async onInit(): Promise<void> {
     const logic = createAuthenticationLogic(this.api)
@@ -38,6 +42,14 @@ export class VRChatAuthentication extends Module<{
     this.binding.bindEvents()
     this.binding.bindInvokes()
     this.bindEvents()
+
+    this.$ = this.mobx.observable(
+      this.moduleId,
+      {
+        state: this.currentState
+      },
+      ['state']
+    )
   }
 
   protected onLoad(): void {
@@ -74,6 +86,10 @@ export class VRChatAuthentication extends Module<{
       } else {
         this.cancelAutoLoginSession()
       }
+
+      this.mobx.action(() => {
+        this.$.state = state
+      })
     })
   }
 

@@ -11,6 +11,8 @@ auth.on('state:update', (state) => {
   console.log('Authentication state updated:', state)
 })
 
+const state = auth.state
+
 const form = reactive({
   userId: '',
   username: '',
@@ -85,5 +87,6 @@ function reset(): void {
       <Button @click="getAllCredentials">Get All Credentials</Button>
       <Button @click="getState">Get State</Button>
     </div>
+    {{ state.type }}
   </div>
 </template>

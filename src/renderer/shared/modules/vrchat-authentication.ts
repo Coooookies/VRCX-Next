@@ -1,14 +1,21 @@
+import { toRef } from 'vue'
 import { Dependency, Module } from '@shared/module-constructor'
 import type { IPCRenderer } from './ipc'
+import type { MobxRenderer } from './mobx-renderer'
 import type { AuthenticationState } from '@shared/types/vrchat-authentication'
+import type { AuthenticationSharedState } from '@shared/types/mobx-shared'
 
 export class VRChatAuthentication extends Module<{
   'state:update': (state: AuthenticationState) => void
 }> {
   @Dependency('IPCRenderer') declare private ipc: IPCRenderer
+  @Dependency('MobxRenderer') declare private mobx: MobxRenderer
+
+  private $!: AuthenticationSharedState
 
   protected onInit(): void {
     this.bindEvents()
+    this.$ = this.mobx.use<AuthenticationSharedState>(this.moduleId)
   }
 
   private bindEvents() {
@@ -55,5 +62,9 @@ export class VRChatAuthentication extends Module<{
 
   public signout() {
     return this.ipc.emitter.invoke('vrchat-authentication:signout')
+  }
+
+  public get state() {
+    return toRef(this.$, 'state')
   }
 }
