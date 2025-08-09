@@ -5,3 +5,4 @@ export {
   type ImageContextEmits,
   type ImageContextProps
 } from './ImageContext.vue'
+export { useImageLoadingStatus, useElementOnceVisibility, type ImageLoadingStatus } from './utils'

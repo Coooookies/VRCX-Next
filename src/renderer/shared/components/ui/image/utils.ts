@@ -2,7 +2,7 @@ import type { ImgHTMLAttributes, Ref } from 'vue'
 import { isClient } from '@vueuse/shared'
 import { computed, onMounted, onUnmounted, ref, watchEffect } from 'vue'
 
-export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error'
+export type ImageLoadingStatus = 'idle' | 'pending' | 'loading' | 'loaded' | 'error'
 
 function resolveLoadingStatus(image: HTMLImageElement | null, src?: string): ImageLoadingStatus {
   if (!image) {
@@ -18,7 +18,7 @@ function resolveLoadingStatus(image: HTMLImageElement | null, src?: string): Ima
 }
 
 export function useImageLoadingStatus(
-  src: Ref<string>,
+  src: Ref<string | undefined>,
   {
     referrerPolicy,
     crossOrigin
@@ -75,4 +75,45 @@ export function useImageLoadingStatus(
   })
 
   return loadingStatus
+}
+
+export function useElementOnceVisibility(
+  target: Ref<Element | null>,
+  options: {
+    rootMargin?: string
+    threshold?: number
+  } = {}
+) {
+  const isIntersecting = ref(false)
+  const isSupported = isClient && 'IntersectionObserver' in window
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (entries[0]?.isIntersecting) {
+        isIntersecting.value = true
+        observer.disconnect()
+      }
+    },
+    {
+      rootMargin: options.rootMargin || '0px',
+      threshold: options.threshold || 0.1
+    }
+  )
+
+  onMounted(() => {
+    if (!isSupported) {
+      isIntersecting.value = true
+      return
+    }
+
+    if (target.value) {
+      observer.observe(target.value)
+    }
+
+    onUnmounted(() => {
+      observer.disconnect()
+    })
+  })
+
+  return isIntersecting
 }
