@@ -3,13 +3,17 @@ import '@renderer/shared/styles/main.css'
 
 import entry from './app.vue'
 import { module } from './module'
+import { createRouter } from './router'
 import { createApp } from 'vue'
 import type { AppLoader } from '@renderer/shared/modules/loader'
 
 await module.setup()
 
 const app = createApp(entry)
+const router = createRouter()
+
 app.use(module)
+app.use(router)
 app.mount('#app').$nextTick(onLoad)
 
 function onLoad(): void {
