@@ -1,51 +1,50 @@
 <script setup lang="ts">
+import { useModule } from '@renderer/shared/hooks/use-module'
+import type { VRChatAuthentication } from '@renderer/shared/modules/vrchat-authentication'
+
+const auth = useModule<VRChatAuthentication>('VRChatAuthentication')
+
+function getAllCredentials(): void {
+  auth.getAllCredentials().then((credentials) => {
+    console.log('All credentials:', credentials)
+  })
+}
+
+import { AuthenticationCredentialEntity } from '@shared/types/vrchat-authentication'
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from '@renderer/shared/components/ui/card'
-import { Label } from '@renderer/shared/components/ui/label'
-import { Input } from '@renderer/shared/components/ui/input'
+  AuthFormCredentials,
+  AuthFormSavedCredentials,
+  AuthFormReauthenticate,
+  AuthForm2FAAuthenticator
+} from '../components/auth-form'
 import { Button } from '@renderer/shared/components/ui/button'
+
+const items: AuthenticationCredentialEntity[] = [
+  {
+    userId: 'usr_7c270fb3-adab-4ff1-8113-a2c062538349',
+    userName: 'buttercookies',
+    displayName: 'ButterCookies',
+    profileIconFileId: 'file_b0bfc14c-5f97-4bb3-a740-0c6900d597de',
+    profileIconFileVersion: 2,
+    createdAt: new Date('2025-08-10T03:36:23.113Z')
+  }
+]
 </script>
 
 <template>
-  <div class="w-full h-full">
-    <Card class="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle>Login to your account</CardTitle>
-        <CardDescription> Enter your email below to login to your account </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form>
-          <div class="flex flex-col gap-6">
-            <div class="grid gap-2">
-              <Label html-for="email">Email</Label>
-              <Input id="email" type="email" placeholder="m@example.com" required />
-            </div>
-            <div class="grid gap-2">
-              <div class="flex items-center">
-                <Label html-for="password">Password</Label>
-                <a href="#" class="ml-auto inline-block text-sm underline-offset-4 hover:underline">
-                  Forgot your password?
-                </a>
-              </div>
-              <Input id="password" type="password" required />
-            </div>
-          </div>
-        </form>
-      </CardContent>
-      <CardFooter class="flex-col gap-2">
-        <Button type="submit" class="w-full"> Login </Button>
-        <Button variant="outline" class="w-full"> Login with Google </Button>
-        <div class="mt-4 text-center text-sm">
-          Don't have an account?
-          <a href="#" class="underline underline-offset-4"> Sign up </a>
-        </div>
-      </CardFooter>
-    </Card>
+  <div class="relative flex flex-row w-full h-full">
+    <div class="relative flex-1 bg-black/20">
+      <Button @click="getAllCredentials">Get</Button>
+    </div>
+    <div class="relative flex-1 flex items-center justify-center">
+      <AuthForm2FAAuthenticator
+        :overview="{
+          username: 'buttercookies',
+          displayName: 'ButterCookies',
+          profileThumbnailImageFileId: 'file_b0bfc14c-5f97-4bb3-a740-0c6900d597de',
+          profileThumbnailImageFileVersion: 2
+        }"
+      />
+    </div>
   </div>
 </template>
