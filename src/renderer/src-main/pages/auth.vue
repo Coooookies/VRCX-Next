@@ -18,6 +18,7 @@ import {
   AuthForm2FAAuthenticator
 } from '../components/auth-form'
 import { Button } from '@renderer/shared/components/ui/button'
+import { Spinner } from '@renderer/shared/components/ui/spinner'
 
 const items: AuthenticationCredentialEntity[] = [
   {
@@ -33,8 +34,9 @@ const items: AuthenticationCredentialEntity[] = [
 
 <template>
   <div class="relative flex flex-row w-full h-full">
-    <div class="relative flex-1 bg-black/20">
-      <Button @click="getAllCredentials">Get</Button>
+    <div class="relative flex-1 bg-black/20 flex items-center justify-center">
+      <!-- <Button @click="getAllCredentials">Get</Button> -->
+      <Spinner class="size-32" />
     </div>
     <div class="relative flex-1 flex items-center justify-center">
       <AuthForm2FAAuthenticator

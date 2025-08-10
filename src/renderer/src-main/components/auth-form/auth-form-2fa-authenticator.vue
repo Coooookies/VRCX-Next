@@ -47,7 +47,7 @@ const onSubmit = form.handleSubmit((values) => {
 
 <template>
   <form class="w-79 flex flex-col gap-6">
-    <AuthTitle title="Login to VRChat" />
+    <AuthTitle title="Two-Factor Authentication" />
     <div className="grid gap-6">
       <div class="grid gap-2">
         <Label class="leading-5">Account</Label>
@@ -59,7 +59,14 @@ const onSubmit = form.handleSubmit((values) => {
         />
       </div>
       <FormField v-slot="{ componentField }" name="code">
-        <FormItem class="flex flex-col w-full justify-center items-center">
+        <FormItem class="flex flex-col w-full justify-center items-center gap-y-3">
+          <FormLabel class="leading-5 h-5">
+            <template v-if="props.loading">
+              <Spinner class="size-4" />
+              <span>Verifying code</span>
+            </template>
+            <span v-else>Enter code from Authenticator App.</span>
+          </FormLabel>
           <FormControl>
             <PinInput
               :model-value="componentField.modelValue.split('')"
@@ -88,13 +95,6 @@ const onSubmit = form.handleSubmit((values) => {
               </PinInputGroup>
             </PinInput>
           </FormControl>
-          <FormLabel class="leading-5 h-5">
-            <template v-if="props.loading">
-              <Spinner class="size-4" />
-              <span>Verifying code</span>
-            </template>
-            <span v-else>Enter code from Authenticator App.</span>
-          </FormLabel>
         </FormItem>
       </FormField>
       <div

@@ -53,7 +53,7 @@ onMounted(() => {
 
 <template>
   <form class="w-79 flex flex-col gap-6" @submit="onSubmit">
-    <AuthTitle title="Login to VRChat" />
+    <AuthTitle title="Reverify Credentials" />
     <div className="grid gap-6">
       <FormField name="username">
         <FormItem>
