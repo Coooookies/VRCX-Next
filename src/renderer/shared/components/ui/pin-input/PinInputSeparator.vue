@@ -10,7 +10,7 @@ const forwardedProps = useForwardProps(props)
 <template>
   <Primitive data-slot="pin-input-separator" v-bind="forwardedProps">
     <slot>
-      <Minus class="text-foreground/40 size-3.5" />
+      <Minus class="text-foreground/40 size-3" />
     </slot>
   </Primitive>
 </template>

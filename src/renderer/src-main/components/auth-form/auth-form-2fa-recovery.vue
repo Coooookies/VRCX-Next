@@ -4,10 +4,15 @@ import AuthUserOverviewButton from './auth-user-overview-button.vue'
 import { cn } from '@renderer/shared/utils/style'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
-import { FormControl, FormField, FormItem, FormLabel } from '@renderer/shared/components/ui/form'
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@renderer/shared/components/ui/form'
 import { Label } from '@renderer/shared/components/ui/label'
-import { Button } from '@renderer/shared/components/ui/button'
-import { Spinner } from '@renderer/shared/components/ui/spinner'
+import { Button, SpinnerButton } from '@renderer/shared/components/ui/button'
 import { AuthenticationUserOverview } from '@shared/types/vrchat-authentication'
 import {
   PinInput,
@@ -15,10 +20,10 @@ import {
   PinInputSeparator,
   PinInputSlot
 } from '@renderer/shared/components/ui/pin-input'
-import { TWOFA_AUTHENTICATOR_FORM_SCHEMA } from './schema'
+import { TWOFA_RECOVERY_FORM_SCHEMA } from './schema'
 
 const form = useForm({
-  validationSchema: toTypedSchema(TWOFA_AUTHENTICATOR_FORM_SCHEMA),
+  validationSchema: toTypedSchema(TWOFA_RECOVERY_FORM_SCHEMA),
   initialValues: {
     code: ''
   }
@@ -35,18 +40,17 @@ const props = withDefaults(
 )
 
 const emits = defineEmits<{
-  (e: 'submit', values: z.infer<typeof TWOFA_AUTHENTICATOR_FORM_SCHEMA>): void
+  (e: 'submit', values: z.infer<typeof TWOFA_RECOVERY_FORM_SCHEMA>): void
   (e: 'back'): void
 }>()
 
 const onSubmit = form.handleSubmit((values) => {
-  console.log(values)
   emits('submit', values)
 })
 </script>
 
 <template>
-  <form class="w-79 flex flex-col gap-6">
+  <form class="w-79 flex flex-col gap-6" @submit="onSubmit">
     <div className="flex flex-col items-center text-center">
       <h1 className="text-xl font-bold">Two-Factor Authentication</h1>
     </div>
@@ -62,43 +66,32 @@ const onSubmit = form.handleSubmit((values) => {
       </div>
       <FormField v-slot="{ componentField }" name="code">
         <FormItem class="flex flex-col w-full justify-center items-center gap-y-3">
-          <FormLabel class="leading-5 h-5">
-            <template v-if="props.loading">
-              <Spinner class="size-4" />
-              <span>Verifying code</span>
-            </template>
-            <span v-else>Enter code from Authenticator App.</span>
-          </FormLabel>
+          <FormLabel class="leading-5">Enter your recovery code.</FormLabel>
           <FormControl>
             <PinInput
               :model-value="componentField.modelValue.split('')"
               :disabled="props.loading"
               @update:model-value="componentField['onUpdate:modelValue']?.($event.join(''))"
-              @complete="() => onSubmit()"
             >
               <PinInputGroup>
                 <PinInputSlot :index="0" />
-              </PinInputGroup>
-              <PinInputGroup>
                 <PinInputSlot :index="1" />
-              </PinInputGroup>
-              <PinInputGroup>
                 <PinInputSlot :index="2" />
+                <PinInputSlot :index="3" />
               </PinInputGroup>
               <PinInputSeparator />
               <PinInputGroup>
-                <PinInputSlot :index="3" />
-              </PinInputGroup>
-              <PinInputGroup>
                 <PinInputSlot :index="4" />
-              </PinInputGroup>
-              <PinInputGroup>
                 <PinInputSlot :index="5" />
+                <PinInputSlot :index="6" />
+                <PinInputSlot :index="7" />
               </PinInputGroup>
             </PinInput>
           </FormControl>
+          <FormMessage />
         </FormItem>
       </FormField>
+      <SpinnerButton type="submit" :loading="props.loading">Verify</SpinnerButton>
       <div
         :class="
           cn(

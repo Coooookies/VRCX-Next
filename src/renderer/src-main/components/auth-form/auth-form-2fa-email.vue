@@ -4,10 +4,15 @@ import AuthUserOverviewButton from './auth-user-overview-button.vue'
 import { cn } from '@renderer/shared/utils/style'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
-import { FormControl, FormField, FormItem, FormLabel } from '@renderer/shared/components/ui/form'
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@renderer/shared/components/ui/form'
 import { Label } from '@renderer/shared/components/ui/label'
 import { Button } from '@renderer/shared/components/ui/button'
-import { Spinner } from '@renderer/shared/components/ui/spinner'
 import { AuthenticationUserOverview } from '@shared/types/vrchat-authentication'
 import {
   PinInput,
@@ -40,7 +45,6 @@ const emits = defineEmits<{
 }>()
 
 const onSubmit = form.handleSubmit((values) => {
-  console.log(values)
   emits('submit', values)
 })
 </script>
@@ -62,13 +66,7 @@ const onSubmit = form.handleSubmit((values) => {
       </div>
       <FormField v-slot="{ componentField }" name="code">
         <FormItem class="flex flex-col w-full justify-center items-center gap-y-3">
-          <FormLabel class="leading-5 h-5">
-            <template v-if="props.loading">
-              <Spinner class="size-4" />
-              <span>Verifying code</span>
-            </template>
-            <span v-else>Enter code from Authenticator App.</span>
-          </FormLabel>
+          <FormLabel class="leading-5">Enter code from Authenticator App.</FormLabel>
           <FormControl>
             <PinInput
               :model-value="componentField.modelValue.split('')"
@@ -97,6 +95,7 @@ const onSubmit = form.handleSubmit((values) => {
               </PinInputGroup>
             </PinInput>
           </FormControl>
+          <FormMessage />
         </FormItem>
       </FormField>
       <div

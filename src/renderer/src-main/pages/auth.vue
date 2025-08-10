@@ -15,7 +15,8 @@ import {
   AuthFormCredentials,
   AuthFormSavedCredentials,
   AuthFormReauthenticate,
-  AuthForm2FAAuthenticator
+  AuthForm2FAAuthenticator,
+  AuthForm2FARecovery
 } from '../components/auth-form'
 import { Button } from '@renderer/shared/components/ui/button'
 import { Spinner } from '@renderer/shared/components/ui/spinner'
