@@ -3,6 +3,7 @@ import 'reflect-metadata'
 import { app } from 'electron'
 import { logger } from './logger'
 import { ModuleManager } from '@shared/module-constructor'
+import { ProtocolServer } from './modules/protocol-server'
 import { APP_MODULES } from './modules'
 import { APP_NAME, APP_ID, APP_VERSION, APP_RUN_DIR, APP_SAVED_DIR } from './constants'
 
@@ -21,6 +22,8 @@ modules.on('module:load-complete', (count) => {
 })
 
 function init(): void {
+  ProtocolServer.registerProtocol()
+
   for (const [identifier, module] of Object.entries(APP_MODULES)) {
     modules.register(identifier, module)
   }

@@ -8,6 +8,7 @@ import { Database } from './database'
 import { VRChatAPI } from './vrchat-api'
 import { VRChatAuthentication } from './vrchat-authentication'
 import { VRChatWorkflowCoordinator } from './vrchat-workflow-coordinator'
+import { VRChatFiles } from './vrchat-files'
 import type { ModuleConstructor } from '@shared/module-constructor/types'
 
 export const APP_MODULES: Record<string, ModuleConstructor> = {
@@ -20,5 +21,6 @@ export const APP_MODULES: Record<string, ModuleConstructor> = {
   IPCModule,
   VRChatAPI,
   VRChatAuthentication,
-  VRChatWorkflowCoordinator
+  VRChatWorkflowCoordinator,
+  VRChatFiles
 }
