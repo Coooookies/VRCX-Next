@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import z from 'zod'
-import AuthTitle from './auth-title.vue'
 import AuthUserOverviewButton from './auth-user-overview-button.vue'
 import { cn } from '@renderer/shared/utils/style'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -53,7 +52,9 @@ onMounted(() => {
 
 <template>
   <form class="w-79 flex flex-col gap-6" @submit="onSubmit">
-    <AuthTitle title="Reverify Credentials" />
+    <div className="flex flex-col items-center text-center">
+      <h1 className="text-2xl font-bold">Reverify Credentials</h1>
+    </div>
     <div className="grid gap-6">
       <FormField name="username">
         <FormItem>

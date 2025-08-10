@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import z from 'zod'
-import AuthTitle from './auth-title.vue'
 import AuthCredentialsComboBox from './auth-credentials-combo-box.vue'
 import { cn } from '@renderer/shared/utils/style'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -59,7 +58,9 @@ onMounted(() => {
 
 <template>
   <form class="w-79 flex flex-col gap-6" @submit="onSubmit">
-    <AuthTitle title="Login to VRChat" />
+    <div className="flex flex-col items-center text-center">
+      <h1 className="text-2xl font-bold">Login to VRChat</h1>
+    </div>
     <div className="grid gap-6">
       <FormField v-slot="{ componentField }" name="userId">
         <FormItem>

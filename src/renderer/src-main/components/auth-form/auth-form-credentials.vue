@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import z from 'zod'
-import AuthTitle from './auth-title.vue'
 import { cn } from '@renderer/shared/utils/style'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
@@ -15,7 +14,6 @@ import { Input } from '@renderer/shared/components/ui/input'
 import { Button, SpinnerButton } from '@renderer/shared/components/ui/button'
 import { Checkbox } from '@renderer/shared/components/ui/checkbox'
 import { CREDENTIALS_FORM_SCHEMA } from './schema'
-import { onMounted } from 'vue'
 
 const form = useForm({
   validationSchema: toTypedSchema(CREDENTIALS_FORM_SCHEMA),
@@ -29,15 +27,9 @@ const form = useForm({
 const props = withDefaults(
   defineProps<{
     loading?: boolean
-    initialValues?: z.infer<typeof CREDENTIALS_FORM_SCHEMA>
   }>(),
   {
-    loading: false,
-    initialValues: () => ({
-      username: '',
-      password: '',
-      saveCredential: false
-    })
+    loading: false
   }
 )
 
@@ -51,17 +43,13 @@ const emits = defineEmits<{
 const onSubmit = form.handleSubmit((values) => {
   emits('submit', values)
 })
-
-onMounted(() => {
-  if (props.initialValues) {
-    form.setValues(props.initialValues)
-  }
-})
 </script>
 
 <template>
   <form class="w-79 flex flex-col gap-6" @submit="onSubmit">
-    <AuthTitle title="Login to VRChat" />
+    <div className="flex flex-col items-center text-center">
+      <h1 className="text-2xl font-bold">Login to VRChat</h1>
+    </div>
     <div className="grid gap-6">
       <FormField v-slot="{ componentField }" name="username">
         <FormItem>

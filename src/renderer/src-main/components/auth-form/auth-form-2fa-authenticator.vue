@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import z from 'zod'
-import AuthTitle from './auth-title.vue'
 import AuthUserOverviewButton from './auth-user-overview-button.vue'
 import { cn } from '@renderer/shared/utils/style'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -47,7 +46,9 @@ const onSubmit = form.handleSubmit((values) => {
 
 <template>
   <form class="w-79 flex flex-col gap-6">
-    <AuthTitle title="Two-Factor Authentication" />
+    <div className="flex flex-col items-center text-center">
+      <h1 className="text-xl font-bold">Two-Factor Authentication</h1>
+    </div>
     <div className="grid gap-6">
       <div class="grid gap-2">
         <Label class="leading-5">Account</Label>
