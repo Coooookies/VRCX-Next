@@ -60,6 +60,10 @@ export class VRChatAuthentication extends Module<{
     return this.ipc.emitter.invoke('vrchat-authentication:delete-credential', userId)
   }
 
+  public resendEmailOTP() {
+    return this.ipc.emitter.invoke('vrchat-authentication:resend-email-otp')
+  }
+
   public logout() {
     return this.ipc.emitter.invoke('vrchat-authentication:logout')
   }

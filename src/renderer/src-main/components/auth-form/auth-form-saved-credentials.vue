@@ -41,7 +41,7 @@ const props = withDefaults(
 
 const emits = defineEmits<{
   (e: 'submit', values: z.infer<typeof SAVED_CREDENTIALS_FORM_SCHEMA>): void
-  (e: 'delectCredential', userId: string): void
+  (e: 'deleteCredential', userId: string): void
   (e: 'changeToCredentials'): void
 }>()
 
@@ -73,6 +73,7 @@ onMounted(() => {
               :items="props.items"
               :value="componentField.modelValue"
               :disabled="props.loading"
+              @delete="emits('deleteCredential', $event)"
               @update:value="componentField['onUpdate:modelValue']"
             />
           </FormControl>

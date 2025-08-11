@@ -28,9 +28,11 @@ function getInitialForm(
 ): {
   overview: AuthenticationUserOverview | null
   type: AuthFormType
+  recoveryAvailable: boolean
 } {
   let overview: AuthenticationUserOverview | null = null
   let type: AuthFormType = 'credentials'
+  let recoveryAvailable = false
 
   switch (state.type) {
     case 'unauthenticated':
@@ -56,6 +58,7 @@ function getInitialForm(
         }
       }
 
+      recoveryAvailable = state.twoFactorAuthMethods.includes('otp')
       break
     }
   }
@@ -72,13 +75,15 @@ function getInitialForm(
 
   return {
     type,
-    overview
+    overview,
+    recoveryAvailable
   }
 }
 
 export function useAuth(events: AuthEvents = {}) {
   const auth = useModule<VRChatAuthentication>('VRChatAuthentication')
   const latestState = ref<AuthenticationState>(auth.state.value)
+  const recoveryCodeAvailable = ref(false)
   const isInitializing = ref(true)
   const isLoading = ref(false)
   const savedCredentials = ref<AuthenticationCredentialEntity[]>([])
@@ -98,14 +103,19 @@ export function useAuth(events: AuthEvents = {}) {
       resumeSession.value = session
     })
     .finally(() => {
-      const { type, overview } = getInitialForm(auth.state.value, savedCredentials.value)
+      const { type, overview, recoveryAvailable } = getInitialForm(
+        auth.state.value,
+        savedCredentials.value
+      )
       currentOverview.value = overview || currentOverview.value
       currentFormType.value = type
+      recoveryCodeAvailable.value = recoveryAvailable
       isInitializing.value = false
     })
 
   auth.on('state:update', (state) => {
     switch (state.type) {
+      case 'authenticated':
       case 'authenticating':
       case 'twofa-verifying':
       case 'logging-out': {
@@ -155,6 +165,7 @@ export function useAuth(events: AuthEvents = {}) {
           events.on2FAError?.(state.error!)
         }
 
+        recoveryCodeAvailable.value = state.twoFactorAuthMethods.includes('otp')
         break
       }
     }
@@ -235,6 +246,7 @@ export function useAuth(events: AuthEvents = {}) {
     isLoading,
     savedCredentials,
     resumeSession,
+    recoveryCodeAvailable,
     currentFormType,
     currentOverview,
     deleteSavedCredential,

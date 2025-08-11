@@ -8,10 +8,15 @@ const auth = useModule<VRChatAuthentication>('VRChatAuthentication')
 function reset(): void {
   auth.signout()
 }
+
+function logout(): void {
+  auth.logout()
+}
 </script>
 
 <template>
-  <div class="w-full h-full">
+  <div class="w-full h-full flex justify-center items-center flex-row gap-2">
     <Button @click="reset">Reset</Button>
+    <Button variant="outline" @click="logout">Logout</Button>
   </div>
 </template>

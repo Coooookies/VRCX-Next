@@ -21,14 +21,14 @@ import type { AuthenticationContext, AuthenticationEvent, AuthenticationLoginRes
 //     error --> unauthenticated : RESET
 //     authenticated --> unauthenticated : LOGOUT
 
-function createInitialContext(): AuthenticationContext {
+function createInitialContext(context: AuthenticationContext): AuthenticationContext {
   return {
+    ...context,
     authSuccess: false,
     verify2FASuccess: false,
     twoFactorAuthRequired: false,
     twoFactorAuthMethods: [],
     authToken: undefined,
-    userOverview: undefined,
     userInfo: undefined,
     twoFactorAuthToken: undefined,
     error: undefined
@@ -37,9 +37,9 @@ function createInitialContext(): AuthenticationContext {
 
 function assignLoginResult(output: AuthenticationLoginResult) {
   let result: Partial<AuthenticationContext> = {
-    userOverview: output.userOverview,
+    error: output.error,
     authSuccess: output.success,
-    error: output.error
+    userOverview: output.userOverview
   }
 
   if (output.success) {
@@ -79,7 +79,8 @@ export function createAuthenticationMachine(logic: AuthenticationStateLogic) {
           return logic.loginWithCredential(
             input.context.userOverview!.username,
             input.context.password!,
-            input.context.twoFactorAuthToken!
+            input.context.twoFactorAuthToken!,
+            input.context.userOverview
           )
         }
       ),
@@ -136,20 +137,30 @@ export function createAuthenticationMachine(logic: AuthenticationStateLogic) {
   return prebuild.createMachine({
     id: 'vrchat-authentication',
     initial: 'unauthenticated',
-    context: createInitialContext(),
+    context: {
+      authSuccess: false,
+      verify2FASuccess: false,
+      twoFactorAuthRequired: false,
+      twoFactorAuthMethods: [],
+      authToken: undefined,
+      userInfo: undefined,
+      userOverview: undefined,
+      twoFactorAuthToken: undefined,
+      error: undefined
+    },
     states: {
       unauthenticated: {
-        entry: assign(() => createInitialContext()),
+        entry: assign(({ context }) => createInitialContext(context)),
         on: {
           LOGIN_WITH_CREDENTIAL: {
             target: 'credential_authenticating',
-            actions: assign(({ event }) => ({
+            actions: assign(({ event, context }) => ({
               twoFactorAuthToken: event.twoFactorAuthToken,
               password: event.password,
-              userOverview: {
-                displayName: event.username,
-                username: event.username
-              }
+              userOverview:
+                context.userOverview && context.userOverview.username === event.username
+                  ? context.userOverview
+                  : { username: event.username, displayName: event.username }
             }))
           },
           LOGIN_WITH_AUTHTOKEN: {
@@ -238,7 +249,10 @@ export function createAuthenticationMachine(logic: AuthenticationStateLogic) {
           src: 'logout',
           input: (ctx) => ctx,
           onDone: {
-            target: 'unauthenticated'
+            target: 'unauthenticated',
+            actions: assign(() => ({
+              userOverview: undefined
+            }))
           }
         }
       },

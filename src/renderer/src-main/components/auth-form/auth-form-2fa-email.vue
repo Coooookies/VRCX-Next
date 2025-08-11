@@ -54,7 +54,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <form class="w-79 flex flex-col gap-6">
+  <form class="w-79 flex flex-col gap-6" @submit="onSubmit">
     <div className="flex flex-col items-center text-center">
       <h1 className="text-xl font-bold">Two-Factor Authentication</h1>
     </div>

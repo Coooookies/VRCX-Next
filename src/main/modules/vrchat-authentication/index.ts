@@ -14,6 +14,7 @@ import type { MobxState } from '../mobx-state'
 import type { SettingModule } from '../setting'
 import type { AuthenticationState, AuthenticationUserOverview } from './types'
 import type { AuthenticationSharedState } from '@shared/types/mobx-shared'
+import { getProfileIconUrl, parseFileUrl } from '../vrchat-files/parser'
 
 export class VRChatAuthentication extends Module<{
   'state:update': (state: AuthenticationState) => void
@@ -69,15 +70,17 @@ export class VRChatAuthentication extends Module<{
       if (state.type === 'authenticated') {
         if (auto_save_credentials) {
           const userId = state.userInfo.id
+          const thumbnailUrl = getProfileIconUrl(state.userInfo)
+          const thumbnailFile = parseFileUrl(thumbnailUrl)
 
           this.setting.update('vrchat_authentication', 'logged_in', true)
           this.setting.update('vrchat_authentication', 'logged_in_user_id', userId)
           this.repository.upsertCredential({
             userId,
             userName: state.overview.username,
-            displayName: state.overview.displayName,
-            profileIconFileId: state.overview.profileThumbnailImageFileId || '',
-            profileIconFileVersion: state.overview.profileThumbnailImageFileVersion || 0,
+            displayName: state.userInfo.displayName,
+            profileIconFileId: thumbnailFile.fileId,
+            profileIconFileVersion: thumbnailFile.version,
             token: state.authToken,
             twoFactorToken: state.twoFactorAuthToken,
             createdAt: new Date()

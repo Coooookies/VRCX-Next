@@ -27,6 +27,7 @@ const form = useForm({
 const props = withDefaults(
   defineProps<{
     loading?: boolean
+    savedCredentialsAvailable?: boolean
   }>(),
   {
     loading: false
@@ -120,6 +121,7 @@ const onSubmit = form.handleSubmit((values) => {
           Register
         </Button>
         <Button
+          v-if="savedCredentialsAvailable"
           type="button"
           variant="outline"
           class="flex-1"
