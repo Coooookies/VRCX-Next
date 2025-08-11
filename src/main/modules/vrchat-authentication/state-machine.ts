@@ -79,8 +79,8 @@ export function createAuthenticationMachine(logic: AuthenticationStateLogic) {
           return logic.loginWithCredential(
             input.context.userOverview!.username,
             input.context.password!,
-            input.context.twoFactorAuthToken!,
-            input.context.userOverview
+            input.context.userOverview!,
+            input.context.twoFactorAuthToken!
           )
         }
       ),

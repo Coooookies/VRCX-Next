@@ -16,15 +16,12 @@ export class AuthenticationStateLogic {
   public async loginWithCredential(
     username: string,
     password: string,
-    twoFactorAuthToken?: string,
-    userOverview?: AuthenticationUserOverview
+    userOverview: AuthenticationUserOverview,
+    twoFactorAuthToken?: string
   ): Promise<AuthenticationLoginResult> {
-    console.log(userOverview?.username, username, '12313213233')
-
-    const overview: AuthenticationUserOverview =
-      userOverview && userOverview.username === username
-        ? userOverview
-        : { username, displayName: username }
+    const overview: AuthenticationUserOverview = {
+      ...userOverview
+    }
 
     const { success, error, value } =
       await this.api.ref.publicAPI.authentication.loginWithCredential(
