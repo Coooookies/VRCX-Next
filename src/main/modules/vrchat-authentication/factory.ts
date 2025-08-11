@@ -41,7 +41,11 @@ export function snapshotToAuthenticationState(
       }
     }
     case 'twofa_verifying': {
-      return { type: 'twofa-verifying', overview: userOverview! }
+      return {
+        type: 'twofa-verifying',
+        overview: userOverview!,
+        twoFactorAuthMethods: twoFactorAuthMethods
+      }
     }
     default: {
       throw new Error(`Unknown authentication state: ${value}`)

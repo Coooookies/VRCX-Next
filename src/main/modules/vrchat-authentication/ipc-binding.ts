@@ -56,6 +56,13 @@ export class AuthenticationIPCBinding {
       return this.repository.getAllCredentials()
     })
 
+    this.ipc.listener.handle('vrchat-authentication:get-resume-session-state', () => {
+      return {
+        loggedIn: this.self.currentSetting.logged_in,
+        loggedInUserId: this.self.currentSetting.logged_in_user_id
+      }
+    })
+
     this.ipc.listener.handle('vrchat-authentication:delete-credential', (_, userId) => {
       return this.repository.deleteCredentialByUserId(userId)
     })

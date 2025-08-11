@@ -24,19 +24,19 @@ export const REAUTHENTICATE_FORM_SCHEMA = z.object({
 })
 
 export const TWOFA_AUTHENTICATOR_FORM_SCHEMA = z.object({
-  code: z.string().min(6, {
+  code: z.array(z.string().length(1)).min(6, {
     message: 'Authenticator code must be exactly 6 digits.'
   })
 })
 
 export const TWOFA_EMAIL_FORM_SCHEMA = z.object({
-  code: z.string().min(6, {
+  code: z.array(z.string().length(1)).min(6, {
     message: 'Email code must be exactly 6 digits.'
   })
 })
 
 export const TWOFA_RECOVERY_FORM_SCHEMA = z.object({
-  code: z.string().min(8, {
+  code: z.array(z.string().length(1)).min(8, {
     message: 'Email code must be exactly 8 digits.'
   })
 })

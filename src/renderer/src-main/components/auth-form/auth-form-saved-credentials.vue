@@ -28,8 +28,8 @@ const form = useForm({
 const props = withDefaults(
   defineProps<{
     loading?: boolean
-    initialValues?: z.infer<typeof SAVED_CREDENTIALS_FORM_SCHEMA>
     items: AuthenticationCredentialEntity[]
+    defaultUserId?: string
   }>(),
   {
     loading: false,
@@ -42,7 +42,7 @@ const props = withDefaults(
 const emits = defineEmits<{
   (e: 'submit', values: z.infer<typeof SAVED_CREDENTIALS_FORM_SCHEMA>): void
   (e: 'delectCredential', userId: string): void
-  (e: 'changeToOtherAccount'): void
+  (e: 'changeToCredentials'): void
 }>()
 
 const onSubmit = form.handleSubmit((values) => {
@@ -50,8 +50,10 @@ const onSubmit = form.handleSubmit((values) => {
 })
 
 onMounted(() => {
-  if (props.initialValues) {
-    form.setValues(props.initialValues)
+  if (props.defaultUserId && props.items.some((item) => item.userId === props.defaultUserId)) {
+    form.setFieldValue('userId', props.defaultUserId)
+  } else if (props.items.length > 0) {
+    form.setFieldValue('userId', props.items[0].userId)
   }
 })
 </script>
@@ -94,7 +96,7 @@ onMounted(() => {
           variant="outline"
           class="flex-1"
           :disabled="props.loading"
-          @click="emits('changeToOtherAccount')"
+          @click="emits('changeToCredentials')"
         >
           Other account
         </Button>

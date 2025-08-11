@@ -1,5 +1,6 @@
 import type {
   AuthenticationCredentialEntity,
+  AuthenticationResumeSessionState,
   AuthenticationState
 } from '@shared/types/vrchat-authentication'
 
@@ -16,6 +17,7 @@ export type IpcInvokeEvents = {
   'vrchat-authentication:verify-email-otp': (code: string) => void
   'vrchat-authentication:verify-recovery-otp': (code: string) => void
   'vrchat-authentication:get-all-credentials': () => AuthenticationCredentialEntity[]
+  'vrchat-authentication:get-resume-session-state': () => AuthenticationResumeSessionState
   'vrchat-authentication:delete-credential': (userId: string) => void
   'vrchat-authentication:logout': () => void
   'vrchat-authentication:signout': () => void

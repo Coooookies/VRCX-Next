@@ -2,6 +2,7 @@
 import z from 'zod'
 import AuthUserOverviewButton from './auth-user-overview-button.vue'
 import { cn } from '@renderer/shared/utils/style'
+import { onMounted, useTemplateRef } from 'vue'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 import {
@@ -14,8 +15,9 @@ import {
 import { Input } from '@renderer/shared/components/ui/input'
 import { Button, SpinnerButton } from '@renderer/shared/components/ui/button'
 import { REAUTHENTICATE_FORM_SCHEMA } from './schema'
-import { onMounted } from 'vue'
-import { AuthenticationUserOverview } from '@shared/types/vrchat-authentication'
+import type { AuthenticationUserOverview } from '@shared/types/vrchat-authentication'
+
+const passwordInputRef = useTemplateRef<HTMLInputElement>('passwordInputRef')
 
 const form = useForm({
   validationSchema: toTypedSchema(REAUTHENTICATE_FORM_SCHEMA),
@@ -47,6 +49,7 @@ const onSubmit = form.handleSubmit((values) => {
 
 onMounted(() => {
   form.setFieldValue('username', props.overview.username)
+  passwordInputRef.value?.focus()
 })
 </script>
 
@@ -83,6 +86,7 @@ onMounted(() => {
           </div>
           <FormControl>
             <Input
+              ref="passwordInputRef"
               type="password"
               placeholder="Password"
               v-bind="componentField"

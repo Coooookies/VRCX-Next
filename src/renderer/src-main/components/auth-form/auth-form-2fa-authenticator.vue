@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import z from 'zod'
 import AuthUserOverviewButton from './auth-user-overview-button.vue'
+import { onMounted, useTemplateRef } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
@@ -9,18 +10,15 @@ import { Label } from '@renderer/shared/components/ui/label'
 import { Button } from '@renderer/shared/components/ui/button'
 import { Spinner } from '@renderer/shared/components/ui/spinner'
 import { AuthenticationUserOverview } from '@shared/types/vrchat-authentication'
-import {
-  PinInput,
-  PinInputGroup,
-  PinInputSeparator,
-  PinInputSlot
-} from '@renderer/shared/components/ui/pin-input'
+import { PinInput, PinInputGroup, PinInputSlot } from '@renderer/shared/components/ui/pin-input'
 import { TWOFA_AUTHENTICATOR_FORM_SCHEMA } from './schema'
+
+const pinInputRef = useTemplateRef('pinInputRef')
 
 const form = useForm({
   validationSchema: toTypedSchema(TWOFA_AUTHENTICATOR_FORM_SCHEMA),
   initialValues: {
-    code: ''
+    code: []
   }
 })
 
@@ -37,11 +35,15 @@ const props = withDefaults(
 const emits = defineEmits<{
   (e: 'submit', values: z.infer<typeof TWOFA_AUTHENTICATOR_FORM_SCHEMA>): void
   (e: 'back'): void
+  (e: 'changeToUseRecoveryCode'): void
 }>()
 
 const onSubmit = form.handleSubmit((values) => {
-  console.log(values)
   emits('submit', values)
+})
+
+onMounted(() => {
+  pinInputRef.value?.focus()
 })
 </script>
 
@@ -54,6 +56,7 @@ const onSubmit = form.handleSubmit((values) => {
       <div class="grid gap-2">
         <Label class="leading-5">Account</Label>
         <AuthUserOverviewButton
+          type="button"
           :user-name="props.overview.username"
           :display-name="props.overview.displayName"
           :profile-icon-file-id="props.overview.profileThumbnailImageFileId"
@@ -71,9 +74,11 @@ const onSubmit = form.handleSubmit((values) => {
           </FormLabel>
           <FormControl>
             <PinInput
-              :model-value="componentField.modelValue.split('')"
+              ref="pinInputRef"
+              type="number"
+              :model-value="componentField.modelValue"
               :disabled="props.loading"
-              @update:model-value="componentField['onUpdate:modelValue']?.($event.join(''))"
+              @update:model-value="componentField['onUpdate:modelValue']"
               @complete="() => onSubmit()"
             >
               <PinInputGroup>
@@ -85,7 +90,6 @@ const onSubmit = form.handleSubmit((values) => {
               <PinInputGroup>
                 <PinInputSlot :index="2" />
               </PinInputGroup>
-              <PinInputSeparator />
               <PinInputGroup>
                 <PinInputSlot :index="3" />
               </PinInputGroup>
@@ -118,6 +122,15 @@ const onSubmit = form.handleSubmit((values) => {
           @click="emits('back')"
         >
           Back
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          class="flex-1"
+          :disabled="props.loading"
+          @click="emits('changeToUseRecoveryCode')"
+        >
+          Recovery Code
         </Button>
       </div>
     </div>

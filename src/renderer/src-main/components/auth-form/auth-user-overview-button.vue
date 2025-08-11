@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import ImageVRChatContext from '@renderer/shared/components/image-vrchat-context.vue'
+import { cn } from '@renderer/shared/utils/style'
+import { CircleUserRoundIcon } from 'lucide-vue-next'
 import { Button } from '@renderer/shared/components/ui/button'
 import { ImageRoot, ImageFallback } from '@renderer/shared/components/ui/image'
-import { CircleUserRoundIcon } from 'lucide-vue-next'
 import type { ButtonProps } from '@renderer/shared/components/ui/button/Button.vue'
-import { cn } from '@renderer/shared/utils/style'
 
 const props = withDefaults(
   defineProps<
@@ -15,12 +15,18 @@ const props = withDefaults(
       profileIconFileVersion?: number
     }
   >(),
-  {}
+  {
+    variant: 'outline'
+  }
 )
 </script>
 
 <template>
-  <Button variant="outline" :class="cn('w-full h-14 justify-start px-3 gap-3', props.class)">
+  <Button
+    :class="cn('w-full h-14 justify-start px-3 gap-3', props.class)"
+    v-bind="props"
+    @click="() => {}"
+  >
     <ImageRoot class="block size-8 bg-muted rounded-full overflow-hidden">
       <ImageVRChatContext
         v-if="props.profileIconFileId && props.profileIconFileVersion"

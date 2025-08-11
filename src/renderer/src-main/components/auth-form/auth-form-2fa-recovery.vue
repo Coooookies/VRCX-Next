@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import z from 'zod'
 import AuthUserOverviewButton from './auth-user-overview-button.vue'
+import { onMounted, useTemplateRef } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
@@ -22,10 +23,12 @@ import {
 } from '@renderer/shared/components/ui/pin-input'
 import { TWOFA_RECOVERY_FORM_SCHEMA } from './schema'
 
+const pinInputRef = useTemplateRef('pinInputRef')
+
 const form = useForm({
   validationSchema: toTypedSchema(TWOFA_RECOVERY_FORM_SCHEMA),
   initialValues: {
-    code: ''
+    code: []
   }
 })
 
@@ -47,6 +50,10 @@ const emits = defineEmits<{
 const onSubmit = form.handleSubmit((values) => {
   emits('submit', values)
 })
+
+onMounted(() => {
+  pinInputRef.value?.focus()
+})
 </script>
 
 <template>
@@ -58,6 +65,7 @@ const onSubmit = form.handleSubmit((values) => {
       <div class="grid gap-2">
         <Label class="leading-5">Account</Label>
         <AuthUserOverviewButton
+          type="button"
           :user-name="props.overview.username"
           :display-name="props.overview.displayName"
           :profile-icon-file-id="props.overview.profileThumbnailImageFileId"
@@ -69,9 +77,11 @@ const onSubmit = form.handleSubmit((values) => {
           <FormLabel class="leading-5">Enter your recovery code.</FormLabel>
           <FormControl>
             <PinInput
-              :model-value="componentField.modelValue.split('')"
+              ref="pinInputRef"
+              type="text"
               :disabled="props.loading"
-              @update:model-value="componentField['onUpdate:modelValue']?.($event.join(''))"
+              :model-value="componentField.modelValue"
+              @update:model-value="componentField['onUpdate:modelValue']"
             >
               <PinInputGroup>
                 <PinInputSlot :index="0" />

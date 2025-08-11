@@ -52,6 +52,10 @@ export class VRChatAuthentication extends Module<{
     return this.ipc.emitter.invoke('vrchat-authentication:get-all-credentials')
   }
 
+  public getResumeSessionState() {
+    return this.ipc.emitter.invoke('vrchat-authentication:get-resume-session-state')
+  }
+
   public deleteCredential(userId: string) {
     return this.ipc.emitter.invoke('vrchat-authentication:delete-credential', userId)
   }

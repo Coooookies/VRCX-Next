@@ -3,3 +3,4 @@ export { default as AuthFormSavedCredentials } from './auth-form-saved-credentia
 export { default as AuthFormReauthenticate } from './auth-form-reauthenticate.vue'
 export { default as AuthForm2FAAuthenticator } from './auth-form-2fa-authenticator.vue'
 export { default as AuthForm2FARecovery } from './auth-form-2fa-recovery.vue'
+export { default as AuthForm2FAEmail } from './auth-form-2fa-email.vue'

@@ -54,6 +54,7 @@ export interface AuthenticationStateTwoFARequired {
 export interface AuthenticationStateTwoFAVerifying {
   type: 'twofa-verifying'
   overview: AuthenticationUserOverview
+  twoFactorAuthMethods: TwoFactorTypes[]
 }
 
 export type AuthenticationState =
@@ -64,3 +65,8 @@ export type AuthenticationState =
   | AuthenticationStateAuthenticated
   | AuthenticationStateTwoFARequired
   | AuthenticationStateTwoFAVerifying
+
+export type AuthenticationResumeSessionState = {
+  loggedIn: boolean
+  loggedInUserId?: string
+}

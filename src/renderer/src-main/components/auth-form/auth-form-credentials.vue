@@ -35,7 +35,7 @@ const props = withDefaults(
 
 const emits = defineEmits<{
   (e: 'submit', values: z.infer<typeof CREDENTIALS_FORM_SCHEMA>): void
-  (e: 'changeToSaveCredential'): void
+  (e: 'changeToSaveCredentials'): void
   (e: 'changeToRegister'): void
   (e: 'changeToForgetPassword'): void
 }>()
@@ -124,7 +124,7 @@ const onSubmit = form.handleSubmit((values) => {
           variant="outline"
           class="flex-1"
           :disabled="props.loading"
-          @click="emits('changeToSaveCredential')"
+          @click="emits('changeToSaveCredentials')"
         >
           Saved Accounts
         </Button>

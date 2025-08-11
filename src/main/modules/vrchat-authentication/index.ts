@@ -101,13 +101,12 @@ export class VRChatAuthentication extends Module<{
     }
   }
 
-  private async cancelAutoLoginSession() {
+  private cancelAutoLoginSession() {
     if (!this.currentSetting.logged_in) {
       return
     }
 
-    await this.setting.update('vrchat_authentication', 'logged_in', false)
-    await this.setting.update('vrchat_authentication', 'logged_in_user_id', '')
+    return this.setting.update('vrchat_authentication', 'logged_in', false).then(() => {})
   }
 
   public async login(username: string, password: string) {
