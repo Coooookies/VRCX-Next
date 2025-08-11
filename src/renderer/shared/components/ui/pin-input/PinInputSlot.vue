@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { PinInputInputProps } from 'reka-ui'
-import type { HTMLAttributes } from 'vue'
+import type { PinInputFocusPayload } from './types'
+import { inject, onUnmounted, type HTMLAttributes } from 'vue'
 import { reactiveOmit } from '@vueuse/core'
 import { PinInputInput, useForwardProps } from 'reka-ui'
 import { cn } from '@renderer/shared/utils/style'
@@ -10,10 +11,28 @@ const props = defineProps<PinInputInputProps & { class?: HTMLAttributes['class']
 const delegatedProps = reactiveOmit(props, 'class')
 
 const forwardedProps = useForwardProps(delegatedProps)
+
+const focusPayload = inject<(payload: PinInputFocusPayload) => void>('registerChildFocusPayload')
+const unmountPayload = inject<(index: number) => void>('unregisterChildFocusPayload')
+const uniqueId = inject<string>('pinInputUniqueId')
+const slotUniqueId = `${uniqueId}-${props.index}`
+
+focusPayload?.({
+  index: props.index,
+  focus: () => {
+    document.getElementById(slotUniqueId)?.focus()
+  }
+})
+
+onUnmounted(() => {
+  unmountPayload?.(props.index)
+})
 </script>
 
 <template>
   <PinInputInput
+    :id="slotUniqueId"
+    ref="pinInputRef"
     data-slot="pin-input-slot"
     v-bind="forwardedProps"
     :class="
