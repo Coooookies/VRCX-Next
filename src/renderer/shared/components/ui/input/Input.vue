@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from 'vue'
+import { useTemplateRef, type HTMLAttributes } from 'vue'
 import { useVModel } from '@vueuse/core'
 import { cn } from '@renderer/shared/utils/style'
+
+const inputRef = useTemplateRef<HTMLInputElement>('inputRef')
 
 const props = defineProps<{
   defaultValue?: string | number
@@ -17,10 +19,18 @@ const modelValue = useVModel(props, 'modelValue', emits, {
   passive: true,
   defaultValue: props.defaultValue
 })
+
+defineExpose({
+  ref: inputRef,
+  focus: () => {
+    inputRef.value?.focus()
+  }
+})
 </script>
 
 <template>
   <input
+    ref="inputRef"
     v-model="modelValue"
     data-slot="input"
     :class="

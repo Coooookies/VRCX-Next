@@ -5,6 +5,7 @@ import type { ButtonProps } from './Button.vue'
 
 interface CountdownButtonProps extends ButtonProps {
   countdown?: number
+  unit?: string
   autoStart?: boolean
 }
 
@@ -13,7 +14,8 @@ const isCounting = computed(() => currentCountdown.value > 0)
 
 const props = withDefaults(defineProps<CountdownButtonProps>(), {
   countdown: 60,
-  autoStart: false
+  autoStart: false,
+  unit: 's'
 })
 
 const emits = defineEmits<{
@@ -52,10 +54,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <Button v-bind="props" :disabled="isCounting" @click="handleClick">
-    <template v-if="isCounting">
-      {{ currentCountdown }}
-    </template>
+  <Button v-bind="props" :disabled="isCounting || props.disabled" @click="handleClick">
+    <template v-if="isCounting">{{ currentCountdown }}{{ props.unit }}</template>
     <template v-else>
       <slot />
     </template>
