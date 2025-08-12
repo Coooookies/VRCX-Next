@@ -1,3 +1,4 @@
+import type { SettingDefinition, SettingKey, SettingNamespace } from '@shared/types/setting'
 import type {
   AuthenticationCredentialEntity,
   AuthenticationResumeSessionState,
@@ -7,6 +8,13 @@ import type {
 export type IpcInvokeEvents = {
   // MobxState
   'mobx-state:get-all-original-targets': () => Record<string, object>
+
+  // SettingModule
+  'setting-module:update': <T extends SettingNamespace, K extends SettingKey<T>>(
+    namespace: T,
+    key: K,
+    value: SettingDefinition[T][K]
+  ) => void
 
   // VRChatAuthentication
   'vrchat-authentication:state': () => AuthenticationState

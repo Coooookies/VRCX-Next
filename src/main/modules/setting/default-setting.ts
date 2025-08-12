@@ -1,3 +1,4 @@
+import { createDefaultSettingKeys, createDefaultSettingValues } from './factory'
 import type { SettingDefinition, FunctionProperties } from '@shared/types/setting'
 
 export const DEFAULT_SETTING: FunctionProperties<SettingDefinition> = {
@@ -15,3 +16,6 @@ export const DEFAULT_SETTING: FunctionProperties<SettingDefinition> = {
     auto_save_credentials: () => true
   }
 }
+
+export const DEFAULT_SETTING_KEYS = createDefaultSettingKeys()
+export const DEFAULT_SETTING_INSTANCE = createDefaultSettingValues()
