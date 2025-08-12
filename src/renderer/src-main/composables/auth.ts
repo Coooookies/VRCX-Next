@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { onUnmounted, ref } from 'vue'
 import { useModule } from '@renderer/shared/hooks/use-module'
 import type { ResponseErrorReason } from '@shared/types/vrchat-api-status'
 import type { VRChatAuthentication } from '@renderer/shared/modules/vrchat-authentication'
@@ -19,6 +19,7 @@ export type AuthFormType =
 
 export interface AuthEvents {
   onCredentialError?: (error: ResponseErrorReason) => void
+  onReauthenticateRequest?: (error: ResponseErrorReason) => void
   on2FAError?: (error: ResponseErrorReason) => void
 }
 
@@ -82,15 +83,18 @@ function getInitialForm(
 
 export function useAuth(events: AuthEvents = {}) {
   const auth = useModule<VRChatAuthentication>('VRChatAuthentication')
+
   const latestState = ref<AuthenticationState>(auth.state.value)
   const recoveryCodeAvailable = ref(false)
   const isInitializing = ref(true)
   const isLoading = ref(false)
+
   const savedCredentials = ref<AuthenticationCredentialEntity[]>([])
   const resumeSession = ref<AuthenticationResumeSessionState>({
     loggedIn: false,
     loggedInUserId: ''
   })
+
   const currentFormType = ref<AuthFormType>('credentials')
   const currentOverview = ref<AuthenticationUserOverview>({
     username: '',
@@ -113,7 +117,7 @@ export function useAuth(events: AuthEvents = {}) {
       isInitializing.value = false
     })
 
-  auth.on('state:update', (state) => {
+  const handleStateUpdate = (state: AuthenticationState) => {
     switch (state.type) {
       case 'authenticated':
       case 'authenticating':
@@ -133,6 +137,7 @@ export function useAuth(events: AuthEvents = {}) {
           case 'savedCredentials': {
             currentOverview.value = state.overview
             currentFormType.value = 'reauthenticate'
+            events.onReauthenticateRequest?.(state.error)
             break
           }
           case 'credentials':
@@ -181,7 +186,7 @@ export function useAuth(events: AuthEvents = {}) {
     }
 
     latestState.value = state
-  })
+  }
 
   switch (auth.state.value.type) {
     case 'authenticating':
@@ -238,6 +243,12 @@ export function useAuth(events: AuthEvents = {}) {
       currentFormType.value = '2faRecovery'
     }
   }
+
+  auth.addListener('state:update', handleStateUpdate)
+
+  onUnmounted(() => {
+    auth.removeListener('state:update', handleStateUpdate)
+  })
 
   return {
     auth,

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import z from 'zod'
-import { cn } from '@renderer/shared/utils/style'
+import AuthSeparator from './auth-separator.vue'
+import AuthAnimeWrapper from './auth-anime-wrapper.vue'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 import {
@@ -14,6 +15,9 @@ import { Input } from '@renderer/shared/components/ui/input'
 import { Button, SpinnerButton } from '@renderer/shared/components/ui/button'
 import { Checkbox } from '@renderer/shared/components/ui/checkbox'
 import { CREDENTIALS_FORM_SCHEMA } from './schema'
+import { nextTick, onMounted, useTemplateRef } from 'vue'
+
+const passwordInputRef = useTemplateRef('passwordInputRef')
 
 const form = useForm({
   validationSchema: toTypedSchema(CREDENTIALS_FORM_SCHEMA),
@@ -27,6 +31,7 @@ const form = useForm({
 const props = withDefaults(
   defineProps<{
     loading?: boolean
+    defaultEnableSaveCredentials?: boolean
     savedCredentialsAvailable?: boolean
   }>(),
   {
@@ -44,93 +49,100 @@ const emits = defineEmits<{
 const onSubmit = form.handleSubmit((values) => {
   emits('submit', values)
 })
+
+const resetPasswordInput = () => {
+  form.setFieldValue('password', '')
+  nextTick(() => passwordInputRef.value?.focus())
+}
+
+onMounted(() => {
+  form.setFieldValue('saveCredential', props.defaultEnableSaveCredentials ?? false)
+})
+
+defineExpose({
+  resetPasswordInput
+})
 </script>
 
 <template>
-  <form class="w-79 flex flex-col gap-6" @submit="onSubmit">
-    <div className="flex flex-col items-center text-center">
-      <h1 className="text-2xl font-bold">Login to VRChat</h1>
-    </div>
-    <div className="grid gap-6">
-      <FormField v-slot="{ componentField }" name="username">
-        <FormItem>
-          <FormLabel class="leading-5">Username</FormLabel>
-          <FormControl>
-            <Input
-              placeholder="Username or Email"
-              v-bind="componentField"
-              :disabled="props.loading"
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      </FormField>
-      <FormField v-slot="{ componentField }" name="password">
-        <FormItem>
-          <div class="flex items-center">
+  <AuthAnimeWrapper>
+    <form class="w-80 flex flex-col gap-6" @submit="onSubmit">
+      <div className="flex flex-col items-center text-center">
+        <h1 className="text-2xl font-bold">Login to VRChat</h1>
+      </div>
+      <div className="grid gap-6">
+        <FormField v-slot="{ componentField }" name="username">
+          <FormItem>
+            <FormLabel class="leading-5">Username</FormLabel>
+            <FormControl>
+              <Input
+                placeholder="Username or Email"
+                v-bind="componentField"
+                :disabled="props.loading"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+        <FormField v-slot="{ componentField }" name="password">
+          <FormItem>
             <FormLabel class="leading-5">Password</FormLabel>
+            <FormControl>
+              <Input
+                ref="passwordInputRef"
+                type="password"
+                placeholder="Enter your password"
+                v-bind="componentField"
+                :disabled="props.loading"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+        <FormField v-slot="{ componentField }" name="saveCredential">
+          <FormItem class="flex flex-row justify-betwee items-center gap-2">
+            <div className="flex items-center gap-2">
+              <FormControl>
+                <Checkbox
+                  :model-value="componentField.modelValue"
+                  :disabled="props.loading"
+                  @update:model-value="componentField['onUpdate:modelValue']"
+                />
+              </FormControl>
+              <FormLabel class="text-sm text-muted-foreground font-normal">Remember me</FormLabel>
+            </div>
             <a
-              class="ml-auto text-sm underline-offset-4 hover:underline cursor-pointer"
+              class="ml-auto text-sm underline hover:no-underline cursor-pointer"
               @click="emits('changeToForgetPassword')"
             >
-              Forgot your password?
+              Forgot password?
             </a>
-          </div>
-          <FormControl>
-            <Input
-              type="password"
-              placeholder="Password"
-              v-bind="componentField"
-              :disabled="props.loading"
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      </FormField>
-      <FormField v-slot="{ componentField }" name="saveCredential">
-        <FormItem class="flex flex-row items-center gap-2">
-          <FormControl>
-            <Checkbox
-              :model-value="componentField.modelValue"
-              :disabled="props.loading"
-              @update:model-value="componentField['onUpdate:modelValue']"
-            />
-          </FormControl>
-          <FormLabel class="text-sm font-normal">Save Account</FormLabel>
-        </FormItem>
-      </FormField>
-      <SpinnerButton type="submit" :loading="props.loading">Login</SpinnerButton>
-      <div
-        :class="
-          cn(
-            'after:border-border relative text-center text-sm',
-            'after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t'
-          )
-        "
-      >
-        <span class="bg-background text-muted-foreground relative z-10 px-2">Or</span>
+          </FormItem>
+        </FormField>
+        <SpinnerButton type="submit" :loading="props.loading">Login</SpinnerButton>
+        <AuthSeparator />
+        <div className="flex flex-row gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            class="flex-1"
+            :disabled="props.loading"
+            @click="emits('changeToRegister')"
+          >
+            Register
+          </Button>
+          <Button
+            v-if="savedCredentialsAvailable"
+            type="button"
+            variant="outline"
+            class="flex-1"
+            :disabled="props.loading"
+            @click="emits('changeToSaveCredentials')"
+          >
+            Saved Accounts
+          </Button>
+        </div>
       </div>
-      <div className="flex flex-row gap-3">
-        <Button
-          type="button"
-          variant="outline"
-          class="flex-1"
-          :disabled="props.loading"
-          @click="emits('changeToRegister')"
-        >
-          Register
-        </Button>
-        <Button
-          v-if="savedCredentialsAvailable"
-          type="button"
-          variant="outline"
-          class="flex-1"
-          :disabled="props.loading"
-          @click="emits('changeToSaveCredentials')"
-        >
-          Saved Accounts
-        </Button>
-      </div>
-    </div>
-  </form>
+    </form>
+  </AuthAnimeWrapper>
 </template>

@@ -66,7 +66,7 @@ const handleSelect = (userId: string) => {
         <ChevronsUpDownIcon class="text-muted-foreground ml-auto" />
       </Button>
     </PopoverTrigger>
-    <PopoverContent class="w-79 p-0 rounded-md" :align="'start'">
+    <PopoverContent class="w-80 p-0 rounded-md" :align="'start'">
       <ScrollContainer class="w-full max-h-64">
         <div class="p-1">
           <AuthCredentialsComboItem

@@ -1,11 +1,15 @@
+import { toRef } from 'vue'
 import { useModule } from '@renderer/shared/hooks/use-module'
+import type { SettingModule } from '@renderer/shared/modules/setting'
 import type { VRChatAuthentication } from '@renderer/shared/modules/vrchat-authentication'
 
 export function useAuthSubmit() {
   const auth = useModule<VRChatAuthentication>('VRChatAuthentication')
+  const setting = useModule<SettingModule>('SettingModule')
+  const saveCredentials = toRef(setting.state.vrchat_authentication, 'auto_save_credentials')
 
-  function login(username: string, password: string, saveCredential: boolean) {
-    console.log(saveCredential)
+  async function login(username: string, password: string, saveCredentials: boolean) {
+    await setting.update('vrchat_authentication', 'auto_save_credentials', saveCredentials)
     return auth.login(username, password)
   }
 
@@ -34,6 +38,7 @@ export function useAuthSubmit() {
   }
 
   return {
+    saveCredentials,
     relogin,
     resendEmailOTP,
     login,

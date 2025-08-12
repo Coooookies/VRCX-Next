@@ -72,7 +72,10 @@ export function createAuthenticationMachine(logic: AuthenticationStateLogic) {
     actors: {
       credential_login: fromPromise(
         ({ input }: { input: { context: AuthenticationContext; event: AuthenticationEvent } }) => {
-          if (input.event.type !== 'LOGIN_WITH_CREDENTIAL') {
+          if (
+            input.event.type !== 'LOGIN_WITH_CREDENTIAL' &&
+            input.event.type !== 'RESEND_EMAIL_OTP'
+          ) {
             throw new Error('Unknown event type for login')
           }
 

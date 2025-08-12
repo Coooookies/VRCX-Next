@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import z from 'zod'
+import AuthSeparator from './auth-separator.vue'
+import AuthAnimeWrapper from './auth-anime-wrapper.vue'
 import AuthUserOverviewButton from './auth-user-overview-button.vue'
-import { cn } from '@renderer/shared/utils/style'
-import { onMounted, useTemplateRef } from 'vue'
+import { nextTick, onMounted, useTemplateRef } from 'vue'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 import {
@@ -17,7 +18,7 @@ import { Button, SpinnerButton } from '@renderer/shared/components/ui/button'
 import { REAUTHENTICATE_FORM_SCHEMA } from './schema'
 import type { AuthenticationUserOverview } from '@shared/types/vrchat-authentication'
 
-const passwordInputRef = useTemplateRef<HTMLInputElement>('passwordInputRef')
+const passwordInputRef = useTemplateRef('passwordInputRef')
 
 const form = useForm({
   validationSchema: toTypedSchema(REAUTHENTICATE_FORM_SCHEMA),
@@ -47,77 +48,79 @@ const onSubmit = form.handleSubmit((values) => {
   emits('submit', values)
 })
 
+const resetPasswordInput = () => {
+  form.setFieldValue('password', '')
+  nextTick(() => passwordInputRef.value?.focus())
+}
+
 onMounted(() => {
   form.setFieldValue('username', props.overview.username)
   passwordInputRef.value?.focus()
 })
+
+defineExpose({
+  resetPasswordInput
+})
 </script>
 
 <template>
-  <form class="w-79 flex flex-col gap-6" @submit="onSubmit">
-    <div className="flex flex-col items-center text-center">
-      <h1 className="text-2xl font-bold">Reverify Credentials</h1>
-    </div>
-    <div className="grid gap-6">
-      <FormField name="username">
-        <FormItem>
-          <FormLabel class="leading-5">Account</FormLabel>
-          <FormControl>
-            <AuthUserOverviewButton
-              :user-name="props.overview.username"
-              :display-name="props.overview.displayName"
-              :profile-icon-file-id="props.overview.profileThumbnailImageFileId"
-              :profile-icon-file-version="props.overview.profileThumbnailImageFileVersion"
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      </FormField>
-      <FormField v-slot="{ componentField }" name="password">
-        <FormItem>
-          <div class="flex items-center">
-            <FormLabel class="leading-5">Password</FormLabel>
-            <a
-              class="ml-auto text-sm underline-offset-4 hover:underline cursor-pointer"
-              @click="emits('changeToForgetPassword')"
-            >
-              Forgot your password?
-            </a>
-          </div>
-          <FormControl>
-            <Input
-              ref="passwordInputRef"
-              type="password"
-              placeholder="Password"
-              v-bind="componentField"
-              :disabled="props.loading"
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      </FormField>
-      <SpinnerButton type="submit" :loading="props.loading">Login</SpinnerButton>
-      <div
-        :class="
-          cn(
-            'after:border-border relative text-center text-sm',
-            'after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t'
-          )
-        "
-      >
-        <span class="bg-background text-muted-foreground relative z-10 px-2">Or</span>
+  <AuthAnimeWrapper>
+    <form class="w-80 flex flex-col gap-6" @submit="onSubmit">
+      <div className="flex flex-col items-center text-center">
+        <h1 className="text-2xl font-bold">Reverify Credentials</h1>
       </div>
-      <div className="flex flex-row gap-3">
-        <Button
-          type="button"
-          variant="outline"
-          class="flex-1"
-          :disabled="props.loading"
-          @click="emits('back')"
-        >
-          Back
-        </Button>
+      <div className="grid gap-6">
+        <FormField name="username">
+          <FormItem>
+            <FormLabel class="leading-5">Account</FormLabel>
+            <FormControl>
+              <AuthUserOverviewButton
+                :user-name="props.overview.username"
+                :display-name="props.overview.displayName"
+                :profile-icon-file-id="props.overview.profileThumbnailImageFileId"
+                :profile-icon-file-version="props.overview.profileThumbnailImageFileVersion"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+        <FormField v-slot="{ componentField }" name="password">
+          <FormItem>
+            <div class="flex items-center">
+              <FormLabel class="leading-5">Password</FormLabel>
+              <a
+                class="ml-auto text-sm underline hover:no-underline cursor-pointer"
+                @click="emits('changeToForgetPassword')"
+              >
+                Forgot password?
+              </a>
+            </div>
+            <FormControl>
+              <Input
+                ref="passwordInputRef"
+                type="password"
+                placeholder="Enter your password"
+                v-bind="componentField"
+                :disabled="props.loading"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+        <SpinnerButton type="submit" :loading="props.loading">Login</SpinnerButton>
+        <AuthSeparator />
+        <div className="flex flex-row gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            class="flex-1"
+            :disabled="props.loading"
+            @click="emits('back')"
+          >
+            Back
+          </Button>
+        </div>
       </div>
-    </div>
-  </form>
+    </form>
+  </AuthAnimeWrapper>
 </template>
