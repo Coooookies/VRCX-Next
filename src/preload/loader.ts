@@ -1,4 +1,4 @@
-import icon from '@shared/assets/vector/icon-danmacat.svg?raw'
+import icon from '@shared/assets/vector/icon-vrcx.svg?raw'
 
 export default class AppLoader {
   private static className = `loader-icon`
@@ -11,8 +11,8 @@ export default class AppLoader {
       top: 50%;
       transform: translate(-50%, -50%);
       transform-origin: 0% 0%;
-      width: 80px;
-      height: 80px;
+      width: 140px;
+      height: 48px;
     }
 
     .${AppLoader.className} img {
