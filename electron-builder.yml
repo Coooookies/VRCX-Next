@@ -1,4 +1,4 @@
-appId: com.electron.app
+appId: com.mitay.vrcxnext
 productName: vrcx-next
 directories:
   buildResources: build
