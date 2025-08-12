@@ -1,7 +1,7 @@
 import { createI18n } from 'vue-i18n'
 import { LanguageDefinition } from './language'
-import { LANGUAGE_ZH_CN } from './language-zh-CN'
-import { LANGUAGE_EN_US } from './language-en-US'
+import { LANGUAGE_ZH_CN } from './language-zh-cn'
+import { LANGUAGE_EN_US } from './language-en-us'
 import type { TargetPaths } from '@shared/types/utils'
 
 export const i18n = createI18n({
