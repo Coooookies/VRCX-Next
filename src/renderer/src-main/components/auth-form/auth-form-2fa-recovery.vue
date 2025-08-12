@@ -3,9 +3,10 @@ import z from 'zod'
 import AuthSeparator from './auth-separator.vue'
 import AuthAnimeWrapper from './auth-anime-wrapper.vue'
 import AuthUserOverviewButton from './auth-user-overview-button.vue'
+import { useForm } from 'vee-validate'
+import { useI18n } from '@renderer/shared/i18n'
 import { nextTick, onMounted, useTemplateRef } from 'vue'
 import { toTypedSchema } from '@vee-validate/zod'
-import { useForm } from 'vee-validate'
 import {
   FormControl,
   FormField,
@@ -24,6 +25,7 @@ import {
 } from '@renderer/shared/components/ui/pin-input'
 import { TWOFA_RECOVERY_FORM_SCHEMA } from './schema'
 
+const { t } = useI18n()
 const pinInputRef = useTemplateRef('pinInputRef')
 
 const form = useForm({
@@ -70,11 +72,11 @@ defineExpose({
   <AuthAnimeWrapper>
     <form class="w-80 flex flex-col gap-6" @submit="onSubmit">
       <div className="flex flex-col items-center text-center">
-        <h1 className="text-xl font-bold">Two-Factor Authentication</h1>
+        <h1 className="text-xl font-bold">{{ t('authentication.twoFAfaRecovery.title') }}</h1>
       </div>
       <div className="grid gap-6">
         <div class="grid gap-2">
-          <Label class="leading-5">Account</Label>
+          <Label class="leading-5">{{ t('authentication.twoFAfaRecovery.label_account') }}</Label>
           <AuthUserOverviewButton
             type="button"
             :user-name="props.overview.username"
@@ -85,7 +87,9 @@ defineExpose({
         </div>
         <FormField v-slot="{ componentField }" name="code">
           <FormItem class="flex flex-col w-full justify-center items-center gap-y-3">
-            <FormLabel class="leading-5">Enter your recovery code.</FormLabel>
+            <FormLabel class="leading-5">
+              {{ t('authentication.twoFAfaRecovery.label_code') }}
+            </FormLabel>
             <FormControl>
               <PinInput
                 ref="pinInputRef"
@@ -112,7 +116,9 @@ defineExpose({
             <FormMessage />
           </FormItem>
         </FormField>
-        <SpinnerButton type="submit" :loading="props.loading">Verify</SpinnerButton>
+        <SpinnerButton type="submit" :loading="props.loading">
+          {{ t('authentication.twoFAfaRecovery.button_verify') }}
+        </SpinnerButton>
         <AuthSeparator />
         <div className="flex flex-row gap-3">
           <Button
@@ -122,7 +128,7 @@ defineExpose({
             :disabled="props.loading"
             @click="emits('back')"
           >
-            Back
+            {{ t('authentication.twoFAfaRecovery.button_back') }}
           </Button>
         </div>
       </div>

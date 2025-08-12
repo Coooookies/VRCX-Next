@@ -1,6 +1,6 @@
 import type { SettingEntity } from '../database/entities/setting'
 import type { InstanceProperties, SettingDefinition } from '@shared/types/setting'
-import type { TargetPaths } from '../mobx-state/types'
+import type { TargetPaths } from '@shared/types/utils'
 import { DEFAULT_SETTING } from './default-setting'
 
 export function transformEntityToPropertyInstance(

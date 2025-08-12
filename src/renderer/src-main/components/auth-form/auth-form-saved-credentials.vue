@@ -3,9 +3,10 @@ import z from 'zod'
 import AuthSeparator from './auth-separator.vue'
 import AuthAnimeWrapper from './auth-anime-wrapper.vue'
 import AuthCredentialsComboBox from './auth-credentials-combo-box.vue'
+import { useForm } from 'vee-validate'
+import { useI18n } from '@renderer/shared/i18n'
 import { toTypedSchema } from '@vee-validate/zod'
 import { onMounted, ref } from 'vue'
-import { useForm } from 'vee-validate'
 import {
   FormControl,
   FormField,
@@ -17,6 +18,7 @@ import { Button, SpinnerButton } from '@renderer/shared/components/ui/button'
 import { SAVED_CREDENTIALS_FORM_SCHEMA } from './schema'
 import type { AuthenticationCredentialEntity } from '@shared/types/vrchat-authentication'
 
+const { t } = useI18n()
 const credentialComboxBoxOpen = ref(false)
 
 const form = useForm({
@@ -63,12 +65,14 @@ onMounted(() => {
   <AuthAnimeWrapper>
     <form class="w-80 flex flex-col gap-6" @submit="onSubmit">
       <div className="flex flex-col items-center text-center">
-        <h1 className="text-2xl font-bold">Login to VRChat</h1>
+        <h1 className="text-2xl font-bold">{{ t('authentication.savedCredentials.title') }}</h1>
       </div>
       <div className="grid gap-6">
         <FormField v-slot="{ componentField }" name="userId">
           <FormItem>
-            <FormLabel class="leading-5">Account</FormLabel>
+            <FormLabel class="leading-5">
+              {{ t('authentication.savedCredentials.label_account') }}
+            </FormLabel>
             <FormControl>
               <AuthCredentialsComboBox
                 v-model:open="credentialComboxBoxOpen"
@@ -82,7 +86,9 @@ onMounted(() => {
             <FormMessage />
           </FormItem>
         </FormField>
-        <SpinnerButton type="submit" :loading="props.loading">Login</SpinnerButton>
+        <SpinnerButton type="submit" :loading="props.loading">
+          {{ t('authentication.savedCredentials.button_login') }}
+        </SpinnerButton>
         <AuthSeparator />
         <div className="flex flex-row gap-3">
           <Button
@@ -92,7 +98,7 @@ onMounted(() => {
             :disabled="props.loading"
             @click="emits('changeToCredentials')"
           >
-            Other account
+            {{ t('authentication.savedCredentials.button_other_account') }}
           </Button>
         </div>
       </div>

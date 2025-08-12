@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from '@renderer/shared/i18n'
 import { cn } from '@renderer/shared/utils/style'
+
+const { t } = useI18n()
 </script>
 
 <template>
@@ -11,6 +14,8 @@ import { cn } from '@renderer/shared/utils/style'
       )
     "
   >
-    <span class="bg-background text-xs text-muted-foreground relative z-10 px-2">Or</span>
+    <span class="bg-background text-xs text-muted-foreground relative z-10 px-2">
+      {{ t('authentication.global.or') }}
+    </span>
   </div>
 </template>

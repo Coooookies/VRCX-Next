@@ -3,9 +3,10 @@ import z from 'zod'
 import AuthSeparator from './auth-separator.vue'
 import AuthAnimeWrapper from './auth-anime-wrapper.vue'
 import AuthUserOverviewButton from './auth-user-overview-button.vue'
+import { useForm } from 'vee-validate'
+import { useI18n } from '@renderer/shared/i18n'
 import { nextTick, onMounted, useTemplateRef } from 'vue'
 import { toTypedSchema } from '@vee-validate/zod'
-import { useForm } from 'vee-validate'
 import { FormControl, FormField, FormItem, FormLabel } from '@renderer/shared/components/ui/form'
 import { Label } from '@renderer/shared/components/ui/label'
 import { Button } from '@renderer/shared/components/ui/button'
@@ -14,6 +15,7 @@ import { AuthenticationUserOverview } from '@shared/types/vrchat-authentication'
 import { PinInput, PinInputGroup, PinInputSlot } from '@renderer/shared/components/ui/pin-input'
 import { TWOFA_AUTHENTICATOR_FORM_SCHEMA } from './schema'
 
+const { t } = useI18n()
 const pinInputRef = useTemplateRef('pinInputRef')
 
 const form = useForm({
@@ -62,11 +64,13 @@ defineExpose({
   <AuthAnimeWrapper>
     <form class="w-80 flex flex-col gap-6" @submit="onSubmit">
       <div className="flex flex-col items-center text-center">
-        <h1 className="text-xl font-bold">Two-Factor Authentication</h1>
+        <h1 className="text-xl font-bold">{{ t('authentication.twoFAAuthenticator.title') }}</h1>
       </div>
       <div className="grid gap-6">
         <div class="grid gap-2">
-          <Label class="leading-5">Account</Label>
+          <Label class="leading-5">
+            {{ t('authentication.twoFAAuthenticator.label_account') }}
+          </Label>
           <AuthUserOverviewButton
             type="button"
             :user-name="props.overview.username"
@@ -80,9 +84,9 @@ defineExpose({
             <FormLabel class="leading-5 h-5">
               <template v-if="props.loading">
                 <Spinner class="size-4" />
-                <span>Processing...</span>
+                <span>{{ t('authentication.twoFAAuthenticator.label_processing') }}</span>
               </template>
-              <span v-else>Enter code from Authenticator App.</span>
+              <span v-else>{{ t('authentication.twoFAAuthenticator.label_code') }}</span>
             </FormLabel>
             <FormControl>
               <PinInput
@@ -124,7 +128,7 @@ defineExpose({
             :disabled="props.loading"
             @click="emits('back')"
           >
-            Back
+            {{ t('authentication.twoFAAuthenticator.button_back') }}
           </Button>
           <Button
             v-if="props.recoveryAvailable"
@@ -134,7 +138,7 @@ defineExpose({
             :disabled="props.loading"
             @click="emits('changeToUseRecoveryCode')"
           >
-            Recovery Code
+            {{ t('authentication.twoFAAuthenticator.button_recovery_code') }}
           </Button>
         </div>
       </div>

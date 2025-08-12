@@ -3,6 +3,7 @@ import '@renderer/shared/styles/main.css'
 
 import entry from './app.vue'
 import { module } from './module'
+import { i18n } from '@renderer/shared/i18n'
 import { createRouter } from './router'
 import { createApp } from 'vue'
 import type { AppLoader } from '@renderer/shared/modules/loader'
@@ -14,6 +15,7 @@ const router = createRouter()
 
 app.use(module)
 app.use(router)
+app.use(i18n)
 app.mount('#app').$nextTick(onLoad)
 
 function onLoad(): void {

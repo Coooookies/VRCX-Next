@@ -3,9 +3,10 @@ import z from 'zod'
 import AuthSeparator from './auth-separator.vue'
 import AuthAnimeWrapper from './auth-anime-wrapper.vue'
 import AuthUserOverviewButton from './auth-user-overview-button.vue'
-import { nextTick, onMounted, useTemplateRef } from 'vue'
-import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
+import { useI18n } from '@renderer/shared/i18n'
+import { toTypedSchema } from '@vee-validate/zod'
+import { nextTick, onMounted, useTemplateRef } from 'vue'
 import { FormControl, FormField, FormItem, FormLabel } from '@renderer/shared/components/ui/form'
 import { Label } from '@renderer/shared/components/ui/label'
 import { Button, CountdownButton } from '@renderer/shared/components/ui/button'
@@ -14,6 +15,7 @@ import { PinInput, PinInputGroup, PinInputSlot } from '@renderer/shared/componen
 import { Spinner } from '@renderer/shared/components/ui/spinner'
 import { TWOFA_AUTHENTICATOR_FORM_SCHEMA } from './schema'
 
+const { t } = useI18n()
 const pinInputRef = useTemplateRef('pinInputRef')
 
 const form = useForm({
@@ -67,11 +69,11 @@ defineExpose({
   <AuthAnimeWrapper>
     <form class="w-80 flex flex-col gap-6" @submit="onSubmit">
       <div className="flex flex-col items-center text-center">
-        <h1 className="text-xl font-bold">Two-Factor Authentication</h1>
+        <h1 className="text-xl font-bold">{{ t('authentication.twoFAfaEmail.title') }}</h1>
       </div>
       <div className="grid gap-6">
         <div class="grid gap-2">
-          <Label class="leading-5">Account</Label>
+          <Label class="leading-5">{{ t('authentication.twoFAfaEmail.label_account') }}</Label>
           <AuthUserOverviewButton
             type="button"
             :user-name="props.overview.username"
@@ -85,9 +87,9 @@ defineExpose({
             <FormLabel class="leading-5 h-5">
               <template v-if="props.loading">
                 <Spinner class="size-4" />
-                <span>Processing...</span>
+                <span>{{ t('authentication.twoFAfaEmail.label_processing') }}</span>
               </template>
-              <span v-else>Enter the 6 digit code sent to your Email.</span>
+              <span v-else>{{ t('authentication.twoFAfaEmail.label_code') }}</span>
             </FormLabel>
             <FormControl>
               <PinInput
@@ -119,7 +121,9 @@ defineExpose({
               </PinInput>
             </FormControl>
             <div class="flex flex-row h-5 items-center gap-2 text-xs">
-              <span class="text-muted-foreground">Didn't get the code?</span>
+              <span class="text-muted-foreground">
+                {{ t('authentication.twoFAfaEmail.label_did_not_receive_tip') }}
+              </span>
               <CountdownButton
                 class="p-0 min-w-6 h-full text-xs font-semibold"
                 variant="link"
@@ -127,7 +131,7 @@ defineExpose({
                 :disabled="props.loading"
                 @click="onResendEmailOtp"
               >
-                Resend Code
+                {{ t('authentication.twoFAfaEmail.button_resend_email_otp') }}
               </CountdownButton>
             </div>
           </FormItem>
@@ -141,7 +145,7 @@ defineExpose({
             :disabled="props.loading"
             @click="emits('back')"
           >
-            Back
+            {{ t('authentication.twoFAfaEmail.button_back') }}
           </Button>
         </div>
       </div>

@@ -2,8 +2,10 @@
 import z from 'zod'
 import AuthSeparator from './auth-separator.vue'
 import AuthAnimeWrapper from './auth-anime-wrapper.vue'
-import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
+import { useI18n } from '@renderer/shared/i18n'
+import { nextTick, onMounted, useTemplateRef } from 'vue'
+import { toTypedSchema } from '@vee-validate/zod'
 import {
   FormControl,
   FormField,
@@ -15,8 +17,8 @@ import { Input } from '@renderer/shared/components/ui/input'
 import { Button, SpinnerButton } from '@renderer/shared/components/ui/button'
 import { Checkbox } from '@renderer/shared/components/ui/checkbox'
 import { CREDENTIALS_FORM_SCHEMA } from './schema'
-import { nextTick, onMounted, useTemplateRef } from 'vue'
 
+const { t } = useI18n()
 const passwordInputRef = useTemplateRef('passwordInputRef')
 
 const form = useForm({
@@ -68,16 +70,18 @@ defineExpose({
   <AuthAnimeWrapper>
     <form class="w-80 flex flex-col gap-6" @submit="onSubmit">
       <div className="flex flex-col items-center text-center">
-        <h1 className="text-2xl font-bold">Login to VRChat</h1>
+        <h1 className="text-2xl font-bold">{{ t('authentication.credentials.title') }}</h1>
       </div>
       <div className="grid gap-6">
         <FormField v-slot="{ componentField }" name="username">
           <FormItem>
-            <FormLabel class="leading-5">Username</FormLabel>
+            <FormLabel class="leading-5">
+              {{ t('authentication.credentials.label_username') }}
+            </FormLabel>
             <FormControl>
               <Input
-                placeholder="Username or Email"
                 v-bind="componentField"
+                :placeholder="t('authentication.credentials.input_username_placeholder')"
                 :disabled="props.loading"
               />
             </FormControl>
@@ -86,13 +90,15 @@ defineExpose({
         </FormField>
         <FormField v-slot="{ componentField }" name="password">
           <FormItem>
-            <FormLabel class="leading-5">Password</FormLabel>
+            <FormLabel class="leading-5">
+              {{ t('authentication.credentials.label_password') }}
+            </FormLabel>
             <FormControl>
               <Input
                 ref="passwordInputRef"
                 type="password"
-                placeholder="Enter your password"
                 v-bind="componentField"
+                :placeholder="t('authentication.credentials.input_password_placeholder')"
                 :disabled="props.loading"
               />
             </FormControl>
@@ -109,17 +115,21 @@ defineExpose({
                   @update:model-value="componentField['onUpdate:modelValue']"
                 />
               </FormControl>
-              <FormLabel class="text-sm text-muted-foreground font-normal">Remember me</FormLabel>
+              <FormLabel class="text-sm text-muted-foreground font-normal">
+                {{ t('authentication.credentials.checkbox_remember_me') }}
+              </FormLabel>
             </div>
             <a
               class="ml-auto text-sm underline hover:no-underline cursor-pointer"
               @click="emits('changeToForgetPassword')"
             >
-              Forgot password?
+              {{ t('authentication.credentials.link_forget_password') }}
             </a>
           </FormItem>
         </FormField>
-        <SpinnerButton type="submit" :loading="props.loading">Login</SpinnerButton>
+        <SpinnerButton type="submit" :loading="props.loading">
+          {{ t('authentication.credentials.button_login') }}
+        </SpinnerButton>
         <AuthSeparator />
         <div className="flex flex-row gap-3">
           <Button
@@ -129,7 +139,7 @@ defineExpose({
             :disabled="props.loading"
             @click="emits('changeToRegister')"
           >
-            Register
+            {{ t('authentication.credentials.button_register') }}
           </Button>
           <Button
             v-if="savedCredentialsAvailable"
@@ -139,7 +149,7 @@ defineExpose({
             :disabled="props.loading"
             @click="emits('changeToSaveCredentials')"
           >
-            Saved Accounts
+            {{ t('authentication.credentials.button_saved_account') }}
           </Button>
         </div>
       </div>
