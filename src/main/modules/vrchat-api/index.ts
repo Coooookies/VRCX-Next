@@ -32,7 +32,7 @@ export class VRChatAPI extends Module<{
   private createClient() {
     const proxySetting = this.setting.resolveNamespace('network')
     const proxyConfig = {
-      enabled: proxySetting.proxy_enabled,
+      state: proxySetting.proxy_state,
       type: proxySetting.proxy_type,
       host: proxySetting.proxy_host,
       port: proxySetting.proxy_port,

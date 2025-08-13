@@ -2,16 +2,17 @@ import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent'
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import type { HttpsProxyAgentOptions } from 'hpagent'
 import type { OptionsOfTextResponseBody } from 'got'
+import type { ProxyState, ProxyType } from '@shared/types/setting'
 
 export function createProxyAgent(config: {
-  enabled: boolean
-  type: 'http' | 'https' | 'socks'
+  state: ProxyState
+  type: ProxyType
   host: string
   port: number
   username?: string
   password?: string
 }): OptionsOfTextResponseBody['agent'] {
-  if (!config.enabled) {
+  if (config.state !== 'custom_proxy') {
     return {}
   }
 
