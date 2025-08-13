@@ -18,6 +18,7 @@ export type SettingNamespace = keyof SettingDefinition
 export type SettingKey<T extends SettingNamespace> = keyof SettingDefinition[T]
 export type SettingProperty = string | number | boolean | string[]
 
+export type ProxyState = 'disabled' | 'system_proxy' | 'custom_proxy'
 export type ProxyType = 'socks' | 'http' | 'https'
 
 export interface SettingDefinition {
@@ -25,7 +26,7 @@ export interface SettingDefinition {
     language: LanguageAvailableCode
   }
   network: {
-    proxy_enabled: boolean
+    proxy_state: ProxyState
     proxy_type: ProxyType
     proxy_host: string
     proxy_port: number

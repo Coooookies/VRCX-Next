@@ -22,7 +22,7 @@ export const DEFAULT_SETTING: FunctionProperties<SettingDefinition> = {
     language: () => getLocale()
   },
   network: {
-    proxy_enabled: () => false,
+    proxy_state: () => 'disabled',
     proxy_type: () => 'http',
     proxy_host: () => '127.0.0.1',
     proxy_port: () => 7890,

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useModule } from '../hooks/use-module'
+import { useModule } from '../../hooks/use-module'
 import { Button } from '@renderer/shared/components/ui/button'
 import {
   Combobox,
@@ -15,9 +15,9 @@ import {
   ComboboxViewport
 } from '@renderer/shared/components/ui/combobox'
 import { CheckIcon, ChevronsUpDownIcon, LanguagesIcon } from 'lucide-vue-next'
-import { SettingModule } from '../modules/setting'
 import { LANGUAGE_ITEMS } from '@shared/locale'
 import type { HTMLAttributes } from 'vue'
+import type { SettingModule } from '../../modules/setting'
 import type { AcceptableValue, ComboboxContentProps } from 'reka-ui'
 import type { LanguageAvailableCode } from '@shared/locale/types'
 
@@ -52,9 +52,14 @@ const onUpdateLanguage = (value: AcceptableValue) => {
         </Button>
       </ComboboxTrigger>
     </ComboboxAnchor>
-    <ComboboxList :class="props.contentClass" :align="props.align" :side-offset="props.sideOffset">
+    <ComboboxList
+      :class="props.contentClass"
+      :align="props.align"
+      :side-offset="props.sideOffset"
+      @focus-outside.prevent
+    >
       <ComboboxInput placeholder="Select Language..." />
-      <ComboboxViewport class="max-h-[244px]">
+      <ComboboxViewport class="max-h-80">
         <ComboboxEmpty>No Language found.</ComboboxEmpty>
         <ComboboxGroup>
           <ComboboxItem

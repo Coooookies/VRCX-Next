@@ -20,7 +20,7 @@ export const LANGUAGE_ZH_CNS: Languageinstance = {
         checkbox_remember_me: '保存凭据',
         button_login: '登录',
         button_register: '注册',
-        button_saved_account: '已登录账户'
+        button_saved_account: '已保存账户'
       },
       savedCredentials: {
         title: '登录到 VRChat',
