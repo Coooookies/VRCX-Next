@@ -2,7 +2,7 @@
 import type { PinInputRootEmits, PinInputRootProps } from 'reka-ui'
 import type { HTMLAttributes } from 'vue'
 import type { PinInputFocusPayload, PinInputType } from './types'
-import { provide } from 'vue'
+import { provide, useId } from 'vue'
 import { reactiveOmit } from '@vueuse/core'
 import { PinInputRoot, useForwardPropsEmits } from 'reka-ui'
 import { cn } from '@renderer/shared/utils/style'
@@ -18,7 +18,7 @@ const props = withDefaults(
 
 const emits = defineEmits<PinInputRootEmits>()
 
-const pinInputUniqueId = window.crypto.randomUUID()
+const pinInputUniqueId = useId()
 
 const delegatedProps = reactiveOmit(props, 'class')
 
