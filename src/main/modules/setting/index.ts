@@ -5,7 +5,7 @@ import { transformEntityToPropertyInstance } from './factory'
 import { Dependency, Module } from '@shared/module-constructor'
 import { SettingEntity } from '../database/entities/setting'
 import { SettingModuleError } from './error'
-import { DEFAULT_SETTING, DEFAULT_SETTING_INSTANCE, DEFAULT_SETTING_KEYS } from './default-setting'
+import { DEFAULT_SETTING, DEFAULT_SETTING_KEYS } from './default-setting'
 import type { Database } from '../database'
 import type { MobxState } from '../mobx-state'
 import type { IPCModule } from '../ipc'
@@ -28,9 +28,15 @@ export class SettingModule extends Module<{
   private setting!: SettingDefinition
 
   protected async onInit(): Promise<void> {
-    this.initSyncStorage()
+    this.bindEvents()
     this.bindInvokes()
     await this.preload()
+  }
+
+  private bindEvents(): void {
+    this.on('update', (property: InstanceProperties<SettingDefinition>) => {
+      this.ipc.send('setting-module:update', property)
+    })
   }
 
   private bindInvokes(): void {
@@ -39,23 +45,33 @@ export class SettingModule extends Module<{
     })
   }
 
-  private initSyncStorage(): void {
-    this.setting = this.mobx.observable(
-      this.moduleId,
-      DEFAULT_SETTING_INSTANCE,
-      DEFAULT_SETTING_KEYS
-    )
-  }
-
   private async preload(): Promise<void> {
     const savedSettings = await this.repository.find()
     const savedSettingInstances = savedSettings.map(transformEntityToPropertyInstance)
+    const storage: SettingDefinition = {} as SettingDefinition
+
+    const set = <T extends SettingNamespace, K extends SettingKey<T>>(
+      namespace: T,
+      key: K,
+      value: SettingProperty
+    ) => {
+      if (!(namespace in storage)) storage[namespace] = {} as SettingDefinition[T]
+      storage[namespace][key] = value as SettingDefinition[T][K]
+    }
+
+    const has = <T extends SettingNamespace, K extends SettingKey<T>>(
+      namespace: T,
+      key: K
+    ): boolean => {
+      return namespace in storage && key in storage[namespace]
+    }
 
     for (const instance of savedSettingInstances) {
       const propertyNamespace = instance.namespace as SettingNamespace
       const propertyKey = instance.key as SettingKey<typeof propertyNamespace>
 
-      this.set(propertyNamespace, propertyKey, instance.value)
+      set(propertyNamespace, propertyKey, instance.value)
+
       this.logger.debug(
         'Setting property loaded:',
         `${instance.namespace}.${instance.key}`,
@@ -68,7 +84,7 @@ export class SettingModule extends Module<{
         const propertyNamespace = namespace as SettingNamespace
         const propertyKey = key as SettingKey<typeof propertyNamespace>
 
-        if (this.has(propertyNamespace, propertyKey)) {
+        if (has(propertyNamespace, propertyKey)) {
           continue
         }
 
@@ -79,8 +95,8 @@ export class SettingModule extends Module<{
         propertyEntity.value = propertyValue
 
         await this.upsert(propertyEntity)
+        set(propertyNamespace, propertyKey, propertyValue)
 
-        this.set(propertyNamespace, propertyKey, propertyValue)
         this.logger.debug(
           'New Setting Property Inserted:',
           `${propertyNamespace}.${propertyKey}`,
@@ -88,6 +104,8 @@ export class SettingModule extends Module<{
         )
       }
     }
+
+    this.setting = this.mobx.observable(this.moduleId, storage, DEFAULT_SETTING_KEYS)
   }
 
   private set<T extends SettingNamespace, K extends SettingKey<T>>(
@@ -98,10 +116,6 @@ export class SettingModule extends Module<{
     this.mobx.action(() => {
       this.setting[namespace][key] = value as SettingDefinition[T][K]
     })
-  }
-
-  private has<T extends SettingNamespace, K extends SettingKey<T>>(namespace: T, key: K): boolean {
-    return namespace in this.setting && key in this.setting[namespace]
   }
 
   private upsert(entity: SettingEntity): Promise<InsertResult> {

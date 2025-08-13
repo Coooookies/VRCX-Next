@@ -1,7 +1,26 @@
-import { createDefaultSettingKeys, createDefaultSettingValues } from './factory'
+import { createDefaultSettingKeys } from './factory'
+import { locale } from '@main/utils/locale'
+import type { LanguageAvailableCode } from '@shared/locale/types'
 import type { SettingDefinition, FunctionProperties } from '@shared/types/setting'
 
+function getLocale(): LanguageAvailableCode {
+  const envLocale = locale()
+
+  switch (envLocale) {
+    case 'en-US':
+      return 'en-US'
+    case 'zh-CHS':
+    case 'zh-CN':
+      return 'zh-CN'
+    default:
+      return 'en-US'
+  }
+}
+
 export const DEFAULT_SETTING: FunctionProperties<SettingDefinition> = {
+  appearance: {
+    language: () => getLocale()
+  },
   network: {
     proxy_enabled: () => false,
     proxy_type: () => 'http',
@@ -18,4 +37,3 @@ export const DEFAULT_SETTING: FunctionProperties<SettingDefinition> = {
 }
 
 export const DEFAULT_SETTING_KEYS = createDefaultSettingKeys()
-export const DEFAULT_SETTING_INSTANCE = createDefaultSettingValues()

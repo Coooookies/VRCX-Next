@@ -4,7 +4,7 @@ import AuthSeparator from './auth-separator.vue'
 import AuthAnimeWrapper from './auth-anime-wrapper.vue'
 import AuthCredentialsComboBox from './auth-credentials-combo-box.vue'
 import { useForm } from 'vee-validate'
-import { useI18n } from '@renderer/shared/i18n'
+import { useI18n } from '@renderer/shared/locale'
 import { toTypedSchema } from '@vee-validate/zod'
 import { onMounted, ref } from 'vue'
 import {

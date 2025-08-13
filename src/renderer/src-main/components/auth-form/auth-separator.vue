@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useI18n } from '@renderer/shared/i18n'
+import { useI18n } from '@renderer/shared/locale'
 import { cn } from '@renderer/shared/utils/style'
 
 const { t } = useI18n()

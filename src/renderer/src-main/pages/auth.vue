@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import AppTitle from '@shared/assets/vector/icon-vrcx.svg?component'
-import AuthTooltipContainer from '../components/auth-form/auth-tooltip-container.vue'
+import LocaleComboBox from '@renderer/shared/components/locale-combo-box.vue'
 import { useTemplateRef } from 'vue'
 import { useAuth } from '../composables/auth'
 import { useAuthSubmit } from '../composables/auth-submit'
 import { AnimatePresence } from 'motion-v'
 import { Button } from '@renderer/shared/components/ui/button'
 import { Spinner } from '@renderer/shared/components/ui/spinner'
-import { LanguagesIcon, NetworkIcon } from 'lucide-vue-next'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@renderer/shared/components/ui/tooltip'
 import {
   AuthFormCredentials,
   AuthFormSavedCredentials,
@@ -16,6 +21,7 @@ import {
   AuthForm2FARecovery,
   AuthForm2FAEmail
 } from '../components/auth-form'
+import { NetworkIcon } from 'lucide-vue-next'
 
 const credentialFormRef = useTemplateRef('credentialFormRef')
 const reauthenticateFormRef = useTemplateRef('reauthenticateFormRef')
@@ -83,17 +89,20 @@ function clearInput() {
       <div class="absolute top-0 left-0 w-full z-10 px-8 pt-8">
         <AppTitle class="w-17.5 h-6" />
       </div>
-      <div class="absolute bottom-0 left-0 w-full flex flex-row justify-end gap-2.5 px-8 pb-8 z-10">
-        <AuthTooltipContainer text="Network Settings">
-          <Button size="icon" variant="outline">
-            <NetworkIcon />
-          </Button>
-        </AuthTooltipContainer>
-        <AuthTooltipContainer text="Language">
-          <Button size="icon" variant="outline">
-            <LanguagesIcon />
-          </Button>
-        </AuthTooltipContainer>
+      <div class="absolute bottom-0 left-0 w-full flex flex-row justify-end gap-x-2 px-8 pb-8 z-10">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger as-child>
+              <Button size="icon" variant="outline">
+                <NetworkIcon />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Network Settings</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <LocaleComboBox :align="'end'" :side-offset="8" content-class="w-51" />
       </div>
       <div v-if="!isInitializing" class="relative w-full h-full flex items-center justify-center">
         <AnimatePresence mode="wait" :initial="false">

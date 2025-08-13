@@ -1,3 +1,4 @@
+import type { InstanceProperties, SettingDefinition } from '@shared/types/setting'
 import type { AuthenticationState } from '@shared/types/vrchat-authentication'
 
 export type IpcListenerEvents = {
@@ -10,4 +11,7 @@ export type IpcRendererEvent = {
 
   // VRChatAuthentication
   'vrchat-authentication:state:update': [state: AuthenticationState]
+
+  // SettingModule
+  'setting-module:update': [property: InstanceProperties<SettingDefinition>]
 }

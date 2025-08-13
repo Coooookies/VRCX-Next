@@ -1,3 +1,5 @@
+import type { LanguageAvailableCode } from '@shared/locale/types'
+
 export type FunctionProperties<T> = {
   [K in keyof T]: T[K] extends object ? FunctionProperties<T[K]> : () => T[K]
 }
@@ -19,6 +21,9 @@ export type SettingProperty = string | number | boolean | string[]
 export type ProxyType = 'socks' | 'http' | 'https'
 
 export interface SettingDefinition {
+  appearance: {
+    language: LanguageAvailableCode
+  }
   network: {
     proxy_enabled: boolean
     proxy_type: ProxyType

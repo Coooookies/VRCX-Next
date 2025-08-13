@@ -1,3 +1,6 @@
+import { LANGUAGES } from '.'
+import { LCID_DEFINITIONS } from './lcid'
+
 export type LanguageDefinition = {
   authentication: {
     global: {
@@ -58,3 +61,12 @@ export type LanguageDefinition = {
     }
   }
 }
+
+export type Languageinstance = {
+  label: string
+  value: string
+  definition: LanguageDefinition
+}
+
+export type LanguageAvailableCode = keyof typeof LANGUAGES
+export type LanguageCode = (typeof LCID_DEFINITIONS)[keyof typeof LCID_DEFINITIONS]

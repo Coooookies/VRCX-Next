@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useLocaleUpdater } from './composables/locale-updater'
 import { ScaleRouterView } from './components/router-view'
+
+useLocaleUpdater()
 </script>
 
 <template>
