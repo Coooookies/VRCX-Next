@@ -71,7 +71,7 @@ defineExpose({
       <div className="flex flex-col items-center text-center">
         <h1 className="text-2xl font-bold">{{ t('authentication.reauthenticate.title') }}</h1>
       </div>
-      <div className="grid gap-6">
+      <div className="grid gap-5">
         <FormField name="username">
           <FormItem>
             <FormLabel class="leading-5">

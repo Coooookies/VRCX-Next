@@ -1,27 +1,20 @@
 <script setup lang="ts">
 import AppTitle from '@shared/assets/vector/icon-vrcx.svg?component'
-import LocaleComboBox from '@renderer/shared/components/locale-combo-box.vue'
 import { useTemplateRef } from 'vue'
 import { useAuth } from '../composables/auth'
 import { useAuthSubmit } from '../composables/auth-submit'
 import { AnimatePresence } from 'motion-v'
-import { Button } from '@renderer/shared/components/ui/button'
 import { Spinner } from '@renderer/shared/components/ui/spinner'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@renderer/shared/components/ui/tooltip'
+import { LocaleCombobox } from '@renderer/shared/components/combobox'
 import {
   AuthFormCredentials,
   AuthFormSavedCredentials,
   AuthFormReauthenticate,
   AuthForm2FAAuthenticator,
   AuthForm2FARecovery,
-  AuthForm2FAEmail
+  AuthForm2FAEmail,
+  AuthProxyButton
 } from '../components/auth-form'
-import { NetworkIcon } from 'lucide-vue-next'
 
 const credentialFormRef = useTemplateRef('credentialFormRef')
 const reauthenticateFormRef = useTemplateRef('reauthenticateFormRef')
@@ -90,19 +83,8 @@ function clearInput() {
         <AppTitle class="w-17.5 h-6" />
       </div>
       <div class="absolute bottom-0 left-0 w-full flex flex-row justify-end gap-x-2 px-8 pb-8 z-10">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger as-child>
-              <Button size="icon" variant="outline">
-                <NetworkIcon />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Network Settings</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <LocaleComboBox :align="'end'" :side-offset="8" content-class="w-51" />
+        <AuthProxyButton />
+        <LocaleCombobox :align="'end'" :side-offset="8" content-class="w-51" />
       </div>
       <div v-if="!isInitializing" class="relative w-full h-full flex items-center justify-center">
         <AnimatePresence mode="wait" :initial="false">

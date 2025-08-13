@@ -74,7 +74,7 @@ defineExpose({
       <div className="flex flex-col items-center text-center">
         <h1 className="text-xl font-bold">{{ t('authentication.twoFAfaRecovery.title') }}</h1>
       </div>
-      <div className="grid gap-6">
+      <div className="grid gap-5">
         <div class="grid gap-2">
           <Label class="leading-5">{{ t('authentication.twoFAfaRecovery.label_account') }}</Label>
           <AuthUserOverviewButton

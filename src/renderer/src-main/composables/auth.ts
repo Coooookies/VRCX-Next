@@ -36,6 +36,7 @@ function getInitialForm(
   let recoveryAvailable = false
 
   switch (state.type) {
+    case 'logging-out':
     case 'unauthenticated':
     case 'error': {
       type = credentials.length > 0 ? 'savedCredentials' : 'credentials'
