@@ -9,6 +9,7 @@ import { VRChatAPI } from './vrchat-api'
 import { VRChatAuthentication } from './vrchat-authentication'
 import { VRChatWorkflowCoordinator } from './vrchat-workflow-coordinator'
 import { VRChatFiles } from './vrchat-files'
+import { VRChatFriends } from './vrchat-friends'
 import { Runtime } from './runtime'
 import type { ModuleConstructor } from '@shared/module-constructor/types'
 
@@ -24,5 +25,6 @@ export const APP_MODULES: Record<string, ModuleConstructor> = {
   VRChatAuthentication,
   VRChatWorkflowCoordinator,
   VRChatFiles,
+  VRChatFriends,
   Runtime
 }
