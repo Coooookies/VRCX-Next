@@ -2,6 +2,7 @@ import { createActor } from 'xstate'
 import { createLogger } from '@main/logger'
 import { createAuthenticationMachine } from './state-machine'
 import { createAuthenticationLogic } from './state-logic'
+import { getProfileIconUrl, parseFileUrl } from '../vrchat-files/parser'
 import { snapshotToAuthenticationState } from './factory'
 import { AuthenticationRepository } from './repository'
 import { AuthenticationIPCBinding } from './ipc-binding'
@@ -14,7 +15,6 @@ import type { MobxState } from '../mobx-state'
 import type { SettingModule } from '../setting'
 import type { AuthenticationState, AuthenticationUserOverview } from './types'
 import type { AuthenticationSharedState } from '@shared/types/mobx-shared'
-import { getProfileIconUrl, parseFileUrl } from '../vrchat-files/parser'
 
 export class VRChatAuthentication extends Module<{
   'state:update': (state: AuthenticationState) => void
