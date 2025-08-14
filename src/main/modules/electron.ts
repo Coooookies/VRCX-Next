@@ -15,4 +15,9 @@ export class ElectronModule extends Module {
       optimizer.watchWindowShortcuts(window)
     })
   }
+
+  public relaunch() {
+    app.relaunch()
+    app.exit(0)
+  }
 }

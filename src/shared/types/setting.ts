@@ -19,7 +19,7 @@ export type SettingKey<T extends SettingNamespace> = keyof SettingDefinition[T]
 export type SettingProperty = string | number | boolean | string[]
 
 export type ProxyState = 'disabled' | 'system_proxy' | 'custom_proxy'
-export type ProxyType = 'socks' | 'http' | 'https'
+export type ProxyType = 'socks' | 'http'
 
 export interface SettingDefinition {
   appearance: {

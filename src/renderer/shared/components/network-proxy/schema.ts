@@ -1,5 +1,5 @@
 import { z } from 'zod'
-const proxyTypeEnum = ['http', 'https', 'socks'] as const
+const proxyTypeEnum = ['http', 'socks'] as const
 
 export const NETWORK_PROXY_SCHEMA = z.discriminatedUnion('state', [
   z.object({

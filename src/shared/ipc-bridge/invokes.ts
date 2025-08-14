@@ -29,4 +29,7 @@ export type IpcInvokeEvents = {
   'vrchat-authentication:delete-credential': (userId: string) => void
   'vrchat-authentication:logout': () => void
   'vrchat-authentication:signout': () => void
+
+  // Runtime
+  'runtime:relaunch': () => void
 }

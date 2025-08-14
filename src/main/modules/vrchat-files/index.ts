@@ -2,14 +2,12 @@ import { basename, extname, join } from 'node:path'
 import { PassThrough } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import { readFile } from 'node:fs/promises'
-import { got } from 'got'
 import { getExtension, getMimeType } from 'hono/utils/mime'
 import { createLogger } from '@main/logger'
 import { readSubFiles, toReadableStream } from '@main/utils/fs'
 import { Dependency, Module } from '@shared/module-constructor'
 import { APP_CACHE_DIR } from '@main/constants'
 import { mkdirSync, existsSync, createWriteStream, createReadStream } from 'node:fs'
-import { VRCHAT_API_BASE_URL, VRCHAT_API_USER_AGENT } from '../vrchat-api/constants'
 import type { VRChatAPI } from '../vrchat-api'
 import type { VRChatAuthentication } from '../vrchat-authentication'
 import type { ProtocolServer } from '../protocol-server'
@@ -25,12 +23,12 @@ export class VRChatFiles extends Module<{}> {
 
   private readonly imageCacheDir = join(APP_CACHE_DIR, CACHE_VRCHAT_IMAGE_DIR)
   private readonly logger = createLogger(this.moduleId)
-  private readonly client = got.extend({
-    prefixUrl: VRCHAT_API_BASE_URL,
-    headers: {
-      'User-Agent': VRCHAT_API_USER_AGENT
-    }
-  })
+  // private readonly client = got.extend({
+  //   prefixUrl: VRCHAT_API_BASE_URL,
+  //   headers: {
+  //     'User-Agent': VRCHAT_API_USER_AGENT
+  //   }
+  // })
 
   protected onInit(): void {
     if (!existsSync(this.imageCacheDir)) {
@@ -132,7 +130,7 @@ export class VRChatFiles extends Module<{}> {
 
       try {
         const url = `image/${fileId}/${version}/${size}`
-        const response = this.client.stream(url)
+        const response = this.api.ref.publicAPI.client.stream(url)
         const gotResponse = await new Promise<Response>((resolve, reject) => {
           response.once('response', resolve)
           response.once('error', reject)

@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import StateRadioGroup from './state-radio-group.vue'
 import TypeRadioGroup from './type-radio-group.vue'
+import { ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { useModule } from '../../hooks/use-module'
 import { toTypedSchema } from '@vee-validate/zod'
 import { VisuallyHidden } from 'reka-ui'
 import { Input } from '../ui/input'
-import { Button } from '@renderer/shared/components/ui/button'
+import { Button, SpinnerButton } from '@renderer/shared/components/ui/button'
 import { NumberField, NumberFieldInput } from '../ui/number-field'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
@@ -21,12 +22,13 @@ import {
 } from '@renderer/shared/components/ui/dialog'
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-vue-next'
 import { NETWORK_PROXY_SCHEMA } from './schema'
+import type { Runtime } from '@renderer/shared/modules/runtime'
 import type { SettingModule } from '../../modules/setting'
 import type { StateItem } from './state-radio-group.vue'
 import type { TypeItem } from './type-radio-group.vue'
-import { ref } from 'vue'
 
 const setting = useModule<SettingModule>('SettingModule')
+const runtime = useModule<Runtime>('Runtime')
 const credentialGroupOpen = ref(false)
 
 const stateItems: StateItem[] = [
@@ -34,10 +36,10 @@ const stateItems: StateItem[] = [
     label: 'Disable proxy',
     value: 'disabled'
   },
-  {
-    label: 'Use system proxy settings',
-    value: 'system_proxy'
-  },
+  // {
+  //   label: 'Use system proxy settings',
+  //   value: 'system_proxy'
+  // },
   {
     label: 'Use custom proxy',
     value: 'custom_proxy'
@@ -49,10 +51,10 @@ const typeItems: TypeItem[] = [
     label: 'HTTP',
     value: 'http'
   },
-  {
-    label: 'HTTPS',
-    value: 'https'
-  },
+  // {
+  //   label: 'HTTPS',
+  //   value: 'https'
+  // },
   {
     label: 'Socks',
     value: 'socks'
@@ -71,8 +73,26 @@ const form = useForm({
   }
 })
 
-const onSubmit = form.handleSubmit((values) => {
-  console.log(values)
+const onSubmit = form.handleSubmit(async (values) => {
+  switch (values.state) {
+    case 'disabled':
+    case 'system_proxy': {
+      await setting.update('network', 'proxy_state', values.state)
+      break
+    }
+    case 'custom_proxy': {
+      await Promise.all([
+        setting.update('network', 'proxy_state', values.state),
+        setting.update('network', 'proxy_type', values.type),
+        setting.update('network', 'proxy_host', values.host),
+        setting.update('network', 'proxy_port', values.port),
+        setting.update('network', 'proxy_credential_username', values.credential_username || ''),
+        setting.update('network', 'proxy_credential_password', values.credential_password || '')
+      ])
+    }
+  }
+
+  runtime.relaunch()
 })
 
 function preloadSetting() {
@@ -188,7 +208,9 @@ function preloadSetting() {
           </Collapsible>
         </div>
         <div class="grid gap-2">
-          <Button type="submit" class="flex-1">Apply and restart VRCX</Button>
+          <SpinnerButton type="submit" class="flex-1" :loading="form.isSubmitting.value">
+            Apply and restart VRCX
+          </SpinnerButton>
           <DialogClose as-child>
             <Button type="button" variant="ghost" class="flex-1">Cancel</Button>
           </DialogClose>

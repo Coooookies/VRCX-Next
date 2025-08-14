@@ -5,6 +5,7 @@ import { IPCRenderer } from '@renderer/shared/modules/ipc'
 import { MobxRenderer } from '@renderer/shared/modules/mobx-renderer'
 import { SettingModule } from '@renderer/shared/modules/setting'
 import { VRChatAuthentication } from '@renderer/shared/modules/vrchat-authentication'
+import { Runtime } from '@renderer/shared/modules/runtime'
 
 const module = createModuleManager()
 const modules: Record<string, ModuleConstructor> = {
@@ -12,7 +13,8 @@ const modules: Record<string, ModuleConstructor> = {
   IPCRenderer,
   MobxRenderer,
   SettingModule,
-  VRChatAuthentication
+  VRChatAuthentication,
+  Runtime
 }
 
 for (const [identifier, mod] of Object.entries(modules)) {

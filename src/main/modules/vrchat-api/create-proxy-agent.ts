@@ -21,32 +21,27 @@ export function createProxyAgent(config: {
   const _username = encodeURIComponent(username || '')
   const _password = encodeURIComponent(password || '')
   const _credential = username && password ? `${_username}:${_password}@` : ''
-  const proxyUrl = `${type}://${_credential}${_address}`
-
-  const options: HttpsProxyAgentOptions = {
-    keepAlive: true,
-    keepAliveMsecs: 1000,
-    maxSockets: 256,
-    maxFreeSockets: 256,
-    scheduling: 'lifo',
-    proxy: proxyUrl
-  }
 
   switch (type) {
     case 'socks': {
-      const proxy = new SocksProxyAgent(proxyUrl)
+      const proxy = new SocksProxyAgent(`socks://${_credential}${_address}`)
       return {
         http: proxy,
         https: proxy
       }
     }
     case 'http': {
-      return {
-        http: new HttpProxyAgent(options)
+      const options: HttpsProxyAgentOptions = {
+        keepAlive: true,
+        keepAliveMsecs: 1000,
+        maxSockets: 256,
+        maxFreeSockets: 256,
+        scheduling: 'lifo',
+        proxy: `http://${_credential}${_address}`
       }
-    }
-    case 'https': {
+
       return {
+        http: new HttpProxyAgent(options),
         https: new HttpsProxyAgent(options)
       }
     }
