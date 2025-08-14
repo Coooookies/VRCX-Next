@@ -13,7 +13,7 @@ const props = defineProps({
   <RouterView v-slot="{ Component, route }">
     <Transition :name="`router-transition-${route.meta.transition_type}`">
       <KeepAlive :include="props.keepAliveKeys">
-        <component :is="Component" class="will-change-[transform,opacity]" />
+        <component :is="Component" />
       </KeepAlive>
     </Transition>
   </RouterView>
