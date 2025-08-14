@@ -8,6 +8,9 @@ import {
 } from '@renderer/shared/components/ui/tooltip'
 import { NetworkIcon } from 'lucide-vue-next'
 import { NetworkProxyModal } from '@renderer/shared/components/network-proxy'
+import { useI18n } from '@renderer/shared/locale'
+
+const { t } = useI18n()
 </script>
 
 <template>
@@ -21,7 +24,7 @@ import { NetworkProxyModal } from '@renderer/shared/components/network-proxy'
         </TooltipTrigger>
       </NetworkProxyModal>
       <TooltipContent>
-        <p>Proxy Settings</p>
+        <p>{{ t('setting.network.proxy_settings_title') }}</p>
       </TooltipContent>
     </Tooltip>
   </TooltipProvider>

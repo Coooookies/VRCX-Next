@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { useLocaleUpdater } from './composables/locale-updater'
-import { ScaleRouterView } from './components/router-view'
+import { Toaster } from '@renderer/shared/components/ui/sonner'
+import Viewer from './pages/index.vue'
 
 useLocaleUpdater()
 </script>
 
 <template>
-  <div class="relative w-full h-screen overflow-hidden">
-    <ScaleRouterView />
-  </div>
+  <Toaster />
+  <Viewer />
 </template>

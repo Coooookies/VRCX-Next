@@ -24,6 +24,7 @@ import {
   PinInputSlot
 } from '@renderer/shared/components/ui/pin-input'
 import { TWOFA_RECOVERY_FORM_SCHEMA } from './schema'
+import type { LocaleI18NKeys } from '@renderer/shared/locale/types'
 
 const { t } = useI18n()
 const pinInputRef = useTemplateRef('pinInputRef')
@@ -113,7 +114,9 @@ defineExpose({
                 </PinInputGroup>
               </PinInput>
             </FormControl>
-            <FormMessage />
+            <FormMessage v-slot="{ message }">
+              {{ t(message as LocaleI18NKeys) }}
+            </FormMessage>
           </FormItem>
         </FormField>
         <SpinnerButton type="submit" :loading="props.loading">

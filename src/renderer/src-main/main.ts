@@ -1,4 +1,5 @@
 import 'reflect-metadata'
+import 'vue-sonner/style.css'
 import '@renderer/shared/styles/main.css'
 
 import entry from './app.vue'

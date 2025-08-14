@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useModule } from '../../hooks/use-module'
+import { useModule } from '@renderer/shared/hooks/use-module'
+import { useI18n } from '@renderer/shared/locale'
 import { Button } from '@renderer/shared/components/ui/button'
 import {
   Combobox,
@@ -26,6 +27,7 @@ interface LanguageItem {
   value: LanguageAvailableCode
 }
 
+const { t } = useI18n()
 const props = defineProps<ComboboxContentProps & { contentClass?: HTMLAttributes['class'] }>()
 const setting = useModule<SettingModule>('SettingModule')
 
@@ -46,7 +48,9 @@ const onUpdateLanguage = (value: AcceptableValue) => {
         <Button variant="outline" class="w-40 justify-between">
           <div class="flex flex-row items-center gap-x-2 overflow-hidden">
             <LanguagesIcon />
-            <span class="truncate">{{ selectedLanguage?.label ?? 'Select Language...' }}</span>
+            <span class="truncate">
+              {{ selectedLanguage?.label ?? t('setting.locale.select_placeholder') }}
+            </span>
           </div>
           <ChevronsUpDownIcon class="ml-2 size-4 shrink-0 opacity-50" />
         </Button>
@@ -58,9 +62,9 @@ const onUpdateLanguage = (value: AcceptableValue) => {
       :side-offset="props.sideOffset"
       @focus-outside.prevent
     >
-      <ComboboxInput placeholder="Select Language..." />
+      <ComboboxInput :placeholder="t('setting.locale.search_input_placeholder')" />
       <ComboboxViewport class="max-h-80">
-        <ComboboxEmpty>No Language found.</ComboboxEmpty>
+        <ComboboxEmpty>{{ t('setting.locale.search_result_empty') }}</ComboboxEmpty>
         <ComboboxGroup>
           <ComboboxItem
             v-for="language in LANGUAGE_ITEMS"

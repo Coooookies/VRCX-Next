@@ -17,6 +17,7 @@ import {
 import { Button, SpinnerButton } from '@renderer/shared/components/ui/button'
 import { SAVED_CREDENTIALS_FORM_SCHEMA } from './schema'
 import type { AuthenticationCredentialEntity } from '@shared/types/vrchat-authentication'
+import type { LocaleI18NKeys } from '@renderer/shared/locale/types'
 
 const { t } = useI18n()
 const credentialComboxBoxOpen = ref(false)
@@ -83,7 +84,9 @@ onMounted(() => {
                 @update:value="componentField['onUpdate:modelValue']"
               />
             </FormControl>
-            <FormMessage />
+            <FormMessage v-slot="{ message }">
+              {{ t(message as LocaleI18NKeys) }}
+            </FormMessage>
           </FormItem>
         </FormField>
         <SpinnerButton type="submit" :loading="props.loading">

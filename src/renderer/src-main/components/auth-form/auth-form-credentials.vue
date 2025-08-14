@@ -17,6 +17,7 @@ import { Input } from '@renderer/shared/components/ui/input'
 import { Button, SpinnerButton } from '@renderer/shared/components/ui/button'
 import { Checkbox } from '@renderer/shared/components/ui/checkbox'
 import { CREDENTIALS_FORM_SCHEMA } from './schema'
+import type { LocaleI18NKeys } from '@renderer/shared/locale/types'
 
 const { t } = useI18n()
 const passwordInputRef = useTemplateRef('passwordInputRef')
@@ -85,7 +86,9 @@ defineExpose({
                 :disabled="props.loading"
               />
             </FormControl>
-            <FormMessage />
+            <FormMessage v-slot="{ message }">
+              {{ t(message as LocaleI18NKeys) }}
+            </FormMessage>
           </FormItem>
         </FormField>
         <FormField v-slot="{ componentField }" name="password">
@@ -102,7 +105,9 @@ defineExpose({
                 :disabled="props.loading"
               />
             </FormControl>
-            <FormMessage />
+            <FormMessage v-slot="{ message }">
+              {{ t(message as LocaleI18NKeys) }}
+            </FormMessage>
           </FormItem>
         </FormField>
         <FormField v-slot="{ componentField }" name="saveCredential">

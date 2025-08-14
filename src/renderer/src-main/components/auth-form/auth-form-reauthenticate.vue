@@ -18,6 +18,7 @@ import { Input } from '@renderer/shared/components/ui/input'
 import { Button, SpinnerButton } from '@renderer/shared/components/ui/button'
 import { REAUTHENTICATE_FORM_SCHEMA } from './schema'
 import type { AuthenticationUserOverview } from '@shared/types/vrchat-authentication'
+import type { LocaleI18NKeys } from '@renderer/shared/locale/types'
 
 const { t } = useI18n()
 const passwordInputRef = useTemplateRef('passwordInputRef')
@@ -85,7 +86,9 @@ defineExpose({
                 :profile-icon-file-version="props.overview.profileThumbnailImageFileVersion"
               />
             </FormControl>
-            <FormMessage />
+            <FormMessage v-slot="{ message }">
+              {{ t(message as LocaleI18NKeys) }}
+            </FormMessage>
           </FormItem>
         </FormField>
         <FormField v-slot="{ componentField }" name="password">
@@ -110,7 +113,9 @@ defineExpose({
                 :disabled="props.loading"
               />
             </FormControl>
-            <FormMessage />
+            <FormMessage v-slot="{ message }">
+              {{ t(message as LocaleI18NKeys) }}
+            </FormMessage>
           </FormItem>
         </FormField>
         <SpinnerButton type="submit" :loading="props.loading">

@@ -1,4 +1,4 @@
-import { onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useModule } from '@renderer/shared/hooks/use-module'
 import type { ResponseErrorReason } from '@shared/types/vrchat-api-status'
 import type { VRChatAuthentication } from '@renderer/shared/modules/vrchat-authentication'
@@ -36,12 +36,6 @@ function getInitialForm(
   let recoveryAvailable = false
 
   switch (state.type) {
-    case 'logging-out':
-    case 'unauthenticated':
-    case 'error': {
-      type = credentials.length > 0 ? 'savedCredentials' : 'credentials'
-      break
-    }
     case 'twofa-required':
     case 'twofa-verifying': {
       const method = state.twoFactorAuthMethods[0]
@@ -62,6 +56,9 @@ function getInitialForm(
 
       recoveryAvailable = state.twoFactorAuthMethods.includes('otp')
       break
+    }
+    default: {
+      type = credentials.length > 0 ? 'savedCredentials' : 'credentials'
     }
   }
 
@@ -101,22 +98,6 @@ export function useAuth(events: AuthEvents = {}) {
     username: '',
     displayName: ''
   })
-
-  Promise.all([auth.getResumeSessionState(), auth.getAllCredentials()])
-    .then(([session, credentials]) => {
-      savedCredentials.value = credentials
-      resumeSession.value = session
-    })
-    .finally(() => {
-      const { type, overview, recoveryAvailable } = getInitialForm(
-        auth.state.value,
-        savedCredentials.value
-      )
-      currentOverview.value = overview || currentOverview.value
-      currentFormType.value = type
-      recoveryCodeAvailable.value = recoveryAvailable
-      isInitializing.value = false
-    })
 
   const handleStateUpdate = (state: AuthenticationState) => {
     switch (state.type) {
@@ -245,7 +226,26 @@ export function useAuth(events: AuthEvents = {}) {
     }
   }
 
-  auth.addListener('state:update', handleStateUpdate)
+  onMounted(() => {
+    auth.addListener('state:update', handleStateUpdate)
+
+    Promise.all([auth.getResumeSessionState(), auth.getAllCredentials()])
+      .then(([session, credentials]) => {
+        savedCredentials.value = credentials
+        resumeSession.value = session
+      })
+      .finally(() => {
+        const { type, overview, recoveryAvailable } = getInitialForm(
+          auth.state.value,
+          savedCredentials.value
+        )
+
+        currentOverview.value = overview || currentOverview.value
+        currentFormType.value = type
+        recoveryCodeAvailable.value = recoveryAvailable
+        isInitializing.value = false
+      })
+  })
 
   onUnmounted(() => {
     auth.removeListener('state:update', handleStateUpdate)

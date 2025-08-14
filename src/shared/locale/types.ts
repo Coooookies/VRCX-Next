@@ -12,8 +12,10 @@ export type LanguageDefinition = {
       title: string
       label_username: string
       input_username_placeholder: string
+      input_username_not_empty: string
       label_password: string
       input_password_placeholder: string
+      input_password_not_empty: string
       link_forget_password: string
       checkbox_remember_me: string
       button_login: string
@@ -31,6 +33,7 @@ export type LanguageDefinition = {
       label_account: string
       label_password: string
       input_password_placeholder: string
+      input_password_not_empty: string
       link_forget_password: string
       button_login: string
       button_back: string
@@ -47,6 +50,7 @@ export type LanguageDefinition = {
       title: string
       label_account: string
       label_code: string
+      input_code_not_empty: string
       button_verify: string
       button_back: string
     }
@@ -58,6 +62,43 @@ export type LanguageDefinition = {
       label_did_not_receive_tip: string
       button_resend_email_otp: string
       button_back: string
+    }
+  }
+  setting: {
+    network: {
+      proxy_settings_title: string
+      proxy_disable_proxy: string
+      proxy_use_system_proxy: string
+      proxy_use_custom_proxy: string
+      proxy_host: string
+      proxy_host_not_empty: string
+      proxy_port: string
+      proxy_port_invaild: string
+      proxy_credential_optional: string
+      proxy_credential_username: string
+      proxy_credential_password: string
+      proxy_apply: string
+      proxy_cancel: string
+    }
+    locale: {
+      select_placeholder: string
+      search_input_placeholder: string
+      search_result_empty: string
+    }
+  }
+  toast: {
+    error: {
+      vrcapi_api_not_found: string
+      vrcapi_api_forbidden: string
+      vrcapi_api_network_error: string
+      vrcapi_api_server_error: string
+      vrcapi_api_ratelimit_exceeded: string
+      vrcapi_api_unknown_error: string
+      vrcapi_api_invalid_credentials: string
+      vrcapi_api_bad_request: string
+      vrcapi_authentication_2fa_bad_request: string
+      vrcapi_authentication_login_invalid_credentials: string
+      vrcapi_authentication_relogin_invalid_credentials: string
     }
   }
 }

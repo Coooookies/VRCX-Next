@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import AppTitle from '@shared/assets/vector/icon-vrcx.svg?component'
+import { toast } from 'vue-sonner'
 import { useTemplateRef } from 'vue'
 import { useAuth } from '../composables/auth'
 import { useAuthSubmit } from '../composables/auth-submit'
 import { AnimatePresence } from 'motion-v'
 import { Spinner } from '@renderer/shared/components/ui/spinner'
-import { LocaleCombobox } from '@renderer/shared/components/combobox'
+import { LocaleCombobox } from '@renderer/shared/components/locale'
 import {
   AuthFormCredentials,
   AuthFormSavedCredentials,
@@ -15,12 +16,16 @@ import {
   AuthForm2FAEmail,
   AuthProxyButton
 } from '../components/auth-form'
+import { ResponseErrorReason } from '@shared/types/vrchat-api-status'
+import { useI18n } from '@renderer/shared/locale'
 
 const credentialFormRef = useTemplateRef('credentialFormRef')
 const reauthenticateFormRef = useTemplateRef('reauthenticateFormRef')
 const twoFactorAuthenticatorFormRef = useTemplateRef('twoFactorAuthenticatorFormRef')
 const twoFactorRecoveryFormRef = useTemplateRef('twoFactorRecoveryFormRef')
 const twoFactorEmailFormRef = useTemplateRef('twoFactorEmailFormRef')
+
+const { t } = useI18n()
 
 const {
   isInitializing,
@@ -39,14 +44,28 @@ const {
   changeToUseRecoveryCode
 } = useAuth({
   onCredentialError(error) {
-    console.error('Credential error:', error)
+    if (error === ResponseErrorReason.InvalidCredentials) {
+      toast.error(t('toast.error.vrcapi_authentication_login_invalid_credentials'))
+      return
+    }
+
+    toastError(error)
     clearInput()
   },
   onReauthenticateRequest(error) {
-    console.error('Reauthentication error:', error)
+    if (error === ResponseErrorReason.InvalidCredentials) {
+      toast.error(t('toast.error.vrcapi_authentication_relogin_invalid_credentials'))
+      return
+    }
+
+    toastError(error)
   },
   on2FAError(error) {
-    console.error('2FA error:', error)
+    if (error === ResponseErrorReason.BadRequest) {
+      toast.error(t('toast.error.vrcapi_authentication_2fa_bad_request'))
+      return
+    }
+
     clearInput()
   }
 })
@@ -68,6 +87,35 @@ function clearInput() {
   twoFactorAuthenticatorFormRef.value?.resetPinInput()
   twoFactorRecoveryFormRef.value?.resetPinInput()
   twoFactorEmailFormRef.value?.resetPinInput()
+}
+
+function toastError(error: ResponseErrorReason) {
+  switch (error) {
+    case ResponseErrorReason.BadRequest:
+      toast.error(t('toast.error.vrcapi_api_bad_request'))
+      break
+    case ResponseErrorReason.NetworkError:
+      toast.error(t('toast.error.vrcapi_api_network_error'))
+      break
+    case ResponseErrorReason.Forbidden:
+      toast.error(t('toast.error.vrcapi_api_forbidden'))
+      break
+    case ResponseErrorReason.ServerError:
+      toast.error(t('toast.error.vrcapi_api_server_error'))
+      break
+    case ResponseErrorReason.RateLimitExceeded:
+      toast.error(t('toast.error.vrcapi_api_ratelimit_exceeded'))
+      break
+    case ResponseErrorReason.InvalidCredentials:
+      toast.error(t('toast.error.vrcapi_api_invalid_credentials'))
+      break
+    case ResponseErrorReason.NotFound:
+      toast.error(t('toast.error.vrcapi_api_not_found'))
+      break
+    case ResponseErrorReason.UnknownError:
+      toast.error(t('toast.error.vrcapi_api_unknown_error'))
+      break
+  }
 }
 </script>
 
