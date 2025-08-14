@@ -166,7 +166,9 @@ function preloadSetting() {
                     :max="65535"
                     :model-value="componentField.modelValue"
                     :format-options="{ useGrouping: false }"
-                    @update:model-value="componentField['onUpdate:modelValue']"
+                    @update:model-value="
+                      componentField['onUpdate:modelValue']?.($event || componentField.modelValue)
+                    "
                   >
                     <NumberFieldInput class="px-3 text-left" />
                   </NumberField>
