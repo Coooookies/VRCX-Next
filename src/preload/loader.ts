@@ -29,7 +29,7 @@ export default class AppLoader {
       margin: 0;
       padding: 0;
       border: 0;
-      background-color: #141417;
+      background-color: oklch(0.18 0 0);
       overflow: hidden;
       z-index: 100000;
       -webkit-app-region: drag;
@@ -43,7 +43,7 @@ export default class AppLoader {
 
     .app-loading-wrap.hide .${AppLoader.className} {
       transform: scale(1.1) translate(-50%, -50%);
-      transition: transform ${AppLoader.classHideDuration}ms;
+      transition: transform ${AppLoader.classHideDuration / 2}ms;
     }
   `
   private static oStyle = document.createElement('style')
