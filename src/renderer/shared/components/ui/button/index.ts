@@ -15,11 +15,11 @@ export const buttonVariants = cva(
         destructive:
           'bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/85 dark:hover:bg-destructive/100 dark:active:bg-destructive/80 disabled:opacity-50',
         outline:
-          'border bg-background shadow-xs hover:bg-accent active:bg-accent/80 hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 dark:active:bg-input/20 disabled:opacity-50',
+          'border bg-background shadow-xs hover:bg-accent active:bg-accent/50 hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 dark:active:bg-input/20 disabled:opacity-50',
         secondary:
-          'bg-secondary text-secondary-foreground shadow-xs hover:bg-[color-mix(in_oklab,var(--secondary)_95%,white)] active:bg-secondary/90 disabled:opacity-50',
+          'bg-secondary text-secondary-foreground shadow-xs hover:bg-[color-mix(in_oklab,var(--secondary)_95%,white)] active:bg-secondary/50 dark:active:bg-secondary/90 disabled:opacity-50',
         ghost:
-          'hover:bg-accent active:bg-accent/80 hover:text-accent-foreground dark:hover:bg-accent/50 dark:active:bg-accent/30 disabled:opacity-50',
+          'hover:bg-accent active:bg-accent/50 hover:text-accent-foreground dark:hover:bg-accent/50 dark:active:bg-accent/30 disabled:opacity-50',
         link: 'text-primary underline-offset-4 hover:underline disabled:text-foreground/50'
       },
       size: {
