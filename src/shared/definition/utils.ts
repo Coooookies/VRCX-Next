@@ -15,3 +15,10 @@ export type TargetPaths<T, D extends number = 3, TK extends number | string = st
         [K in keyof T]-?: K extends TK ? `${K}` | Join<K, TargetPaths<T[K], Previous[D]>> : never
       }[keyof T]
     : ''
+
+export type ExtractParams<Path extends string> =
+  Path extends `${string}:${infer Param}/${infer Rest}`
+    ? { [K in Param | keyof ExtractParams<Rest>]: string }
+    : Path extends `${string}:${infer Param}`
+      ? { [K in Param]: string }
+      : {}

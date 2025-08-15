@@ -94,25 +94,58 @@ export class VRChatFiles extends Module<{}> {
       return new Response(null, { status: 404 })
     }
 
-    this.protocol.register<{
-      fileId: string
-      version: string
-      size: string
-    }>('vrchat-proxy', '/image/:fileId/:version/:size', 'GET', async (_, params) => {
-      const fileId = params.fileId
-      const version = +params.version
-      const size = +params.size
-      const localCache = await this.resolveLocalImageCache(fileId, version, size)
+    this.protocol.register(
+      'vrchat-proxy',
+      '/image/:fileId/:version/:size',
+      'GET',
+      async (_, params) => {
+        const fileId = params.fileId
+        const version = +params.version
+        const size = +params.size
+        const localCache = await this.resolveLocalImageCache(fileId, version, size)
 
-      this.logger.debug(
-        'File request:',
-        `fileId:${fileId} | version:${version} | size:${size} | cache:${!!localCache}`
-      )
+        this.logger.debug(
+          'File request:',
+          `fileId:${fileId} | version:${version} | size:${size} | cache:${!!localCache}`
+        )
 
-      if (localCache) {
+        if (localCache) {
+          try {
+            const { stream, mime } = localCache
+            return new Response(toReadableStream(stream()), {
+              status: 200,
+              headers: {
+                'Content-Type': mime,
+                'Cache-Control': 'max-age=86400'
+              }
+            })
+          } catch (error) {
+            this.logger.error(
+              'Failed to fetch image:',
+              error instanceof Error ? error.message : String(error)
+            )
+            return createNotFoundResponse()
+          }
+        }
+
         try {
-          const { stream, mime } = localCache
-          return new Response(toReadableStream(stream()), {
+          const url = `image/${fileId}/${version}/${size}`
+          const response = this.api.ref.publicAPI.client.stream(url)
+          const gotResponse = await new Promise<Response>((resolve, reject) => {
+            response.once('response', resolve)
+            response.once('error', reject)
+          })
+
+          const mime = gotResponse.headers['content-type'] || 'application/octet-stream'
+          const tee1 = new PassThrough()
+          const tee2 = new PassThrough()
+          response.pipe(tee1)
+          response.pipe(tee2)
+
+          const readableStream = toReadableStream(tee2)
+          await this.saveImageToCache(fileId, version, size, mime, tee1)
+
+          return new Response(readableStream, {
             status: 200,
             headers: {
               'Content-Type': mime,
@@ -127,38 +160,6 @@ export class VRChatFiles extends Module<{}> {
           return createNotFoundResponse()
         }
       }
-
-      try {
-        const url = `image/${fileId}/${version}/${size}`
-        const response = this.api.ref.publicAPI.client.stream(url)
-        const gotResponse = await new Promise<Response>((resolve, reject) => {
-          response.once('response', resolve)
-          response.once('error', reject)
-        })
-
-        const mime = gotResponse.headers['content-type'] || 'application/octet-stream'
-        const tee1 = new PassThrough()
-        const tee2 = new PassThrough()
-        response.pipe(tee1)
-        response.pipe(tee2)
-
-        const readableStream = toReadableStream(tee2)
-        await this.saveImageToCache(fileId, version, size, mime, tee1)
-
-        return new Response(readableStream, {
-          status: 200,
-          headers: {
-            'Content-Type': mime,
-            'Cache-Control': 'max-age=86400'
-          }
-        })
-      } catch (error) {
-        this.logger.error(
-          'Failed to fetch image:',
-          error instanceof Error ? error.message : String(error)
-        )
-        return createNotFoundResponse()
-      }
-    })
+    )
   }
 }

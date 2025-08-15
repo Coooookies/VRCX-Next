@@ -4,6 +4,7 @@ import { extractPathParameters } from '@main/utils/path'
 import { Module } from '@shared/module-constructor'
 import { APP_PROTOCOL } from '@main/constants'
 import type { ProtocolEventInstance, ProtocolHandler } from './types'
+import type { ExtractParams } from '@shared/definition/utils'
 
 export class ProtocolServer extends Module {
   private readonly protocolHandlers = new Map<symbol, ProtocolEventInstance>()
@@ -43,11 +44,11 @@ export class ProtocolServer extends Module {
     }
   }
 
-  public register<T extends Record<string, string> = {}>(
+  public register<P extends string>(
     hostname: string,
-    path: string,
+    path: P,
     method: string,
-    handler: ProtocolHandler<T>
+    handler: ProtocolHandler<ExtractParams<P>>
   ): symbol {
     const symbol = Symbol()
     this.protocolHandlers.set(symbol, {
