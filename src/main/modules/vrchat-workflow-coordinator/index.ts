@@ -2,7 +2,7 @@ import { createLogger } from '@main/logger'
 import { Dependency, Module } from '@shared/module-constructor'
 import type { MobxState } from '../mobx-state'
 import type { VRChatAuthentication } from '../vrchat-authentication'
-import type { WorkflowCoordinatorSharedState } from '@shared/types/mobx-shared'
+import type { WorkflowCoordinatorSharedState } from '@shared/definition/mobx-shared'
 import type {
   WorkflowProcessResult,
   WorkflowTaskError,
@@ -55,7 +55,7 @@ export class VRChatWorkflowCoordinator extends Module<{}> {
     const callback = (name: string, index: number) => {
       this.logger.info(`Post logout workflow ${name} completed (${index + 1}/${tasks.length})`)
       this.mobx.action(() => {
-        this.$.index = index
+        this.$.index = index + 1
       })
     }
 
@@ -84,7 +84,7 @@ export class VRChatWorkflowCoordinator extends Module<{}> {
     const callback = (name: string, index: number) => {
       this.logger.info(`Post login workflow ${name} completed (${index + 1}/${tasks.length})`)
       this.mobx.action(() => {
-        this.$.index = index
+        this.$.index = index + 1
       })
     }
 
@@ -112,9 +112,7 @@ export class VRChatWorkflowCoordinator extends Module<{}> {
     workflows: WorkflowTaskHandlerInstance[],
     callback: (name: string, index: number) => void
   ): Promise<WorkflowProcessResult> {
-    const sortedWorkflows = workflows
-      .sort((a, b) => a.priority - b.priority)
-      .map((workflow) => workflow.handler)
+    const sortedWorkflows = workflows.sort((a, b) => a.priority - b.priority)
 
     for (let i = 0; i < sortedWorkflows.length; i++) {
       let isInterrupted = false
@@ -126,7 +124,7 @@ export class VRChatWorkflowCoordinator extends Module<{}> {
         interruptedReason = reason
       }
 
-      await workflow(interrupter)
+      await workflow.handler(interrupter)
 
       if (isInterrupted) {
         return {

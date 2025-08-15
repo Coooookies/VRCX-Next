@@ -11,7 +11,7 @@ import { FormControl, FormField, FormItem, FormLabel } from '@renderer/shared/co
 import { Label } from '@renderer/shared/components/ui/label'
 import { Button } from '@renderer/shared/components/ui/button'
 import { Spinner } from '@renderer/shared/components/ui/spinner'
-import { AuthenticationUserOverview } from '@shared/types/vrchat-authentication'
+import { AuthenticationUserOverview } from '@shared/definition/vrchat-authentication'
 import { PinInput, PinInputGroup, PinInputSlot } from '@renderer/shared/components/ui/pin-input'
 import { TWOFA_AUTHENTICATOR_FORM_SCHEMA } from './schema'
 

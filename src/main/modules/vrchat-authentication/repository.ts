@@ -1,7 +1,7 @@
 import { CredentialEntity } from '../database/entities/credential'
 import type { Repository } from 'typeorm'
 import type { Database } from '../database'
-import type { AuthenticationCredentialEntity } from '@shared/types/vrchat-authentication'
+import type { AuthenticationCredentialEntity } from '@shared/definition/vrchat-authentication'
 
 export class AuthenticationRepository {
   constructor(private database: Database) {}

@@ -2,7 +2,7 @@ import lodash, { isObject } from 'lodash'
 import { createLogger } from '@main/logger'
 import { configure, isObservable, observable, reaction, runInAction, toJS } from 'mobx'
 import { Dependency, Module } from '@shared/module-constructor'
-import type { TargetPaths } from '@shared/types/utils'
+import type { TargetPaths } from '@shared/definition/utils'
 import type { IPCModule } from '../ipc'
 import type { RegisteredTargetInstance } from './types'
 

@@ -1,6 +1,6 @@
 import type { SettingEntity } from '../database/entities/setting'
-import type { InstanceProperties, SettingDefinition } from '@shared/types/setting'
-import type { TargetPaths } from '@shared/types/utils'
+import type { InstanceProperties, SettingDefinition } from '@shared/definition/setting'
+import type { TargetPaths } from '@shared/definition/utils'
 import { DEFAULT_SETTING } from './default-setting'
 
 export function transformEntityToPropertyInstance(

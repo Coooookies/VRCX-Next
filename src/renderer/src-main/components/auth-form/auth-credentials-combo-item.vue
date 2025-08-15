@@ -51,13 +51,8 @@ const emits = defineEmits<{
         <span className="text-muted-foreground truncate text-xs">{{ props.userName }}</span>
       </div>
     </Button>
-    <Button
-      variant="ghost"
-      size="icon"
-      class="w-10 h-full hidden group-hover/credential:flex rounded-[6px]"
-      @click="emits('delete')"
-    >
-      <TrashIcon />
+    <Button variant="ghost" size="icon" class="w-10 h-full rounded-[6px]" @click="emits('delete')">
+      <TrashIcon class="hidden group-hover/credential:block" />
     </Button>
   </div>
 </template>

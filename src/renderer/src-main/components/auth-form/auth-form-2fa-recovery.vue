@@ -16,7 +16,7 @@ import {
 } from '@renderer/shared/components/ui/form'
 import { Label } from '@renderer/shared/components/ui/label'
 import { Button, SpinnerButton } from '@renderer/shared/components/ui/button'
-import { AuthenticationUserOverview } from '@shared/types/vrchat-authentication'
+import { AuthenticationUserOverview } from '@shared/definition/vrchat-authentication'
 import {
   PinInput,
   PinInputGroup,

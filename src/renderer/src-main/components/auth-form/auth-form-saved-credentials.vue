@@ -16,7 +16,7 @@ import {
 } from '@renderer/shared/components/ui/form'
 import { Button, SpinnerButton } from '@renderer/shared/components/ui/button'
 import { SAVED_CREDENTIALS_FORM_SCHEMA } from './schema'
-import type { AuthenticationCredentialEntity } from '@shared/types/vrchat-authentication'
+import type { AuthenticationCredentialEntity } from '@shared/definition/vrchat-authentication'
 import type { LocaleI18NKeys } from '@renderer/shared/locale/types'
 
 const { t } = useI18n()

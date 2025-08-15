@@ -2,7 +2,7 @@ import { onMounted, onUnmounted } from 'vue'
 import { useI18n } from '@renderer/shared/locale'
 import { useModule } from '@renderer/shared/hooks/use-module'
 import type { SettingModule } from '@renderer/shared/modules/setting'
-import type { InstanceProperties, SettingDefinition } from '@shared/types/setting'
+import type { InstanceProperties, SettingDefinition } from '@shared/definition/setting'
 
 export function useLocaleUpdater() {
   const i18n = useI18n()

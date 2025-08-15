@@ -1,6 +1,6 @@
-import { ResponseErrorReason } from '@shared/types/vrchat-api-status'
+import { ResponseErrorReason } from '@shared/definition/vrchat-api-status'
 import type { HTTPError, Response } from 'got'
-import type { ErrorResponse } from '@shared/types/vrchat-api-response'
+import type { ErrorResponse } from '@shared/definition/vrchat-api-response'
 
 export function tokenizeError(error: HTTPError<Response<ErrorResponse>>): ResponseErrorReason {
   if (!error.response) {

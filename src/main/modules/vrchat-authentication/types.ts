@@ -1,6 +1,6 @@
-import type { AuthenticationUserOverview } from '@shared/types/vrchat-authentication'
-import type { CurrentUser, TwoFactorTypes } from '@shared/types/vrchat-api-response'
-import type { ResponseErrorReason } from '@shared/types/vrchat-api-status'
+import type { AuthenticationUserOverview } from '@shared/definition/vrchat-authentication'
+import type { CurrentUser, TwoFactorTypes } from '@shared/definition/vrchat-api-response'
+import type { ResponseErrorReason } from '@shared/definition/vrchat-api-status'
 
 export type AuthenticationEvent =
   | {
@@ -94,5 +94,5 @@ export interface AuthenticationContext {
   error?: ResponseErrorReason
 }
 
-export type { AuthenticationUserOverview } from '@shared/types/vrchat-authentication'
-export type { AuthenticationState } from '@shared/types/vrchat-authentication'
+export type { AuthenticationUserOverview } from '@shared/definition/vrchat-authentication'
+export type { AuthenticationState } from '@shared/definition/vrchat-authentication'

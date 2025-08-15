@@ -1,9 +1,9 @@
-import type { SettingDefinition, SettingKey, SettingNamespace } from '@shared/types/setting'
+import type { SettingDefinition, SettingKey, SettingNamespace } from '@shared/definition/setting'
 import type {
   AuthenticationCredentialEntity,
   AuthenticationResumeSessionState,
   AuthenticationState
-} from '@shared/types/vrchat-authentication'
+} from '@shared/definition/vrchat-authentication'
 
 export type IpcInvokeEvents = {
   // MobxState

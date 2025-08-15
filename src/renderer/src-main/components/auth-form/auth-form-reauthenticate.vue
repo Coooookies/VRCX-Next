@@ -17,7 +17,7 @@ import {
 import { Input } from '@renderer/shared/components/ui/input'
 import { Button, SpinnerButton } from '@renderer/shared/components/ui/button'
 import { REAUTHENTICATE_FORM_SCHEMA } from './schema'
-import type { AuthenticationUserOverview } from '@shared/types/vrchat-authentication'
+import type { AuthenticationUserOverview } from '@shared/definition/vrchat-authentication'
 import type { LocaleI18NKeys } from '@renderer/shared/locale/types'
 
 const { t } = useI18n()

@@ -1,4 +1,4 @@
-import type { CurrentUser, LimitedUserFriend } from '@shared/types/vrchat-api-response'
+import type { CurrentUser, LimitedUserFriend } from '@shared/definition/vrchat-api-response'
 
 export function getProfileIconUrl(target: CurrentUser | LimitedUserFriend): string {
   return (

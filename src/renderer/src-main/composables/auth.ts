@@ -1,13 +1,13 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useModule } from '@renderer/shared/hooks/use-module'
-import type { ResponseErrorReason } from '@shared/types/vrchat-api-status'
+import type { ResponseErrorReason } from '@shared/definition/vrchat-api-status'
 import type { VRChatAuthentication } from '@renderer/shared/modules/vrchat-authentication'
 import type {
   AuthenticationCredentialEntity,
   AuthenticationResumeSessionState,
   AuthenticationState,
   AuthenticationUserOverview
-} from '@shared/types/vrchat-authentication'
+} from '@shared/definition/vrchat-authentication'
 
 export type AuthFormType =
   | 'credentials'

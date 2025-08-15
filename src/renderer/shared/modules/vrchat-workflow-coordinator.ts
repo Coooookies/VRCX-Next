@@ -1,6 +1,6 @@
 import { Dependency, Module } from '@shared/module-constructor'
 import type { MobxRenderer } from './mobx-renderer'
-import type { WorkflowCoordinatorSharedState } from '@shared/types/mobx-shared'
+import type { WorkflowCoordinatorSharedState } from '@shared/definition/mobx-shared'
 
 export class VRChatWorkflowCoordinator extends Module {
   @Dependency('MobxRenderer') declare private mobx: MobxRenderer

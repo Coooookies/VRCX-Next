@@ -1,8 +1,8 @@
 import cookieParser from 'set-cookie-parser'
 import { tokenizeError } from '../vrchat-api/exceptions'
 import { getProfileIconUrl, parseFileUrl } from '../vrchat-files/parser'
-import { ResponseErrorReason } from '@shared/types/vrchat-api-status'
-import type { TwoFactorTypes } from '@shared/types/vrchat-api-response'
+import { ResponseErrorReason } from '@shared/definition/vrchat-api-status'
+import type { TwoFactorTypes } from '@shared/definition/vrchat-api-response'
 import type { VRChatAPI } from '../vrchat-api'
 import type {
   AuthenticationLoginResult,

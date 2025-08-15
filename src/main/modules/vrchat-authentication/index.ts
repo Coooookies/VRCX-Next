@@ -14,7 +14,7 @@ import type { VRChatAPI } from '../vrchat-api'
 import type { MobxState } from '../mobx-state'
 import type { SettingModule } from '../setting'
 import type { AuthenticationState, AuthenticationUserOverview } from './types'
-import type { AuthenticationSharedState } from '@shared/types/mobx-shared'
+import type { AuthenticationSharedState } from '@shared/definition/mobx-shared'
 
 export class VRChatAuthentication extends Module<{
   'state:update': (state: AuthenticationState) => void

@@ -6,7 +6,7 @@ import type {
   SettingDefinition,
   SettingKey,
   SettingNamespace
-} from '@shared/types/setting'
+} from '@shared/definition/setting'
 
 export class SettingModule extends Module<{
   update: (property: InstanceProperties<SettingDefinition>) => void

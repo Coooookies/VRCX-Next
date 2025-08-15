@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm'
 import { propertyTransformer } from '../transform'
-import type { SettingNamespace, SettingProperty } from '@shared/types/setting'
+import type { SettingNamespace, SettingProperty } from '@shared/definition/setting'
 
 @Entity('setting')
 export class SettingEntity {

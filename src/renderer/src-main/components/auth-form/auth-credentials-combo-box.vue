@@ -9,7 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@renderer/shared/compon
 import { ImageRoot, ImageFallback } from '@renderer/shared/components/ui/image'
 import { ChevronsUpDownIcon, CircleUserRoundIcon } from 'lucide-vue-next'
 import type { ButtonProps } from '@renderer/shared/components/ui/button/Button.vue'
-import type { AuthenticationCredentialEntity } from '@shared/types/vrchat-authentication'
+import type { AuthenticationCredentialEntity } from '@shared/definition/vrchat-authentication'
 
 const currentItem = computed(() => props.items.find((item) => item.userId === props.value))
 

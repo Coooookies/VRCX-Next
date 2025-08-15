@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ProxyState } from '@shared/types/setting'
+import { ProxyState } from '@shared/definition/setting'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { Label } from '../ui/label'
 

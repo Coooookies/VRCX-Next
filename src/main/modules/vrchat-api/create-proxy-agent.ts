@@ -2,7 +2,7 @@ import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent'
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import type { HttpsProxyAgentOptions } from 'hpagent'
 import type { OptionsOfTextResponseBody } from 'got'
-import type { ProxyState, ProxyType } from '@shared/types/setting'
+import type { ProxyState, ProxyType } from '@shared/definition/setting'
 
 export function createProxyAgent(config: {
   state: ProxyState

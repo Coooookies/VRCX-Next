@@ -8,7 +8,7 @@ import type {
   Verify2FAEmailCodeResult,
   Verify2FAResult,
   VerifyAuthTokenResult
-} from '@shared/types/vrchat-api-response'
+} from '@shared/definition/vrchat-api-response'
 
 type LoginResult = CurrentUser & TwoFactorRecoveryCodes
 
@@ -20,7 +20,7 @@ export class Authentication {
     const credential = credentialBuffer.toString('base64')
 
     return attempt<Response<LoginResult>, HTTPError<Response<ErrorResponse>>>(() =>
-      this.client.get<LoginResult>('auth/user', {
+      this.client.get('auth/user', {
         responseType: 'json',
         headers: {
           Authorization: `Basic ${credential}`,
@@ -36,7 +36,7 @@ export class Authentication {
     twoFactorAuth && (cookie += `twoFactorAuth=${twoFactorAuth}`)
 
     return attempt<Response<LoginResult>, HTTPError<Response<ErrorResponse>>>(() =>
-      this.client.get<LoginResult>('auth/user', {
+      this.client.get('auth/user', {
         responseType: 'json',
         headers: {
           Cookie: cookie.trim()
@@ -47,7 +47,7 @@ export class Authentication {
 
   public logout(authToken: string) {
     return attempt<Response<Success>, HTTPError<Response<ErrorResponse>>>(() =>
-      this.client.put<Success>('logout', {
+      this.client.put('logout', {
         responseType: 'json',
         headers: {
           Cookie: `auth=${authToken}`
@@ -58,7 +58,7 @@ export class Authentication {
 
   public verifyAuthToken(authToken: string) {
     return attempt<Response<VerifyAuthTokenResult>, HTTPError<Response<ErrorResponse>>>(() =>
-      this.client.get<VerifyAuthTokenResult>('auth', {
+      this.client.get('auth', {
         responseType: 'json',
         headers: {
           Cookie: `auth=${authToken}`
@@ -69,7 +69,7 @@ export class Authentication {
 
   public verifyTOTP2FACode(authToken: string, code: string) {
     return attempt<Response<Verify2FAResult>, HTTPError<Response<ErrorResponse>>>(() =>
-      this.client.post<Verify2FAResult>('auth/twofactorauth/totp/verify', {
+      this.client.post('auth/twofactorauth/totp/verify', {
         responseType: 'json',
         json: {
           code
@@ -83,7 +83,7 @@ export class Authentication {
 
   public verifyOTPEmail2FACode(authToken: string, code: string) {
     return attempt<Response<Verify2FAEmailCodeResult>, HTTPError<Response<ErrorResponse>>>(() =>
-      this.client.post<Verify2FAEmailCodeResult>('auth/twofactorauth/emailotp/verify', {
+      this.client.post('auth/twofactorauth/emailotp/verify', {
         responseType: 'json',
         json: {
           code
@@ -97,7 +97,7 @@ export class Authentication {
 
   public verifyOTPRecovery2FACode(authToken: string, code: string) {
     return attempt<Response<Verify2FAResult>, HTTPError<Response<ErrorResponse>>>(() =>
-      this.client.post<Verify2FAResult>('auth/twofactorauth/otp/verify', {
+      this.client.post('auth/twofactorauth/otp/verify', {
         responseType: 'json',
         json: {
           code

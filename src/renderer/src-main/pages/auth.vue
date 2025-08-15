@@ -16,7 +16,7 @@ import {
   AuthForm2FAEmail,
   AuthProxyButton
 } from '../components/auth-form'
-import { ResponseErrorReason } from '@shared/types/vrchat-api-status'
+import { ResponseErrorReason } from '@shared/definition/vrchat-api-status'
 import { useI18n } from '@renderer/shared/locale'
 
 const credentialFormRef = useTemplateRef('credentialFormRef')

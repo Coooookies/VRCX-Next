@@ -1,5 +1,5 @@
-import type { InstanceProperties, SettingDefinition } from '@shared/types/setting'
-import type { AuthenticationState } from '@shared/types/vrchat-authentication'
+import type { InstanceProperties, SettingDefinition } from '@shared/definition/setting'
+import type { AuthenticationState } from '@shared/definition/vrchat-authentication'
 
 export type IpcListenerEvents = {
   ping: [number]

@@ -2,8 +2,8 @@ import { toRef } from 'vue'
 import { Dependency, Module } from '@shared/module-constructor'
 import type { IPCRenderer } from './ipc'
 import type { MobxRenderer } from './mobx-renderer'
-import type { AuthenticationState } from '@shared/types/vrchat-authentication'
-import type { AuthenticationSharedState } from '@shared/types/mobx-shared'
+import type { AuthenticationState } from '@shared/definition/vrchat-authentication'
+import type { AuthenticationSharedState } from '@shared/definition/mobx-shared'
 
 export class VRChatAuthentication extends Module<{
   'state:update': (state: AuthenticationState) => void

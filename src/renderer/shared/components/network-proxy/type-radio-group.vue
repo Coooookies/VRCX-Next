@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { cn } from '@renderer/shared/utils/style'
-import { ProxyType } from '@shared/types/setting'
+import { ProxyType } from '@shared/definition/setting'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { Label } from '../ui/label'
 

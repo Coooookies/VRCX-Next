@@ -1,7 +1,7 @@
 import { createDefaultSettingKeys } from './factory'
 import { locale } from '@main/utils/locale'
 import type { LanguageAvailableCode } from '@shared/locale/types'
-import type { SettingDefinition, FunctionProperties } from '@shared/types/setting'
+import type { SettingDefinition, FunctionProperties } from '@shared/definition/setting'
 
 function getLocale(): LanguageAvailableCode {
   const envLocale = locale()
