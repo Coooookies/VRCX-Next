@@ -66,13 +66,13 @@ const onUpdateLanguage = (value: AcceptableValue) => {
       <ComboboxViewport class="max-h-80">
         <ComboboxEmpty>{{ t('setting.locale.search_result_empty') }}</ComboboxEmpty>
         <ComboboxGroup>
-          <ComboboxItem
-            v-for="language in LANGUAGE_ITEMS"
-            :key="language.value"
-            :value="language"
-            class="overflow-hidden"
-          >
-            <span class="truncate">{{ language.label }}</span>
+          <ComboboxItem v-for="language in LANGUAGE_ITEMS" :key="language.value" :value="language">
+            <div class="flex flex-row items-center gap-1.5 overflow-hidden">
+              <span class="truncate">{{ language.label }}</span>
+              <span class="text-muted-foreground text-xs shirnk-0 whitespace-nowrap">
+                {{ language.value }}
+              </span>
+            </div>
             <ComboboxItemIndicator>
               <CheckIcon />
             </ComboboxItemIndicator>
