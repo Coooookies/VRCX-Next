@@ -13,7 +13,7 @@ const props = withDefaults(defineProps<SpinnerProps>(), {
 
 <template>
   <svg
-    class="animate-[bump_3s_infinite_linear]"
+    class="animate-[spinner-bump_3s_infinite_linear]"
     viewBox="0 0 128 128"
     width="20px"
     height="20px"
@@ -44,7 +44,7 @@ const props = withDefaults(defineProps<SpinnerProps>(), {
     <path
       :class="
         cn(
-          'animate-[worm_3s_infinite_cubic-bezier(.42,.17,.75,.83)]',
+          'animate-[spinner-worm_3s_infinite_cubic-bezier(.42,.17,.75,.83)]',
           props.variant === 'default'
             ? 'stroke-primary dark:stroke-primary'
             : 'stroke-white dark:stroke-foreground'
@@ -63,7 +63,7 @@ const props = withDefaults(defineProps<SpinnerProps>(), {
 </template>
 
 <style>
-@keyframes bump {
+@keyframes spinner-bump {
   from,
   42%,
   46%,
@@ -105,7 +105,7 @@ const props = withDefaults(defineProps<SpinnerProps>(), {
   }
 }
 
-@keyframes worm {
+@keyframes spinner-worm {
   from {
     stroke-dashoffset: 10;
   }
