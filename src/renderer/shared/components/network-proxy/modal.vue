@@ -150,7 +150,7 @@ function preloadSetting() {
               <FormItem class="flex-1">
                 <FormLabel class="leading-5">{{ t('setting.network.proxy_host') }}</FormLabel>
                 <FormControl>
-                  <Input v-bind="componentField" placeholder="Host" />
+                  <Input v-bind="componentField" :placeholder="t('setting.network.proxy_host')" />
                 </FormControl>
                 <FormMessage v-slot="{ message }">
                   {{ t(message as LocaleI18NKeys) }}
@@ -201,7 +201,10 @@ function preloadSetting() {
                     {{ t('setting.network.proxy_credential_username') }}
                   </FormLabel>
                   <FormControl>
-                    <Input v-bind="componentField" placeholder="Username" />
+                    <Input
+                      v-bind="componentField"
+                      :placeholder="t('setting.network.proxy_credential_username')"
+                    />
                   </FormControl>
                   <FormMessage v-slot="{ message }">
                     {{ t(message as LocaleI18NKeys) }}
@@ -214,7 +217,10 @@ function preloadSetting() {
                     {{ t('setting.network.proxy_credential_password') }}
                   </FormLabel>
                   <FormControl>
-                    <Input v-bind="componentField" placeholder="Password" />
+                    <Input
+                      v-bind="componentField"
+                      :placeholder="t('setting.network.proxy_credential_password')"
+                    />
                   </FormControl>
                   <FormMessage v-slot="{ message }">
                     {{ t(message as LocaleI18NKeys) }}
