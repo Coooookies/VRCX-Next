@@ -121,7 +121,7 @@ function toastError(error: ResponseErrorReason) {
 
 <template>
   <div class="relative flex flex-row w-full h-full">
-    <div class="relative flex-1 bg-black/20 flex items-center justify-center">
+    <div class="relative flex-1 bg-black/15 flex items-center justify-center">
       <div class="absolute top-0 left-0 w-full h-10.5 z-15 electron-drag" />
       <Spinner class="size-12" />
     </div>
