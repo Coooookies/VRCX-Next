@@ -45,7 +45,7 @@ const onUpdateLanguage = (value: AcceptableValue) => {
   <Combobox :model-value="selectedLanguage" by="label" @update:model-value="onUpdateLanguage">
     <ComboboxAnchor as-child>
       <ComboboxTrigger as-child>
-        <Button variant="outline" class="w-40 justify-between">
+        <Button variant="outline" class="w-40 justify-between" :tabindex="0">
           <div class="flex flex-row items-center gap-x-2 overflow-hidden">
             <LanguagesIcon />
             <span class="truncate">
