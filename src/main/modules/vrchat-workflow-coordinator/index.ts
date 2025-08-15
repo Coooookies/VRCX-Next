@@ -1,5 +1,6 @@
 import { createLogger } from '@main/logger'
 import { Dependency, Module } from '@shared/module-constructor'
+import { WorkflowType } from '@shared/definition/vrchat-workflow-coordinator'
 import type { MobxState } from '../mobx-state'
 import type { VRChatAuthentication } from '../vrchat-authentication'
 import type { WorkflowCoordinatorSharedState } from '@shared/definition/mobx-shared'
@@ -11,7 +12,15 @@ import type {
   WorkflowTaskInterrupter
 } from './types'
 
-export class VRChatWorkflowCoordinator extends Module<{}> {
+export class VRChatWorkflowCoordinator extends Module<{
+  'workflow:start': (workflowType: WorkflowType, total: number) => void
+  'workflow:complete': (workflowType: WorkflowType) => void
+  'workflow:interrupted': (
+    workflowType: WorkflowType,
+    taskName: string,
+    reason: WorkflowTaskError
+  ) => void
+}> {
   @Dependency('VRChatAuthentication') declare private auth: VRChatAuthentication
   @Dependency('MobxState') declare private mobx: MobxState
 
@@ -48,6 +57,18 @@ export class VRChatWorkflowCoordinator extends Module<{}> {
         }
       }
     })
+
+    this.on('workflow:start', (workflowType, total) => {
+      this.logger.info(`Processing ${total} post ${workflowType} workflows...`)
+    })
+
+    this.on('workflow:complete', (workflowType) => {
+      this.logger.info(`Post ${workflowType} workflow completed.`)
+    })
+
+    this.on('workflow:interrupted', (workflowType, taskName, reason) => {
+      this.logger.warn(`Post ${workflowType} workflow interrupted by task "${taskName}":`, reason)
+    })
   }
 
   private async processPostLogoutWorkflows() {
@@ -59,11 +80,11 @@ export class VRChatWorkflowCoordinator extends Module<{}> {
       })
     }
 
-    this.logger.info(`Processing ${tasks.length} post logout workflows...`)
+    this.emit('workflow:start', WorkflowType.POST_LOGOUT, tasks.length)
     this.mobx.action(() => {
       this.$.inWorkflow = true
       this.$.total = tasks.length
-      this.$.currentWorkflow = 'post-logout'
+      this.$.currentWorkflow = WorkflowType.POST_LOGOUT
     })
 
     const result = await this.processWorkflows(tasks, callback)
@@ -75,7 +96,9 @@ export class VRChatWorkflowCoordinator extends Module<{}> {
     })
 
     if (result.interrupted) {
-      this.logger.error(`Post logout workflow interrupted: ${result.name}`, result.reason.message)
+      this.emit('workflow:interrupted', WorkflowType.POST_LOGOUT, result.name, result.reason)
+    } else {
+      this.emit('workflow:complete', WorkflowType.POST_LOGOUT)
     }
   }
 
@@ -88,11 +111,11 @@ export class VRChatWorkflowCoordinator extends Module<{}> {
       })
     }
 
-    this.logger.info(`Processing ${tasks.length} post login workflows...`)
+    this.emit('workflow:start', WorkflowType.POST_LOGIN, tasks.length)
     this.mobx.action(() => {
       this.$.inWorkflow = true
       this.$.total = tasks.length
-      this.$.currentWorkflow = 'post-login'
+      this.$.currentWorkflow = WorkflowType.POST_LOGIN
     })
 
     const result = await this.processWorkflows(tasks, callback)
@@ -104,7 +127,9 @@ export class VRChatWorkflowCoordinator extends Module<{}> {
     })
 
     if (result.interrupted) {
-      this.logger.error(`Post login workflow interrupted: ${result.name}`, result.reason.message)
+      this.emit('workflow:interrupted', WorkflowType.POST_LOGIN, result.name, result.reason)
+    } else {
+      this.emit('workflow:complete', WorkflowType.POST_LOGIN)
     }
   }
 

@@ -24,6 +24,8 @@ export class VRChatPipeline extends Module<{
   private reconnectTimeout: NodeJS.Timeout | null = null
   private isConnecting = false
   private shouldReconnect = false
+  private cachedPipelineEvents: PipelineEventMessage[] = []
+  private cacheEnabled = false
 
   protected onInit(): void {
     this.bindEvents()
@@ -44,8 +46,25 @@ export class VRChatPipeline extends Module<{
       this.disconnect()
     })
 
+    this.workflow.on('workflow:start', () => {
+      this.cachedPipelineEvents = []
+      this.cacheEnabled = true
+    })
+
+    this.workflow.on('workflow:complete', () => {
+      this.cacheEnabled = false
+    })
+
+    this.workflow.on('workflow:interrupted', () => {
+      this.cacheEnabled = false
+    })
+
     this.on('message', (message) => {
       this.logger.debug('pipeline-message', JSON.stringify(message, null, 2))
+
+      if (this.cacheEnabled) {
+        this.cachedPipelineEvents.push(message)
+      }
     })
   }
 
@@ -202,5 +221,9 @@ export class VRChatPipeline extends Module<{
     } catch (error) {
       this.logger.error('Failed to parse message:', error)
     }
+  }
+
+  public get cachedEvents() {
+    return this.cachedPipelineEvents
   }
 }
