@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppTitle from '@shared/assets/vector/icon-vrcx.svg?component'
+import AuthLayout from '../layouts/auth-layout.vue'
 import { toast } from 'vue-sonner'
 import { useTemplateRef } from 'vue'
 import { useAuth } from '../composables/auth'
@@ -120,12 +121,12 @@ function toastError(error: ResponseErrorReason) {
 </script>
 
 <template>
-  <div class="relative flex flex-row w-full h-full">
-    <div class="relative flex-1 bg-black/15 flex items-center justify-center">
+  <AuthLayout>
+    <template #background>
       <div class="absolute top-0 left-0 w-full h-10.5 z-15 electron-drag" />
       <Spinner class="size-12" />
-    </div>
-    <div class="relative flex-1 flex items-center justify-center">
+    </template>
+    <template #content>
       <div class="absolute top-0 left-0 w-full h-10.5 z-15 electron-drag" />
       <div class="absolute top-0 left-0 w-full z-10 px-8 pt-8">
         <AppTitle class="w-17.5 h-6" />
@@ -192,6 +193,6 @@ function toastError(error: ResponseErrorReason) {
           />
         </AnimatePresence>
       </div>
-    </div>
-  </div>
+    </template>
+  </AuthLayout>
 </template>
