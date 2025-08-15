@@ -4,6 +4,8 @@
 
 **Please note: This project is in a very early development stage and is almost completely unusable at this time.**
 
+A personal refactoring project of VRCX
+
 VRCX-Next is a complete rewrite of the popular VRCX project. This new version aims to overhaul the entire application from the ground up, focusing on a complete reset of the architecture, UI design, and interaction logic.
 
 The goal of this project is to create a more stable, modern, and user-friendly experience for everyone. We've taken everything we learned from the original VRCX and are rebuilding it with a fresh perspective and a forward-thinking approach.
