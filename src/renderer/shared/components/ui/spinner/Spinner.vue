@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { cn } from '@renderer/shared/utils/style'
+
 // https://codepen.io/jkantner/pen/ZEvQbOK
 interface SpinnerProps {
   variant?: 'default' | 'secondary'
@@ -11,12 +13,11 @@ const props = withDefaults(defineProps<SpinnerProps>(), {
 
 <template>
   <svg
-    class="pl"
+    class="animate-[bump_3s_infinite_linear]"
     viewBox="0 0 128 128"
     width="20px"
     height="20px"
     xmlns="http://www.w3.org/2000/svg"
-    :style="[`--fg: var(${props.variant === 'default' ? '--primary' : '--foreground'});`]"
   >
     <defs>
       <linearGradient id="pl-grad" x1="0" y1="0" x2="0" y2="1">
@@ -25,7 +26,14 @@ const props = withDefaults(defineProps<SpinnerProps>(), {
       </linearGradient>
     </defs>
     <circle
-      class="pl__ring"
+      :class="
+        cn(
+          'transition-[stroke_.3s]',
+          props.variant === 'default'
+            ? 'stroke-foreground/10 dark:stroke-foreground/20'
+            : 'stroke-white/20 dark:stroke-foreground/20'
+        )
+      "
       r="56"
       cx="64"
       cy="64"
@@ -34,7 +42,14 @@ const props = withDefaults(defineProps<SpinnerProps>(), {
       stroke-linecap="round"
     />
     <path
-      class="pl__worm"
+      :class="
+        cn(
+          'animate-[worm_3s_infinite_cubic-bezier(.42,.17,.75,.83)]',
+          props.variant === 'default'
+            ? 'stroke-primary dark:stroke-primary'
+            : 'stroke-white dark:stroke-foreground'
+        )
+      "
       d="M 92 15.492 S 61 -1 45 46 c -4 11 -9 28 -17 61 L 119 57 l -101 -24 l 53 86 L 94 17 L 9 75 l 94 29 S 97 56 71 22 C 57 4 36 15.492 36 15.492 a 56 56 0 1 0 56 0 Z"
       fill="none"
       stroke="url(#pl-grad)"
@@ -47,31 +62,7 @@ const props = withDefaults(defineProps<SpinnerProps>(), {
   </svg>
 </template>
 
-<style scoped>
-.pl,
-.pl__worm {
-  animation-duration: 3s;
-  animation-iteration-count: infinite;
-}
-.pl {
-  --bg: color-mix(in oklab, var(--foreground) 20%, transparent);
-  --fg: var(--foreground);
-
-  animation-name: bump;
-  animation-timing-function: linear;
-}
-.pl__ring {
-  stroke: var(--bg);
-  transition: stroke 0.3s;
-}
-
-.pl__worm {
-  stroke: var(--fg);
-  animation-name: worm;
-  animation-timing-function: cubic-bezier(0.42, 0.17, 0.75, 0.83);
-}
-
-/* Animations */
+<style>
 @keyframes bump {
   from,
   42%,
@@ -113,6 +104,7 @@ const props = withDefaults(defineProps<SpinnerProps>(), {
     transform: translate(-4.55%, 1.98%);
   }
 }
+
 @keyframes worm {
   from {
     stroke-dashoffset: 10;
