@@ -1,4 +1,4 @@
-import { HttpProxyAgent } from 'hpagent'
+import { HttpsProxyAgent } from 'hpagent'
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import type { ProxyState, ProxyType } from '@shared/definition/setting'
 
@@ -9,7 +9,7 @@ export function createProxyAgent(config: {
   port: number
   username?: string
   password?: string
-}): HttpProxyAgent | SocksProxyAgent | undefined {
+}): HttpsProxyAgent | SocksProxyAgent | undefined {
   if (config.state !== 'custom_proxy') {
     return undefined
   }
@@ -25,7 +25,7 @@ export function createProxyAgent(config: {
       return new SocksProxyAgent(`socks://${_credential}${_address}`)
     }
     case 'http': {
-      return new HttpProxyAgent({
+      return new HttpsProxyAgent({
         keepAlive: true,
         keepAliveMsecs: 1000,
         maxSockets: 256,
