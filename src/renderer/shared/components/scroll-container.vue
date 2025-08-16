@@ -4,30 +4,28 @@ import { onMounted, computed, ref, onUnmounted, useTemplateRef } from 'vue'
 const emitter = defineEmits<{
   (e: 'scroll', rate: number, top: number): void
 }>()
-
 export interface ScrollContainerExpose {
   scrollTo: (top: number) => void
   getBoundingClientRect: () => DOMRect
 }
 
-const props = withDefaults(
-  defineProps<{
-    scrollbarOffsetTop?: number
-    scrollbarOffsetBottom?: number
-    scrollbarOffsetRight?: number
-    scrollbarWidth?: number
-    fadeOutAtTop?: boolean
-    fadeOutAtBottom?: boolean
-  }>(),
-  {
-    scrollbarOffsetTop: 4,
-    scrollbarOffsetBottom: 4,
-    scrollbarOffsetRight: 4,
-    scrollbarWidth: 4,
-    fadeOutAtTop: false,
-    fadeOutAtBottom: false
-  }
-)
+export interface ScrollContainerProps {
+  scrollbarOffsetTop?: number
+  scrollbarOffsetBottom?: number
+  scrollbarOffsetRight?: number
+  scrollbarWidth?: number
+  fadeOutAtTop?: boolean
+  fadeOutAtBottom?: boolean
+}
+
+const props = withDefaults(defineProps<ScrollContainerProps>(), {
+  scrollbarOffsetTop: 4,
+  scrollbarOffsetBottom: 4,
+  scrollbarOffsetRight: 4,
+  scrollbarWidth: 4,
+  fadeOutAtTop: false,
+  fadeOutAtBottom: false
+})
 
 const container = useTemplateRef('container')
 const content = useTemplateRef('content')
