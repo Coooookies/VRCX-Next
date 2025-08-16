@@ -8,7 +8,7 @@ import { Button } from '@renderer/shared/components/ui/button'
 import type { VRChatAuthentication } from '@renderer/shared/modules/vrchat-authentication'
 
 const auth = useModule<VRChatAuthentication>('VRChatAuthentication')
-const expandWidth = 280
+const expandWidth = 264
 const collapseWidth = 72
 const leftExpanded = ref(false)
 const rightExpanded = ref(false)
