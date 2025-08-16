@@ -16,8 +16,8 @@ export class MainWindow extends Module {
 
   static MAIN_WINDOW_NAME = 'Danmacat Desktop'
   static MAIN_WINDOW_PAGE_NAME = 'main'
-  static MAIN_WINDOW_WIDTH = 1440
-  static MAIN_WINDOW_HEIGHT = 810
+  static MAIN_WINDOW_WIDTH = 1500
+  static MAIN_WINDOW_HEIGHT = 840
   static MAIN_WINDOW_PARTITION = `partition:${MainWindow.MAIN_WINDOW_PAGE_NAME}`
 
   private readonly logger = createLogger(this.moduleId)
