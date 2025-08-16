@@ -1,4 +1,4 @@
-import icon from '@shared/assets/vector/icon-vrcx.svg?raw'
+import icon from '@shared/assets/vector/loading-screen-title-zypher.svg?raw'
 
 export default class AppLoader {
   private static className = `loader-icon`
@@ -11,8 +11,8 @@ export default class AppLoader {
       top: 50%;
       transform: translate(-50%, -50%);
       transform-origin: 0% 0%;
-      width: 140px;
-      height: 48px;
+      width: 180px;
+      height: 108px;
     }
 
     .${AppLoader.className} img {
