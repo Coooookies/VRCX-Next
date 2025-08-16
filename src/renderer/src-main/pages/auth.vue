@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AppTitle from '@shared/assets/vector/icon-vrcx.svg?component'
+import AppTitle from '@shared/assets/vector/auth-title-zypher.svg?component'
 import AuthLayout from '../layouts/auth-layout.vue'
 import { toast } from 'vue-sonner'
 import { useTemplateRef } from 'vue'
@@ -129,7 +129,7 @@ function toastError(error: ResponseErrorReason) {
     <template #content>
       <div class="absolute top-0 left-0 w-full h-10.5 z-15 electron-drag" />
       <div class="absolute top-0 left-0 w-full z-10 px-8 pt-8">
-        <AppTitle class="w-17.5 h-6" />
+        <AppTitle class="w-32 h-[27px]" />
       </div>
       <div class="absolute bottom-0 left-0 w-full flex flex-row justify-end gap-x-2 px-8 pb-8 z-10">
         <AuthProxyButton />
