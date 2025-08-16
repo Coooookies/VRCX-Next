@@ -15,13 +15,27 @@ const props = defineProps<SidebarContainerProps>()
   <SidebarContainer
     v-bind="props"
     v-model:expanded="expanded"
-    :class="cn('right-0 hover:bg-sidebar', expanded ? 'bg-sidebar' : 'hover:bg-sidebar')"
+    :class="
+      cn(
+        'right-0 border-l border-transparent ',
+        expanded
+          ? 'border-sidebar-border/40 bg-background'
+          : 'hover:border-sidebar-border/40 hover:bg-background'
+      )
+    "
   >
     <div class="flex-1"></div>
-    <div class="py-2 border-t border-sidebar-border/40">
+    <div
+      :class="
+        cn(
+          'py-2.5 border-t border-transparent transition-colors duration-200 ease-in-out',
+          'group-hover/sidebar-collapsed:border-sidebar-border/40 group-has-[*]/sidebar-expanded:border-sidebar-border/40'
+        )
+      "
+    >
       <SidebarIconButton
         :icon="expanded ? CollapseRightIcon : ExpandRightIcon"
-        :label="expanded ? '收起' : '展开'"
+        :label="expanded ? 'Collapse' : 'Expand'"
         @click="expanded = !expanded"
       />
     </div>

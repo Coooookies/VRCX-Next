@@ -6,9 +6,11 @@ import { ref } from 'vue'
 import { useModule } from '@renderer/shared/hooks/use-module'
 import { Button } from '@renderer/shared/components/ui/button'
 import type { VRChatAuthentication } from '@renderer/shared/modules/vrchat-authentication'
+import AppRoute from '../layouts/app-route.vue'
 
 const auth = useModule<VRChatAuthentication>('VRChatAuthentication')
-const expandWidth = 264
+const leftExpandWidth = 264
+const rightExpandWidth = 264
 const collapseWidth = 72
 const leftExpanded = ref(false)
 const rightExpanded = ref(false)
@@ -26,26 +28,29 @@ function logout(): void {
   <AppLayout
     :left-expanded="leftExpanded"
     :right-expanded="rightExpanded"
-    :expand-width="expandWidth"
+    :left-expand-width="leftExpandWidth"
+    :right-expand-width="rightExpandWidth"
     :collapse-width="collapseWidth"
   >
     <template #left-sidebar>
       <LeftSidebar
         v-model:expanded="leftExpanded"
-        :expand-width="expandWidth"
+        :expand-width="leftExpandWidth"
         :collapse-width="collapseWidth"
       />
     </template>
     <template #content>
-      <div class="w-full h-full flex justify-center items-center flex-row gap-2">
-        <Button @click="reset">Reset</Button>
-        <Button variant="outline" @click="logout">Logout</Button>
-      </div>
+      <AppRoute>
+        <div class="w-full h-60 flex flex-row items-center justify-center gap-2">
+          <Button @click="reset">Reset</Button>
+          <Button variant="outline" @click="logout">Logout</Button>
+        </div>
+      </AppRoute>
     </template>
     <template #right-sidebar>
       <RightSidebar
         v-model:expanded="rightExpanded"
-        :expand-width="expandWidth"
+        :expand-width="rightExpandWidth"
         :collapse-width="collapseWidth"
       />
     </template>

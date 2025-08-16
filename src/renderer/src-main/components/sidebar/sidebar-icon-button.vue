@@ -40,7 +40,7 @@ const props = withDefaults(
             cn(
               'size-full transition-colors duration-200 ease-in-out',
               'text-sidebar-foreground/55 group-hover/sidebar-button:text-sidebar-foreground/70',
-              'dark:text-sidebar-foreground/45 group-hover/sidebar-button:dark:text-sidebar-foreground/65',
+              'dark:text-sidebar-foreground/40 group-hover/sidebar-button:dark:text-sidebar-foreground/65',
               props.active && '!text-sidebar-foreground/85 dark:!text-sidebar-foreground/90'
             )
           "

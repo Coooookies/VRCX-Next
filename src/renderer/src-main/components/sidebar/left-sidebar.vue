@@ -22,22 +22,22 @@ const props = defineProps<SidebarContainerProps>()
     v-model:expanded="expanded"
     class="left-0 bg-sidebar border-r border-sidebar-border dark:border-sidebar-border/40"
   >
-    <div class="flex-1 pt-2.5">
+    <div class="flex-1 pt-3">
       <SidebarTitle />
-      <div class="pt-2 flex flex-col gap-1.5">
+      <div class="pt-4 flex flex-col gap-1.5">
         <SidebarIconButton :icon="DashboardIcon" label="Dashboard" active />
         <SidebarIconButton :icon="FavoriteIcon" label="Favorite" />
         <SidebarIconButton :icon="FeedIcon" label="Feed" />
         <SidebarIconButton :icon="ChartIcon" label="Chart" />
       </div>
     </div>
-    <div class="pb-2">
+    <div class="pb-2.5">
       <SidebarIconButton :icon="SettingIcon" label="Setting" />
     </div>
-    <div class="py-2 border-t border-sidebar-border dark:border-sidebar-border/40">
+    <div class="py-2.5 border-t border-sidebar-border dark:border-sidebar-border/40">
       <SidebarIconButton
         :icon="expanded ? CollapseLeftIcon : ExpandLeftIcon"
-        :label="expanded ? '收起' : '展开'"
+        :label="expanded ? 'Collapse' : 'Expand'"
         @click="expanded = !expanded"
       />
     </div>
