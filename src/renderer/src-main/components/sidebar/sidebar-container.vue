@@ -10,7 +10,7 @@ const props = defineProps<SidebarContainerProps>()
   <div
     :class="
       cn(
-        'absolute top-0 h-full flex flex-col',
+        'absolute top-0 h-full',
         'transition-[width,background-color,box-shadow] duration-300 ease-[cubic-bezier(.16,1,.3,1)]',
         expanded
           ? 'w-[var(--expand-width)] group/sidebar-expanded'

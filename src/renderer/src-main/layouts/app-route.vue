@@ -15,14 +15,19 @@ const rightRoutePadding = inject<Ref<number>>('rightRoutePadding')!
     class="w-full h-full"
     :scrollbar-offset-right="4 + rightRoutePadding"
   >
-    <div
-      class="relative w-full box-border"
-      :style="{
-        paddingLeft: `${leftRoutePadding}px`,
-        paddingRight: `${rightRoutePadding}px`
-      }"
-    >
-      <slot />
+    <div class="relative w-full">
+      <div class="absolute top-0 left-0 w-full">
+        <slot name="background" />
+      </div>
+      <div
+        class="relative w-full box-border"
+        :style="{
+          paddingLeft: `${leftRoutePadding}px`,
+          paddingRight: `${rightRoutePadding}px`
+        }"
+      >
+        <slot />
+      </div>
     </div>
   </ScrollContainer>
 </template>

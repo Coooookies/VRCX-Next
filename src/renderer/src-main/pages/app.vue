@@ -2,25 +2,24 @@
 import AppLayout from '../layouts/app-layout.vue'
 import LeftSidebar from '../components/sidebar/left-sidebar.vue'
 import RightSidebar from '../components/sidebar/right-sidebar.vue'
-import { ref } from 'vue'
-import { useModule } from '@renderer/shared/hooks/use-module'
-import { Button } from '@renderer/shared/components/ui/button'
-import type { VRChatAuthentication } from '@renderer/shared/modules/vrchat-authentication'
-import AppRoute from '../layouts/app-route.vue'
+import { computed, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { SlideRouterView } from '../components/router-view'
 
-const auth = useModule<VRChatAuthentication>('VRChatAuthentication')
+const router = useRouter()
+const route = useRoute()
+
 const leftExpandWidth = 264
-const rightExpandWidth = 264
-const collapseWidth = 72
 const leftExpanded = ref(false)
+const rightExpandWidth = 264
 const rightExpanded = ref(false)
+const collapseWidth = 72
 
-function reset(): void {
-  auth.signout()
-}
-
-function logout(): void {
-  auth.logout()
+const routeName = computed(() => route.name?.toString() || '')
+const routeTo = (name: string) => {
+  if (routeName.value !== name) {
+    router.push({ name })
+  }
 }
 </script>
 
@@ -37,21 +36,20 @@ function logout(): void {
         v-model:expanded="leftExpanded"
         :expand-width="leftExpandWidth"
         :collapse-width="collapseWidth"
+        :active-route-name="routeName"
+        @update:active-route-name="routeTo"
       />
     </template>
     <template #content>
-      <AppRoute>
-        <div class="w-full h-60 flex flex-row items-center justify-center gap-2">
-          <Button @click="reset">Reset</Button>
-          <Button variant="outline" @click="logout">Logout</Button>
-        </div>
-      </AppRoute>
+      <SlideRouterView />
     </template>
     <template #right-sidebar>
       <RightSidebar
         v-model:expanded="rightExpanded"
         :expand-width="rightExpandWidth"
         :collapse-width="collapseWidth"
+        :active-route-name="routeName"
+        @update:active-route-name="routeTo"
       />
     </template>
   </AppLayout>

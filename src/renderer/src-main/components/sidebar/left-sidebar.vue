@@ -10,29 +10,79 @@ import SettingIcon from '@shared/assets/vector/navigator-icon-setting.svg?compon
 import SidebarContainer from './sidebar-container.vue'
 import SidebarIconButton from './sidebar-icon-button.vue'
 import SidebarTitle from './sidebar-title.vue'
-import type { SidebarContainerProps } from './types'
+import type { SidebarContainerProps, SidebarStateEmits, SidebarStateProps } from './types'
+import { computed } from 'vue'
 
 const expanded = defineModel<boolean>('expanded')
-const props = defineProps<SidebarContainerProps>()
+const props = defineProps<SidebarContainerProps & SidebarStateProps>()
+const emits = defineEmits<SidebarStateEmits>()
+
+const isActiveRoute = (name: string) => {
+  return name.startsWith(props.activeRouteName)
+}
+
+const sidebarCommonItems = computed(() => [
+  {
+    icon: DashboardIcon,
+    label: 'Dashboard',
+    routeName: 'page-app-dashboard'
+  },
+  {
+    icon: FavoriteIcon,
+    label: 'Favorites',
+    routeName: 'page-app-favorites'
+  },
+  {
+    icon: FeedIcon,
+    label: 'Feed',
+    routeName: 'page-app-feed'
+  },
+  {
+    icon: ChartIcon,
+    label: 'Charts',
+    routeName: 'page-app-charts'
+  }
+])
+
+const sidebarFooterItems = computed(() => [
+  {
+    icon: SettingIcon,
+    label: 'Settings',
+    routeName: 'page-app-settings'
+  }
+])
 </script>
 
 <template>
   <SidebarContainer
     v-bind="props"
     v-model:expanded="expanded"
-    class="left-0 bg-sidebar border-r border-sidebar-border dark:border-sidebar-border/40"
+    class="left-0 bg-sidebar border-r border-sidebar-border dark:border-sidebar-border/40 flex flex-col"
   >
     <div class="flex-1 pt-3">
       <SidebarTitle />
       <div class="pt-4 flex flex-col gap-1.5">
-        <SidebarIconButton :icon="DashboardIcon" label="Dashboard" active />
-        <SidebarIconButton :icon="FavoriteIcon" label="Favorite" />
-        <SidebarIconButton :icon="FeedIcon" label="Feed" />
-        <SidebarIconButton :icon="ChartIcon" label="Chart" />
+        <SidebarIconButton
+          v-for="item in sidebarCommonItems"
+          :key="item.routeName"
+          :icon="item.icon"
+          :label="item.label"
+          :active="isActiveRoute(item.routeName)"
+          @click="emits('update:activeRouteName', item.routeName)"
+        />
       </div>
     </div>
     <div class="pb-2.5">
-      <SidebarIconButton :icon="SettingIcon" label="Setting" />
+      <div class="pt-4 flex flex-col gap-1.5">
+        <SidebarIconButton
+          v-for="item in sidebarFooterItems"
+          :key="item.routeName"
+          :icon="item.icon"
+          :label="item.label"
+          :active="isActiveRoute(item.routeName)"
+          @click="emits('update:activeRouteName', item.routeName)"
+        />
+      </div>
     </div>
     <div class="py-2.5 border-t border-sidebar-border dark:border-sidebar-border/40">
       <SidebarIconButton

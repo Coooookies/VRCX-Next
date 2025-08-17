@@ -11,13 +11,13 @@ import ZypherTitle from '@shared/assets/vector/navigator-title-zypher.svg?compon
       <div
         :class="
           cn(
-            'pl-3.5 transition-[opacity,translate] duration-300 ease-[cubic-bezier(.16,1,.3,1)]',
+            'pl-4 transition-[opacity,translate] duration-300 ease-[cubic-bezier(.16,1,.3,1)]',
             'group-has-[*]/sidebar-expanded:translate-x-0 group-has-[*]/sidebar-expanded:opacity-100',
             'group-hover/sidebar-collapsed:translate-x-0 group-hover/sidebar-collapsed:opacity-100 -translate-x-1 opacity-0'
           )
         "
       >
-        <ZypherTitle class="absolute w-19 h-6" />
+        <ZypherTitle class="absolute w-18.5 h-6" />
       </div>
     </div>
   </div>

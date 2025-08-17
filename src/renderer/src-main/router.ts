@@ -25,9 +25,52 @@ export function createRouter() {
         path: '/app',
         name: 'page-app',
         component: () => import('./pages/app.vue'),
+        redirect: { name: 'page-app-dashboard' },
         meta: {
           index: 1
-        }
+        },
+        children: [
+          {
+            path: 'dashboard',
+            name: 'page-app-dashboard',
+            component: () => import('./pages/dashboard.vue'),
+            meta: {
+              index: 0
+            }
+          },
+          {
+            path: 'favorites',
+            name: 'page-app-favorites',
+            component: () => import('./pages/favorites.vue'),
+            meta: {
+              index: 1
+            }
+          },
+          {
+            path: 'feed',
+            name: 'page-app-feed',
+            component: () => import('./pages/feed.vue'),
+            meta: {
+              index: 2
+            }
+          },
+          {
+            path: 'charts',
+            name: 'page-app-charts',
+            component: () => import('./pages/charts.vue'),
+            meta: {
+              index: 3
+            }
+          },
+          {
+            path: 'settings',
+            name: 'page-app-settings',
+            component: () => import('./pages/settings.vue'),
+            meta: {
+              index: 999
+            }
+          }
+        ]
       }
     ]
   })
