@@ -2,6 +2,7 @@ import WebSocket from 'ws'
 import { createLogger } from '@main/logger'
 import { createProxyAgent } from './create-proxy-agent'
 import { Dependency, Module } from '@shared/module-constructor'
+import { MAX_RECONNECT_ATTEMPTS } from './constants'
 import { VRCHAT_API_USER_AGENT, VRCHAT_PIPELINE_ADDRESS } from '../vrchat-api/constants'
 import type { SettingModule } from '../setting'
 import type { PipelineEventMessage, PipelineEvents } from '@shared/definition/vrchat-pipeline'
@@ -19,7 +20,7 @@ export class VRChatPipeline extends Module<{
 
   private ws: WebSocket | null = null
   private reconnectAttempts = 0
-  private maxReconnectAttempts = 2
+  private maxReconnectAttempts = MAX_RECONNECT_ATTEMPTS
   private reconnectPending = false
   private reconnectTimeout: NodeJS.Timeout | null = null
   private isConnecting = false
