@@ -61,8 +61,9 @@ const props = withDefaults(
               'absolute font-medium whitespace-nowrap',
               'text-sidebar-foreground/55 group-hover/sidebar-button:text-sidebar-foreground/70',
               'dark:text-sidebar-foreground/45 group-hover/sidebar-button:dark:text-sidebar-foreground/65',
-              'transition-colors duration-200 ease-in-out',
-              props.active && '!text-sidebar-foreground/85 dark:!text-sidebar-foreground/90'
+              'transition-[color,font-weight] duration-200 ease-in-out',
+              props.active &&
+                'font-bold !text-sidebar-foreground/85 dark:!text-sidebar-foreground/90'
             )
           "
         >
