@@ -11,6 +11,8 @@ import { VRChatWorkflowCoordinator } from './vrchat-workflow-coordinator'
 import { VRChatPipeline } from './vrchat-pipeline'
 import { VRChatFiles } from './vrchat-files'
 import { VRChatFriends } from './vrchat-friends'
+import { VRChatWorlds } from './vrchat-worlds'
+import { VRChatGroups } from './vrchat-groups'
 import { Runtime } from './runtime'
 import type { ModuleConstructor } from '@shared/module-constructor/types'
 
@@ -27,6 +29,8 @@ export const APP_MODULES: Record<string, ModuleConstructor> = {
   VRChatWorkflowCoordinator,
   VRChatPipeline,
   VRChatFiles,
+  VRChatWorlds,
+  VRChatGroups,
   VRChatFriends,
   Runtime
 }
