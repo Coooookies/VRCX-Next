@@ -34,7 +34,8 @@ const emits = defineEmits<SidebarStateEmits>()
         )
       "
     />
-    <div class="absolute top-0 left-0 w-full h-full flex flex-col pt-10.5">
+    <div class="absolute top-0 left-0 w-full h-full flex flex-col">
+      <div :class="cn('w-full h-10.5', expanded ? 'electron-drag' : 'electron-no-drag')" />
       <div class="flex-1">
         <p>1</p>
       </div>

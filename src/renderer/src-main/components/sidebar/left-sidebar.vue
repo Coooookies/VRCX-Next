@@ -10,8 +10,9 @@ import SettingIcon from '@shared/assets/vector/navigator-icon-setting.svg?compon
 import SidebarContainer from './sidebar-container.vue'
 import SidebarIconButton from './sidebar-icon-button.vue'
 import SidebarTitle from './sidebar-title.vue'
-import type { SidebarContainerProps, SidebarStateEmits, SidebarStateProps } from './types'
 import { computed } from 'vue'
+import { cn } from '@renderer/shared/utils/style'
+import type { SidebarContainerProps, SidebarStateEmits, SidebarStateProps } from './types'
 
 const expanded = defineModel<boolean>('expanded')
 const props = defineProps<SidebarContainerProps & SidebarStateProps>()
@@ -59,8 +60,10 @@ const sidebarFooterItems = computed(() => [
     v-model:expanded="expanded"
     class="left-0 bg-sidebar border-r border-sidebar-border dark:border-sidebar-border/40 flex flex-col"
   >
-    <div class="flex-1 pt-3">
-      <SidebarTitle />
+    <div class="flex-1">
+      <div :class="cn('pt-3', expanded ? 'electron-drag' : 'electron-no-drag')">
+        <SidebarTitle />
+      </div>
       <div class="pt-4 flex flex-col gap-1.5">
         <SidebarIconButton
           v-for="item in sidebarCommonItems"

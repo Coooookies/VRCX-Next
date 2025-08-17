@@ -33,7 +33,7 @@ provide('rightRoutePadding', rightRoutePadding)
     <div
       :class="
         cn(
-          'absolute top-0 left-0 h-full z-10',
+          'absolute top-0 left-0 h-full z-10 peer/left-sidebar',
           props.leftExpanded ? 'w-[var(--left-expand-width)]' : 'w-[var(--collapse-width)]'
         )
       "
@@ -46,12 +46,40 @@ provide('rightRoutePadding', rightRoutePadding)
     <div
       :class="
         cn(
-          'absolute top-0 right-0 h-full z-10',
+          'absolute top-0 right-0 h-full z-10 peer/right-sidebar',
           props.rightExpanded ? 'w-[var(--right-expand-width)]' : 'w-[var(--collapse-width)]'
         )
       "
     >
       <slot name="right-sidebar" />
+    </div>
+    <div
+      :class="
+        cn(
+          'absolute top-0 left-0 w-full',
+          props.leftExpanded
+            ? '[&_.title-bar]:pl-[var(--left-expand-width)]'
+            : '[&_.title-bar]:pl-[var(--collapse-width)] peer-hover/left-sidebar:[&_.title-bar]:pl-[var(--left-expand-width)]',
+          props.rightExpanded
+            ? '[&_.title-bar]:pr-[var(--right-expand-width)]'
+            : '[&_.title-bar]:pr-[var(--collapse-width)] peer-hover/right-sidebar:[&_.title-bar]:pr-[var(--right-expand-width)]'
+        )
+      "
+    >
+      <div class="title-bar w-full h-10.5">
+        <div class="w-full h-full electron-drag" />
+      </div>
+      <div
+        :class="
+          cn(
+            'relative -mt-10.5 flex justify-center w-full',
+            props.leftExpanded ? 'pl-[var(--left-expand-width)]' : 'pl-[var(--collapse-width)]',
+            props.rightExpanded ? 'pr-[var(--right-expand-width)]' : 'pr-[var(--collapse-width)]'
+          )
+        "
+      >
+        <slot name="overlay" />
+      </div>
     </div>
   </div>
 </template>
