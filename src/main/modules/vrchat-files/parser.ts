@@ -1,6 +1,6 @@
-import type { CurrentUser, LimitedUserFriend } from '@shared/definition/vrchat-api-response'
+import type { CurrentUser, LimitedUserFriend, User } from '@shared/definition/vrchat-api-response'
 
-export function getProfileIconUrl(target: CurrentUser | LimitedUserFriend): string {
+export function getProfileIconUrl(target: User | CurrentUser | LimitedUserFriend): string {
   return (
     target.userIcon || target.currentAvatarThumbnailImageUrl || target.profilePicOverrideThumbnail
   )
