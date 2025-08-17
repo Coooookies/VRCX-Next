@@ -2,11 +2,18 @@ import { DataSource } from 'typeorm'
 import { join } from 'node:path'
 import { Module } from '@shared/module-constructor'
 import { DatabaseLogger } from './logger'
-import { SettingEntity } from './entities/setting'
 import { CredentialEntity } from './entities/credential'
+import { WorldEntity } from './entities/world'
+import { GroupEntity } from './entities/group'
+import { SettingEntity } from './entities/setting'
 import { APP_DATABASE_DIR } from '@main/constants'
 
-import { CreateCredentialsTable1710000000000, CreateSettingTable1710000000000 } from './migration'
+import {
+  CreateCredentialsTable1710000000000,
+  CreateGroupsTable1710000000000,
+  CreateSettingTable1710000000000,
+  CreateWorldsTable1710000000000
+} from './migration'
 
 const STORAGE_DATABASE_NAME = 'storage.db'
 
@@ -20,9 +27,15 @@ export class Database extends Module {
       type: 'sqlite',
       database: this.path,
       logger: this.logger,
-      entities: [CredentialEntity, SettingEntity],
+      entities: [CredentialEntity, SettingEntity, WorldEntity, GroupEntity],
+
       migrationsRun: true,
-      migrations: [CreateCredentialsTable1710000000000, CreateSettingTable1710000000000]
+      migrations: [
+        CreateCredentialsTable1710000000000,
+        CreateSettingTable1710000000000,
+        CreateWorldsTable1710000000000,
+        CreateGroupsTable1710000000000
+      ]
     })
 
     await source.initialize()
