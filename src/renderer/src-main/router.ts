@@ -35,7 +35,7 @@ export function createRouter() {
             name: 'page-app-dashboard',
             component: () => import('./pages/dashboard.vue'),
             meta: {
-              index: 0
+              index: 2
             }
           },
           {
@@ -43,7 +43,7 @@ export function createRouter() {
             name: 'page-app-favorites',
             component: () => import('./pages/favorites.vue'),
             meta: {
-              index: 1
+              index: 3
             }
           },
           {
@@ -51,7 +51,7 @@ export function createRouter() {
             name: 'page-app-feed',
             component: () => import('./pages/feed.vue'),
             meta: {
-              index: 2
+              index: 4
             }
           },
           {
@@ -59,7 +59,7 @@ export function createRouter() {
             name: 'page-app-charts',
             component: () => import('./pages/charts.vue'),
             meta: {
-              index: 3
+              index: 5
             }
           },
           {
