@@ -46,17 +46,6 @@ export class FriendEventBinding extends Nanobus<{
 
   private shieldedPipelineEvent = true
 
-  public async startPipeProcessing(cachedPipelineEvents: PipelineEventMessage[]) {
-    this.shieldedPipelineEvent = false
-    for (const message of cachedPipelineEvents) {
-      await this.handlePipeMessage(message)
-    }
-  }
-
-  public stopPipeProcessing() {
-    this.shieldedPipelineEvent = true
-  }
-
   public bindEvents() {
     const updateUserNote = (userId: string, note?: string) => {
       const friend = this.repository.get(userId)
@@ -93,6 +82,19 @@ export class FriendEventBinding extends Nanobus<{
 
       updateUserNote(userId)
     })
+  }
+
+  public async startPipeProcessing(cachedPipelineEvents: PipelineEventMessage[]) {
+    this.shieldedPipelineEvent = false
+    this.logger.info(`Processing ${cachedPipelineEvents.length} cached pipeline events...`)
+
+    for (const message of cachedPipelineEvents) {
+      await this.handlePipeMessage(message)
+    }
+  }
+
+  public stopPipeProcessing() {
+    this.shieldedPipelineEvent = true
   }
 
   private async handlePipeMessage(message: PipelineEventMessage): Promise<void> {
