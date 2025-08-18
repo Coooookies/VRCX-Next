@@ -11,3 +11,7 @@ export interface WorkflowCoordinatorSharedState {
   total: number
   index: number
 }
+
+export interface FriendSharedState {
+  loading: boolean
+}

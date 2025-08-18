@@ -13,7 +13,7 @@ export interface BaseFriendInformation {
   status: UserStatus
   statusDescription: string
   referenceAvatar: ReferenceAvatar
-  note?: string
+  note: string | null
   bio: string
   bioLinks: string[]
   tags: string[]
