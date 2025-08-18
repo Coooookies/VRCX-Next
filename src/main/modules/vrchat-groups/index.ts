@@ -19,6 +19,14 @@ export class VRChatGroups extends Module<{}> {
 
   protected onInit(): void {
     this.repository = new GroupRepository(this.database)
-    this.fetcher = new GroupFetcher(this.repository, this.api)
+    this.fetcher = new GroupFetcher(this.logger, this.repository, this.api)
+  }
+
+  public get Repository(): GroupRepository {
+    return this.repository
+  }
+
+  public get Fetcher(): GroupFetcher {
+    return this.fetcher
   }
 }

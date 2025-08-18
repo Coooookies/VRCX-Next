@@ -1,3 +1,4 @@
+import type { LoggerFactory } from '@main/logger'
 import { toGroupEntity } from './factory'
 import { limitedAllSettled } from '@shared/utils/async'
 import { GroupEntity } from '../database/entities/group'
@@ -7,15 +8,20 @@ import { SAVED_GROUP_ENTITY_EXPIRE_DELAY } from './constants'
 
 export class GroupFetcher {
   constructor(
+    private readonly logger: LoggerFactory,
     private readonly repository: GroupRepository,
     private readonly api: VRChatAPI
   ) {}
 
-  public async fetchWorldEntities(groupId: string): Promise<GroupEntity | null>
-  public async fetchWorldEntities(groupIds: string[]): Promise<Map<string, GroupEntity>>
-  public async fetchWorldEntities(
+  public async fetchGroupEntities(groupId: string): Promise<GroupEntity | null>
+  public async fetchGroupEntities(groupIds: string[]): Promise<Map<string, GroupEntity>>
+  public async fetchGroupEntities(
     groupIds: string | string[]
   ): Promise<GroupEntity | Map<string, GroupEntity> | null> {
+    if (Array.isArray(groupIds) && groupIds.length === 0) {
+      return new Map()
+    }
+
     const _date = new Date()
     const _worldIds = Array.isArray(groupIds) ? groupIds : [groupIds]
 
@@ -28,26 +34,33 @@ export class GroupFetcher {
           SAVED_GROUP_ENTITY_EXPIRE_DELAY
     )
 
-    const result = await limitedAllSettled(
-      invalidIds.map((worldId) => {
-        return async () => this.api.ref.sessionAPI.groups.getGroup(worldId)
-      }),
-      10
-    )
+    if (invalidIds.length > 0) {
+      this.logger.info(`Fetching group entities for IDs: ${invalidIds.join(',')}`)
 
-    const worlds = result.reduce<GroupEntity[]>((arr, current) => {
-      if (current.status === 'fulfilled' && current.value.success) {
-        arr.push(toGroupEntity(current.value.value.body))
+      const result = await limitedAllSettled(
+        invalidIds.map((worldId) => {
+          return async () => this.api.ref.sessionAPI.groups.getGroup(worldId)
+        }),
+        10
+      )
+
+      const worlds = result.reduce<GroupEntity[]>((arr, current) => {
+        if (current.status === 'fulfilled' && current.value.success) {
+          arr.push(toGroupEntity(current.value.value.body))
+        }
+
+        return arr
+      }, [])
+
+      for (const world of worlds) {
+        entities.set(world.groupId, world)
       }
 
-      return arr
-    }, [])
+      this.logger.info(`Fetched ${worlds.length} group entities`)
 
-    for (const world of worlds) {
-      entities.set(world.groupId, world)
+      await this.repository.saveEntities(worlds)
     }
 
-    await this.repository.saveEntities(worlds)
     return Array.isArray(groupIds) ? entities : (entities.get(groupIds) ?? null)
   }
 }
