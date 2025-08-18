@@ -25,25 +25,30 @@ export class FriendsFetcher {
     private readonly users: VRChatUsers
   ) {}
 
-  public async initFriends(processHandler: FriendLoaderProcessHandler) {
+  public async initFriends() {
+    const processHandler = (queueFriends: FriendInformation[]) => {
+      this.repository.set(queueFriends)
+    }
+
+    this.repository.clear()
+
     const friends: FriendInformation[] = []
     const onlineFriends = await this.loadFriends(false, processHandler)
     const offlineFriends = await this.loadFriends(true, processHandler)
     friends.push(...onlineFriends)
     friends.push(...offlineFriends)
 
+    this.repository.set(friends)
     this.logger.info(
       `Fetched ${friends.length} friends in total.`,
       `Online: ${onlineFriends.length}`,
       `Offline: ${offlineFriends.length}`
     )
-
-    this.repository.set(friends)
   }
 
   private async loadFriends(
     offline: boolean,
-    processHandler: FriendLoaderProcessHandler
+    processHandler?: FriendLoaderProcessHandler
   ): Promise<FriendInformation[]> {
     const friends: FriendInformation[] = []
     let startOffset = 0
@@ -80,7 +85,7 @@ export class FriendsFetcher {
       }
 
       startOffset += friendsBatch.length
-      processHandler(currentFriends)
+      processHandler?.(currentFriends)
 
       this.logger.info(`Fetched ${friends.length} ${offline ? 'offline' : 'online'} friends...`)
 
@@ -126,7 +131,7 @@ export class FriendsFetcher {
 
     return {
       ...toBaseFriendInformation(friend),
-      note: note ? note.note : undefined,
+      note: note ? note.note : null,
       isTraveling: false,
       location,
       locationArrivedAt

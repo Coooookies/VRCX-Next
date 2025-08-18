@@ -42,7 +42,6 @@ export class FriendEventBinding extends Nanobus<{
     private readonly users: VRChatUsers
   ) {
     super('VRChatFriends:EventBinding')
-    this.bindEvents()
   }
 
   private shieldedPipelineEvent = true
@@ -58,13 +57,14 @@ export class FriendEventBinding extends Nanobus<{
     this.shieldedPipelineEvent = true
   }
 
-  private bindEvents() {
-    const updateUserNote = (userId: string, note: string) => {
+  public bindEvents() {
+    const updateUserNote = (userId: string, note?: string) => {
       const friend = this.repository.get(userId)
       if (friend) {
-        friend.note = note
-        this.emit('friend:update', friend, { note })
-        this.logger.debug('note:update', JSON.stringify(friend, null, 2))
+        this.repository.set({
+          ...friend,
+          note: note || null
+        })
       }
     }
 
@@ -91,7 +91,7 @@ export class FriendEventBinding extends Nanobus<{
         return
       }
 
-      updateUserNote(userId, '')
+      updateUserNote(userId)
     })
   }
 
@@ -157,7 +157,8 @@ export class FriendEventBinding extends Nanobus<{
     user,
     world,
     platform,
-    location
+    location,
+    travelingToLocation
   }: PipelineEventFriendOnline): Promise<void> {
     const friend = this.repository.get(userId)
 
@@ -165,25 +166,29 @@ export class FriendEventBinding extends Nanobus<{
       return
     }
 
-    const nextLocation = parseLocation(location)
-    const isSameLocation = this.isSameLocation(friend.location, nextLocation)
+    const newFriend = {
+      ...friend
+    }
+
+    const isTraveling = location === 'traveling'
+    const travelingTarget = parseLocation(travelingToLocation)
+    const originalTarget = parseLocation(location)
+    const nextLocation = isTraveling ? travelingTarget : originalTarget
 
     if (nextLocation && world) {
       await this.enrichLocationWithWorldInfo(nextLocation, world)
     }
 
-    if (!isSameLocation) {
-      friend.locationArrivedAt = nextLocation ? new Date() : null
-    }
+    newFriend.isTraveling = false
+    newFriend.status = user.status
+    newFriend.statusDescription = user.statusDescription
+    newFriend.platform = platform
+    newFriend.location = nextLocation
+    newFriend.locationArrivedAt = nextLocation ? new Date() : null
 
-    friend.location = nextLocation
-    friend.isTraveling = false
-    friend.status = user.status
-    friend.statusDescription = user.statusDescription
-    friend.platform = platform
-
-    this.logger.debug('online', JSON.stringify(friend, null, 2))
-    this.emit('friend:online', friend)
+    this.repository.set(newFriend)
+    this.logger.debug('online', JSON.stringify(newFriend, null, 2))
+    this.emit('friend:online', newFriend)
   }
 
   private async handleFriendOffline({
@@ -196,15 +201,20 @@ export class FriendEventBinding extends Nanobus<{
       return
     }
 
-    friend.location = null
-    friend.locationArrivedAt = null
-    friend.isTraveling = false
-    friend.status = UserStatus.Offline
-    friend.statusDescription = ''
-    friend.platform = platform
+    const newFriend = {
+      ...friend
+    }
 
-    this.logger.debug('offline', JSON.stringify(friend, null, 2))
-    this.emit('friend:offline', friend)
+    newFriend.location = null
+    newFriend.locationArrivedAt = null
+    newFriend.isTraveling = false
+    newFriend.status = UserStatus.Offline
+    newFriend.statusDescription = ''
+    newFriend.platform = platform
+
+    this.repository.set(newFriend)
+    this.logger.debug('offline', JSON.stringify(newFriend, null, 2))
+    this.emit('friend:offline', newFriend)
   }
 
   private async handleFriendLocation({
@@ -219,12 +229,16 @@ export class FriendEventBinding extends Nanobus<{
       return
     }
 
+    const newFriend = {
+      ...friend
+    }
+
     const isTraveling = location === 'traveling'
     const travelingTarget = parseLocation(travelingToLocation)
     const originalTarget = parseLocation(location)
 
     const nextLocation = isTraveling ? travelingTarget : originalTarget
-    const isSameLocation = this.isSameLocation(friend.location, nextLocation)
+    const isSameLocation = this.isSameLocation(newFriend.location, nextLocation)
 
     if (nextLocation && world) {
       this.enrichLocationWithWorldInfo(nextLocation, world)
@@ -235,14 +249,15 @@ export class FriendEventBinding extends Nanobus<{
     }
 
     if (!isSameLocation) {
-      friend.locationArrivedAt = nextLocation ? new Date() : null
+      newFriend.locationArrivedAt = nextLocation ? new Date() : null
     }
 
-    friend.location = nextLocation
-    friend.isTraveling = isTraveling
+    newFriend.location = nextLocation
+    newFriend.isTraveling = isTraveling
 
-    this.logger.debug('location', JSON.stringify(friend, null, 2))
-    this.emit('friend:location', friend)
+    this.repository.set(newFriend)
+    this.logger.debug('location', JSON.stringify(newFriend, null, 2))
+    this.emit('friend:location', newFriend)
   }
 
   private async handleFriendActive({
@@ -256,17 +271,22 @@ export class FriendEventBinding extends Nanobus<{
       return
     }
 
-    if (friend.status === UserStatus.Offline) {
-      friend.location = null
-      friend.locationArrivedAt = null
-      friend.isTraveling = false
-      friend.status = user.status
-      friend.statusDescription = user.statusDescription
-      friend.platform = platform
+    const newFriend = {
+      ...friend
     }
 
-    this.logger.debug('active', JSON.stringify(friend, null, 2))
-    this.emit('friend:active', friend)
+    if (newFriend.status === UserStatus.Offline) {
+      newFriend.location = null
+      newFriend.locationArrivedAt = null
+      newFriend.isTraveling = false
+      newFriend.status = user.status
+      newFriend.statusDescription = user.statusDescription
+      newFriend.platform = platform
+    }
+
+    this.repository.set(newFriend)
+    this.logger.debug('active', JSON.stringify(newFriend, null, 2))
+    this.emit('friend:active', newFriend)
   }
 
   private async handleFriendUpdate({ user, userId }: PipelineEventFriendUpdate): Promise<void> {
