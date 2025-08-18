@@ -4,6 +4,7 @@ import { AppLoader } from '@renderer/shared/modules/loader'
 import { IPCRenderer } from '@renderer/shared/modules/ipc'
 import { MobxRenderer } from '@renderer/shared/modules/mobx-renderer'
 import { SettingModule } from '@renderer/shared/modules/setting'
+import { VRChatFriends } from '@renderer/shared/modules/vrchat-friends'
 import { VRChatAuthentication } from '@renderer/shared/modules/vrchat-authentication'
 import { Runtime } from '@renderer/shared/modules/runtime'
 
@@ -14,6 +15,7 @@ const modules: Record<string, ModuleConstructor> = {
   MobxRenderer,
   SettingModule,
   VRChatAuthentication,
+  VRChatFriends,
   Runtime
 }
 
