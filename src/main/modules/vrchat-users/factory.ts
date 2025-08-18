@@ -13,7 +13,7 @@ export function toCurrentUserInformation(user: CurrentUser): UserInformation {
 
   const languages = toUserLanguageTags(user.tags)
   const trustRank = toUserTrustRank(user.tags)
-  const isSupporter = checkSupporter(user.tags)
+  const supporter = isSupporter(user.tags)
   const avatarFileInfo = parseFileUrl(user.currentAvatarImageUrl)
   const avatarId = user.currentAvatar
   const avatar: UserAvatar = {
@@ -44,7 +44,7 @@ export function toCurrentUserInformation(user: CurrentUser): UserInformation {
     languages,
     ageVerified: user.ageVerified,
     ageVerificationStatus: user.ageVerificationStatus,
-    isSupporter
+    isSupporter: supporter
   }
 }
 
@@ -63,6 +63,6 @@ export function toUserTrustRank(tags: string[]): UserTrustRank {
   return UserTrustRank.User
 }
 
-export function checkSupporter(tags: string[]): boolean {
+export function isSupporter(tags: string[]): boolean {
   return tags.includes('system_supporter')
 }

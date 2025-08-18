@@ -1,0 +1,1 @@
+export const USERNOTES_QUERY_SIZE = 100
