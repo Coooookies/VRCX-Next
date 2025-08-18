@@ -10,6 +10,8 @@ import type { SidebarContainerProps, SidebarStateEmits, SidebarStateProps } from
 const expanded = defineModel<boolean>('expanded')
 const props = defineProps<SidebarContainerProps & SidebarStateProps>()
 const emits = defineEmits<SidebarStateEmits>()
+
+console.log(emits)
 </script>
 
 <template>
@@ -35,7 +37,7 @@ const emits = defineEmits<SidebarStateEmits>()
       "
     />
     <div class="absolute top-0 left-0 w-full h-full flex flex-col">
-      <div :class="cn('w-full h-10.5', expanded ? 'electron-drag' : 'electron-no-drag')" />
+      <div :class="cn('w-full h-10', expanded ? 'electron-drag' : 'electron-no-drag')" />
       <div class="flex-1">
         <p>1</p>
       </div>

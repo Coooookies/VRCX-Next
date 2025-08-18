@@ -123,11 +123,11 @@ function toastError(error: ResponseErrorReason) {
 <template>
   <AuthLayout>
     <template #background>
-      <div class="absolute top-0 left-0 w-full h-10.5 z-15 electron-drag" />
+      <div class="absolute top-0 left-0 w-full h-10 z-15 electron-drag" />
       <Spinner class="size-12" />
     </template>
     <template #content>
-      <div class="absolute top-0 left-0 w-full h-10.5 z-15 electron-drag" />
+      <div class="absolute top-0 left-0 w-full h-10 z-15 electron-drag" />
       <div class="absolute top-0 left-0 w-full z-10 px-8 pt-8">
         <AppTitle class="w-32 h-[27px]" />
       </div>

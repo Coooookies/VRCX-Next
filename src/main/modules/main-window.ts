@@ -65,7 +65,7 @@ export class MainWindow extends Module {
       titleBarOverlay: {
         color: '#00000000',
         symbolColor: '#FFFFFF',
-        height: 42
+        height: 40
       },
       backgroundColor: '#090A0C',
       webPreferences: {

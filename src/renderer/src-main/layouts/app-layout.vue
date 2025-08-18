@@ -66,13 +66,13 @@ provide('rightRoutePadding', rightRoutePadding)
         )
       "
     >
-      <div class="title-bar w-full h-10.5">
+      <div class="title-bar w-full h-10">
         <div class="w-full h-full electron-drag" />
       </div>
       <div
         :class="
           cn(
-            'relative -mt-10.5 flex justify-center w-full',
+            'relative -mt-10 flex justify-center w-full',
             props.leftExpanded ? 'pl-[var(--left-expand-width)]' : 'pl-[var(--collapse-width)]',
             props.rightExpanded ? 'pr-[var(--right-expand-width)]' : 'pr-[var(--collapse-width)]'
           )
