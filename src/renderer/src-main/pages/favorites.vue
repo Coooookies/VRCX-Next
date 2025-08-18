@@ -5,9 +5,8 @@ import AppRoute from '../layouts/app-route.vue'
 <template>
   <AppRoute>
     <template #background>
-      <div class="bg-white/30 py-20">
-        <p>2</p>
-      </div>
+      <div class="bg-white/30 py-20"></div>
     </template>
+    <p>2</p>
   </AppRoute>
 </template>
