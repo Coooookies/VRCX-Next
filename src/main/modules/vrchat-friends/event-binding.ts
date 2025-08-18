@@ -302,7 +302,8 @@ export class FriendEventBinding extends Nanobus<{
     const diff = diffSurface<BaseFriendInformation>(friend, updatedFriend)
     const result = {
       ...friend,
-      ...updatedFriend
+      ...updatedFriend,
+      platform: updatedFriend.platform || friend.platform
     }
 
     this.repository.set(result)
