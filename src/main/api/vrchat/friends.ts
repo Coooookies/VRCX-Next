@@ -12,8 +12,8 @@ export class Friends {
       offline?: boolean
     } = {}
   ) {
-    return attempt<Response<LimitedUserFriend>, HTTPError<Response<ErrorResponse>>>(() =>
-      this.client.post('auth/user/friends', {
+    return attempt<Response<LimitedUserFriend[]>, HTTPError<Response<ErrorResponse>>>(() =>
+      this.client.get('auth/user/friends', {
         responseType: 'json',
         searchParams: {
           offline: option.offline,

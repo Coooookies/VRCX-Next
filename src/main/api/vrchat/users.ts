@@ -6,7 +6,7 @@ export class Users {
   constructor(private client: Got) {}
 
   getNotes(offset: number, n: number) {
-    return attempt<Response<UserNote>, HTTPError<Response<ErrorResponse>>>(() =>
+    return attempt<Response<UserNote[]>, HTTPError<Response<ErrorResponse>>>(() =>
       this.client.get('userNotes', {
         responseType: 'json',
         searchParams: {
