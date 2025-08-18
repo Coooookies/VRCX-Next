@@ -1,3 +1,4 @@
+import type { FriendInformation } from '@shared/definition/vrchat-friends'
 import type { SettingDefinition, SettingKey, SettingNamespace } from '@shared/definition/setting'
 import type {
   AuthenticationCredentialEntity,
@@ -29,6 +30,9 @@ export type IpcInvokeEvents = {
   'vrchat-authentication:delete-credential': (userId: string) => void
   'vrchat-authentication:logout': () => void
   'vrchat-authentication:signout': () => void
+
+  // VRChatFriends
+  'vrchat-friends:get-friends': () => FriendInformation[]
 
   // Runtime
   'runtime:relaunch': () => void
