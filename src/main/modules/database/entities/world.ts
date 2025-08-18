@@ -71,7 +71,7 @@ export class WorldEntity {
   declare updatedAt: Date
 
   @Column({
-    name: 'created_at',
+    name: 'cache_updated_at',
     type: 'datetime',
     nullable: true,
     ...datetimeTransformer,

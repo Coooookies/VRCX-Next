@@ -29,13 +29,13 @@ export class GroupEntity {
   declare description: string
 
   @Column({
-    name: 'image_file_id',
+    name: 'icon_file_id',
     type: 'text'
   })
   declare iconFileId: string
 
   @Column({
-    name: 'image_file_version',
+    name: 'icon_file_version',
     type: 'integer'
   })
   declare iconFileVersion: number
@@ -60,13 +60,13 @@ export class GroupEntity {
   declare ownerId: string
 
   @Column({
-    name: 'owner_name',
+    name: 'is_verified',
     type: 'boolean'
   })
   declare isVerified: boolean
 
   @Column({
-    name: 'created_at',
+    name: 'cache_updated_at',
     type: 'datetime',
     nullable: true,
     ...datetimeTransformer,
