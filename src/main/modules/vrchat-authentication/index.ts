@@ -73,6 +73,7 @@ export class VRChatAuthentication extends Module<{
           const thumbnailUrl = getProfileIconUrl(state.userInfo)
           const thumbnailFile = parseFileUrl(thumbnailUrl)
 
+          this.api.setToken(state.authToken, state.twoFactorAuthToken)
           this.setting.update('vrchat_authentication', 'logged_in', true)
           this.setting.update('vrchat_authentication', 'logged_in_user_id', userId)
           this.repository.upsertCredential({
@@ -87,6 +88,7 @@ export class VRChatAuthentication extends Module<{
           })
         }
       } else {
+        this.api.setToken()
         this.cancelAutoLoginSession()
       }
 
