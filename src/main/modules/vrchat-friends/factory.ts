@@ -1,5 +1,5 @@
 import { isGroupInstance } from '../vrchat-worlds/factory'
-import { checkSupporter, toUserLanguageTags, toUserTrustRank } from '../vrchat-users/factory'
+import { isSupporter, toUserLanguageTags, toUserTrustRank } from '../vrchat-users/factory'
 import { parseFileUrl, getProfileIconUrl } from '../vrchat-files/parser'
 import { parseLocation } from '../vrchat-worlds/parser'
 import type { ReferenceAvatar } from '@shared/definition/vrchat-avatars'
@@ -19,7 +19,7 @@ export function toBaseFriendInformation(
   const avatarFileInfo = parseFileUrl(friend.currentAvatarImageUrl)
   const languages = toUserLanguageTags(friend.tags)
   const trustRank = toUserTrustRank(friend.tags)
-  const isSupporter = checkSupporter(friend.tags)
+  const supporter = isSupporter(friend.tags)
   const referenceAvatar: ReferenceAvatar = {
     imageFileId: avatarFileInfo.fileId,
     imageFileVersion: avatarFileInfo.version
@@ -45,7 +45,7 @@ export function toBaseFriendInformation(
     lastPlatform: friend.last_platform,
     lastLoginDate: friend.last_login ? new Date(friend.last_login) : null,
     lastActivityDate: friend.last_activity ? new Date(friend.last_activity) : null,
-    isSupporter
+    isSupporter: supporter
   }
 }
 

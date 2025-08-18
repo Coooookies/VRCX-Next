@@ -43,18 +43,19 @@ export class FriendRepository extends Nanobus<{
   }
 
   public delete(userId: string) {
-    return this.friends.delete(userId)
+    const deleted = this.friends.delete(userId)
+    if (deleted) {
+      this.emit('friends:delete', userId)
+    }
+    return deleted
   }
 
   public clear() {
     this.friends.clear()
+    this.emit('friends:clear')
   }
 
   public has(userId: string): boolean {
     return this.friends.has(userId)
-  }
-
-  public get size(): number {
-    return this.friends.size
   }
 }
