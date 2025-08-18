@@ -60,7 +60,7 @@ export function toUserTrustRank(tags: string[]): UserTrustRank {
   if (tags.includes(UserTrustRank.User)) return UserTrustRank.User
   if (tags.includes(UserTrustRank.New)) return UserTrustRank.New
   if (tags.includes(UserTrustRank.Troll)) return UserTrustRank.Troll
-  return UserTrustRank.User
+  return UserTrustRank.Visitor
 }
 
 export function isSupporter(tags: string[]): boolean {
