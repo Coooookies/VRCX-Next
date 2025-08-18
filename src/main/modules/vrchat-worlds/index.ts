@@ -6,6 +6,7 @@ import type { VRChatAPI } from '../vrchat-api'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { VRChatAuthentication } from '../vrchat-authentication'
 import type { Database } from '../database'
+import { WorldEventBinding } from './event-binding'
 
 export class VRChatWorlds extends Module<{}> {
   @Dependency('VRChatAPI') declare private api: VRChatAPI
@@ -15,10 +16,24 @@ export class VRChatWorlds extends Module<{}> {
 
   private readonly logger = createLogger(this.moduleId)
   private repository!: WorldRepository
+  private eventBinding!: WorldEventBinding
   private fetcher!: WorldFetcher
 
   protected onInit(): void {
     this.repository = new WorldRepository(this.database)
-    this.fetcher = new WorldFetcher(this.repository, this.api)
+    this.eventBinding = new WorldEventBinding(this.logger, this.pipeline, this.repository)
+    this.fetcher = new WorldFetcher(this.logger, this.repository, this.api)
+  }
+
+  public get Repository(): WorldRepository {
+    return this.repository
+  }
+
+  public get EventBinding(): WorldEventBinding {
+    return this.eventBinding
+  }
+
+  public get Fetcher(): WorldFetcher {
+    return this.fetcher
   }
 }

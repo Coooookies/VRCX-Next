@@ -1,3 +1,4 @@
+import type { LoggerFactory } from '@main/logger'
 import { toWorldEntity } from './factory'
 import { limitedAllSettled } from '@shared/utils/async'
 import { WorldEntity } from '../database/entities/world'
@@ -7,6 +8,7 @@ import { SAVED_WORLD_ENTITY_EXPIRE_DELAY } from './constants'
 
 export class WorldFetcher {
   constructor(
+    private readonly logger: LoggerFactory,
     private readonly repository: WorldRepository,
     private readonly api: VRChatAPI
   ) {}
@@ -16,6 +18,10 @@ export class WorldFetcher {
   public async fetchWorldEntities(
     worldIds: string | string[]
   ): Promise<WorldEntity | Map<string, WorldEntity> | null> {
+    if (Array.isArray(worldIds) && worldIds.length === 0) {
+      return new Map()
+    }
+
     const _date = new Date()
     const _worldIds = Array.isArray(worldIds) ? worldIds : [worldIds]
 
@@ -28,26 +34,33 @@ export class WorldFetcher {
           SAVED_WORLD_ENTITY_EXPIRE_DELAY
     )
 
-    const result = await limitedAllSettled(
-      invalidIds.map((worldId) => {
-        return async () => this.api.ref.sessionAPI.worlds.getWorld(worldId)
-      }),
-      10
-    )
+    if (invalidIds.length > 0) {
+      this.logger.info(`Fetching world entities for IDs: ${invalidIds.join(',')}`)
 
-    const worlds = result.reduce<WorldEntity[]>((arr, current) => {
-      if (current.status === 'fulfilled' && current.value.success) {
-        arr.push(toWorldEntity(current.value.value.body))
+      const result = await limitedAllSettled(
+        invalidIds.map((worldId) => {
+          return async () => this.api.ref.sessionAPI.worlds.getWorld(worldId)
+        }),
+        10
+      )
+
+      const worlds = result.reduce<WorldEntity[]>((arr, current) => {
+        if (current.status === 'fulfilled' && current.value.success) {
+          arr.push(toWorldEntity(current.value.value.body))
+        }
+
+        return arr
+      }, [])
+
+      for (const world of worlds) {
+        entities.set(world.worldId, world)
       }
 
-      return arr
-    }, [])
+      await this.repository.saveEntities(worlds)
 
-    for (const world of worlds) {
-      entities.set(world.worldId, world)
+      this.logger.info(`Fetched ${worlds.length} world entities`)
     }
 
-    await this.repository.saveEntities(worlds)
     return Array.isArray(worldIds) ? entities : (entities.get(worldIds) ?? null)
   }
 }
