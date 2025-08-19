@@ -1,42 +1,18 @@
 <script setup lang="ts">
 import ExpandRightIcon from '@shared/assets/vector/navigator-icon-expand-right.svg?component'
 import CollapseRightIcon from '@shared/assets/vector/navigator-icon-collapse-right.svg?component'
+
 import SidebarContainer from './sidebar-container.vue'
 import SidebarIconButton from './sidebar-icon-button.vue'
-import { RecycleScroller } from 'vue-virtual-scroller'
+import SidebarFriends from './sidebar-friends.vue'
+import SidebarFriendsSearchInput from './sidebar-friends-search-input.vue'
+import SidebarFriendsAction from './sidebar-friends-action.vue'
 import { cn } from '@renderer/shared/utils/style'
-import { ref } from 'vue'
 import type { SidebarContainerProps, SidebarStateEmits, SidebarStateProps } from './types'
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
-import ScrollContainer from '@renderer/shared/components/scroll-container.vue'
+
 const expanded = defineModel<boolean>('expanded')
 const props = defineProps<SidebarContainerProps & SidebarStateProps>()
 const emits = defineEmits<SidebarStateEmits>()
-
-// const items = [
-//   {
-//     id: 1,
-//     label: 'Title',
-//     size: 64
-//   },
-//   {
-//     id: 2,
-//     label: 'Foo',
-//     size: 32
-//   },
-//   {
-//     id: 3,
-//     label: 'Bar',
-//     size: 32
-//   }
-// ]
-
-const items = ref(
-  Array.from({ length: 135 }, (_, index) => ({
-    id: index + 1,
-    name: `User ${index + 1}`
-  }))
-)
 
 console.log(emits)
 </script>
@@ -63,22 +39,14 @@ console.log(emits)
         )
       "
     />
-    <div class="absolute top-0 left-0 w-full h-full flex flex-col">
+    <div class="absolute top-0 left-0 w-[var(--expand-width)] h-full flex flex-col">
       <div :class="cn('w-full h-10', expanded ? 'electron-drag' : 'electron-no-drag')" />
-      <div class="flex-1 overflow-hidden">
-        <ScrollContainer class="w-full h-full">
-          <RecycleScroller
-            v-slot="{ item }"
-            key-field="id"
-            page-mode
-            :items="items"
-            :item-size="32"
-          >
-            <div class="user w-10 overflow-hidden">
-              {{ item.name }}
-            </div>
-          </RecycleScroller>
-        </ScrollContainer>
+      <div class="flex flex-row gap-2 px-4 pt-1.5 pb-1">
+        <SidebarFriendsAction />
+        <SidebarFriendsSearchInput class="flex-1" />
+      </div>
+      <div class="flex-1 w-full">
+        <SidebarFriends class="w-full h-full" />
       </div>
       <div
         :class="

@@ -9,9 +9,9 @@ import { SlideRouterView } from '../components/router-view'
 const router = useRouter()
 const route = useRoute()
 
-const leftExpandWidth = 264
+const leftExpandWidth = 260
 const leftExpanded = ref(false)
-const rightExpandWidth = 264
+const rightExpandWidth = 310
 const rightExpanded = ref(false)
 const collapseWidth = 72
 
