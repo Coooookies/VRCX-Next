@@ -28,7 +28,6 @@ const props = withDefaults(defineProps<ScrollContainerProps>(), {
 })
 
 const container = useTemplateRef('container')
-const content = useTemplateRef('content')
 const scrollbar = useTemplateRef('scrollbar')
 const scrollbarThumb = useTemplateRef('scrollbarThumb')
 
@@ -96,19 +95,13 @@ const updateScrollbar = (): void => {
 const resizeObserver = new ResizeObserver(updateScrollbar)
 
 onMounted(() => {
-  if (content.value) {
-    // eslint-disable-next-line no-undef
-    const option: ResizeObserverOptions = {
-      box: 'content-box'
-    }
+  resizeObserver.observe(container.value!, {
+    box: 'content-box'
+  })
 
-    resizeObserver.observe(content.value!, option)
-    resizeObserver.observe(container.value!, option)
-
-    updateScrollbar()
-    window.addEventListener('mousemove', ThumbMouseMove)
-    window.addEventListener('mouseup', ThumbMouseUp)
-  }
+  updateScrollbar()
+  window.addEventListener('mousemove', ThumbMouseMove)
+  window.addEventListener('mouseup', ThumbMouseUp)
 })
 
 onUnmounted(() => {
@@ -141,9 +134,7 @@ defineExpose({
       }"
       @scroll="updateScrollbar"
     >
-      <div ref="content" class="__content">
-        <slot class="__content" />
-      </div>
+      <slot class="__content" />
     </div>
     <div
       ref="scrollbar"
@@ -176,6 +167,7 @@ defineExpose({
 }
 
 .scroll-container__content {
+  position: relative;
   overflow-y: scroll;
   width: 100%;
   height: 100%;
@@ -202,7 +194,7 @@ defineExpose({
 }
 
 .scroll-container:hover .scroll-container__scrollbar .__thumb {
-  background-color: color-mix(in oklab, var(--foreground) 5%, transparent);
+  background-color: color-mix(in oklab, var(--foreground) 8%, transparent);
   backdrop-filter: blur(4px);
 }
 
@@ -218,7 +210,7 @@ defineExpose({
   right: var(--scroll-bar-offset-right);
   width: var(--scroll-bar-width);
   transition: width 0.3s;
-  z-index: 1000;
+  z-index: 1;
 }
 
 .scroll-container__scrollbar.scroll-visible {
@@ -239,11 +231,11 @@ defineExpose({
 }
 
 .scroll-container:hover .scroll-container__scrollbar .__thumb:hover {
-  background-color: color-mix(in oklab, var(--foreground) 16%, transparent);
+  background-color: color-mix(in oklab, var(--foreground) 20%, transparent);
 }
 
 .scroll-container:hover .scroll-container__scrollbar .__thumb:active {
-  background-color: color-mix(in oklab, var(--foreground) 12%, transparent);
+  background-color: color-mix(in oklab, var(--foreground) 15%, transparent);
   transition: background-color 0s;
 }
 

@@ -8,5 +8,58 @@ import AppRoute from '../layouts/app-route.vue'
       <div class="bg-white/30 py-20"></div>
     </template>
     <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
+    <p>2</p>
   </AppRoute>
 </template>

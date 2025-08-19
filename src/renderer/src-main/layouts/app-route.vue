@@ -13,6 +13,7 @@ const rightRoutePadding = inject<Ref<number>>('rightRoutePadding')!
   <ScrollContainer
     v-bind="props"
     class="w-full h-full"
+    :scrollbar-offset-top="40"
     :scrollbar-offset-right="4 + rightRoutePadding"
   >
     <div class="relative w-full">
