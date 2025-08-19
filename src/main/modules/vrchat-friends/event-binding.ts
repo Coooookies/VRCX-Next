@@ -10,7 +10,7 @@ import type { LoggerFactory } from '@main/logger'
 import type { VRChatGroups } from '../vrchat-groups'
 import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatPipeline } from '../vrchat-pipeline'
-import type { FriendRepository } from './repository'
+import type { FriendsRepository } from './repository'
 import type { BaseFriendInformation, FriendInformation } from '@shared/definition/vrchat-friends'
 import type { LocationInstance, LocationInstanceGroup } from '@shared/definition/vrchat-instances'
 import type { World } from '@shared/definition/vrchat-api-response'
@@ -25,7 +25,7 @@ import type {
   PipelineEventMessage
 } from '@shared/definition/vrchat-pipeline'
 
-export class FriendEventBinding extends Nanobus<{
+export class FriendsEventBinding extends Nanobus<{
   'friend:delete': (friendUserId: string) => void
   'friend:add': (friend: FriendInformation) => void
   'friend:online': (friend: FriendInformation) => void
@@ -37,7 +37,7 @@ export class FriendEventBinding extends Nanobus<{
   constructor(
     private readonly logger: LoggerFactory,
     private readonly pipeline: VRChatPipeline,
-    private readonly repository: FriendRepository,
+    private readonly repository: FriendsRepository,
     private readonly groups: VRChatGroups,
     private readonly users: VRChatUsers
   ) {
@@ -238,9 +238,9 @@ export class FriendEventBinding extends Nanobus<{
     const isTraveling = location === 'traveling'
     const travelingTarget = parseLocation(travelingToLocation)
     const originalTarget = parseLocation(location)
-
+    const prevLocation = newFriend.location
     const nextLocation = isTraveling ? travelingTarget : originalTarget
-    const isSameLocation = this.isSameLocation(newFriend.location, nextLocation)
+    const isSameLocation = this.isSameLocation(prevLocation, nextLocation)
 
     if (nextLocation && world) {
       this.enrichLocationWithWorldInfo(nextLocation, world)
@@ -323,14 +323,14 @@ export class FriendEventBinding extends Nanobus<{
     )
   }
 
-  private enrichLocationWithWorldInfo(location: LocationInstance, world: World): void {
+  private enrichLocationWithWorldInfo(location: LocationInstance, world: World) {
     const worldImageInfo = parseFileUrl(world.imageUrl)
     location.worldName = world.name
     location.worldImageFileId = worldImageInfo.fileId
     location.worldImageFileVersion = worldImageInfo.version
   }
 
-  private async enrichLocationWithGroupInfo(groupLocation: LocationInstanceGroup): Promise<void> {
+  private async enrichLocationWithGroupInfo(groupLocation: LocationInstanceGroup) {
     const group = await this.groups.Fetcher.fetchGroupEntities(groupLocation.groupId)
     if (group) {
       groupLocation.groupName = group.groupName

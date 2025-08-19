@@ -2,7 +2,7 @@ import type { VRChatAPI } from '../vrchat-api'
 import type { VRChatGroups } from '../vrchat-groups'
 import type { VRChatWorlds } from '../vrchat-worlds'
 import type { VRChatUsers } from '../vrchat-users'
-import type { FriendRepository } from './repository'
+import type { FriendsRepository } from './repository'
 import type { FriendLoaderProcessHandler } from './types'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
 import type { LocationInstanceGroup } from '@shared/definition/vrchat-instances'
@@ -18,7 +18,7 @@ import { FRIENDS_QUERY_SIZE } from './constants'
 export class FriendsFetcher {
   constructor(
     private readonly logger: LoggerFactory,
-    private readonly repository: FriendRepository,
+    private readonly repository: FriendsRepository,
     private readonly api: VRChatAPI,
     private readonly groups: VRChatGroups,
     private readonly worlds: VRChatWorlds,

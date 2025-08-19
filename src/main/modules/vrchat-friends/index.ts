@@ -1,8 +1,8 @@
 import { createLogger } from '@main/logger'
 import { Dependency, Module } from '@shared/module-constructor'
 import { FriendsFetcher } from './fetcher'
-import { FriendRepository } from './repository'
-import { FriendEventBinding } from './event-binding'
+import { FriendsRepository } from './repository'
+import { FriendsEventBinding } from './event-binding'
 import { FriendsIPCBinding } from './ipc-binding'
 import type { IPCModule } from '../ipc'
 import type { MobxState } from '../mobx-state'
@@ -27,17 +27,17 @@ export class VRChatFriends extends Module<{}> {
   @Dependency('VRChatWorkflowCoordinator') declare private workflow: VRChatWorkflowCoordinator
 
   private readonly logger = createLogger(this.moduleId)
-  private repository!: FriendRepository
+  private repository!: FriendsRepository
   private ipcBinding!: FriendsIPCBinding
-  private eventBinding!: FriendEventBinding
+  private eventBinding!: FriendsEventBinding
   private fetcher!: FriendsFetcher
   private $!: FriendSharedState
 
   protected onInit(): void {
     this.bindEvents()
-    this.repository = new FriendRepository()
+    this.repository = new FriendsRepository()
     this.ipcBinding = new FriendsIPCBinding(this.ipc, this.repository)
-    this.eventBinding = new FriendEventBinding(
+    this.eventBinding = new FriendsEventBinding(
       this.logger,
       this.pipeline,
       this.repository,

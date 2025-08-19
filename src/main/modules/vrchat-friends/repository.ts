@@ -1,7 +1,7 @@
 import Nanobus from 'nanobus'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
 
-export class FriendRepository extends Nanobus<{
+export class FriendsRepository extends Nanobus<{
   'friends:insert': (friends: FriendInformation[]) => void
   'friends:update': (friends: FriendInformation[]) => void
   'friends:delete': (userId: string) => void
