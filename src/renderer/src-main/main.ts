@@ -1,5 +1,6 @@
 import 'reflect-metadata'
 import 'vue-sonner/style.css'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import '@renderer/shared/styles/main.css'
 
 import entry from './app.vue'
