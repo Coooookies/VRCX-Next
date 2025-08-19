@@ -18,7 +18,7 @@ const props = defineProps<{
         'relative w-10 h-9.5 group/sidebar-button',
         props.active
           ? '!bg-sidebar-foreground/10 dark:!bg-secondary/50'
-          : 'bg-sidebar-foreground/5 dark:bg-input/55 hover:bg-sidebar-foreground/10 hover:dark:bg-input/70 active:bg-sidebar-foreground/5 active:dark:!bg-input/40'
+          : 'bg-sidebar-foreground/5 dark:bg-input/55 hover:bg-sidebar-foreground/10 hover:dark:bg-input/80 active:bg-sidebar-foreground/5 active:dark:!bg-input/40'
       )
     "
   >
