@@ -78,6 +78,7 @@ export interface UserInformation {
   pronouns: string
   bio: string
   bioLinks: string[]
+  badges: CurrentUserBadge[]
   tags: string[]
   platform: Platform
   trustRank: UserTrustRank
@@ -91,4 +92,26 @@ export interface UserLocation {
   location: LocationInstance | null
   locationArrivedAt: Date | null
   isTraveling: boolean
+}
+
+export interface UserBadge {
+  badgeId: string
+  name: string
+  description: string
+  showcased: boolean
+  thumbnailUrl: string
+}
+
+export interface UserBadge {
+  badgeId: string
+  name: string
+  description: string
+  showcased: boolean
+  thumbnailUrl: string
+}
+
+export interface CurrentUserBadge extends UserBadge {
+  assignedAt: Date
+  updatedAt: Date
+  hidden: boolean
 }

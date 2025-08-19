@@ -14,6 +14,17 @@ export function toCurrentUserInformation(user: CurrentUser): UserInformation {
   const languages = toUserLanguageTags(user.tags)
   const trustRank = toUserTrustRank(user.tags)
   const supporter = isSupporter(user.tags)
+  const badges = user.badges?.map((badge) => ({
+    badgeId: badge.badgeId,
+    name: badge.badgeName,
+    description: badge.badgeDescription,
+    thumbnailUrl: badge.badgeImageUrl,
+    showcased: badge.showcased,
+    hidden: badge.hidden || false,
+    updatedAt: new Date(badge.updatedAt || 0),
+    assignedAt: new Date(badge.assignedAt || 0)
+  }))
+
   const avatarFileInfo = parseFileUrl(user.currentAvatarImageUrl)
   const avatarId = user.currentAvatar
   const avatar: UserAvatar = {
@@ -38,6 +49,7 @@ export function toCurrentUserInformation(user: CurrentUser): UserInformation {
     avatar,
     bio: user.bio || '',
     bioLinks: user.bioLinks || [],
+    badges: badges || [],
     tags: user.tags,
     trustRank,
     platform: user.last_platform,
