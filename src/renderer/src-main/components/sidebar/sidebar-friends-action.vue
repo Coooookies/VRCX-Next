@@ -8,25 +8,19 @@ import { cn } from '@renderer/shared/utils/style'
 <template>
   <div class="flex flex-row gap-px">
     <SidebarFriendsIconButton
-      label="Messages"
       :icon="MessageIcon"
-      :class="
-        cn(
-          'transition-[border-radius] duration-200 ease-[cubic-bezier(.16,1,.3,1)]',
-          'group-has-[*]/sidebar-expanded:rounded-r-none group-hover/sidebar-collapsed:rounded-r-none'
-        )
-      "
+      label="Messages"
+      class="group-has-[*]/sidebar-expanded:rounded-r-none group-hover/sidebar-collapsed:rounded-r-none"
     />
-    <SidebarFriendsIconButton
-      label="Friends"
-      :icon="FriendsIcon"
+    <div
       :class="
         cn(
-          'opacity-0 rounded-l-none',
-          'transition-opacity duration-200 ease-[cubic-bezier(.16,1,.3,1)]',
+          'opacity-0 transition-opacity duration-200 ease-[cubic-bezier(.16,1,.3,1)]',
           'group-has-[*]/sidebar-expanded:opacity-100 group-hover/sidebar-collapsed:opacity-100'
         )
       "
-    />
+    >
+      <SidebarFriendsIconButton :icon="FriendsIcon" label="Friends" class="rounded-l-none" />
+    </div>
   </div>
 </template>
