@@ -26,6 +26,7 @@ const GROUP_CONFIG = {
   webActive: { id: 'web-active-group', name: 'Web Active', icon: SmileIcon },
   offline: { id: 'offline-group', name: 'Offline', icon: AnnoyedIcon }
 } as const
+
 export interface GroupedFriends {
   online: FriendInformation[]
   webActive: FriendInformation[]
