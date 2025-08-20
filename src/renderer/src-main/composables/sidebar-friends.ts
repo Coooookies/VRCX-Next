@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { capitalize } from 'lodash'
 import { useModule } from '@renderer/shared/hooks/use-module'
 import { AnnoyedIcon, LaughIcon, MapPinHouseIcon, SmileIcon } from 'lucide-vue-next'
@@ -27,6 +27,7 @@ export interface VirtualFriendHeader {
   id: string
   type: 'header'
   icon: FunctionalComponent
+  collapsed: boolean
   label: string
 }
 
@@ -123,6 +124,7 @@ function wrapGroupedFriends(
           id,
           type: 'header',
           icon,
+          collapsed: isCollapsed,
           label: isLoading ? name : `${name} (${friends.length})`
         },
         ...(!isCollapsed ? wrapFriendInformation(id, sortFriends(friends)) : [])
@@ -221,6 +223,20 @@ export function useSidebarFriends() {
 
     return [...sameLocationGroupedFriends, ...onlineFriends, ...webActiveFriends, ...offlineFriends]
   })
+
+  watch(
+    friends.friends,
+    () => {
+      const availableGroupIds = virtualFriends.value
+        .filter((item) => item.type === 'header')
+        .map((item) => item.id)
+
+      collapsedGroupId.value = collapsedGroupId.value.filter((currentId) =>
+        availableGroupIds.find((id) => id === currentId)
+      )
+    },
+    { deep: true }
+  )
 
   function isCollapsed(groupId: string) {
     return collapsedGroupId.value.includes(groupId)
