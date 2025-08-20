@@ -21,45 +21,39 @@ const showBadge = computed(() => {
 </script>
 
 <template>
-  <div class="h-14">
-    <Button
-      v-if="props.user"
-      variant="ghost"
-      class="w-full h-14 items-center justify-start px-4.5 pr-5.5 gap-2.5 rounded-none duration-0"
+  <Button
+    variant="ghost"
+    class="w-full h-14 items-center justify-start px-4.5 pr-5.5 gap-2.5 rounded-none duration-0"
+  >
+    <SidebarProfileAvatar
+      :file-id="props.user.profileIconFileId"
+      :version="props.user.profileIconFileVersion"
+      :platform="props.user.platform"
+      :status="props.user.status"
+      :show-badge="showBadge"
+    />
+    <div
+      :class="
+        cn(
+          'grid flex-1 text-left text-sm leading-tight gap-y-px',
+          'opacity-0 transition-opacity duration-200 ease-[cubic-bezier(.16,1,.3,1)]',
+          'group-has-[*]/sidebar-expanded:opacity-100 group-hover/sidebar-collapsed:opacity-100'
+        )
+      "
     >
-      <SidebarProfileAvatar
-        :file-id="props.user.profileIconFileId"
-        :version="props.user.profileIconFileVersion"
-        :platform="props.user.platform"
-        :status="props.user.status"
-        :show-badge="showBadge"
+      <SidebarProfileName :user-name="props.user.displayName" :trust-rank="props.user.trustRank" />
+      <SidebarProfileStatusTimer
+        v-if="props.showElapsedTimer"
+        :arrived-at="props.user.locationArrivedAt"
       />
-      <div
-        :class="
-          cn(
-            'grid flex-1 text-left text-sm leading-tight gap-y-px',
-            'opacity-0 transition-opacity duration-200 ease-[cubic-bezier(.16,1,.3,1)]',
-            'group-has-[*]/sidebar-expanded:opacity-100 group-hover/sidebar-collapsed:opacity-100'
-          )
-        "
-      >
-        <SidebarProfileName
-          :user-name="props.user.displayName"
-          :trust-rank="props.user.trustRank"
+      <template v-else-if="props.user.status !== UserStatus.Offline">
+        <SidebarProfileStatusLocation
+          v-if="props.user.platform !== Platform.Web"
+          :location="props.user.location"
+          :is-traveling="props.user.isTraveling"
         />
-        <SidebarProfileStatusTimer
-          v-if="props.showElapsedTimer"
-          :arrived-at="props.user.locationArrivedAt"
-        />
-        <template v-else-if="props.user.status !== UserStatus.Offline">
-          <SidebarProfileStatusLocation
-            v-if="props.user.platform !== Platform.Web"
-            :location="props.user.location"
-            :is-traveling="props.user.isTraveling"
-          />
-          <SidebarProfileStatusDescription v-else :description="props.user.statusDescription" />
-        </template>
-      </div>
-    </Button>
-  </div>
+        <SidebarProfileStatusDescription v-else :description="props.user.statusDescription" />
+      </template>
+    </div>
+  </Button>
 </template>
