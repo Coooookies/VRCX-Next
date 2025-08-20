@@ -28,7 +28,7 @@ const props = withDefaults(
           props.variant === 'secondary'
             ? props.active
               ? '!bg-sidebar-foreground/10 dark:!bg-secondary/50'
-              : 'bg-sidebar-foreground/5 dark:bg-input/40 hover:bg-sidebar-foreground/10 hover:dark:bg-input/50 active:bg-sidebar-foreground/5 active:dark:!bg-input/30'
+              : 'bg-sidebar-foreground/5 dark:bg-input/55 hover:bg-sidebar-foreground/10 hover:dark:bg-input/80 active:bg-sidebar-foreground/5 active:dark:!bg-input/40'
             : ''
         )
       "
