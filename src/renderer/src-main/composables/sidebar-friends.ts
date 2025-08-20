@@ -12,6 +12,20 @@ import type { VRChatFriends } from '@renderer/shared/modules/vrchat-friends'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
 import type { FunctionalComponent } from 'vue'
 import type { LocationInstance } from '@shared/definition/vrchat-instances'
+
+const USER_STATUS_PRIORITY: Record<UserStatus, number> = {
+  [UserStatus.JoinMe]: 0,
+  [UserStatus.Active]: 1,
+  [UserStatus.AskMe]: 2,
+  [UserStatus.Busy]: 3,
+  [UserStatus.Offline]: 4
+} as const
+
+const GROUP_CONFIG = {
+  online: { id: 'online-group', name: 'Online', icon: LaughIcon },
+  webActive: { id: 'web-active-group', name: 'Web Active', icon: SmileIcon },
+  offline: { id: 'offline-group', name: 'Offline', icon: AnnoyedIcon }
+} as const
 export interface GroupedFriends {
   online: FriendInformation[]
   webActive: FriendInformation[]
@@ -41,60 +55,46 @@ export interface VirtualFriendItem {
 export type VirtualFriend = VirtualFriendHeader | VirtualFriendItem
 
 function groupFriends(friends: FriendInformation[]): GroupedFriends {
-  const result: GroupedFriends = {
-    online: [],
-    webActive: [],
-    offline: []
-  }
-
-  for (const friend of friends) {
-    if (friend.status === UserStatus.Offline) {
-      result.offline.push(friend)
-    } else {
-      if (friend.platform === Platform.Web) {
-        result.webActive.push(friend)
+  return friends.reduce<GroupedFriends>(
+    (acc, friend) => {
+      if (friend.status === UserStatus.Offline) {
+        acc.offline.push(friend)
+      } else if (friend.platform === Platform.Web) {
+        acc.webActive.push(friend)
       } else {
-        result.online.push(friend)
+        acc.online.push(friend)
       }
-    }
-  }
-
-  return result
+      return acc
+    },
+    { online: [], webActive: [], offline: [] }
+  )
 }
 
 function groupFriendsByLocation(friends: FriendInformation[]): LocationGroup[] {
-  const result = new Map<string, { location: LocationInstance; friends: FriendInformation[] }>()
+  const locationMap = new Map<string, LocationGroup>()
 
   for (const friend of friends) {
-    const location = friend.location
-    if (!location) {
-      continue
-    }
+    if (!friend.location) continue
 
-    const key = `${location.worldId}::${location.name}`
-    let group = result.get(key)
-    if (!group) {
-      group = { location: location, friends: [] }
-      result.set(key, group)
-    }
+    const key = `${friend.location.worldId}::${friend.location.name}`
+    const existingGroup = locationMap.get(key)
 
-    group.friends.push(friend)
+    if (existingGroup) {
+      existingGroup.friends.push(friend)
+    } else {
+      locationMap.set(key, {
+        location: friend.location,
+        friends: [friend]
+      })
+    }
   }
 
-  return [...result.values()].filter((g) => g.friends.length > 1)
+  return [...locationMap.values()].filter((group) => group.friends.length > 1)
 }
 
 function sortFriends(friends: FriendInformation[]): FriendInformation[] {
-  const priority: Record<UserStatus, number> = {
-    [UserStatus.JoinMe]: 0,
-    [UserStatus.Active]: 1,
-    [UserStatus.AskMe]: 2,
-    [UserStatus.Busy]: 3,
-    [UserStatus.Offline]: 4
-  }
-
   return friends.sort((a, b) => {
-    const statusDiff = priority[a.status] - priority[b.status]
+    const statusDiff = USER_STATUS_PRIORITY[a.status] - USER_STATUS_PRIORITY[b.status]
     return statusDiff !== 0
       ? statusDiff
       : a.displayName.localeCompare(b.displayName, undefined, { sensitivity: 'base' })
@@ -102,10 +102,10 @@ function sortFriends(friends: FriendInformation[]): FriendInformation[] {
 }
 
 function wrapFriendInformation(groupId: string, friends: FriendInformation[]): VirtualFriendItem[] {
-  return friends.map((friend, index) => ({
-    id: `${groupId}-item-${index}`,
+  return friends.map((friend) => ({
+    id: `${groupId}-item-${friend.userId}`,
     groupId,
-    type: 'item',
+    type: 'item' as const,
     item: friend
   }))
 }
@@ -118,18 +118,17 @@ function wrapGroupedFriends(
   isLoading: boolean,
   isCollapsed: boolean
 ): VirtualFriend[] {
-  return friends.length > 0
-    ? [
-        {
-          id,
-          type: 'header',
-          icon,
-          collapsed: isCollapsed,
-          label: isLoading ? name : `${name} (${friends.length})`
-        },
-        ...(!isCollapsed ? wrapFriendInformation(id, sortFriends(friends)) : [])
-      ]
-    : []
+  if (friends.length === 0) return []
+
+  const header: VirtualFriendHeader = {
+    id,
+    type: 'header' as const,
+    icon,
+    collapsed: isCollapsed,
+    label: isLoading ? name : `${name} (${friends.length})`
+  }
+
+  return [header, ...(isCollapsed ? [] : wrapFriendInformation(id, sortFriends(friends)))]
 }
 
 export function getLocationLabel(location: LocationInstance) {
@@ -154,7 +153,7 @@ export function getLocationLabel(location: LocationInstance) {
 export function useSidebarFriends() {
   const friends = useModule<VRChatFriends>('VRChatFriends')
   const searchModelValue = ref('')
-  const collapsedGroupId = ref<string[]>([])
+  const collapsedGroupId = ref(new Set<string>())
 
   const filteredFriends = computed(() => {
     const searchTerm = searchModelValue.value.toLowerCase().trim()
@@ -163,63 +162,64 @@ export function useSidebarFriends() {
       return friends.friends.value
     }
 
-    return friends.friends.value.filter(
-      (friend) =>
-        friend.displayName.toLowerCase().includes(searchTerm) ||
-        friend.statusDescription?.toLowerCase().includes(searchTerm) ||
-        friend.location?.worldName?.toLowerCase().includes(searchTerm)
-    )
+    return friends.friends.value.filter((friend) => {
+      const displayName = friend.displayName.toLowerCase()
+      const statusDescription = friend.statusDescription?.toLowerCase() || ''
+      const worldName = friend.location?.worldName?.toLowerCase() || ''
+
+      return (
+        displayName.includes(searchTerm) ||
+        statusDescription.includes(searchTerm) ||
+        worldName.includes(searchTerm)
+      )
+    })
   })
 
   const sameLocationFriends = computed(() => groupFriendsByLocation(filteredFriends.value))
   const groupedFriends = computed(() => groupFriends(filteredFriends.value))
+
   const virtualFriends = computed((): VirtualFriend[] => {
-    const onlineGroupId = 'online-group'
+    const { online, webActive, offline } = GROUP_CONFIG
+    const isLoading = friends.state.loading
+
     const onlineFriends = wrapGroupedFriends(
-      onlineGroupId,
-      'Online',
-      LaughIcon,
+      online.id,
+      online.name,
+      online.icon,
       groupedFriends.value.online,
-      friends.state.loading,
-      isCollapsed(onlineGroupId)
+      isLoading,
+      isCollapsed(online.id)
     )
 
-    const webActiveGroupId = 'web-active-group'
     const webActiveFriends = wrapGroupedFriends(
-      webActiveGroupId,
-      'Web Active',
-      SmileIcon,
+      webActive.id,
+      webActive.name,
+      webActive.icon,
       groupedFriends.value.webActive,
-      friends.state.loading,
-      isCollapsed(webActiveGroupId)
+      isLoading,
+      isCollapsed(webActive.id)
     )
 
-    const offlineGroupId = 'offline-group'
     const offlineFriends = wrapGroupedFriends(
-      offlineGroupId,
-      'Offline',
-      AnnoyedIcon,
+      offline.id,
+      offline.name,
+      offline.icon,
       groupedFriends.value.offline,
-      friends.state.loading,
-      isCollapsed(offlineGroupId)
+      isLoading,
+      isCollapsed(offline.id)
     )
 
-    const sameLocationGroupedFriends = sameLocationFriends.value.reduce<VirtualFriend[]>(
-      (arr, curr) => {
-        const groupId = `location-group-${curr.location.worldId}-${curr.location.name}`
-        return arr.concat(
-          wrapGroupedFriends(
-            groupId,
-            getLocationLabel(curr.location),
-            MapPinHouseIcon,
-            curr.friends,
-            friends.state.loading,
-            isCollapsed(groupId)
-          )
-        )
-      },
-      []
-    )
+    const sameLocationGroupedFriends = sameLocationFriends.value.flatMap((curr) => {
+      const groupId = `location-group-${curr.location.worldId}-${curr.location.name}`
+      return wrapGroupedFriends(
+        groupId,
+        getLocationLabel(curr.location),
+        MapPinHouseIcon,
+        curr.friends,
+        isLoading,
+        isCollapsed(groupId)
+      )
+    })
 
     return [...sameLocationGroupedFriends, ...onlineFriends, ...webActiveFriends, ...offlineFriends]
   })
@@ -227,27 +227,30 @@ export function useSidebarFriends() {
   watch(
     friends.friends,
     () => {
-      const availableGroupIds = virtualFriends.value
-        .filter((item) => item.type === 'header')
-        .map((item) => item.id)
+      const availableGroupIds = new Set(
+        virtualFriends.value.filter((item) => item.type === 'header').map((item) => item.id)
+      )
 
-      collapsedGroupId.value = collapsedGroupId.value.filter((currentId) =>
-        availableGroupIds.find((id) => id === currentId)
+      // Keep only group IDs that still exist
+      collapsedGroupId.value = new Set(
+        [...collapsedGroupId.value].filter((id) => availableGroupIds.has(id))
       )
     },
     { deep: true }
   )
 
-  function isCollapsed(groupId: string) {
-    return collapsedGroupId.value.includes(groupId)
+  function isCollapsed(groupId: string): boolean {
+    return collapsedGroupId.value.has(groupId)
   }
 
-  function toggleCollapse(groupId: string) {
-    if (collapsedGroupId.value.includes(groupId)) {
-      collapsedGroupId.value = collapsedGroupId.value.filter((id) => id !== groupId)
+  function toggleCollapse(groupId: string): void {
+    if (collapsedGroupId.value.has(groupId)) {
+      collapsedGroupId.value.delete(groupId)
     } else {
-      collapsedGroupId.value.push(groupId)
+      collapsedGroupId.value.add(groupId)
     }
+    // Trigger reactivity
+    collapsedGroupId.value = new Set(collapsedGroupId.value)
   }
 
   return {
