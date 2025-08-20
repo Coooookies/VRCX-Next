@@ -15,8 +15,9 @@ import { cn } from '@renderer/shared/utils/style'
     <div
       :class="
         cn(
-          'opacity-0 transition-opacity duration-200 ease-[cubic-bezier(.16,1,.3,1)]',
-          'group-has-[*]/sidebar-expanded:opacity-100 group-hover/sidebar-collapsed:opacity-100'
+          'opacity-0 invisible transition-[opacity,visibility] duration-200 ease-[cubic-bezier(.16,1,.3,1)]',
+          'group-has-[*]/sidebar-expanded:opacity-100 group-hover/sidebar-collapsed:opacity-100',
+          'group-has-[*]/sidebar-expanded:visible group-hover/sidebar-collapsed:visible'
         )
       "
     >
