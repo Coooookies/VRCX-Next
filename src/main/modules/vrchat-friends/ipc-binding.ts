@@ -1,10 +1,10 @@
 import type { IPCModule } from '../ipc'
-import type { FriendRepository } from './repository'
+import type { FriendsRepository } from './repository'
 
 export class FriendsIPCBinding {
   constructor(
     private ipc: IPCModule,
-    private repository: FriendRepository
+    private repository: FriendsRepository
   ) {}
 
   public bindEvents() {
