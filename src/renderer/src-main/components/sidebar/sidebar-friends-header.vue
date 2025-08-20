@@ -36,7 +36,14 @@ const emits = defineEmits<{
           {{ props.label }}
         </span>
         <div class="flex items-center justify-center size-4">
-          <ChevronDown class="size-4" />
+          <ChevronDown
+            :class="
+              cn(
+                'size-4 transition-transform duration-200',
+                props.collapsed ? 'rotate-x-180' : 'rotate-x-0'
+              )
+            "
+          />
         </div>
       </Button>
     </div>

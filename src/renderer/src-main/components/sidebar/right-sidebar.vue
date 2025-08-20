@@ -19,12 +19,13 @@ import type { VRChatUsers } from '@renderer/shared/modules/vrchat-users'
 const expanded = defineModel<boolean>('expanded')
 const users = useModule<VRChatUsers>('VRChatUsers')
 const props = defineProps<SidebarContainerProps & SidebarStateProps>()
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const emits = defineEmits<SidebarStateEmits>()
 
 const { virtualFriends, searchModelValue, toggleCollapse } = useSidebarFriends()
 const statusMask = `url("${ProfileAvatarImageStatusMask}")`
 const phoneMask = `url("${ProfileAvatarImagePhoneMask}")`
+
+console.log(emits)
 
 const focus = computed(() => {
   return searchModelValue.value.length > 0
@@ -71,7 +72,7 @@ const focus = computed(() => {
           :location="users.state.location"
         />
       </div>
-      <div class="flex flex-row gap-2 px-4 pt-1.5 pb-1">
+      <div class="flex flex-row gap-2 px-4 pt-2 pb-1.5">
         <SidebarFriendsAction />
         <SidebarFriendsSearchInput v-model="searchModelValue" class="flex-1" />
       </div>

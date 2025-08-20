@@ -29,6 +29,7 @@ const emits = defineEmits<{
             v-if="item.type === 'header'"
             :icon="item.icon"
             :label="item.label"
+            :collapsed="item.collapsed"
             @click="emits('toggleCollapse', item.id)"
           />
           <SidebarFriendsOverview v-else :user="item.item" />
