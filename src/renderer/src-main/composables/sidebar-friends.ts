@@ -50,6 +50,7 @@ export interface VirtualFriendItem {
   id: string
   groupId: string
   type: 'item'
+  mode: 'normal' | 'timer'
   item: FriendInformation
 }
 
@@ -102,10 +103,15 @@ function sortFriends(friends: FriendInformation[]): FriendInformation[] {
   })
 }
 
-function wrapFriendInformation(groupId: string, friends: FriendInformation[]): VirtualFriendItem[] {
+function wrapFriendInformation(
+  groupId: string,
+  mode: VirtualFriendItem['mode'],
+  friends: FriendInformation[]
+): VirtualFriendItem[] {
   return friends.map((friend) => ({
     id: `${groupId}-item-${friend.userId}`,
     groupId,
+    mode,
     type: 'item' as const,
     item: friend
   }))
@@ -116,6 +122,7 @@ function wrapGroupedFriends(
   name: string,
   icon: FunctionalComponent,
   friends: FriendInformation[],
+  mode: VirtualFriendItem['mode'],
   isLoading: boolean,
   isCollapsed: boolean
 ): VirtualFriend[] {
@@ -129,7 +136,9 @@ function wrapGroupedFriends(
     label: isLoading ? name : `${name} (${friends.length})`
   }
 
-  return [header, ...(isCollapsed ? [] : wrapFriendInformation(id, sortFriends(friends)))]
+  const sortedFriends = sortFriends(friends)
+  const filteredFriends = isCollapsed ? [] : wrapFriendInformation(id, mode, sortedFriends)
+  return [header, ...filteredFriends]
 }
 
 export function getLocationLabel(location: LocationInstance) {
@@ -155,6 +164,7 @@ export function useSidebarFriends() {
   const friends = useModule<VRChatFriends>('VRChatFriends')
   const searchModelValue = ref('')
   const collapsedGroupId = ref(new Set<string>())
+  const isLoading = computed(() => friends.state.loading)
 
   const filteredFriends = computed(() => {
     const searchTerm = searchModelValue.value.toLowerCase().trim()
@@ -188,6 +198,7 @@ export function useSidebarFriends() {
       online.name,
       online.icon,
       groupedFriends.value.online,
+      'normal',
       isLoading,
       isCollapsed(online.id)
     )
@@ -197,6 +208,7 @@ export function useSidebarFriends() {
       webActive.name,
       webActive.icon,
       groupedFriends.value.webActive,
+      'normal',
       isLoading,
       isCollapsed(webActive.id)
     )
@@ -206,6 +218,7 @@ export function useSidebarFriends() {
       offline.name,
       offline.icon,
       groupedFriends.value.offline,
+      'normal',
       isLoading,
       isCollapsed(offline.id)
     )
@@ -217,6 +230,7 @@ export function useSidebarFriends() {
         getLocationLabel(curr.location),
         MapPinHouseIcon,
         curr.friends,
+        'timer',
         isLoading,
         isCollapsed(groupId)
       )
@@ -260,6 +274,7 @@ export function useSidebarFriends() {
     sameLocationFriends,
     filteredFriends,
     searchModelValue,
+    isLoading,
     toggleCollapse
   }
 }
