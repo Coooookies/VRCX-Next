@@ -1,18 +1,40 @@
 <script setup lang="ts">
-// import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import ScrollContainer from '@renderer/shared/components/scroll-container.vue'
 import SidebarFriendsHeader from './sidebar-friends-header.vue'
-import { LaughIcon } from 'lucide-vue-next'
+import SidebarFriendsOverview from './sidebar-friends-overview.vue'
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
+import type { VirtualFriend } from '@renderer/src-main/composables/sidebar-friends'
+
+const props = defineProps<{
+  friends: VirtualFriend[]
+}>()
+
+const emits = defineEmits<{
+  (e: 'toggleCollapse', groupId: string): void
+}>()
 </script>
 
 <template>
-  <ScrollContainer>
-    <SidebarFriendsHeader :icon="LaughIcon" label="在线 (8)" collapsed />
-    <!-- <RecycleScroller v-slot="{ item }" key-field="id" page-mode :items="items" :item-size="32">
-      <div class="user w-10 overflow-hidden">
-        {{ item.name }}
-      </div>
-    </RecycleScroller> -->
+  <ScrollContainer fade-out-at-top fade-out-at-bottom>
+    <DynamicScroller key-field="id" page-mode :items="props.friends" :min-item-size="40">
+      <template #default="{ item, index, active }">
+        <DynamicScrollerItem
+          :item="item"
+          :size-dependencies="['item.type']"
+          :active="active"
+          :data-index="index"
+          class="w-full h-fit"
+        >
+          <SidebarFriendsHeader
+            v-if="item.type === 'header'"
+            :icon="item.icon"
+            :label="item.label"
+            @click="emits('toggleCollapse', item.id)"
+          />
+          <SidebarFriendsOverview v-else :user="item.item" />
+        </DynamicScrollerItem>
+      </template>
+    </DynamicScroller>
   </ScrollContainer>
 </template>
 
