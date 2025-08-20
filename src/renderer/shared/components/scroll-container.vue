@@ -27,6 +27,7 @@ const props = withDefaults(defineProps<ScrollContainerProps>(), {
   fadeOutAtBottom: false
 })
 
+const content = useTemplateRef('content')
 const container = useTemplateRef('container')
 const scrollbar = useTemplateRef('scrollbar')
 const scrollbarThumb = useTemplateRef('scrollbarThumb')
@@ -99,6 +100,10 @@ onMounted(() => {
     box: 'content-box'
   })
 
+  resizeObserver.observe(content.value!, {
+    box: 'content-box'
+  })
+
   updateScrollbar()
   window.addEventListener('mousemove', ThumbMouseMove)
   window.addEventListener('mouseup', ThumbMouseUp)
@@ -134,7 +139,9 @@ defineExpose({
       }"
       @scroll="updateScrollbar"
     >
-      <slot class="__content" />
+      <div ref="content" class="__content">
+        <slot />
+      </div>
     </div>
     <div
       ref="scrollbar"
