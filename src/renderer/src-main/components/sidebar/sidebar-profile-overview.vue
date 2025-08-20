@@ -3,6 +3,7 @@ import SidebarProfileName from './sidebar-profile-name.vue'
 import SidebarProfileAvatar from './sidebar-profile-avatar.vue'
 import SidebarProfileStatusLocation from './sidebar-profile-status-location.vue'
 import SidebarProfileStatusDescription from './sidebar-profile-status-description.vue'
+import SidebarProfileOverviewSkeleton from './sidebar-profile-overview-skeleton.vue'
 import { capitalize } from 'lodash'
 import { cn } from '@renderer/shared/utils/style'
 import { Button } from '@renderer/shared/components/ui/button'
@@ -52,5 +53,6 @@ const props = defineProps<{
         />
       </div>
     </Button>
+    <SidebarProfileOverviewSkeleton v-else />
   </div>
 </template>

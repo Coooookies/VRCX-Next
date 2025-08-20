@@ -21,7 +21,7 @@ const users = useModule<VRChatUsers>('VRChatUsers')
 const props = defineProps<SidebarContainerProps & SidebarStateProps>()
 const emits = defineEmits<SidebarStateEmits>()
 
-const { virtualFriends, searchModelValue, toggleCollapse } = useSidebarFriends()
+const { virtualFriends, searchModelValue, isLoading, toggleCollapse } = useSidebarFriends()
 const statusMask = `url("${ProfileAvatarImageStatusMask}")`
 const phoneMask = `url("${ProfileAvatarImagePhoneMask}")`
 
@@ -80,6 +80,7 @@ const focus = computed(() => {
         <SidebarFriends
           class="w-full h-full"
           :friends="virtualFriends"
+          :is-loading="isLoading"
           @toggle-collapse="toggleCollapse"
         />
       </div>
