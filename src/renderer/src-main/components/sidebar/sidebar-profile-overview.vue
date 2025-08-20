@@ -20,7 +20,7 @@ const props = defineProps<{
     <Button
       v-if="props.user"
       variant="ghost"
-      class="w-full h-14 items-center justify-start pl-4.5 pr-6 gap-2.5 rounded-none duration-0"
+      class="w-full h-14 items-center justify-start pl-4.5 pr-6.5 gap-2.5 rounded-none duration-0"
     >
       <SidebarProfileAvatar
         :file-id="props.user.profileIconFileId"
