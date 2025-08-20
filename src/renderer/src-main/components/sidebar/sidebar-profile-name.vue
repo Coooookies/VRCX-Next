@@ -6,7 +6,7 @@ const TrustRankTextColors: Record<UserTrustRank, string> = {
   [UserTrustRank.Visitor]: 'text-white',
   [UserTrustRank.New]: 'text-blue-500',
   [UserTrustRank.User]: 'text-emerald-500',
-  [UserTrustRank.Trusted]: 'text-indigo-500',
+  [UserTrustRank.Trusted]: 'text-violet-500',
   [UserTrustRank.Known]: 'text-amber-600',
   [UserTrustRank.Troll]: 'text-gray-500',
   [UserTrustRank.Moderator]: 'text-rose-600'
