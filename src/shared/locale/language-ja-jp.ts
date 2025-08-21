@@ -1,3 +1,4 @@
+import { UserLanguage } from '@shared/definition/vrchat-users'
 import type { Languageinstance } from './types'
 
 export const LANGUAGE_JA_JP: Languageinstance = {
@@ -64,6 +65,76 @@ export const LANGUAGE_JA_JP: Languageinstance = {
         label_did_not_receive_tip: 'コードが届きませんか？',
         button_resend_email_otp: '再送信',
         button_back: '戻る'
+      }
+    },
+    profile: {
+      status: {
+        active: 'オンライン',
+        join_me: 'いつでも歓迎',
+        ask_me: '許可が必要です',
+        busy: '取り込み中',
+        offline: 'オフライン'
+      },
+      trust_rank: {
+        visitor: 'ビジター',
+        troll: '問題のあるプレイヤー',
+        new: '新規プレイヤー',
+        user: 'プレイヤー',
+        known: '常連プレイヤー',
+        trusted: 'ベテラン',
+        moderator: 'モデレーター'
+      },
+      instance_type: {
+        friends_plus: 'フレンド+',
+        friends: 'フレンドのみ',
+        invite_plus: '招待+',
+        invite: '招待のみ',
+        group_public: 'グループ公開',
+        group_plus: 'グループ+',
+        group: 'グループのみ',
+        public: '公開',
+        private: 'プライベート'
+      },
+      locate: {
+        [UserLanguage.ENG]: '英語',
+        [UserLanguage.KOR]: '韓国語',
+        [UserLanguage.RUS]: 'ロシア語',
+        [UserLanguage.SPA]: 'スペイン語',
+        [UserLanguage.POR]: 'ポルトガル語',
+        [UserLanguage.ZHO]: '中国語',
+        [UserLanguage.DEU]: 'ドイツ語',
+        [UserLanguage.JPN]: '日本語',
+        [UserLanguage.FRA]: 'フランス語',
+        [UserLanguage.SWE]: 'スウェーデン語',
+        [UserLanguage.NLD]: 'オランダ語',
+        [UserLanguage.POL]: 'ポーランド語',
+        [UserLanguage.DAN]: 'デンマーク語',
+        [UserLanguage.NOR]: 'ノルウェー語',
+        [UserLanguage.ITA]: 'イタリア語',
+        [UserLanguage.THA]: 'タイ語',
+        [UserLanguage.FIN]: 'フィンランド語',
+        [UserLanguage.HUN]: 'ハンガリー語',
+        [UserLanguage.CES]: 'チェコ語',
+        [UserLanguage.TUR]: 'トルコ語',
+        [UserLanguage.ARA]: 'アラビア語',
+        [UserLanguage.RON]: 'ルーマニア語',
+        [UserLanguage.VIE]: 'ベトナム語',
+        [UserLanguage.IND]: 'インドネシア語',
+        [UserLanguage.MSA]: 'マレー語',
+        [UserLanguage.FIL]: 'フィリピン語',
+        [UserLanguage.CMN]: '標準中国語',
+        [UserLanguage.HEB]: 'ヘブライ語',
+        [UserLanguage.HMN]: 'ミャオ語',
+        [UserLanguage.UKR]: 'ウクライナ語',
+        [UserLanguage.TOK]: 'トキポナ語',
+        [UserLanguage.YUE]: '広東語',
+        [UserLanguage.WUU]: '呉語',
+        [UserLanguage.ASE]: 'アメリカ手話',
+        [UserLanguage.BFI]: 'イギリス手話',
+        [UserLanguage.DSE]: 'オランダ手話',
+        [UserLanguage.FSL]: 'フランス手話',
+        [UserLanguage.JSL]: '日本手話',
+        [UserLanguage.KVK]: '韓国手話'
       }
     },
     setting: {

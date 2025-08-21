@@ -1,3 +1,4 @@
+import { UserLanguage } from '@shared/definition/vrchat-users'
 import type { Languageinstance } from './types'
 
 export const LANGUAGE_ZH_CNS: Languageinstance = {
@@ -64,6 +65,76 @@ export const LANGUAGE_ZH_CNS: Languageinstance = {
         label_did_not_receive_tip: '没有收到代码？',
         button_resend_email_otp: '重新发送',
         button_back: '返回'
+      }
+    },
+    profile: {
+      status: {
+        active: '在线',
+        join_me: '随时欢迎',
+        ask_me: '需要许可',
+        busy: '忙碌',
+        offline: '离线'
+      },
+      trust_rank: {
+        visitor: '游客',
+        troll: '劣迹玩家',
+        new: '新玩家',
+        user: '玩家',
+        known: '长期玩家',
+        trusted: '资深玩家',
+        moderator: '管理员'
+      },
+      instance_type: {
+        friends_plus: '好友+',
+        friends: '仅限好友',
+        invite_plus: '邀请+',
+        invite: '仅限邀请',
+        group_public: '群组公开',
+        group_plus: '群组+',
+        group: '仅限群组',
+        public: '公开',
+        private: '私密'
+      },
+      locate: {
+        [UserLanguage.ENG]: '英语',
+        [UserLanguage.KOR]: '韩语',
+        [UserLanguage.RUS]: '俄语',
+        [UserLanguage.SPA]: '西班牙语',
+        [UserLanguage.POR]: '葡萄牙语',
+        [UserLanguage.ZHO]: '中文',
+        [UserLanguage.DEU]: '德语',
+        [UserLanguage.JPN]: '日语',
+        [UserLanguage.FRA]: '法语',
+        [UserLanguage.SWE]: '瑞典语',
+        [UserLanguage.NLD]: '荷兰语',
+        [UserLanguage.POL]: '波兰语',
+        [UserLanguage.DAN]: '丹麦语',
+        [UserLanguage.NOR]: '挪威语',
+        [UserLanguage.ITA]: '意大利语',
+        [UserLanguage.THA]: '泰语',
+        [UserLanguage.FIN]: '芬兰语',
+        [UserLanguage.HUN]: '匈牙利语',
+        [UserLanguage.CES]: '捷克语',
+        [UserLanguage.TUR]: '土耳其语',
+        [UserLanguage.ARA]: '阿拉伯语',
+        [UserLanguage.RON]: '罗马尼亚语',
+        [UserLanguage.VIE]: '越南语',
+        [UserLanguage.IND]: '印尼语',
+        [UserLanguage.MSA]: '马来语',
+        [UserLanguage.FIL]: '菲律宾语',
+        [UserLanguage.CMN]: '普通话',
+        [UserLanguage.HEB]: '希伯来语',
+        [UserLanguage.HMN]: '苗语',
+        [UserLanguage.UKR]: '乌克兰语',
+        [UserLanguage.TOK]: '托基波那语',
+        [UserLanguage.YUE]: '粤语',
+        [UserLanguage.WUU]: '吴语',
+        [UserLanguage.ASE]: '美国手语',
+        [UserLanguage.BFI]: '英国手语',
+        [UserLanguage.DSE]: '荷兰手语',
+        [UserLanguage.FSL]: '法国手语',
+        [UserLanguage.JSL]: '日本手语',
+        [UserLanguage.KVK]: '韩国手语'
       }
     },
     setting: {

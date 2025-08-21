@@ -1,3 +1,4 @@
+import { UserLanguage } from '@shared/definition/vrchat-users'
 import type { Languageinstance } from './types'
 
 export const LANGUAGE_EN_US: Languageinstance = {
@@ -64,6 +65,76 @@ export const LANGUAGE_EN_US: Languageinstance = {
         label_did_not_receive_tip: "Didn't get the code?",
         button_resend_email_otp: 'Resend Code',
         button_back: 'Back'
+      }
+    },
+    profile: {
+      status: {
+        active: 'Online',
+        join_me: 'Join Me',
+        ask_me: 'Ask Me',
+        busy: 'Busy',
+        offline: 'Offline'
+      },
+      trust_rank: {
+        visitor: 'Visitor',
+        troll: 'Troll',
+        new: 'New User',
+        user: 'User',
+        known: 'Known User',
+        trusted: 'Trusted User',
+        moderator: 'Moderator'
+      },
+      instance_type: {
+        friends_plus: 'Friends+',
+        friends: 'Friends',
+        invite_plus: 'Invite+',
+        invite: 'Invite',
+        group_public: 'Group Public',
+        group_plus: 'Group+',
+        group: 'Group',
+        public: 'Public',
+        private: 'Private'
+      },
+      locate: {
+        [UserLanguage.ENG]: 'English',
+        [UserLanguage.KOR]: 'Korean',
+        [UserLanguage.RUS]: 'Russian',
+        [UserLanguage.SPA]: 'Spanish',
+        [UserLanguage.POR]: 'Portuguese',
+        [UserLanguage.ZHO]: 'Chinese',
+        [UserLanguage.DEU]: 'German',
+        [UserLanguage.JPN]: 'Japanese',
+        [UserLanguage.FRA]: 'French',
+        [UserLanguage.SWE]: 'Swedish',
+        [UserLanguage.NLD]: 'Dutch',
+        [UserLanguage.POL]: 'Polish',
+        [UserLanguage.DAN]: 'Danish',
+        [UserLanguage.NOR]: 'Norwegian',
+        [UserLanguage.ITA]: 'Italian',
+        [UserLanguage.THA]: 'Thai',
+        [UserLanguage.FIN]: 'Finnish',
+        [UserLanguage.HUN]: 'Hungarian',
+        [UserLanguage.CES]: 'Czech',
+        [UserLanguage.TUR]: 'Turkish',
+        [UserLanguage.ARA]: 'Arabic',
+        [UserLanguage.RON]: 'Romanian',
+        [UserLanguage.VIE]: 'Vietnamese',
+        [UserLanguage.IND]: 'Indonesian',
+        [UserLanguage.MSA]: 'Malay',
+        [UserLanguage.FIL]: 'Filipino',
+        [UserLanguage.CMN]: 'Mandarin',
+        [UserLanguage.HEB]: 'Hebrew',
+        [UserLanguage.HMN]: 'Hmong',
+        [UserLanguage.UKR]: 'Ukrainian',
+        [UserLanguage.TOK]: 'Toki Pona',
+        [UserLanguage.YUE]: 'Cantonese',
+        [UserLanguage.WUU]: 'Wu Chinese',
+        [UserLanguage.ASE]: 'American Sign Language',
+        [UserLanguage.BFI]: 'British Sign Language',
+        [UserLanguage.DSE]: 'Dutch Sign Language',
+        [UserLanguage.FSL]: 'French Sign Language',
+        [UserLanguage.JSL]: 'Japanese Sign Language',
+        [UserLanguage.KVK]: 'Korean Sign Language'
       }
     },
     setting: {

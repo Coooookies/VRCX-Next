@@ -1,5 +1,6 @@
 import { LANGUAGES } from '.'
 import { LCID_DEFINITIONS } from './lcid'
+import type { UserLanguage } from '@shared/definition/vrchat-users'
 
 export type LanguageDefinition = {
   authentication: {
@@ -63,6 +64,36 @@ export type LanguageDefinition = {
       button_resend_email_otp: string
       button_back: string
     }
+  }
+  profile: {
+    status: {
+      active: string
+      join_me: string
+      ask_me: string
+      busy: string
+      offline: string
+    }
+    trust_rank: {
+      visitor: string
+      troll: string
+      new: string
+      user: string
+      known: string
+      trusted: string
+      moderator: string
+    }
+    instance_type: {
+      friends_plus: string
+      friends: string
+      invite_plus: string
+      invite: string
+      group_public: string
+      group_plus: string
+      group: string
+      public: string
+      private: string
+    }
+    locate: Record<UserLanguage, string>
   }
   setting: {
     network: {
