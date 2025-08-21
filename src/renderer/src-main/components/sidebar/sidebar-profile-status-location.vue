@@ -74,13 +74,13 @@ const locationArea = computed(() => {
 <style>
 @keyframes animation-icon-shiny {
   0% {
-    opacity: 0.5;
+    opacity: 0.3;
   }
   50% {
     opacity: 1;
   }
   100% {
-    opacity: 0.5;
+    opacity: 0.3;
   }
 }
 </style>
