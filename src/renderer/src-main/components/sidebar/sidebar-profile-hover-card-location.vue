@@ -15,7 +15,7 @@ const props = defineProps<{
 
 <template>
   <Button variant="outline" class="w-full h-18 flex flex-row items-center gap-2.5 p-2">
-    <ImageRoot class="block size-14 rounded-[6px] overflow-hidden">
+    <ImageRoot class="block bg-popover size-14 rounded-[6px] overflow-hidden">
       <ImageVRChatContext
         :key="`${props.location.worldImageFileId}-${props.location.worldImageFileVersion}`"
         :file-id="props.location.worldImageFileId"
