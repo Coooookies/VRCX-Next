@@ -50,7 +50,7 @@ const showBadge = computed(() => {
             :trust-rank="props.user.trustRank"
           />
           <template v-if="props.showElapsedTimer">
-            <SidebarProfileStatusText v-if="props.user.isTraveling" :text="`正在前往`" />
+            <SidebarProfileStatusText v-if="props.user.isTraveling" :text="`正在前往`" shiny />
             <SidebarProfileStatusTimer v-else :arrived-at="props.user.locationArrivedAt" />
           </template>
           <template v-else-if="props.user.status !== UserStatus.Offline">
