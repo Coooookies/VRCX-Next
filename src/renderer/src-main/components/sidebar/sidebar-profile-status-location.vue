@@ -6,9 +6,13 @@ import AreaEU from '@shared/assets/vector/area-eu.svg?component'
 import AreaUnknown from '@shared/assets/vector/area-unknown.svg?component'
 import { computed } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
+import { useI18n } from '@renderer/shared/locale'
 import { getLocationLabel } from '@renderer/src-main/composables/sidebar-friends'
 import { Region } from '@shared/definition/vrchat-api-response'
 import type { UserLocation } from '@shared/definition/vrchat-users'
+
+const { t } = useI18n()
+
 const props = defineProps<{
   isTraveling: UserLocation['isTraveling']
   location: UserLocation['location']
@@ -50,7 +54,7 @@ const locationArea = computed(() => {
     "
   >
     <template v-if="!props.location">
-      <span>{{ `Private` }}</span>
+      <span>{{ t('profile.instance_type.private') }}</span>
     </template>
     <template v-else-if="props.isTraveling">
       <div class="size-4 flex items-center justify-center">
