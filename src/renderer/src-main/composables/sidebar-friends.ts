@@ -1,5 +1,5 @@
 import { computed, ref, watch } from 'vue'
-import { capitalize } from 'lodash'
+import { useI18n } from '@renderer/shared/locale'
 import { useModule } from '@renderer/shared/hooks/use-module'
 import { AnnoyedIcon, LaughIcon, MapPinHouseIcon, SmileIcon } from 'lucide-vue-next'
 import { Platform, UserStatus } from '@shared/definition/vrchat-api-response'
@@ -8,18 +8,14 @@ import {
   LocationInstancePublicType,
   LocationInstanceUserType
 } from '@shared/definition/vrchat-instances'
+import {
+  LOCATION_TYPE_TRANSLATE_KEY,
+  STATUS_PRIORITY
+} from '@renderer/shared/constants/locate-mapping'
 import type { VRChatFriends } from '@renderer/shared/modules/vrchat-friends'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
 import type { FunctionalComponent } from 'vue'
 import type { LocationInstance } from '@shared/definition/vrchat-instances'
-
-const USER_STATUS_PRIORITY: Record<UserStatus, number> = {
-  [UserStatus.JoinMe]: 0,
-  [UserStatus.Active]: 1,
-  [UserStatus.AskMe]: 2,
-  [UserStatus.Busy]: 3,
-  [UserStatus.Offline]: 4
-} as const
 
 const GROUP_CONFIG = {
   online: { id: 'online-group', name: 'Online', icon: LaughIcon },
@@ -96,7 +92,7 @@ function groupFriendsByLocation(friends: FriendInformation[]): LocationGroup[] {
 
 function sortFriends(friends: FriendInformation[]): FriendInformation[] {
   return friends.sort((a, b) => {
-    const statusDiff = USER_STATUS_PRIORITY[a.status] - USER_STATUS_PRIORITY[b.status]
+    const statusDiff = STATUS_PRIORITY[a.status] - STATUS_PRIORITY[b.status]
     return statusDiff !== 0
       ? statusDiff
       : a.displayName.localeCompare(b.displayName, undefined, { sensitivity: 'base' })
@@ -141,12 +137,15 @@ function wrapGroupedFriends(
   return [header, ...filteredFriends]
 }
 
-export function getLocationLabel(location: LocationInstance) {
+export function getLocationLabel(location: LocationInstance, includeWorldName: boolean = true) {
+  const { t } = useI18n()
+  const translatedTypeName = t(LOCATION_TYPE_TRANSLATE_KEY[location.type])
+
   switch (location.type) {
     case LocationInstanceGroupType.Group:
     case LocationInstanceGroupType.GroupPlus:
     case LocationInstanceGroupType.GroupPublic: {
-      const baseText = `${location.worldName} #${location.name} ${capitalize(location.type)}(${location.groupName})`
+      const baseText = `${includeWorldName ? `${location.worldName} ` : ''}#${location.name} ${translatedTypeName}(${location.groupName})`
       return location.require18yo ? `${baseText} 18+` : baseText
     }
     case LocationInstancePublicType.Public:
@@ -155,7 +154,7 @@ export function getLocationLabel(location: LocationInstance) {
     case LocationInstanceUserType.Invite:
     case LocationInstanceUserType.InvitePlus:
     default: {
-      return `${location.worldName} #${location.name} ${capitalize(location.type)}`
+      return `${includeWorldName ? `${location.worldName} ` : ''}#${location.name} ${translatedTypeName}`
     }
   }
 }
