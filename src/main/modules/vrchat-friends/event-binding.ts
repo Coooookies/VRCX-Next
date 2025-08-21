@@ -274,16 +274,15 @@ export class FriendsEventBinding extends Nanobus<{
     }
 
     const newFriend = {
-      ...friend
+      ...friend,
+      ...toBaseFriendInformation(user),
+      platform
     }
 
     if (newFriend.status === UserStatus.Offline) {
       newFriend.location = null
       newFriend.locationArrivedAt = null
       newFriend.isTraveling = false
-      newFriend.status = user.status
-      newFriend.statusDescription = user.statusDescription
-      newFriend.platform = platform
     }
 
     this.repository.set(newFriend)
