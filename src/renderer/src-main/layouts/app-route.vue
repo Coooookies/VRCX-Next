@@ -5,8 +5,10 @@ import type { Ref } from 'vue'
 import type { ScrollContainerProps } from '@renderer/shared/components/scroll-container.vue'
 
 const props = defineProps<ScrollContainerProps>()
-const leftRoutePadding = inject<Ref<number>>('leftRoutePadding')!
-const rightRoutePadding = inject<Ref<number>>('rightRoutePadding')!
+const { leftRoutePadding, rightRoutePadding } = inject<{
+  leftRoutePadding: Ref<number>
+  rightRoutePadding: Ref<number>
+}>('routePadding')!
 </script>
 
 <template>

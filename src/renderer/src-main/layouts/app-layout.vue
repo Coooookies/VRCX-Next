@@ -17,8 +17,10 @@ const rightRoutePadding = computed(() =>
   props.rightExpanded ? props.rightExpandWidth : props.collapseWidth
 )
 
-provide('leftRoutePadding', leftRoutePadding)
-provide('rightRoutePadding', rightRoutePadding)
+provide('routePadding', {
+  leftRoutePadding,
+  rightRoutePadding
+})
 </script>
 
 <template>
