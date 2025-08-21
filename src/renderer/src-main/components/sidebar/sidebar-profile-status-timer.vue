@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ElapsedTimerText from '@renderer/shared/components/elapsed-timer-text.vue'
+import ElapsedTimerText from '@renderer/shared/components/elapsed-timer/elapsed-timer-text.vue'
 
 const props = defineProps<{
   arrivedAt: Date | number | null
