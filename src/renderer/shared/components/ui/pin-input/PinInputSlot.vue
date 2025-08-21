@@ -7,14 +7,18 @@ import { PinInputInput, useForwardProps } from 'reka-ui'
 import { cn } from '@renderer/shared/utils/style'
 
 const props = defineProps<PinInputInputProps & { class?: HTMLAttributes['class'] }>()
-
 const delegatedProps = reactiveOmit(props, 'class')
-
 const forwardedProps = useForwardProps(delegatedProps)
+const injectedPayload = inject<{
+  registerChildFocusPayload: (payload: PinInputFocusPayload) => void
+  unregisterChildFocusPayload: (index: number) => void
+  pinInputUniqueId: string
+}>('pinInputPayload')
 
-const focusPayload = inject<(payload: PinInputFocusPayload) => void>('registerChildFocusPayload')
-const unmountPayload = inject<(index: number) => void>('unregisterChildFocusPayload')
-const uniqueId = inject<string>('pinInputUniqueId')
+const focusPayload = injectedPayload!.registerChildFocusPayload
+const unmountPayload = injectedPayload!.unregisterChildFocusPayload
+const uniqueId = injectedPayload!.pinInputUniqueId
+
 const slotUniqueId = `${uniqueId}-${props.index}`
 
 focusPayload?.({

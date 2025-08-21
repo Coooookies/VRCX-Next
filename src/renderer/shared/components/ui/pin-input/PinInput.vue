@@ -41,9 +41,11 @@ function focusChild(index: number = 0) {
   }
 }
 
-provide('registerChildFocusPayload', registerChildFocusPayload)
-provide('unregisterChildFocusPayload', unregisterChildFocusPayload)
-provide('pinInputUniqueId', pinInputUniqueId)
+provide('pinInputPayload', {
+  registerChildFocusPayload,
+  unregisterChildFocusPayload,
+  pinInputUniqueId
+})
 
 defineExpose({
   focus: focusChild
