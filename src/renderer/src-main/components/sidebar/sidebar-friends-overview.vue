@@ -2,7 +2,7 @@
 import SidebarProfileName from './sidebar-profile-name.vue'
 import SidebarProfileAvatar from './sidebar-profile-avatar.vue'
 import SidebarProfileStatusLocation from './sidebar-profile-status-location.vue'
-import SidebarProfileStatusDescription from './sidebar-profile-status-description.vue'
+import SidebarProfileStatusText from './sidebar-profile-status-text.vue'
 import SidebarProfileStatusTimer from './sidebar-profile-status-timer.vue'
 import SidebarProfileHoverCard from './sidebar-profile-hover-card.vue'
 import { computed } from 'vue'
@@ -49,17 +49,17 @@ const showBadge = computed(() => {
             :user-name="props.user.displayName"
             :trust-rank="props.user.trustRank"
           />
-          <SidebarProfileStatusTimer
-            v-if="props.showElapsedTimer"
-            :arrived-at="props.user.locationArrivedAt"
-          />
+          <template v-if="props.showElapsedTimer">
+            <SidebarProfileStatusText v-if="props.user.isTraveling" :text="`正在前往`" />
+            <SidebarProfileStatusTimer v-else :arrived-at="props.user.locationArrivedAt" />
+          </template>
           <template v-else-if="props.user.status !== UserStatus.Offline">
             <SidebarProfileStatusLocation
               v-if="props.user.platform !== Platform.Web"
               :location="props.user.location"
               :is-traveling="props.user.isTraveling"
             />
-            <SidebarProfileStatusDescription v-else :description="props.user.statusDescription" />
+            <SidebarProfileStatusText v-else :text="props.user.statusDescription" />
           </template>
         </div>
       </Button>

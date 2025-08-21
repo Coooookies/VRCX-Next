@@ -2,7 +2,7 @@
 import SidebarProfileName from './sidebar-profile-name.vue'
 import SidebarProfileAvatar from './sidebar-profile-avatar.vue'
 import SidebarProfileStatusLocation from './sidebar-profile-status-location.vue'
-import SidebarProfileStatusDescription from './sidebar-profile-status-description.vue'
+import SidebarProfileStatusText from './sidebar-profile-status-text.vue'
 import SidebarProfileOverviewSkeleton from './sidebar-profile-overview-skeleton.vue'
 import SidebarProfileHoverCard from './sidebar-profile-hover-card.vue'
 import { cn } from '@renderer/shared/utils/style'
@@ -52,11 +52,9 @@ const props = defineProps<{
               :location="location.location"
               :is-traveling="location.isTraveling"
             />
-            <SidebarProfileStatusDescription
+            <SidebarProfileStatusText
               v-else
-              :description="
-                props.user.statusDescription || t(STATUS_TRANSLATE_KEY[props.user.status])
-              "
+              :text="props.user.statusDescription || t(STATUS_TRANSLATE_KEY[props.user.status])"
             />
           </div>
         </Button>

@@ -58,7 +58,7 @@ const locationArea = computed(() => {
     </template>
     <template v-else-if="props.isTraveling">
       <div class="size-4 flex items-center justify-center">
-        <component :is="locationArea" class="size-3.5" />
+        <component :is="locationArea" class="size-3.5 animate-[animation-icon-shiny_2s_infinite]" />
       </div>
       <ShinyText class="truncate" :text="locationText" :speed="2" />
     </template>
@@ -70,3 +70,17 @@ const locationArea = computed(() => {
     </template>
   </div>
 </template>
+
+<style>
+@keyframes animation-icon-shiny {
+  0% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}
+</style>
