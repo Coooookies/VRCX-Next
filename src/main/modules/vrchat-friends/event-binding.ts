@@ -169,7 +169,8 @@ export class FriendsEventBinding extends Nanobus<{
     }
 
     const newFriend = {
-      ...friend
+      ...friend,
+      ...toBaseFriendInformation(user)
     }
 
     const isTraveling = location === 'traveling'
@@ -182,8 +183,6 @@ export class FriendsEventBinding extends Nanobus<{
     }
 
     newFriend.isTraveling = false
-    newFriend.status = user.status
-    newFriend.statusDescription = user.statusDescription
     newFriend.platform = platform
     newFriend.location = nextLocation
     newFriend.locationArrivedAt = nextLocation ? new Date() : null
@@ -274,10 +273,12 @@ export class FriendsEventBinding extends Nanobus<{
     }
 
     const newFriend = {
-      ...friend,
-      ...toBaseFriendInformation(user),
-      platform
+      ...friend
     }
+
+    newFriend.status = user.status
+    newFriend.statusDescription = user.statusDescription
+    newFriend.platform = platform
 
     if (newFriend.status === UserStatus.Offline) {
       newFriend.location = null
