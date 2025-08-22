@@ -1,0 +1,1 @@
+export const NOTIFICATIONS_QUERY_SIZE = 50

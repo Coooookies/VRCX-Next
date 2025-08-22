@@ -14,6 +14,7 @@ import { VRChatFriends } from './vrchat-friends'
 import { VRChatUsers } from './vrchat-users'
 import { VRChatWorlds } from './vrchat-worlds'
 import { VRChatGroups } from './vrchat-groups'
+import { VRChatNotifications } from './vrchat-notifications'
 import { Runtime } from './runtime'
 import type { ModuleConstructor } from '@shared/module-constructor/types'
 
@@ -34,5 +35,6 @@ export const APP_MODULES: Record<string, ModuleConstructor> = {
   VRChatGroups,
   VRChatUsers,
   VRChatFriends,
+  VRChatNotifications,
   Runtime
 }
