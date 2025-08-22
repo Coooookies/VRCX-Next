@@ -2,9 +2,12 @@
 import ScrollContainer from '@renderer/shared/components/scroll-container.vue'
 import SidebarFriendsHeader from './sidebar-friends-header.vue'
 import SidebarFriendsOverview from './sidebar-friends-overview.vue'
+import SidebarProfileOverviewSkeleton from './sidebar-profile-overview-skeleton.vue'
+import { useI18n } from '@renderer/shared/locale'
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import type { VirtualFriend } from '@renderer/src-main/composables/sidebar-friends'
-import SidebarProfileOverviewSkeleton from './sidebar-profile-overview-skeleton.vue'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   friends: VirtualFriend[]
@@ -37,7 +40,7 @@ const emits = defineEmits<{
             <SidebarFriendsHeader
               v-if="item.type === 'header'"
               :icon="item.icon"
-              :label="item.label"
+              :label="item.label(t)"
               :collapsed="item.collapsed"
               @click="emits('toggleCollapse', item.id)"
             />

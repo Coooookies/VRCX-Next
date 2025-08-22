@@ -3,6 +3,9 @@ import { cn } from '@renderer/shared/utils/style'
 import { SearchIcon, XIcon } from 'lucide-vue-next'
 import { Button } from '@renderer/shared/components/ui/button'
 import { Input } from '@renderer/shared/components/ui/input'
+import { useI18n } from '@renderer/shared/locale'
+
+const { t } = useI18n()
 
 const value = defineModel<string>('modelValue', {
   default: ''
@@ -22,8 +25,8 @@ const value = defineModel<string>('modelValue', {
   >
     <Input
       v-model="value"
-      placeholder="Search"
       class="relative w-full h-9 pr-9 border-transparent dark:bg-input/55 placeholder:text-sidebar-foreground/35"
+      :placeholder="t('sidebar.friends_search_input_placeholder')"
     />
     <div
       :class="

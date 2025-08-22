@@ -3,15 +3,20 @@ import MessageIcon from '@shared/assets/vector/navigator-icon-message.svg?compon
 import FriendsIcon from '@shared/assets/vector/navigator-icon-friends.svg?component'
 import SidebarFriendsIconButton from './sidebar-friends-icon-button.vue'
 import { cn } from '@renderer/shared/utils/style'
+import { useI18n } from '@renderer/shared/locale'
+
+const { t } = useI18n()
 </script>
 
 <template>
   <div class="flex flex-row gap-px">
-    <SidebarFriendsIconButton
-      :icon="MessageIcon"
-      label="Messages"
-      class="group-has-[*]/sidebar-expanded:rounded-r-none group-hover/sidebar-collapsed:rounded-r-none"
-    />
+    <div>
+      <SidebarFriendsIconButton
+        :icon="MessageIcon"
+        :label="t('sidebar.notifications')"
+        class="group-has-[*]/sidebar-expanded:rounded-r-none group-hover/sidebar-collapsed:rounded-r-none"
+      />
+    </div>
     <div
       :class="
         cn(
@@ -21,7 +26,11 @@ import { cn } from '@renderer/shared/utils/style'
         )
       "
     >
-      <SidebarFriendsIconButton :icon="FriendsIcon" label="Friends" class="rounded-l-none" />
+      <SidebarFriendsIconButton
+        :icon="FriendsIcon"
+        :label="t('sidebar.friends_manage')"
+        class="rounded-l-none"
+      />
     </div>
   </div>
 </template>
