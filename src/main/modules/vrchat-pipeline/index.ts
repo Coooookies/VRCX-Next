@@ -1,4 +1,5 @@
 import WebSocket from 'ws'
+import { attempt } from '@shared/utils/async'
 import { createLogger } from '@main/logger'
 import { createProxyAgent } from './create-proxy-agent'
 import { Dependency, Module } from '@shared/module-constructor'
@@ -203,25 +204,28 @@ export class VRChatPipeline extends Module<{
   }
 
   private handleMessage(data: WebSocket.RawData) {
-    try {
-      const message: {
+    const { success: isValidOriginMessage, value: originMessage } = attempt(() => {
+      return JSON.parse(data.toString()) as {
         type: PipelineEvents
         content: string
-      } = JSON.parse(data.toString())
-
-      if (message.content.length === 0) {
-        return
       }
+    })
 
-      const parsedMessage = {
-        type: message.type,
-        content: JSON.parse(message.content)
-      } as PipelineEventMessage
-
-      this.emit('message', parsedMessage)
-    } catch (error) {
-      this.logger.error('Failed to parse message:', error)
+    if (!isValidOriginMessage) {
+      this.logger.error('Received invalid message format:', data.toString())
+      return
     }
+
+    const { success: isJson, value: parsedMessage } = attempt(() => {
+      return JSON.parse(originMessage.content)
+    })
+
+    const message = {
+      type: originMessage.type,
+      content: isJson ? parsedMessage : originMessage.content
+    } as PipelineEventMessage
+
+    this.emit('message', message)
   }
 
   public get cachedEvents() {
