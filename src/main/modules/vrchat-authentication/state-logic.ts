@@ -56,7 +56,7 @@ export class AuthenticationStateLogic {
         success: true,
         authToken: auth.value,
         twoFactorAuthRequired: true,
-        twoFactorAuthMethods: value.body.requiresTwoFactorAuth,
+        twoFactorAuthMethods: value.body.requiresTwoFactorAuth as TwoFactorTypes[],
         userOverview: overview
       }
     }
@@ -103,7 +103,7 @@ export class AuthenticationStateLogic {
         success: true,
         authToken,
         twoFactorAuthRequired: true,
-        twoFactorAuthMethods: value.body.requiresTwoFactorAuth,
+        twoFactorAuthMethods: value.body.requiresTwoFactorAuth as TwoFactorTypes[],
         userOverview: overview
       }
     }
