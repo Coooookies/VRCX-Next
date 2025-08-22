@@ -1,7 +1,7 @@
 import { parseFileUrl, getProfileIconUrl } from '../vrchat-files/parser'
 import { UserTrustRank, UserLanguage } from '@shared/definition/vrchat-users'
 import type { UserAvatar } from '@shared/definition/vrchat-avatars'
-import type { CurrentUser } from '@shared/definition/vrchat-api-response'
+import type { CurrentUser, Platform } from '@shared/definition/vrchat-api-response'
 import type { UserInformation } from '@shared/definition/vrchat-users'
 
 export function toCurrentUserInformation(user: CurrentUser): UserInformation {
@@ -52,7 +52,7 @@ export function toCurrentUserInformation(user: CurrentUser): UserInformation {
     badges: badges || [],
     tags: user.tags,
     trustRank,
-    platform: user.last_platform,
+    platform: user.last_platform as Platform,
     languages,
     ageVerified: user.ageVerified,
     ageVerificationStatus: user.ageVerificationStatus,
