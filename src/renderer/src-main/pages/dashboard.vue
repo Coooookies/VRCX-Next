@@ -5,6 +5,7 @@ import { useModule } from '@renderer/shared/hooks/use-module'
 import { Button } from '@renderer/shared/components/ui/button'
 import type { VRChatAuthentication } from '@renderer/shared/modules/vrchat-authentication'
 import type { VRChatUsers } from '@renderer/shared/modules/vrchat-users'
+import { LocaleCombobox } from '@renderer/shared/components/locale'
 
 const auth = useModule<VRChatAuthentication>('VRChatAuthentication')
 const users = useModule<VRChatUsers>('VRChatUsers')
@@ -32,6 +33,7 @@ function logout(): void {
       <div class="w-full flex flex-row items-center gap-2">
         <Button @click="reset">Reset</Button>
         <Button variant="outline" @click="logout">Logout</Button>
+        <LocaleCombobox :side-offset="8" content-class="w-51" />
       </div>
       <div class="bg-white/5 p-4 rounded-md">
         <p class="whitespace-pre-wrap text-xs">{{ userJson }}</p>
