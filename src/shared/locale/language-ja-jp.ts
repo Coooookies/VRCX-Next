@@ -137,6 +137,17 @@ export const LANGUAGE_JA_JP: Languageinstance = {
         [UserLanguage.KVK]: '韓国手話'
       }
     },
+    sidebar: {
+      notifications: '通知',
+      friends_manage: 'フレンド管理',
+      friends_search_input_placeholder: '検索',
+      friends_group_name: {
+        online: 'オンライン',
+        offline: 'オフライン',
+        favorite: 'お気に入り',
+        web_active: 'Web活動中'
+      }
+    },
     setting: {
       network: {
         proxy_settings_title: 'プロキシ設定',

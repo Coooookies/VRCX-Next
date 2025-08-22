@@ -137,6 +137,17 @@ export const LANGUAGE_EN_US: Languageinstance = {
         [UserLanguage.KVK]: 'Korean Sign Language'
       }
     },
+    sidebar: {
+      notifications: 'Notifications',
+      friends_manage: 'Manage Friends',
+      friends_search_input_placeholder: 'Search',
+      friends_group_name: {
+        online: 'Online',
+        offline: 'Offline',
+        favorite: 'Favorite',
+        web_active: 'Web Active'
+      }
+    },
     setting: {
       network: {
         proxy_settings_title: 'Proxy Settings',

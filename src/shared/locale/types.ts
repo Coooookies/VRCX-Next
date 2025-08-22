@@ -95,6 +95,17 @@ export type LanguageDefinition = {
     }
     locate: Record<UserLanguage, string>
   }
+  sidebar: {
+    notifications: string
+    friends_manage: string
+    friends_search_input_placeholder: string
+    friends_group_name: {
+      online: string
+      offline: string
+      favorite: string
+      web_active: string
+    }
+  }
   setting: {
     network: {
       proxy_settings_title: string

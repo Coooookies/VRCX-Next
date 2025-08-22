@@ -93,7 +93,7 @@ export const LANGUAGE_ZH_CNS: Languageinstance = {
         group_plus: '群组+',
         group: '仅限群组',
         public: '公开',
-        private: '私密'
+        private: '位于私人房间'
       },
       locate: {
         [UserLanguage.ENG]: '英语',
@@ -135,6 +135,17 @@ export const LANGUAGE_ZH_CNS: Languageinstance = {
         [UserLanguage.FSL]: '法国手语',
         [UserLanguage.JSL]: '日本手语',
         [UserLanguage.KVK]: '韩国手语'
+      }
+    },
+    sidebar: {
+      notifications: '消息通知',
+      friends_manage: '好友管理',
+      friends_search_input_placeholder: '搜索',
+      friends_group_name: {
+        online: '在线',
+        offline: '离线',
+        favorite: '收藏',
+        web_active: '网页活跃'
       }
     },
     setting: {
