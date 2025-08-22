@@ -137,28 +137,43 @@ export class VRChatWorkflowCoordinator extends Module<{
     workflows: WorkflowTaskHandlerInstance[],
     callback: (name: string, index: number) => void
   ): Promise<WorkflowProcessResult> {
-    const sortedWorkflows = workflows.sort((a, b) => a.priority - b.priority)
+    const queues = new Map<number, WorkflowTaskHandlerInstance[]>()
 
-    for (let i = 0; i < sortedWorkflows.length; i++) {
+    for (const workflow of workflows) {
+      queues.set(workflow.priority, [...(queues.get(workflow.priority) || []), workflow])
+    }
+
+    const sortedQueuesIndex = [...queues.keys()].sort((a, b) => a - b)
+    let actionIndex = 0
+
+    for (const index of sortedQueuesIndex) {
       let isInterrupted = false
+      let interruptedName: string | null = null
       let interruptedReason: WorkflowTaskError | undefined = undefined
 
-      const workflow = sortedWorkflows[i]
-      const interrupter: WorkflowTaskInterrupter = (reason) => {
-        isInterrupted = true
-        interruptedReason = reason
+      const workflows = queues.get(index) || []
+      const createInterrupter = (name: string): WorkflowTaskInterrupter => {
+        return (reason) => {
+          interruptedName = name
+          isInterrupted = true
+          interruptedReason = reason
+        }
       }
 
-      await workflow.handler(interrupter)
+      await Promise.allSettled(
+        workflows.map((workflow) => workflow.handler(createInterrupter(workflow.name)))
+      )
 
       if (isInterrupted) {
         return {
           interrupted: true,
-          name: workflow.name,
+          name: interruptedName!,
           reason: interruptedReason!
         }
       } else {
-        callback(workflow.name, i)
+        for (const workflow of workflows) {
+          callback(workflow.name, actionIndex++)
+        }
       }
     }
 
