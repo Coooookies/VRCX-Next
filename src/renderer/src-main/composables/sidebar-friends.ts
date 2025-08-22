@@ -1,5 +1,4 @@
 import { computed, ref, watch } from 'vue'
-import { useI18n } from '@renderer/shared/locale'
 import { useModule } from '@renderer/shared/hooks/use-module'
 import { AnnoyedIcon, LaughIcon, MapPinHouseIcon, SmileIcon } from 'lucide-vue-next'
 import { Platform, UserStatus } from '@shared/definition/vrchat-api-response'
@@ -16,12 +15,8 @@ import type { VRChatFriends } from '@renderer/shared/modules/vrchat-friends'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
 import type { FunctionalComponent } from 'vue'
 import type { LocationInstance } from '@shared/definition/vrchat-instances'
-
-const GROUP_CONFIG = {
-  online: { id: 'online-group', name: 'Online', icon: LaughIcon },
-  webActive: { id: 'web-active-group', name: 'Web Active', icon: SmileIcon },
-  offline: { id: 'offline-group', name: 'Offline', icon: AnnoyedIcon }
-} as const
+import type { LocaleI18NKeys } from '@renderer/shared/locale/types'
+import type { TranslationFunction } from '@renderer/shared/locale'
 
 export interface GroupedFriends {
   online: FriendInformation[]
@@ -39,7 +34,7 @@ export interface VirtualFriendHeader {
   type: 'header'
   icon: FunctionalComponent
   collapsed: boolean
-  label: string
+  label: (t: TranslationFunction) => string
 }
 
 export interface VirtualFriendItem {
@@ -49,6 +44,24 @@ export interface VirtualFriendItem {
   mode: 'normal' | 'timer'
   item: FriendInformation
 }
+
+const statusGroupDefinition = {
+  online: {
+    id: 'online-group',
+    translateKey: 'sidebar.friends_group_name.online',
+    icon: LaughIcon
+  },
+  webActive: {
+    id: 'web-active-group',
+    translateKey: 'sidebar.friends_group_name.web_active',
+    icon: SmileIcon
+  },
+  offline: {
+    id: 'offline-group',
+    translateKey: 'sidebar.friends_group_name.offline',
+    icon: AnnoyedIcon
+  }
+} as const
 
 export type VirtualFriend = VirtualFriendHeader | VirtualFriendItem
 
@@ -115,7 +128,7 @@ function wrapFriendInformation(
 
 function wrapGroupedFriends(
   id: string,
-  name: string,
+  translateKey: LocaleI18NKeys,
   icon: FunctionalComponent,
   friends: FriendInformation[],
   mode: VirtualFriendItem['mode'],
@@ -129,24 +142,23 @@ function wrapGroupedFriends(
     type: 'header' as const,
     icon,
     collapsed: isCollapsed,
-    label: isLoading ? name : `${name} (${friends.length})`
+    label: (t) => (isLoading ? t(translateKey) : `${t(translateKey)} (${friends.length})`)
   }
 
   const sortedFriends = sortFriends(friends)
-  const filteredFriends = isCollapsed ? [] : wrapFriendInformation(id, mode, sortedFriends)
+  const filteredFriends = !isCollapsed ? wrapFriendInformation(id, mode, sortedFriends) : []
   return [header, ...filteredFriends]
 }
 
 export function getLocationLabel(location: LocationInstance, includeWorldName: boolean = true) {
-  const { t } = useI18n()
-  const translatedTypeName = t(LOCATION_TYPE_TRANSLATE_KEY[location.type])
-
   switch (location.type) {
     case LocationInstanceGroupType.Group:
     case LocationInstanceGroupType.GroupPlus:
     case LocationInstanceGroupType.GroupPublic: {
-      const baseText = `${includeWorldName ? `${location.worldName} ` : ''}#${location.name} ${translatedTypeName}(${location.groupName})`
-      return location.require18yo ? `${baseText} 18+` : baseText
+      return (t: TranslationFunction) => {
+        const baseText = `${includeWorldName ? `${location.worldName} ` : ''}#${location.name} ${t(LOCATION_TYPE_TRANSLATE_KEY[location.type])}(${location.groupName})`
+        return location.require18yo ? `${baseText} 18+` : baseText
+      }
     }
     case LocationInstancePublicType.Public:
     case LocationInstanceUserType.Friends:
@@ -154,7 +166,8 @@ export function getLocationLabel(location: LocationInstance, includeWorldName: b
     case LocationInstanceUserType.Invite:
     case LocationInstanceUserType.InvitePlus:
     default: {
-      return `${includeWorldName ? `${location.worldName} ` : ''}#${location.name} ${translatedTypeName}`
+      return (t: TranslationFunction) =>
+        `${includeWorldName ? `${location.worldName} ` : ''}#${location.name} ${t(LOCATION_TYPE_TRANSLATE_KEY[location.type])}`
     }
   }
 }
@@ -189,12 +202,12 @@ export function useSidebarFriends() {
   const groupedFriends = computed(() => groupFriends(filteredFriends.value))
 
   const virtualFriends = computed((): VirtualFriend[] => {
-    const { online, webActive, offline } = GROUP_CONFIG
     const isLoading = friends.state.loading
+    const { online, offline, webActive } = statusGroupDefinition
 
     const onlineFriends = wrapGroupedFriends(
       online.id,
-      online.name,
+      online.translateKey,
       online.icon,
       groupedFriends.value.online,
       'normal',
@@ -204,7 +217,7 @@ export function useSidebarFriends() {
 
     const webActiveFriends = wrapGroupedFriends(
       webActive.id,
-      webActive.name,
+      webActive.translateKey,
       webActive.icon,
       groupedFriends.value.webActive,
       'normal',
@@ -214,7 +227,7 @@ export function useSidebarFriends() {
 
     const offlineFriends = wrapGroupedFriends(
       offline.id,
-      offline.name,
+      offline.translateKey,
       offline.icon,
       groupedFriends.value.offline,
       'normal',
@@ -224,15 +237,21 @@ export function useSidebarFriends() {
 
     const sameLocationGroupedFriends = sameLocationFriends.value.flatMap((curr) => {
       const groupId = `location-group-${curr.location.worldId}-${curr.location.name}`
-      return wrapGroupedFriends(
-        groupId,
-        getLocationLabel(curr.location),
-        MapPinHouseIcon,
-        curr.friends,
-        'timer',
-        isLoading,
-        isCollapsed(groupId)
-      )
+      const collapsed = isCollapsed(groupId)
+      const header: VirtualFriendHeader = {
+        id: groupId,
+        type: 'header',
+        icon: MapPinHouseIcon,
+        collapsed: isCollapsed(groupId),
+        label: getLocationLabel(curr.location)
+      }
+
+      const sortedFriends = sortFriends(curr.friends)
+      const filteredFriends = !collapsed
+        ? wrapFriendInformation(groupId, 'timer', sortedFriends)
+        : []
+
+      return [header, ...filteredFriends]
     })
 
     return [...sameLocationGroupedFriends, ...onlineFriends, ...webActiveFriends, ...offlineFriends]
