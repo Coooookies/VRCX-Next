@@ -21,7 +21,7 @@ const props = defineProps<{
 
 <template>
   <div class="h-14">
-    <HoverCard v-if="props.user" :open-delay="500" :close-delay="200">
+    <HoverCard v-if="props.user" :open-delay="500" :close-delay="100">
       <HoverCardTrigger>
         <Button
           variant="ghost"

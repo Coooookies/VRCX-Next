@@ -23,7 +23,7 @@ const showBadge = computed(() => {
 </script>
 
 <template>
-  <HoverCard :open-delay="500" :close-delay="200">
+  <HoverCard :open-delay="500" :close-delay="100">
     <HoverCardTrigger>
       <Button
         variant="ghost"
