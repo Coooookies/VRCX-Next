@@ -5,6 +5,7 @@ import { Friends } from './friends'
 import { Worlds } from './worlds'
 import { Groups } from './groups'
 import { Users } from './users'
+import { Notifications } from './notification'
 import type { Got } from 'got'
 
 export class VRChatAPI {
@@ -16,6 +17,7 @@ export class VRChatAPI {
   public readonly groups: Groups
   public readonly worlds: Worlds
   public readonly users: Users
+  public readonly notifications: Notifications
 
   constructor(got: Got) {
     this.client = got
@@ -26,5 +28,6 @@ export class VRChatAPI {
     this.groups = new Groups(this.client)
     this.worlds = new Worlds(this.client)
     this.users = new Users(this.client)
+    this.notifications = new Notifications(this.client)
   }
 }
