@@ -4,7 +4,7 @@ import { limitedAllSettled } from '@shared/utils/async'
 import { GroupEntity } from '../database/entities/group'
 import { GroupRepository } from './repository'
 import { VRChatAPI } from '../vrchat-api'
-import { SAVED_GROUP_ENTITY_EXPIRE_DELAY } from './constants'
+import { GROUP_ENTITIES_QUERY_THREAD_SIZE, SAVED_GROUP_ENTITY_EXPIRE_DELAY } from './constants'
 
 export class GroupFetcher {
   constructor(
@@ -41,7 +41,7 @@ export class GroupFetcher {
         invalidIds.map((worldId) => {
           return async () => this.api.ref.sessionAPI.groups.getGroup(worldId)
         }),
-        10
+        GROUP_ENTITIES_QUERY_THREAD_SIZE
       )
 
       const worlds = result.reduce<GroupEntity[]>((arr, current) => {
@@ -57,7 +57,6 @@ export class GroupFetcher {
       }
 
       this.logger.info(`Fetched ${worlds.length} group entities`)
-
       await this.repository.saveEntities(worlds)
     }
 
