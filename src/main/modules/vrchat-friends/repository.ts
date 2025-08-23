@@ -55,7 +55,7 @@ export class FriendsRepository extends Nanobus<{
     this.emit('friends:clear')
   }
 
-  public has(userId: string): boolean {
+  public has(userId: string) {
     return this.friends.has(userId)
   }
 }

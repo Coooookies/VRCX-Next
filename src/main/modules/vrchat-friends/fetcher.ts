@@ -11,6 +11,7 @@ import type { WorldEntity } from '../database/entities/world'
 import type { GroupEntity } from '../database/entities/group'
 import type { LoggerFactory } from '@main/logger'
 import { parseLocation } from '../vrchat-worlds/parser'
+import { toFriendUserEntity } from '../vrchat-users/factory'
 import { isGroupInstance } from '../vrchat-worlds/factory'
 import { toBaseFriendInformation, toFriendInstanceDependency } from './factory'
 import { FRIENDS_QUERY_SIZE } from './constants'
@@ -38,6 +39,7 @@ export class FriendsFetcher {
     friends.push(...onlineFriends)
     friends.push(...offlineFriends)
 
+    await this.users.Repository.saveUserEntities(friends.map(toFriendUserEntity))
     this.repository.set(friends)
     this.logger.info(
       `Fetched ${friends.length} friends in total.`,

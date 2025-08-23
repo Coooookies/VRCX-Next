@@ -3,6 +3,7 @@ import { diffSurface } from '@main/utils/object'
 import { parseLocation } from '../vrchat-worlds/parser'
 import { parseFileUrl } from '../vrchat-files/parser'
 import { toBaseFriendInformation } from './factory'
+import { toUserEntity } from '../vrchat-users/factory'
 import { isGroupInstance } from '../vrchat-worlds/factory'
 import { UserStatus } from '@shared/definition/vrchat-api-response'
 import { PipelineEvents } from '@shared/definition/vrchat-pipeline'
@@ -26,7 +27,7 @@ import type {
 } from '@shared/definition/vrchat-pipeline'
 
 export class FriendsEventBinding extends Nanobus<{
-  'friend:delete': (friendUserId: string) => void
+  'friend:delete': (friend: FriendInformation) => void
   'friend:add': (friend: FriendInformation) => void
   'friend:online': (friend: FriendInformation) => void
   'friend:offline': (friend: FriendInformation) => void
@@ -81,6 +82,53 @@ export class FriendsEventBinding extends Nanobus<{
       }
 
       updateUserNote(userId)
+    })
+
+    this.on('friend:active', (friend) => {
+      this.logger.debug(
+        'friend-active',
+        friend.userId,
+        friend.displayName,
+        friend.status,
+        friend.platform
+      )
+    })
+
+    this.on('friend:offline', (friend) => {
+      this.logger.debug('friend-offline', friend.userId, friend.displayName, friend.platform)
+    })
+
+    this.on('friend:online', (friend) => {
+      this.logger.debug(
+        'friend-online',
+        friend.userId,
+        friend.displayName,
+        friend.location ? `${friend.location.worldName}(${friend.location.worldId})` : 'Private',
+        friend.platform,
+        JSON.stringify(friend, null, 2)
+      )
+    })
+
+    this.on('friend:location', (friend) => {
+      this.logger.debug(
+        'friend-location',
+        friend.userId,
+        friend.displayName,
+        friend.location ? `${friend.location.worldName}(${friend.location.worldId})` : 'Private',
+        friend.isTraveling
+      )
+    })
+
+    this.on('friend:add', (friend) => {
+      this.logger.debug('friend-add', friend.userId, friend.displayName)
+    })
+
+    this.on('friend:delete', (friend) => {
+      this.logger.debug('friend-delete', friend.userId, friend.displayName)
+    })
+
+    this.on('friend:update', (friend, diff) => {
+      this.logger.debug('friend-update', friend.userId, friend.displayName, JSON.stringify(diff))
     })
   }
 
@@ -138,8 +186,9 @@ export class FriendsEventBinding extends Nanobus<{
       locationArrivedAt: null
     }
 
+    await this.users.Repository.saveUserEntities(toUserEntity(user))
+
     this.repository.set(friend)
-    this.logger.debug('add', JSON.stringify(friend, null, 2))
     this.emit('friend:add', friend)
   }
 
@@ -147,11 +196,10 @@ export class FriendsEventBinding extends Nanobus<{
     const friend = this.repository.get(userId)
 
     if (friend) {
-      this.logger.debug('delete', JSON.stringify(friend, null, 2))
+      this.emit('friend:delete', friend)
     }
 
     this.repository.delete(userId)
-    this.emit('friend:delete', userId)
   }
 
   private async handleFriendOnline({
@@ -188,7 +236,6 @@ export class FriendsEventBinding extends Nanobus<{
     newFriend.locationArrivedAt = nextLocation ? new Date() : null
 
     this.repository.set(newFriend)
-    this.logger.debug('online', JSON.stringify(newFriend, null, 2))
     this.emit('friend:online', newFriend)
   }
 
@@ -214,7 +261,6 @@ export class FriendsEventBinding extends Nanobus<{
     newFriend.platform = platform
 
     this.repository.set(newFriend)
-    this.logger.debug('offline', JSON.stringify(newFriend, null, 2))
     this.emit('friend:offline', newFriend)
   }
 
@@ -257,7 +303,6 @@ export class FriendsEventBinding extends Nanobus<{
     newFriend.isTraveling = isTraveling
 
     this.repository.set(newFriend)
-    this.logger.debug('location', JSON.stringify(newFriend, null, 2))
     this.emit('friend:location', newFriend)
   }
 
@@ -279,15 +324,11 @@ export class FriendsEventBinding extends Nanobus<{
     newFriend.status = user.status
     newFriend.statusDescription = user.statusDescription
     newFriend.platform = platform
-
-    if (newFriend.status === UserStatus.Offline) {
-      newFriend.location = null
-      newFriend.locationArrivedAt = null
-      newFriend.isTraveling = false
-    }
+    newFriend.location = null
+    newFriend.locationArrivedAt = null
+    newFriend.isTraveling = false
 
     this.repository.set(newFriend)
-    this.logger.debug('active', JSON.stringify(newFriend, null, 2))
     this.emit('friend:active', newFriend)
   }
 
@@ -306,9 +347,9 @@ export class FriendsEventBinding extends Nanobus<{
     }
 
     const diff = diffSurface<BaseFriendInformation>(friend, result)
+    await this.users.Repository.saveUserEntities(toUserEntity(user))
 
     this.repository.set(result)
-    this.logger.debug('update', JSON.stringify(diff, null, 2), JSON.stringify(result, null, 2))
     this.emit('friend:update', result, diff)
   }
 
