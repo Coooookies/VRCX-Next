@@ -21,7 +21,7 @@ export class VRChatNotifications extends Module<{}> {
     this.repository = new NotificationRepository()
     this.fetcher = new NotificationFetcher(this.logger, this.repository, this.api)
 
-    this.workflow.registerPostLoginTask('notifications-resolver', 50, async () => {
+    this.workflow.registerPostLoginTask('notifications-resolver', 60, async () => {
       await this.fetcher.initNotifications()
     })
   }

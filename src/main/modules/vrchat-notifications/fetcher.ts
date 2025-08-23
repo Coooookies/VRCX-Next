@@ -1,8 +1,10 @@
-import type { Notification, NotificationV2 } from '@shared/definition/vrchat-api-response'
+import type { NotificationV2 } from '@shared/definition/vrchat-api-response'
 import type { VRChatAPI } from '../vrchat-api'
 import type { NotificationRepository } from './repository'
 import type { LoggerFactory } from '@main/logger'
 import { NOTIFICATIONS_QUERY_SIZE } from './constants'
+import { NotificationInformation } from '@shared/definition/vrchat-notifications'
+import { toNotificationInformation } from './factory'
 
 export class NotificationFetcher {
   constructor(
@@ -12,13 +14,15 @@ export class NotificationFetcher {
   ) {}
 
   public async initNotifications() {
-    this.logger.info('notification-v1', JSON.stringify(await this.loadV1Notifications(), null, 2))
-    this.logger.info('notification-v2', JSON.stringify(await this.loadV2Notifications(), null, 2))
-    console.log(this.repository)
+    const notificationsV1 = await this.loadV1Notifications()
+    const notificationsV2 = await this.loadV2Notifications()
+    this.logger.info('notification-v1', JSON.stringify(notificationsV1, null, 2))
+    this.logger.info('notification-v2', JSON.stringify(notificationsV2, null, 2))
+    this.repository.saveRemoteNotificationV1(notificationsV1)
   }
 
-  private async loadV1Notifications(): Promise<Notification[]> {
-    const notifications: Notification[] = []
+  private async loadV1Notifications(): Promise<NotificationInformation[]> {
+    const notifications: NotificationInformation[] = []
     let startOffset = 0
 
     while (true) {
@@ -37,7 +41,7 @@ export class NotificationFetcher {
         break
       }
 
-      notifications.push(...notificationsBatch)
+      notifications.push(...notificationsBatch.map((n) => toNotificationInformation(n)))
       startOffset += notificationsBatch.length
 
       this.logger.info(`Fetched ${notifications.length} Notifications...`)
