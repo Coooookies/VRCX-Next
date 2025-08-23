@@ -15,12 +15,12 @@ import type {
   PipelineEventUserLocation,
   PipelineEventUserUpdate
 } from '@shared/definition/vrchat-pipeline'
-import type { UserInformation, UserLocation } from '@shared/definition/vrchat-users'
+import type { CurrentUserInformation, UserLocation } from '@shared/definition/vrchat-users'
 import type { UserSharedState } from '@shared/definition/mobx-shared'
 import type { MobxState } from '../mobx-state'
 
 export class UsersEventBinding extends Nanobus<{
-  'user:update': (user: UserInformation, diff: Partial<UserInformation>) => void
+  'user:update': (user: CurrentUserInformation, diff: Partial<CurrentUserInformation>) => void
   'user:location': (location: UserLocation) => void
 }> {
   constructor(
@@ -106,7 +106,7 @@ export class UsersEventBinding extends Nanobus<{
   private async handleUserUpdate({ user }: PipelineEventUserUpdate): Promise<void> {
     const oldUser = toJS(this.state.user)
     const newUser = toCurrentUserInformation(user)
-    const diff = oldUser ? diffSurface<UserInformation>(oldUser, newUser) : newUser
+    const diff = oldUser ? diffSurface<CurrentUserInformation>(oldUser, newUser) : newUser
 
     this.logger.info(`User updated: ${user.id}`, diff)
     this.emit('user:update', newUser, diff)

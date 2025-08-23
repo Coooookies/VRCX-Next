@@ -1,1 +1,3 @@
 export const USERNOTES_QUERY_SIZE = 100
+export const USER_ENTITIES_QUERY_THREAD_SIZE = 10
+export const SAVED_USER_ENTITY_EXPIRE_DELAY = 1000 * 60 * 60 * 24 * 3 // 3 days

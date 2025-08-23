@@ -3,6 +3,7 @@ import { UsersRepository } from './repository'
 import { UsersEventBinding } from './event-binding'
 import { Dependency, Module } from '@shared/module-constructor'
 import { createLogger } from '@main/logger'
+import { toCurrentUserInformation } from './factory'
 import type { VRChatAPI } from '../vrchat-api'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { VRChatAuthentication } from '../vrchat-authentication'
@@ -10,8 +11,8 @@ import type { VRChatWorkflowCoordinator } from '../vrchat-workflow-coordinator'
 import type { VRChatGroups } from '../vrchat-groups'
 import type { VRChatWorlds } from '../vrchat-worlds'
 import type { MobxState } from '../mobx-state'
+import type { Database } from '../database'
 import type { UserSharedState } from '@shared/definition/mobx-shared'
-import { toCurrentUserInformation } from './factory'
 
 export class VRChatUsers extends Module<{}> {
   @Dependency('VRChatAPI') declare private api: VRChatAPI
@@ -21,6 +22,7 @@ export class VRChatUsers extends Module<{}> {
   @Dependency('VRChatGroups') declare private groups: VRChatGroups
   @Dependency('VRChatWorlds') declare private worlds: VRChatWorlds
   @Dependency('MobxState') declare private mobx: MobxState
+  @Dependency('Database') declare private database: Database
 
   private readonly logger = createLogger(this.moduleId)
   private repository!: UsersRepository
@@ -37,7 +39,7 @@ export class VRChatUsers extends Module<{}> {
       },
       ['user', 'location']
     )
-    this.repository = new UsersRepository()
+    this.repository = new UsersRepository(this.database)
     this.fetcher = new UsersFetcher(this.logger, this.repository, this.api)
     this.eventBinding = new UsersEventBinding(
       this.logger,
