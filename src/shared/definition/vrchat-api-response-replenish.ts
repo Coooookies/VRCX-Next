@@ -178,6 +178,7 @@ export interface NotificationV2Base {
    * Username of the notification sender, null for system notifications.
    * @type {string}
    * @memberof NotificationV2Base
+   * @deprecated
    */
   senderUsername?: string
 
