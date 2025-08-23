@@ -4,7 +4,7 @@ import { limitedAllSettled } from '@shared/utils/async'
 import { WorldEntity } from '../database/entities/world'
 import { WorldRepository } from './repository'
 import { VRChatAPI } from '../vrchat-api'
-import { SAVED_WORLD_ENTITY_EXPIRE_DELAY } from './constants'
+import { SAVED_WORLD_ENTITY_EXPIRE_DELAY, WORLD_ENTITIES_QUERY_THREAD_SIZE } from './constants'
 
 export class WorldFetcher {
   constructor(
@@ -41,7 +41,7 @@ export class WorldFetcher {
         invalidIds.map((worldId) => {
           return async () => this.api.ref.sessionAPI.worlds.getWorld(worldId)
         }),
-        10
+        WORLD_ENTITIES_QUERY_THREAD_SIZE
       )
 
       const worlds = result.reduce<WorldEntity[]>((arr, current) => {
@@ -57,7 +57,6 @@ export class WorldFetcher {
       }
 
       await this.repository.saveEntities(worlds)
-
       this.logger.info(`Fetched ${worlds.length} world entities`)
     }
 
