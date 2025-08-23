@@ -10,6 +10,9 @@ const minify = process.env.NODE_ENV === 'production'
 export default defineConfig({
   main: {
     plugins: [swcPlugin(), externalizeDepsPlugin()],
+    build: {
+      minify
+    },
     resolve: {
       alias: {
         '@shared': resolve('src/shared'),
