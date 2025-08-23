@@ -10,11 +10,11 @@ import { useI18n } from '@renderer/shared/locale'
 import { Button } from '@renderer/shared/components/ui/button'
 import { HoverCard, HoverCardTrigger } from '@renderer/shared/components/ui/hover-card'
 import { STATUS_TRANSLATE_KEY } from '@renderer/shared/constants/locate-mapping'
-import type { UserInformation, UserLocation } from '@shared/definition/vrchat-users'
+import type { CurrentUserInformation, UserLocation } from '@shared/definition/vrchat-users'
 
 const { t } = useI18n()
 const props = defineProps<{
-  user: UserInformation | null
+  user: CurrentUserInformation | null
   location: UserLocation | null
 }>()
 </script>
