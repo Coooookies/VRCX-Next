@@ -1,4 +1,4 @@
-import type { UserAvatar } from './vrchat-avatars'
+import type { ReferenceAvatar, UserAvatar } from './vrchat-avatars'
 import type { LocationInstance } from './vrchat-instances'
 import type {
   AgeVerificationStatus,
@@ -63,29 +63,56 @@ export const UserLanguage = {
 
 export type UserLanguage = (typeof UserLanguage)[keyof typeof UserLanguage]
 
-export interface UserInformation {
+export interface UserSummary {
+  userId: string
+  profileIconFileId: string
+  profileIconFileVersion: number
+  displayName: string
+  trustRank: UserTrustRank
+  languages: UserLanguage[]
+  isSupporter: boolean
+}
+
+export interface UserInformationBase {
   userId: string
   profileIconFileId: string
   profileIconFileVersion: number
   profileBackgroundFileId: string
   profileBackgroundFileVersion: number
-  developerType: DeveloperType
   displayName: string
   status: UserStatus
   statusDescription: string
-  statusHistory: string[]
-  avatar: UserAvatar
-  pronouns: string
   bio: string
   bioLinks: string[]
-  badges: CurrentUserBadge[]
   tags: string[]
   platform: Platform
   trustRank: UserTrustRank
   languages: UserLanguage[]
+  isSupporter: boolean
+}
+
+export interface UserInformation extends UserInformationBase {
+  pronouns: string
+  isFriend: boolean
+  badges: UserBadge[]
+  developerType: DeveloperType
+  referenceAvatar: ReferenceAvatar
+  allowAvatarCopying: boolean
   ageVerified: boolean
   ageVerificationStatus: AgeVerificationStatus
-  isSupporter: boolean
+  joinDate: Date | null
+}
+
+export interface CurrentUserInformation extends UserInformationBase {
+  pronouns: string
+  badges: UserBadge[]
+  developerType: DeveloperType
+  avatar: UserAvatar
+  allowAvatarCopying: boolean
+  ageVerified: boolean
+  ageVerificationStatus: AgeVerificationStatus
+  statusHistory: string[]
+  joinDate: Date | null
 }
 
 export interface UserLocation {
