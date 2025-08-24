@@ -1,15 +1,15 @@
 import Nanobus from 'nanobus'
-import { toNotificationInformation } from './factory'
 import { PipelineEvents } from '@shared/definition/vrchat-pipeline'
-import type { LoggerFactory } from '@main/logger'
 import type { VRChatPipeline } from '../vrchat-pipeline'
+import type { LoggerFactory } from '@main/logger'
+import type { NotificationRepository } from './repository'
+import type { NotificationFetcher } from './fetcher'
+import type { NotificationInformation } from '@shared/definition/vrchat-notifications'
+import type { Notification } from '@shared/definition/vrchat-api-response'
 import type {
   PipelineEventMessage,
   PipelineEventResponseNotification
 } from '@shared/definition/vrchat-pipeline'
-import type { NotificationRepository } from './repository'
-import type { Notification } from '@shared/definition/vrchat-api-response'
-import type { NotificationInformation } from '@shared/definition/vrchat-notifications'
 
 export class NotificationEventBinding extends Nanobus<{
   'notification-v1:new': (notification: NotificationInformation) => void
@@ -21,6 +21,7 @@ export class NotificationEventBinding extends Nanobus<{
   constructor(
     private readonly logger: LoggerFactory,
     private readonly repository: NotificationRepository,
+    private readonly fetcher: NotificationFetcher,
     private readonly pipeline: VRChatPipeline
   ) {
     super('VRChatNotifications:EventBinding')
@@ -35,7 +36,7 @@ export class NotificationEventBinding extends Nanobus<{
       this.logger.debug(
         'received new notification(v1)',
         notification.type,
-        notification.fromUserId,
+        notification.sender ? notification.sender.displayName : 'Unknown',
         notification.message
       )
     })
@@ -83,9 +84,9 @@ export class NotificationEventBinding extends Nanobus<{
   }
 
   private async handleNotification(notification: Notification): Promise<void> {
-    const info = toNotificationInformation(notification)
-    this.repository.saveRemoteNotificationV1(info)
-    this.emit('notification-v1:new', info)
+    const processedNotification = await this.fetcher.enrichNotificationV1(notification)
+    this.repository.saveRemoteNotificationV1(processedNotification)
+    this.emit('notification-v1:new', processedNotification)
   }
 
   private async handleSeeNotification(notificationId: string): Promise<void> {

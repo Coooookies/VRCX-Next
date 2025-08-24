@@ -1,5 +1,5 @@
 import Nanobus from 'nanobus'
-import { NotificationInformation } from '@shared/definition/vrchat-notifications'
+import type { NotificationInformation } from '@shared/definition/vrchat-notifications'
 
 export class NotificationRepository extends Nanobus<{
   'notification-v1:remote:insert': (notifications: NotificationInformation[]) => void
@@ -59,5 +59,9 @@ export class NotificationRepository extends Nanobus<{
   public clearRemoteNotificationsV1() {
     this.notificationsV1.clear()
     this.emit('notification-v1:remote:clear')
+  }
+
+  public clear() {
+    this.clearRemoteNotificationsV1()
   }
 }
