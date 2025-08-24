@@ -15,7 +15,7 @@ export function toGroupEntity(group: Group): GroupEntity {
     iconFileVersion: iconFileInfo.version,
     bannerFileId: bannerFileInfo.fileId,
     bannerFileVersion: bannerFileInfo.version,
-    ownerId: group.ownerId!,
+    ownerUserId: group.ownerId!,
     isVerified: group.isVerified!,
     cacheUpdatedAt: new Date()
   }
