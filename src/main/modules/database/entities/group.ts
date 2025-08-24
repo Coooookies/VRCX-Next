@@ -1,8 +1,9 @@
 import { Entity, Column, PrimaryColumn } from 'typeorm'
 import { datetimeDefault, datetimeTransformer } from '../transform'
+import { GroupSummary } from '@shared/definition/vrchat-groups'
 
 @Entity('groups')
-export class GroupEntity {
+export class GroupEntity implements GroupSummary {
   @PrimaryColumn({
     name: 'group_id',
     type: 'varchar',
