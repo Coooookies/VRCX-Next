@@ -1,6 +1,7 @@
 export interface ReferenceAvatar {
   imageFileId: string
   imageFileVersion: number
+  allowCopying: boolean
 }
 
 export interface UserAvatar {

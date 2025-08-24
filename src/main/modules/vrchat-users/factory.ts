@@ -53,7 +53,6 @@ export function toCurrentUserInformation(user: CurrentUser): CurrentUserInformat
     profileIconFileVersion: profileIconFileInfo.version,
     profileBackgroundFileId: profileBackgroundFileInfo.fileId,
     profileBackgroundFileVersion: profileBackgroundFileInfo.version,
-    allowAvatarCopying: user.allowAvatarCopying,
     pronouns: user.pronouns,
     avatar,
     bio: user.bio || '',
@@ -95,7 +94,8 @@ export function toUserInformation(user: User): UserInformation {
   const avatarFileInfo = parseFileUrl(user.currentAvatarImageUrl)
   const referenceAvatar: ReferenceAvatar = {
     imageFileId: avatarFileInfo.fileId,
-    imageFileVersion: avatarFileInfo.version
+    imageFileVersion: avatarFileInfo.version,
+    allowCopying: user.allowAvatarCopying
   }
 
   return {
@@ -108,7 +108,6 @@ export function toUserInformation(user: User): UserInformation {
     profileIconFileVersion: profileIconFileInfo.version,
     profileBackgroundFileId: profileBackgroundFileInfo.fileId,
     profileBackgroundFileVersion: profileBackgroundFileInfo.version,
-    allowAvatarCopying: user.allowAvatarCopying,
     pronouns: user.pronouns,
     referenceAvatar,
     bio: user.bio || '',

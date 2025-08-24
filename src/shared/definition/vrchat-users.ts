@@ -97,7 +97,6 @@ export interface UserInformation extends UserInformationBase {
   badges: UserBadge[]
   developerType: DeveloperType
   referenceAvatar: ReferenceAvatar
-  allowAvatarCopying: boolean
   ageVerified: boolean
   ageVerificationStatus: AgeVerificationStatus
   joinDate: Date | null
@@ -108,7 +107,6 @@ export interface CurrentUserInformation extends UserInformationBase {
   badges: UserBadge[]
   developerType: DeveloperType
   avatar: UserAvatar
-  allowAvatarCopying: boolean
   ageVerified: boolean
   ageVerificationStatus: AgeVerificationStatus
   statusHistory: string[]

@@ -24,7 +24,8 @@ export function toBaseFriendInformation(
   const supporter = isSupporter(friend.tags)
   const referenceAvatar: ReferenceAvatar = {
     imageFileId: avatarFileInfo.fileId,
-    imageFileVersion: avatarFileInfo.version
+    imageFileVersion: avatarFileInfo.version,
+    allowCopying: 'allowAvatarCopying' in friend ? friend.allowAvatarCopying : false
   }
 
   return {
