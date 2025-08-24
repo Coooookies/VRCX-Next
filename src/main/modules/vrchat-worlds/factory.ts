@@ -17,8 +17,7 @@ export function toWorldEntity(world: World | FavoritedWorld): WorldEntity {
   return {
     worldId: world.id,
     worldName: world.name,
-    authorId: world.authorId,
-    authorName: world.authorName,
+    authorUserId: world.authorId,
     description: world.description,
     imageFileId: imageFileInfo.fileId,
     imageFileVersion: imageFileInfo.version,
