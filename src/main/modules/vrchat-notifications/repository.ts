@@ -1,4 +1,5 @@
 import Nanobus from 'nanobus'
+import type { Database } from '../database'
 import type { NotificationInformation } from '@shared/definition/vrchat-notifications'
 
 export class NotificationRepository extends Nanobus<{
@@ -7,6 +8,10 @@ export class NotificationRepository extends Nanobus<{
   'notification-v1:remote:delete': (notificationId: string) => void
   'notification-v1:remote:clear': () => void
 }> {
+  constructor(private readonly database: Database) {
+    super('VRChatNotifications:Repository')
+  }
+
   private notificationsV1 = new Map<string, NotificationInformation>()
 
   public getRemoteNotificationV1(notificationId: string) {
@@ -55,6 +60,11 @@ export class NotificationRepository extends Nanobus<{
       this.emit('notification-v1:remote:update', pendingUpdateNotifications)
     }
   }
+
+  // public saveLocalNotificationV1(
+  //   notification: NotificationInformation | NotificationInformation[],
+  //   receiveUserId: string
+  // ) {}
 
   public clearRemoteNotificationsV1() {
     this.notificationsV1.clear()

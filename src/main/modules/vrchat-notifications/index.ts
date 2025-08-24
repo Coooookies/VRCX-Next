@@ -1,5 +1,6 @@
 import { Dependency, Module } from '@shared/module-constructor'
 import { createLogger } from '@main/logger'
+import { NotificationEventBinding } from './event-binding'
 import { NotificationRepository } from './repository'
 import { NotificationFetcher } from './fetcher'
 import type { VRChatAPI } from '../vrchat-api'
@@ -9,7 +10,6 @@ import type { VRChatWorlds } from '../vrchat-worlds'
 import type { VRChatGroups } from '../vrchat-groups'
 import type { VRChatWorkflowCoordinator } from '../vrchat-workflow-coordinator'
 import type { Database } from '../database'
-import { NotificationEventBinding } from './event-binding'
 
 export class VRChatNotifications extends Module<{}> {
   @Dependency('VRChatAPI') declare private api: VRChatAPI
@@ -26,7 +26,7 @@ export class VRChatNotifications extends Module<{}> {
   private eventBinding!: NotificationEventBinding
 
   protected onInit(): void {
-    this.repository = new NotificationRepository()
+    this.repository = new NotificationRepository(this.database)
     this.fetcher = new NotificationFetcher(
       this.logger,
       this.repository,

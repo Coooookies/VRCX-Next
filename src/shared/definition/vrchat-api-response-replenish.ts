@@ -222,9 +222,9 @@ export interface NotificationV2Base {
  * @interface NotificationV2GroupAnnouncement
  */
 export interface NotificationV2GroupAnnouncement {
-  category?: NotificationV2GroupCategory
+  category: typeof NotificationV2GroupCategory.SoocialGroup
   data: NotificationV2DataGroupAnnouncement
-  responses?: NotificationV2Responses[]
+  responses: NotificationV2Responses[]
   type: typeof NotificationV2Type.GroupAnnouncement
 }
 
@@ -233,9 +233,9 @@ export interface NotificationV2GroupAnnouncement {
  * @interface NotificationV2GroupJoinRequest
  */
 export interface NotificationV2GroupJoinRequest {
-  category?: NotificationV2GroupCategory
+  category: typeof NotificationV2GroupCategory.SoocialGroup
   data: NotificationV2DataGroupJoinRequest
-  responses?: NotificationV2Responses[]
+  responses: NotificationV2Responses[]
   type: typeof NotificationV2Type.GroupJoinRequest
 }
 
@@ -244,9 +244,9 @@ export interface NotificationV2GroupJoinRequest {
  * @interface NotificationV2GrouInvite
  */
 export interface NotificationV2GroupInvite {
-  category?: NotificationV2GroupCategory
+  category: typeof NotificationV2GroupCategory.SoocialGroup
   data: NotificationV2DataGroupInvite
-  responses?: NotificationV2Responses[]
+  responses: NotificationV2Responses[]
   type: typeof NotificationV2Type.GroupInvite
 }
 
@@ -255,10 +255,43 @@ export interface NotificationV2GroupInvite {
  * @interface NotificationV2GroupInformative
  */
 export interface NotificationV2GroupInformative {
-  category?: NotificationV2GroupCategory
+  category: typeof NotificationV2GroupCategory.SoocialGroup
   data: unknown
-  responses?: NotificationV2Responses[]
+  responses: NotificationV2Responses[]
   type: typeof NotificationV2Type.GroupInformative
+}
+
+/**
+ * @export
+ * @interface NotificationV2GroupTransfer
+ */
+export interface NotificationV2GroupTransfer {
+  category: typeof NotificationV2GroupCategory.SoocialGroup
+  data: unknown
+  responses: NotificationV2Responses[]
+  type: typeof NotificationV2Type.GroupTransfer
+}
+
+/**
+ * @export
+ * @interface NotificationV2GroupQueueReady
+ */
+export interface NotificationV2GroupQueueReady {
+  category: typeof NotificationV2GroupCategory.SoocialGroup
+  data: unknown
+  responses: NotificationV2Responses[]
+  type: typeof NotificationV2Type.GroupQueueReady
+}
+
+/**
+ * @export
+ * @interface NotificationV2EventAnnouncement
+ */
+export interface NotificationV2EventAnnouncement {
+  category: typeof NotificationV2GroupCategory.Event
+  data: NotificationV2DataEventAnnouncement
+  responses: NotificationV2Responses[]
+  type: typeof NotificationV2Type.EventAnnouncement
 }
 
 /**
@@ -273,6 +306,9 @@ export type NotificationV2 = NotificationV2Base &
     | NotificationV2GroupJoinRequest
     | NotificationV2GroupInvite
     | NotificationV2GroupInformative
+    | NotificationV2GroupTransfer
+    | NotificationV2GroupQueueReady
+    | NotificationV2EventAnnouncement
   )
 
 /**
@@ -282,7 +318,8 @@ export type NotificationV2 = NotificationV2Base &
  */
 
 export const NotificationV2GroupCategory = {
-  SoocialGroup: 'social.group'
+  SoocialGroup: 'social.group',
+  Event: 'event'
 } as const
 
 export type NotificationV2GroupCategory =
@@ -298,7 +335,10 @@ export const NotificationV2Type = {
   GroupAnnouncement: 'group.announcement',
   GroupInvite: 'group.invite',
   GroupInformative: 'group.informative',
-  GroupJoinRequest: 'group.joinRequest'
+  GroupJoinRequest: 'group.joinRequest',
+  GroupTransfer: 'group.transfer',
+  GroupQueueReady: 'group.queueReady',
+  EventAnnouncement: 'event.announcement'
 } as const
 
 export type NotificationV2Type = (typeof NotificationV2Type)[keyof typeof NotificationV2Type]
@@ -332,6 +372,30 @@ export interface NotificationV2DataGroupAnnouncement {
    * @memberof NotificationV2DataGroupAnnouncement
    */
   groupName: string
+}
+
+/**
+ * Notification data structure for event announcement events in version 2.
+ * @export
+ * @interface NotificationV2DataEventAnnouncement
+ * @description Contains information about an event announcement notification, including
+ */
+export interface NotificationV2DataEventAnnouncement {
+  /**
+   * @type {string}
+   * @memberof NotificationV2DataEventAnnouncement
+   */
+  ownerId: string
+  /**
+   * @type {string}
+   * @memberof NotificationV2DataEventAnnouncement
+   */
+  ownerName: string
+  /**
+   * @type {string}
+   * @memberof NotificationV2DataEventAnnouncement
+   */
+  title: string
 }
 
 /**
