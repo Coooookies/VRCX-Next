@@ -18,17 +18,11 @@ export class WorldEntity {
   declare worldName: string
 
   @Column({
-    name: 'author_id',
+    name: 'author_user_id',
     type: 'varchar',
     length: 63
   })
-  declare authorId: string
-
-  @Column({
-    name: 'author_name',
-    type: 'text'
-  })
-  declare authorName: string
+  declare authorUserId: string
 
   @Column({
     name: 'description',

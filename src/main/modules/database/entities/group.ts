@@ -53,11 +53,11 @@ export class GroupEntity {
   declare bannerFileVersion: number
 
   @Column({
-    name: 'owner_id',
+    name: 'owner_user_id',
     type: 'varchar',
     length: 63
   })
-  declare ownerId: string
+  declare ownerUserId: string
 
   @Column({
     name: 'is_verified',

@@ -8,8 +8,7 @@ export class CreateWorldsTable1710000000000 implements MigrationInterface {
       CREATE TABLE "worlds" (
         "world_id" varchar(63) PRIMARY KEY NOT NULL,
         "world_name" text NOT NULL,
-        "author_id" varchar(63) NOT NULL,
-        "author_name" text NOT NULL,
+        "author_user_id" varchar(63) NOT NULL,
         "description" text NOT NULL,
         "image_file_id" text NOT NULL,
         "image_file_version" integer NOT NULL,
