@@ -14,8 +14,10 @@ import {
   CreateGroupsTable1710000000000,
   CreateSettingTable1710000000000,
   CreateWorldsTable1710000000000,
-  CreateUsersTable1710000000000
+  CreateUsersTable1710000000000,
+  CreateNotificationTable1710000000000
 } from './migration'
+import { NotificationEntity } from './entities/notifications'
 
 const STORAGE_DATABASE_NAME = 'storage.db'
 
@@ -29,14 +31,22 @@ export class Database extends Module {
       type: 'sqlite',
       database: this.path,
       logger: this.logger,
-      entities: [CredentialEntity, SettingEntity, WorldEntity, GroupEntity, UserEntity],
+      entities: [
+        CredentialEntity,
+        SettingEntity,
+        WorldEntity,
+        GroupEntity,
+        UserEntity,
+        NotificationEntity
+      ],
       migrationsRun: true,
       migrations: [
         CreateCredentialsTable1710000000000,
         CreateSettingTable1710000000000,
         CreateWorldsTable1710000000000,
         CreateGroupsTable1710000000000,
-        CreateUsersTable1710000000000
+        CreateUsersTable1710000000000,
+        CreateNotificationTable1710000000000
       ]
     })
 
