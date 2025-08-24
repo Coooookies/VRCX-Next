@@ -1,23 +1,26 @@
 import { NotificationType } from './vrchat-api-response-community'
+import type { LocationInstance } from './vrchat-instances'
+import type { UserSummary } from './vrchat-users'
 import type {
-  NotificationDetailInvite,
   NotificationDetailInviteResponse,
   NotificationDetailRequestInvite,
-  NotificationDetailRequestInviteResponse,
-  NotificationDetailVoteToKick
+  NotificationDetailRequestInviteResponse
 } from './vrchat-api-response-community'
 
 export interface NotificationBase {
   notificationId: string
   seen: boolean
   message: string
-  fromUserId: string
+  sender: UserSummary | null
   createdAt: Date
 }
 
 export interface NotificationInviteInformation {
   type: typeof NotificationType.Invite
-  detail: NotificationDetailInvite
+  detail: {
+    inviteMessage?: string
+    location: LocationInstance | null
+  }
 }
 
 export interface NotificationInviteResponseInformation {
@@ -37,7 +40,10 @@ export interface NotificationRequestInviteResponseInformation {
 
 export interface NotificationVoteToKickInformation {
   type: typeof NotificationType.Votetokick
-  detail: NotificationDetailVoteToKick
+  detail: {
+    initiator: UserSummary | null
+    target: UserSummary | null
+  }
 }
 
 export interface NotificationFriendRequestInformation {
