@@ -238,12 +238,13 @@ export function useSidebarFriends() {
     const sameLocationGroupedFriends = sameLocationFriends.value.flatMap((curr) => {
       const groupId = `location-group-${curr.location.worldId}-${curr.location.name}`
       const collapsed = isCollapsed(groupId)
+      const label = getLocationLabel(curr.location)
       const header: VirtualFriendHeader = {
         id: groupId,
         type: 'header',
         icon: MapPinHouseIcon,
         collapsed: isCollapsed(groupId),
-        label: getLocationLabel(curr.location)
+        label: (t) => (isLoading ? label(t) : `${label(t)} (${curr.friends.length})`)
       }
 
       const sortedFriends = sortFriends(curr.friends)
