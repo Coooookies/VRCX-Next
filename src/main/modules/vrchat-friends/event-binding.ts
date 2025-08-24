@@ -1,20 +1,18 @@
 import Nanobus from 'nanobus'
 import { diffSurface } from '@main/utils/object'
-import { parseLocation } from '../vrchat-worlds/parser'
-import { parseFileUrl } from '../vrchat-files/parser'
+import { parseLocation } from '../vrchat-worlds/location-parser'
 import { toBaseFriendInformation } from './factory'
 import { toUserEntity } from '../vrchat-users/factory'
 import { isGroupInstance } from '../vrchat-worlds/factory'
 import { UserStatus } from '@shared/definition/vrchat-api-response'
 import { PipelineEvents } from '@shared/definition/vrchat-pipeline'
 import type { LoggerFactory } from '@main/logger'
-import type { VRChatGroups } from '../vrchat-groups'
 import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { FriendsRepository } from './repository'
+import type { FriendsFetcher } from './fetcher'
 import type { BaseFriendInformation, FriendInformation } from '@shared/definition/vrchat-friends'
 import type { LocationInstance, LocationInstanceGroup } from '@shared/definition/vrchat-instances'
-import type { World } from '@shared/definition/vrchat-api-response'
 import type {
   PipelineEventFriendActive,
   PipelineEventFriendAdd,
@@ -39,7 +37,7 @@ export class FriendsEventBinding extends Nanobus<{
     private readonly logger: LoggerFactory,
     private readonly pipeline: VRChatPipeline,
     private readonly repository: FriendsRepository,
-    private readonly groups: VRChatGroups,
+    private readonly fetcher: FriendsFetcher,
     private readonly users: VRChatUsers
   ) {
     super('VRChatFriends:EventBinding')
@@ -227,7 +225,7 @@ export class FriendsEventBinding extends Nanobus<{
     const nextLocation = isTraveling ? travelingTarget : originalTarget
 
     if (nextLocation && world) {
-      await this.enrichLocationWithWorldInfo(nextLocation, world)
+      await this.fetcher.enrichLocationWithWorldInfo(nextLocation, world)
     }
 
     newFriend.isTraveling = false
@@ -288,10 +286,10 @@ export class FriendsEventBinding extends Nanobus<{
     const isSameLocation = this.isSameLocation(prevLocation, nextLocation)
 
     if (nextLocation && world) {
-      this.enrichLocationWithWorldInfo(nextLocation, world)
+      this.fetcher.enrichLocationWithWorldInfo(nextLocation, world)
 
       if (isGroupInstance(nextLocation)) {
-        await this.enrichLocationWithGroupInfo(nextLocation as LocationInstanceGroup)
+        await this.fetcher.enrichLocationWithGroupInfo(nextLocation as LocationInstanceGroup)
       }
     }
 
@@ -363,21 +361,5 @@ export class FriendsEventBinding extends Nanobus<{
       nextLocation.worldId === currentLocation.worldId &&
       nextLocation.name === currentLocation.name
     )
-  }
-
-  private enrichLocationWithWorldInfo(location: LocationInstance, world: World) {
-    const worldImageInfo = parseFileUrl(world.imageUrl)
-    location.worldName = world.name
-    location.worldImageFileId = worldImageInfo.fileId
-    location.worldImageFileVersion = worldImageInfo.version
-  }
-
-  private async enrichLocationWithGroupInfo(groupLocation: LocationInstanceGroup) {
-    const group = await this.groups.Fetcher.fetchGroupEntities(groupLocation.groupId)
-    if (group) {
-      groupLocation.groupName = group.groupName
-      groupLocation.groupImageFileId = group.iconFileId
-      groupLocation.groupImageFileVersion = group.iconFileVersion
-    }
   }
 }

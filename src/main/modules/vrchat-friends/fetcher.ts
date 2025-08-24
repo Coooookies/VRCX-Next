@@ -5,12 +5,13 @@ import type { VRChatUsers } from '../vrchat-users'
 import type { FriendsRepository } from './repository'
 import type { FriendLoaderProcessHandler } from './types'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
-import type { LocationInstanceGroup } from '@shared/definition/vrchat-instances'
-import type { LimitedUserFriend } from '@shared/definition/vrchat-api-response'
+import type { LocationInstance, LocationInstanceGroup } from '@shared/definition/vrchat-instances'
+import type { LimitedUserFriend, World } from '@shared/definition/vrchat-api-response'
 import type { WorldEntity } from '../database/entities/world'
 import type { GroupEntity } from '../database/entities/group'
 import type { LoggerFactory } from '@main/logger'
-import { parseLocation } from '../vrchat-worlds/parser'
+import { parseFileUrl } from '../vrchat-files/parser'
+import { parseLocation } from '../vrchat-worlds/location-parser'
 import { toFriendUserEntity } from '../vrchat-users/factory'
 import { isGroupInstance } from '../vrchat-worlds/factory'
 import { toBaseFriendInformation, toFriendInstanceDependency } from './factory'
@@ -99,7 +100,7 @@ export class FriendsFetcher {
     return friends
   }
 
-  private processFriend(
+  public processFriend(
     friend: LimitedUserFriend,
     worlds: Map<string, WorldEntity>,
     groups: Map<string, GroupEntity>
@@ -137,6 +138,22 @@ export class FriendsFetcher {
       isTraveling: false,
       location,
       locationArrivedAt
+    }
+  }
+
+  public enrichLocationWithWorldInfo(location: LocationInstance, world: World) {
+    const worldImageInfo = parseFileUrl(world.imageUrl)
+    location.worldName = world.name
+    location.worldImageFileId = worldImageInfo.fileId
+    location.worldImageFileVersion = worldImageInfo.version
+  }
+
+  public async enrichLocationWithGroupInfo(groupLocation: LocationInstanceGroup) {
+    const group = await this.groups.Fetcher.fetchGroupEntities(groupLocation.groupId)
+    if (group) {
+      groupLocation.groupName = group.groupName
+      groupLocation.groupImageFileId = group.iconFileId
+      groupLocation.groupImageFileVersion = group.iconFileVersion
     }
   }
 }

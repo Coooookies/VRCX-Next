@@ -20,10 +20,10 @@ export class VRChatFriends extends Module<{}> {
   @Dependency('MobxState') declare private mobx: MobxState
   @Dependency('VRChatAPI') declare private api: VRChatAPI
   @Dependency('VRChatAuthentication') declare private auth: VRChatAuthentication
-  @Dependency('VRChatGroups') declare private groups: VRChatGroups
   @Dependency('VRChatWorlds') declare private worlds: VRChatWorlds
   @Dependency('VRChatPipeline') declare private pipeline: VRChatPipeline
   @Dependency('VRChatUsers') declare private users: VRChatUsers
+  @Dependency('VRChatGroups') declare private groups: VRChatGroups
   @Dependency('VRChatWorkflowCoordinator') declare private workflow: VRChatWorkflowCoordinator
 
   private readonly logger = createLogger(this.moduleId)
@@ -37,19 +37,19 @@ export class VRChatFriends extends Module<{}> {
     this.bindEvents()
     this.repository = new FriendsRepository()
     this.ipcBinding = new FriendsIPCBinding(this.ipc, this.repository)
-    this.eventBinding = new FriendsEventBinding(
-      this.logger,
-      this.pipeline,
-      this.repository,
-      this.groups,
-      this.users
-    )
     this.fetcher = new FriendsFetcher(
       this.logger,
       this.repository,
       this.api,
       this.groups,
       this.worlds,
+      this.users
+    )
+    this.eventBinding = new FriendsEventBinding(
+      this.logger,
+      this.pipeline,
+      this.repository,
+      this.fetcher,
       this.users
     )
 

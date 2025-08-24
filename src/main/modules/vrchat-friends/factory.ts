@@ -1,7 +1,7 @@
 import { isGroupInstance } from '../vrchat-worlds/factory'
 import { isSupporter, toUserLanguageTags, toUserTrustRank } from '../vrchat-users/factory'
 import { parseFileUrl, getProfileIconUrl } from '../vrchat-files/parser'
-import { parseLocation } from '../vrchat-worlds/parser'
+import { parseLocation } from '../vrchat-worlds/location-parser'
 import { Platform } from '@shared/definition/vrchat-api-response'
 import type { ReferenceAvatar } from '@shared/definition/vrchat-avatars'
 import type { BaseFriendInformation } from '@shared/definition/vrchat-friends'
@@ -63,7 +63,7 @@ export function toFriendInstanceDependency(friends: LimitedUserFriend[]) {
     .map((location) => location.groupId)
 
   return {
-    worldIds,
-    groupIds
+    worldIds: [...new Set(worldIds)],
+    groupIds: [...new Set(groupIds)]
   }
 }
