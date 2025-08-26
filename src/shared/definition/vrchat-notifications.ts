@@ -145,7 +145,9 @@ export type NotificationV2GroupQueueReadyInformation = NotificationV2SenderBase 
 
 export type NotificationV2EventAnnouncementInformation = NotificationV2SenderBase & {
   type: typeof NotificationV2Type.EventAnnouncement
-  detail: NotificationV2DataEventAnnouncement
+  detail: NotificationV2DataEventAnnouncement & {
+    thumbnailUrl: string
+  }
 }
 
 export type NotificationV2Information =
