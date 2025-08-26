@@ -4,6 +4,7 @@ import {
   NotificationV2DataGroupAnnouncement,
   NotificationV2DataGroupInvite,
   NotificationV2DataGroupJoinRequest,
+  NotificationV2Responses,
   NotificationV2Type
 } from './vrchat-api-response'
 import type { LocationInstance } from './vrchat-instances'
@@ -80,6 +81,7 @@ export interface NotificationV2Base {
   message: string
   senderType: NotificationSenderType
   relatedNotificationId: string | null
+  responses: NotificationV2Responses[]
   createdAt: Date
 }
 

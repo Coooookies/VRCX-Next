@@ -12,6 +12,7 @@ import {
   NotificationV2DataGroupAnnouncement,
   NotificationV2DataGroupInvite,
   NotificationV2DataGroupJoinRequest,
+  NotificationV2Responses,
   NotificationV2Type
 } from '@shared/definition/vrchat-api-response-replenish'
 
@@ -76,6 +77,7 @@ export interface NotificationV2OriginalBase {
   senderId: string | null
   senderType: NotificationSenderType
   relatedNotificationId: string | null
+  responses: NotificationV2Responses[]
   createdAt: Date
 }
 
