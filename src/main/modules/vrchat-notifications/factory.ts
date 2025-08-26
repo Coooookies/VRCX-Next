@@ -1,9 +1,14 @@
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { isGroupInstance } from '../vrchat-worlds/factory'
-import { NotificationType } from '@shared/definition/vrchat-api-response'
-import type { NotificationOriginalInformation } from './types'
-import type { Notification } from '@shared/definition/vrchat-api-response'
+import { NotificationType, NotificationV2Type } from '@shared/definition/vrchat-api-response'
+import { NotificationSenderType } from '@shared/definition/vrchat-notifications'
+import type { Notification, NotificationV2 } from '@shared/definition/vrchat-api-response'
 import type { LocationInstanceGroup } from '@shared/definition/vrchat-instances'
+import type {
+  NotificationOriginalInformation,
+  NotificationV2OriginalBase,
+  NotificationV2OriginalInformation
+} from './types'
 
 export function toBaseNotificationInformation(
   notification: Notification
@@ -20,6 +25,101 @@ export function toBaseNotificationInformation(
         ? JSON.parse(notification.details)
         : notification.details
   } as NotificationOriginalInformation
+}
+
+export function toBaseNotificationV2Information(
+  notification: NotificationV2
+): NotificationV2OriginalInformation {
+  let senderType: NotificationSenderType = NotificationSenderType.Unknown
+  let senderId: string | null = null
+
+  switch (notification.type) {
+    case NotificationV2Type.GroupAnnouncement: {
+      senderType = NotificationSenderType.Group
+      senderId = notification.data.groupId
+      break
+    }
+    case NotificationV2Type.EventAnnouncement: {
+      senderId = notification.data.ownerId
+      if (notification.data.ownerId.startsWith('grp_')) {
+        senderType = NotificationSenderType.Group
+      } else if (notification.data.ownerId.startsWith('usr_')) {
+        senderType = NotificationSenderType.User
+      } else {
+        senderType = NotificationSenderType.Unknown
+      }
+    }
+  }
+
+  const base: NotificationV2OriginalBase = {
+    notificationId: notification.id,
+    seen: notification.seen || false,
+    title: notification.title,
+    message: notification.message,
+    relatedNotificationId: notification.relatedNotificationsId || null,
+    responses: notification.responses,
+    createdAt: new Date(notification.createdAt),
+    senderType,
+    senderId
+  }
+
+  switch (notification.type) {
+    case NotificationV2Type.EventAnnouncement: {
+      return {
+        ...base,
+        type: notification.type,
+        detail: {
+          ...notification.data,
+          thumbnailUrl: notification.imageUrl || ''
+        }
+      }
+    }
+    case NotificationV2Type.GroupAnnouncement: {
+      return {
+        ...base,
+        type: notification.type,
+        detail: {
+          ...notification.data,
+          thumbnailUrl: notification.imageUrl || ''
+        }
+      }
+    }
+    case NotificationV2Type.GroupInvite: {
+      return {
+        ...base,
+        type: notification.type,
+        detail: notification.data
+      }
+    }
+    case NotificationV2Type.GroupJoinRequest: {
+      return {
+        ...base,
+        type: notification.type,
+        detail: notification.data
+      }
+    }
+    case NotificationV2Type.GroupInformative: {
+      return {
+        ...base,
+        type: notification.type,
+        detail: notification.data
+      }
+    }
+    case NotificationV2Type.GroupQueueReady: {
+      return {
+        ...base,
+        type: notification.type,
+        detail: notification.data
+      }
+    }
+    case NotificationV2Type.GroupTransfer: {
+      return {
+        ...base,
+        type: notification.type,
+        detail: notification.data
+      }
+    }
+  }
 }
 
 export function toNotificationDependency(notifications: Notification[]) {

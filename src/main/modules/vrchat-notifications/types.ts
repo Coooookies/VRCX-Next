@@ -120,7 +120,9 @@ export interface NotificationV2OriginalGroupQueueReadyInformation
 export interface NotificationV2OriginalEventAnnouncementInformation
   extends NotificationV2OriginalBase {
   type: typeof NotificationV2Type.EventAnnouncement
-  detail: NotificationV2DataEventAnnouncement
+  detail: NotificationV2DataEventAnnouncement & {
+    thumbnailUrl: string
+  }
 }
 
 export type NotificationV2OriginalInformation =
