@@ -25,6 +25,7 @@ export class NotificationEntity<T extends NotificationGlobalType = NotificationG
   @Column({
     name: 'sender_id',
     type: 'varchar',
+    nullable: true,
     length: 63
   })
   declare senderId: string
