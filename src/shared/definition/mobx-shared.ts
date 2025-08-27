@@ -21,3 +21,7 @@ export interface UserSharedState {
 export interface FriendSharedState {
   loading: boolean
 }
+
+export interface NotificationSharedState {
+  loading: boolean
+}

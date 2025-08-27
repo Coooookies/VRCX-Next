@@ -27,6 +27,8 @@ export class NotificationFetcher {
   ) {}
 
   public async initNotifications() {
+    this.repository.clear()
+
     const notificationsV1 = await this.loadV1Notifications()
     const notificationsV2 = await this.loadV2Notifications()
     const notifications = [...notificationsV1, ...notificationsV2]
