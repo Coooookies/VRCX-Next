@@ -17,7 +17,7 @@ export class CreateNotificationTable1710000000000 implements MigrationInterface 
         "sender_type" varchar(31) NOT NULL,
         "version" varchar(15) NOT NULL,
         "raw" text NOT NULL,
-        "create_at" datetime DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)),
+        "created_at" datetime DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)),
         PRIMARY KEY ("notification_id", "owner_user_id")
       );
     `)
