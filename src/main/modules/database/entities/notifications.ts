@@ -84,11 +84,11 @@ export class NotificationEntity {
   declare raw: object
 
   @Column({
-    name: 'create_at',
+    name: 'created_at',
     type: 'datetime',
     nullable: true,
     ...datetimeTransformer,
     ...datetimeDefault
   })
-  declare createAt: Date
+  declare createdAt: Date
 }

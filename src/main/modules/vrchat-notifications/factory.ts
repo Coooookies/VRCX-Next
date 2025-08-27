@@ -59,10 +59,13 @@ export function toNotificationV1BaseInformation(
     isRead: notification.seen || false,
     createdAt: new Date(notification.created_at),
     version: 'v1',
-    raw:
-      typeof notification.details === 'string'
-        ? JSON.parse(notification.details)
-        : notification.details
+    raw: {
+      ...notification,
+      details:
+        typeof notification.details === 'string'
+          ? JSON.parse(notification.details)
+          : notification.details
+    }
   } as NotificationBaseInformation
 }
 
@@ -123,7 +126,7 @@ export function toNotificationV2BaseInformation(
     isRead: notification.seen || false,
     createdAt: new Date(notification.createdAt),
     version: 'v2',
-    raw: notification.data
+    raw: notification
   } as NotificationBaseInformation
 }
 
@@ -143,7 +146,7 @@ export function toNotificationEntity(
     senderType: notification.senderType,
     version: notification.version,
     raw: notification.raw,
-    createAt: notification.createdAt
+    createdAt: notification.createdAt
   }
 }
 
