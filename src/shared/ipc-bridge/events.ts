@@ -1,6 +1,10 @@
 import type { InstanceProperties, SettingDefinition } from '@shared/definition/setting'
 import type { AuthenticationState } from '@shared/definition/vrchat-authentication'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
+import type {
+  NotificationInformation,
+  NotificationVersion
+} from '@shared/definition/vrchat-notifications'
 
 export type IpcListenerEvents = {
   ping: [number]
@@ -14,17 +18,16 @@ export type IpcRendererEvent = {
   'vrchat-authentication:state:update': [state: AuthenticationState]
 
   // VRChatFriends
-  // 'vrchat-friends:friend:delete': [userId: string]
-  // 'vrchat-friends:friend:add': [user: FriendInformation]
-  // 'vrchat-friends:friend:online': [user: FriendInformation]
-  // 'vrchat-friends:friend:offline': [user: FriendInformation]
-  // 'vrchat-friends:friend:location': [user: FriendInformation]
-  // 'vrchat-friends:friend:active': [user: FriendInformation]
-  // 'vrchat-friends:friend:update': [user: FriendInformation, diff: Partial<BaseFriendInformation>]
   'vrchat-friends:friend:list-insert': [users: FriendInformation[]]
   'vrchat-friends:friend:list-update': [users: FriendInformation[]]
   'vrchat-friends:friend:list-delete': [userId: string]
   'vrchat-friends:friend:list-clear': []
+
+  // VRChatNotifications
+  'vrchat-notifications:notification:list-insert': [notifications: NotificationInformation[]]
+  'vrchat-notifications:notification:list-update': [notifications: NotificationInformation[]]
+  'vrchat-notifications:notification:list-delete': [notificationId: string]
+  'vrchat-notifications:notification:list-clear': [version: NotificationVersion]
 
   // SettingModule
   'setting-module:update': [property: InstanceProperties<SettingDefinition>]

@@ -1,5 +1,6 @@
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
 import type { SettingDefinition, SettingKey, SettingNamespace } from '@shared/definition/setting'
+import type { NotificationInformation } from '@shared/definition/vrchat-notifications'
 import type {
   AuthenticationCredentialEntity,
   AuthenticationResumeSessionState,
@@ -33,6 +34,9 @@ export type IpcInvokeEvents = {
 
   // VRChatFriends
   'vrchat-friends:get-friends': () => FriendInformation[]
+
+  // VRChatNotifications
+  'vrchat-notifications:get-notifications': () => NotificationInformation[]
 
   // Runtime
   'runtime:relaunch': () => void
