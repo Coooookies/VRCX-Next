@@ -6,22 +6,29 @@ export class CreateNotificationTable1710000000000 implements MigrationInterface 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       CREATE TABLE "notifications" (
-        "notification_id" varchar(63) PRIMARY KEY NOT NULL,
-        "type" varchar(63) NOT NULL,
-        "sender_id" varchar(63) NULL,
-        "sender_type" varchar(31) NOT NULL,
+        "notification_id" varchar(63) NOT NULL,
         "owner_user_id" varchar(63) NOT NULL,
+        "type" varchar(63) NOT NULL,
         "title" text NOT NULL,
         "message" text NOT NULL,
-        "raw_notification" text NOT NULL,
-        "create_at" datetime DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3))
+        "is_read" boolean NOT NULL,
+        "thumbnail_image_url" text NULL,
+        "sender_id" varchar(63) NULL,
+        "sender_type" varchar(31) NOT NULL,
+        "version" varchar(15) NOT NULL,
+        "raw" text NOT NULL,
+        "create_at" datetime DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)),
+        PRIMARY KEY ("notification_id", "owner_user_id")
       );
+    `)
+
+    await queryRunner.query(`
+      CREATE INDEX "IDX_notifications_owner_user_id" ON "notifications" ("owner_user_id");
     `)
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
-      DROP TABLE "notifications"
-    `)
+    await queryRunner.query(`DROP INDEX "IDX_notifications_owner_user_id"`)
+    await queryRunner.query(`DROP TABLE "notifications"`)
   }
 }

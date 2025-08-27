@@ -1,13 +1,14 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm'
+import { Entity, Column, PrimaryColumn, Index } from 'typeorm'
 import { datetimeDefault, datetimeTransformer, propertyTransformer } from '../transform'
 import type {
-  NotificationGlobalRawInformation,
   NotificationGlobalType,
-  NotificationSenderType
+  NotificationSenderType,
+  NotificationVersion
 } from '@shared/definition/vrchat-notifications'
 
 @Entity('notifications')
-export class NotificationEntity<T extends NotificationGlobalType = NotificationGlobalType> {
+@Index('IDX_notifications_owner_user_id', ['ownerUserId'])
+export class NotificationEntity {
   @PrimaryColumn({
     name: 'notification_id',
     type: 'varchar',
@@ -15,34 +16,19 @@ export class NotificationEntity<T extends NotificationGlobalType = NotificationG
   })
   declare notificationId: string
 
-  @Column({
-    name: 'type',
-    type: 'varchar',
-    length: 63
-  })
-  declare type: T
-
-  @Column({
-    name: 'sender_id',
-    type: 'varchar',
-    nullable: true,
-    length: 63
-  })
-  declare senderId: string
-
-  @Column({
-    name: 'sender_type',
-    type: 'varchar',
-    length: 31
-  })
-  declare senderType: NotificationSenderType
-
-  @Column({
+  @PrimaryColumn({
     name: 'owner_user_id',
     type: 'varchar',
     length: 63
   })
   declare ownerUserId: string
+
+  @Column({
+    name: 'type',
+    type: 'varchar',
+    length: 63
+  })
+  declare type: NotificationGlobalType
 
   @Column({
     name: 'title',
@@ -57,11 +43,45 @@ export class NotificationEntity<T extends NotificationGlobalType = NotificationG
   declare message: string
 
   @Column({
-    name: 'raw_notification',
+    name: 'is_read',
+    type: 'boolean'
+  })
+  declare isRead: boolean
+
+  @Column({
+    name: 'thumbnail_image_url',
+    type: 'text'
+  })
+  declare thumbnailImageUrl?: string
+
+  @Column({
+    name: 'sender_id',
+    type: 'varchar',
+    nullable: true,
+    length: 63
+  })
+  declare senderId?: string
+
+  @Column({
+    name: 'sender_type',
+    type: 'varchar',
+    length: 31
+  })
+  declare senderType: NotificationSenderType
+
+  @Column({
+    name: 'version',
+    type: 'varchar',
+    length: 15
+  })
+  declare version: NotificationVersion
+
+  @Column({
+    name: 'raw',
     type: 'text',
     ...propertyTransformer
   })
-  declare rawNotification: NotificationGlobalRawInformation[T]
+  declare raw: object
 
   @Column({
     name: 'create_at',
