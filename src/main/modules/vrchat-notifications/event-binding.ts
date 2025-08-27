@@ -1,17 +1,19 @@
 import Nanobus from 'nanobus'
+import { toNotificationV1BaseInformation, toNotificationV2BaseInformation } from './factory'
 import { PipelineEvents } from '@shared/definition/vrchat-pipeline'
+import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { LoggerFactory } from '@main/logger'
 import type { NotificationRepository } from './repository'
 import type { NotificationFetcher } from './fetcher'
 import type { NotificationInformation } from '@shared/definition/vrchat-notifications'
-import type { Notification } from '@shared/definition/vrchat-api-response'
+import type { Notification, NotificationV2 } from '@shared/definition/vrchat-api-response'
 import type {
   PipelineEventMessage,
+  PipelineEventNotificationV2Delete,
+  PipelineEventNotificationV2Update,
   PipelineEventResponseNotification
 } from '@shared/definition/vrchat-pipeline'
-import { toNotificationV1BaseInformation } from './factory'
-import { VRChatUsers } from '../vrchat-users'
 
 export class NotificationEventBinding extends Nanobus<{
   'notification-v1:new': (notification: NotificationInformation) => void
@@ -54,14 +56,17 @@ export class NotificationEventBinding extends Nanobus<{
       }
 
       case PipelineEvents.NotificationV2: {
+        await this.handleNotificationV2(message.content)
         break
       }
 
       case PipelineEvents.NotificationV2Delete: {
+        await this.handleDeleteNotificationsV2(message.content)
         break
       }
 
       case PipelineEvents.NotificationV2Update: {
+        await this.handleUpdateNotificationsV2(message.content)
         break
       }
 
@@ -94,6 +99,13 @@ export class NotificationEventBinding extends Nanobus<{
     this.emit('notification-v1:new', processedNotification)
   }
 
+  private async handleNotificationV2(notification: NotificationV2): Promise<void> {
+    const beforeNotification = toNotificationV2BaseInformation(notification)
+    const processedNotification = await this.fetcher.enrichNotificationV1(beforeNotification)
+    this.upsertNotification(processedNotification)
+    this.emit('notification-v1:new', processedNotification)
+  }
+
   private async handleSeeNotification(notificationId: string): Promise<void> {
     this.changeNotificationAsSeen(notificationId, true)
     this.emit('notification-v1:see', notificationId)
@@ -114,6 +126,30 @@ export class NotificationEventBinding extends Nanobus<{
   private async handleClearNotification(): Promise<void> {
     this.repository.clearNotifications('v1')
     this.emit('notification-v1:clear')
+  }
+
+  private async handleDeleteNotificationsV2({
+    ids
+  }: PipelineEventNotificationV2Delete): Promise<void> {
+    this.repository.deleteNotification(ids)
+  }
+
+  private async handleUpdateNotificationsV2({
+    id,
+    updates
+  }: PipelineEventNotificationV2Update): Promise<void> {
+    const notification = this.repository.getNotification(id)
+    if (notification) {
+      const newRaw = {
+        ...notification.raw,
+        ...updates
+      } as NotificationV2
+
+      this.upsertNotification({
+        ...notification,
+        ...toNotificationV2BaseInformation(newRaw)
+      })
+    }
   }
 
   private async changeNotificationAsSeen(notificationId: string, seen: boolean): Promise<void> {

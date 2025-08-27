@@ -74,8 +74,11 @@ export class NotificationRepository extends Nanobus<{
     return this.notifications.has(notificationId)
   }
 
-  public deleteNotification(notificationId: string) {
-    return this.notifications.delete(notificationId)
+  public deleteNotification(notificationId: string | string[]) {
+    const ids = Array.isArray(notificationId) ? notificationId : [notificationId]
+    for (const id of ids) {
+      this.notifications.delete(id)
+    }
   }
 
   public clearNotifications(version: NotificationVersion = 'all') {

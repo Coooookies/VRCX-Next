@@ -30,13 +30,14 @@ export class NotificationFetcher {
     const notificationsV1 = await this.loadV1Notifications()
     const notificationsV2 = await this.loadV2Notifications()
     const notifications = [...notificationsV1, ...notificationsV2]
-
-    this.logger.info('notification-v1', JSON.stringify(notificationsV1, null, 2))
-    this.logger.info('notification-v2', JSON.stringify(notificationsV2, null, 2))
-
     if (this.users.state.user) {
       this.repository.saveNotification(notifications, this.users.state.user.userId)
     }
+
+    this.logger.info(
+      `Notifications Fetched! ${notifications.length} in total`,
+      `notification-v1: ${notificationsV1.length}, notification-v2: ${notificationsV2.length}`
+    )
   }
 
   private async loadV1Notifications(): Promise<NotificationInformation[]> {
