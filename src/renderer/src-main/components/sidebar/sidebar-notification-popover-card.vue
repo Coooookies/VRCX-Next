@@ -7,7 +7,7 @@ import { PopoverContent } from '@renderer/shared/components/ui/popover'
 <template>
   <PopoverContent
     :align="'start'"
-    :align-offset="-16"
+    :align-offset="-32"
     :side-offset="24"
     side="left"
     update-position-strategy="optimized"
