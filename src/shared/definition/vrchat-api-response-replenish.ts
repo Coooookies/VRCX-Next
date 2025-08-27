@@ -1,3 +1,12 @@
+import {
+  NotificationDetailInvite,
+  NotificationDetailInviteResponse,
+  NotificationDetailRequestInvite,
+  NotificationDetailRequestInviteResponse,
+  NotificationDetailVoteToKick,
+  NotificationType
+} from './vrchat-api-response-community'
+
 /**
  *
  * @export
@@ -38,12 +47,88 @@ export type Platform = (typeof Platform)[keyof typeof Platform]
 export type TwoFactorTypes = 'emailOtp' | 'totp' | 'otp'
 
 /**
- * Base interface for notification version 2 objects.
- * Untested!, but should be compatible with the current API.
+ *
  * @export
- * @interface NotificationV2Base
+ * @interface Notification
  */
-export interface NotificationV2Base {
+export interface NotificationV1<
+  T extends NotificationType = NotificationType,
+  D extends NotificationV1Data = NotificationV1Data
+> {
+  /**
+   *
+   * @type {string}
+   * @memberof Notification
+   */
+  created_at: string
+  /**
+   * **NOTICE:** This is not a JSON object when received from the REST API, but it is when received from the Websocket API. When received from the REST API, this is a json **encoded** object, meaning you have to json-de-encode to get the NotificationDetail object depending on the NotificationType.
+   * @type {unknown}
+   * @memberof Notification
+   */
+  details: D
+  /**
+   *
+   * @type {string}
+   * @memberof Notification
+   */
+  id: string
+  /**
+   *
+   * @type {string}
+   * @memberof Notification
+   */
+  message: string
+  /**
+   * Not included in notification objects received from the Websocket API
+   * @type {boolean}
+   * @memberof Notification
+   */
+  seen?: boolean
+  /**
+   * A users unique ID, usually in the form of `usr_c1644b5b-3ca4-45b4-97c6-a2a0de70d469`. Legacy players can have old IDs in the form of `8JoV9XEdpo`. The ID can never be changed.
+   * @type {string}
+   * @memberof Notification
+   */
+  receiverUserId?: string
+  /**
+   * A users unique ID, usually in the form of `usr_c1644b5b-3ca4-45b4-97c6-a2a0de70d469`. Legacy players can have old IDs in the form of `8JoV9XEdpo`. The ID can never be changed.
+   * @type {string}
+   * @memberof Notification
+   */
+  senderUserId: string
+  /**
+   * -| **DEPRECATED:** VRChat API no longer return usernames of other users. [See issue by Tupper for more information](https://github.com/pypy-vrc/VRCX/issues/429).
+   * @type {string}
+   * @memberof Notification
+   * @deprecated
+   */
+  senderUsername?: string
+  /**
+   *
+   * @type {NotificationType}
+   * @memberof Notification
+   */
+  type: T
+}
+
+export type NotificationV1Data =
+  | NotificationDetailInvite
+  | NotificationDetailInviteResponse
+  | NotificationDetailRequestInvite
+  | NotificationDetailRequestInviteResponse
+  | NotificationDetailVoteToKick
+  | unknown
+
+/**
+ * @export
+ * @interface NotificationV2
+ */
+export interface NotificationV2<
+  T extends NotificationV2Type = NotificationV2Type,
+  C extends NotificationV2GroupCategory = NotificationV2GroupCategory,
+  D extends NotificationV2Data = unknown
+> {
   /**
    * Indicates whether the notification can be deleted by the user.
    * @type {boolean}
@@ -214,102 +299,26 @@ export interface NotificationV2Base {
    * @type {NotificationV2Type}
    * @memberof NotificationV2Base
    */
-  type: NotificationV2Type
-}
+  type: T
 
-/**
- * @export
- * @interface NotificationV2GroupAnnouncement
- */
-export interface NotificationV2GroupAnnouncement {
-  category: typeof NotificationV2GroupCategory.SoocialGroup
-  data: NotificationV2DataGroupAnnouncement
+  /**
+   * @type {NotificationV2GroupCategory}
+   * @memberof NotificationV2Base
+   */
+  category: C
+
+  /**
+   * @type {unknown}
+   * @memberof NotificationV2Base
+   */
+  data: D
+
+  /**
+   * @type {NotificationV2Responses[]}
+   * @memberof NotificationV2Base
+   */
   responses: NotificationV2Responses[]
-  type: typeof NotificationV2Type.GroupAnnouncement
 }
-
-/**
- * @export
- * @interface NotificationV2GroupJoinRequest
- */
-export interface NotificationV2GroupJoinRequest {
-  category: typeof NotificationV2GroupCategory.SoocialGroup
-  data: NotificationV2DataGroupJoinRequest
-  responses: NotificationV2Responses[]
-  type: typeof NotificationV2Type.GroupJoinRequest
-}
-
-/**
- * @export
- * @interface NotificationV2GrouInvite
- */
-export interface NotificationV2GroupInvite {
-  category: typeof NotificationV2GroupCategory.SoocialGroup
-  data: NotificationV2DataGroupInvite
-  responses: NotificationV2Responses[]
-  type: typeof NotificationV2Type.GroupInvite
-}
-
-/**
- * @export
- * @interface NotificationV2GroupInformative
- */
-export interface NotificationV2GroupInformative {
-  category: typeof NotificationV2GroupCategory.SoocialGroup
-  data: unknown
-  responses: NotificationV2Responses[]
-  type: typeof NotificationV2Type.GroupInformative
-}
-
-/**
- * @export
- * @interface NotificationV2GroupTransfer
- */
-export interface NotificationV2GroupTransfer {
-  category: typeof NotificationV2GroupCategory.SoocialGroup
-  data: unknown
-  responses: NotificationV2Responses[]
-  type: typeof NotificationV2Type.GroupTransfer
-}
-
-/**
- * @export
- * @interface NotificationV2GroupQueueReady
- */
-export interface NotificationV2GroupQueueReady {
-  category: typeof NotificationV2GroupCategory.SoocialGroup
-  data: unknown
-  responses: NotificationV2Responses[]
-  type: typeof NotificationV2Type.GroupQueueReady
-}
-
-/**
- * @export
- * @interface NotificationV2EventAnnouncement
- */
-export interface NotificationV2EventAnnouncement {
-  category: typeof NotificationV2GroupCategory.Event
-  data: NotificationV2DataEventAnnouncement
-  responses: NotificationV2Responses[]
-  type: typeof NotificationV2Type.EventAnnouncement
-}
-
-/**
- *
- * @export
- * @enum {string}
- */
-
-export type NotificationV2 = NotificationV2Base &
-  (
-    | NotificationV2GroupAnnouncement
-    | NotificationV2GroupJoinRequest
-    | NotificationV2GroupInvite
-    | NotificationV2GroupInformative
-    | NotificationV2GroupTransfer
-    | NotificationV2GroupQueueReady
-    | NotificationV2EventAnnouncement
-  )
 
 /**
  *
@@ -441,6 +450,13 @@ export interface NotificationV2DataGroupJoinRequest {
    */
   groupName: string
 }
+
+export type NotificationV2Data =
+  | NotificationV2DataGroupAnnouncement
+  | NotificationV2DataGroupJoinRequest
+  | NotificationV2DataGroupInvite
+  | NotificationV2DataEventAnnouncement
+  | unknown
 
 /**
  *
