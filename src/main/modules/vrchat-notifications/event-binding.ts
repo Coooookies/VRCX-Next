@@ -10,6 +10,8 @@ import type {
   PipelineEventMessage,
   PipelineEventResponseNotification
 } from '@shared/definition/vrchat-pipeline'
+import { toNotificationV1BaseInformation } from './factory'
+import { VRChatUsers } from '../vrchat-users'
 
 export class NotificationEventBinding extends Nanobus<{
   'notification-v1:new': (notification: NotificationInformation) => void
@@ -22,6 +24,7 @@ export class NotificationEventBinding extends Nanobus<{
     private readonly logger: LoggerFactory,
     private readonly repository: NotificationRepository,
     private readonly fetcher: NotificationFetcher,
+    private readonly users: VRChatUsers,
     private readonly pipeline: VRChatPipeline
   ) {
     super('VRChatNotifications:EventBinding')
@@ -36,7 +39,8 @@ export class NotificationEventBinding extends Nanobus<{
       this.logger.debug(
         'received new notification(v1)',
         notification.type,
-        notification.sender ? notification.sender.displayName : 'Unknown',
+        notification.senderType,
+        notification.senderName,
         notification.message
       )
     })
@@ -84,8 +88,9 @@ export class NotificationEventBinding extends Nanobus<{
   }
 
   private async handleNotification(notification: Notification): Promise<void> {
-    const processedNotification = await this.fetcher.enrichNotificationV1(notification)
-    this.repository.saveRemoteNotificationV1(processedNotification)
+    const beforeNotification = toNotificationV1BaseInformation(notification)
+    const processedNotification = await this.fetcher.enrichNotificationV1(beforeNotification)
+    this.upsertNotification(processedNotification)
     this.emit('notification-v1:new', processedNotification)
   }
 
@@ -107,18 +112,27 @@ export class NotificationEventBinding extends Nanobus<{
   }
 
   private async handleClearNotification(): Promise<void> {
-    this.repository.clearRemoteNotificationsV1()
+    this.repository.clearNotifications('v1')
     this.emit('notification-v1:clear')
   }
 
   private async changeNotificationAsSeen(notificationId: string, seen: boolean): Promise<void> {
-    const notification = this.repository.getRemoteNotificationV1(notificationId)
+    const notification = this.repository.getNotification(notificationId)
     if (notification) {
-      this.repository.saveRemoteNotificationV1({ ...notification, seen })
+      this.upsertNotification({
+        ...notification,
+        isRead: seen
+      })
     }
   }
 
   private async changeNotificationAsResponded(notificationId: string): Promise<void> {
-    this.repository.deleteRemoteNotificationV1(notificationId)
+    this.repository.deleteNotification(notificationId)
+  }
+
+  private upsertNotification(notification: NotificationInformation): void {
+    if (this.users.state.user) {
+      this.repository.saveNotification(notification, this.users.state.user.userId)
+    }
   }
 }

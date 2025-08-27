@@ -80,4 +80,8 @@ export class VRChatUsers extends Module<{}> {
   public get Fetcher(): UsersFetcher {
     return this.fetcher
   }
+
+  public get state() {
+    return this.$
+  }
 }
