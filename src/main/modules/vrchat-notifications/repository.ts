@@ -1,77 +1,110 @@
 import Nanobus from 'nanobus'
+import { toNotificationEntity } from './factory'
+import { NotificationEntity } from '../database/entities/notifications'
+import type { Repository } from 'typeorm'
 import type { Database } from '../database'
-import type { NotificationInformation } from '@shared/definition/vrchat-notifications'
+import type {
+  NotificationInformation,
+  NotificationVersion
+} from '@shared/definition/vrchat-notifications'
 
 export class NotificationRepository extends Nanobus<{
-  'notification-v1:remote:insert': (notifications: NotificationInformation[]) => void
-  'notification-v1:remote:update': (notifications: NotificationInformation[]) => void
-  'notification-v1:remote:delete': (notificationId: string) => void
-  'notification-v1:remote:clear': () => void
+  'notification:remote:insert': (notifications: NotificationInformation[]) => void
+  'notification:remote:update': (notifications: NotificationInformation[]) => void
+  'notification:remote:delete': (notificationId: string) => void
+  'notification:remote:clear': (version: NotificationVersion) => void
 }> {
   constructor(private readonly database: Database) {
     super('VRChatNotifications:Repository')
   }
 
-  private notificationsV1 = new Map<string, NotificationInformation>()
+  private notifications = new Map<string, NotificationInformation>()
 
-  public getRemoteNotificationV1(notificationId: string) {
-    return this.notificationsV1.get(notificationId)
+  public get repository(): Repository<NotificationEntity> {
+    return this.database.source.getRepository(NotificationEntity)
   }
 
-  public getAllRemoteNotificationsV1() {
-    return [...this.notificationsV1.values()]
+  private upsertNotifications(entities: NotificationEntity | NotificationEntity[]) {
+    const entitiesArr = Array.isArray(entities) ? entities : [entities]
+    return this.repository.upsert(entitiesArr, {
+      conflictPaths: ['notificationId', 'ownerUserId'],
+      skipUpdateIfNoValuesChanged: true
+    })
   }
 
-  public hasRemoteNotificationV1(notificationId: string) {
-    return this.notificationsV1.has(notificationId)
-  }
-
-  public deleteRemoteNotificationV1(notificationId: string) {
-    const deleted = this.notificationsV1.delete(notificationId)
-    if (deleted) {
-      this.emit('notification-v1:remote:delete', notificationId)
-    }
-    return deleted
-  }
-
-  public saveRemoteNotificationV1(
-    notification: NotificationInformation | NotificationInformation[]
+  public async saveNotification(
+    notification: NotificationInformation | NotificationInformation[],
+    ownerUserId: string
   ) {
     const pendingNotifications = Array.isArray(notification) ? notification : [notification]
     const pendingUpdateNotifications: NotificationInformation[] = []
     const pendingInsertNotifications: NotificationInformation[] = []
 
     for (const notification of pendingNotifications) {
-      if (this.hasRemoteNotificationV1(notification.notificationId)) {
+      if (this.hasNotification(notification.notificationId)) {
         pendingUpdateNotifications.push(notification)
       } else {
         pendingInsertNotifications.push(notification)
       }
 
-      // Update the NotificationV1 in the repository
-      this.notificationsV1.set(notification.notificationId, notification)
+      this.notifications.set(notification.notificationId, notification)
     }
 
+    const entities = pendingNotifications.map((n) => toNotificationEntity(n, ownerUserId))
+    await this.upsertNotifications(entities)
+
     if (pendingInsertNotifications.length > 0) {
-      this.emit('notification-v1:remote:insert', pendingInsertNotifications)
+      this.emit('notification:remote:insert', pendingInsertNotifications)
     }
 
     if (pendingUpdateNotifications.length > 0) {
-      this.emit('notification-v1:remote:update', pendingUpdateNotifications)
+      this.emit('notification:remote:update', pendingUpdateNotifications)
     }
   }
 
-  // public saveLocalNotificationV1(
-  //   notification: NotificationInformation | NotificationInformation[],
-  //   receiveUserId: string
-  // ) {}
+  public getNotification(notificationId: string) {
+    return this.notifications.get(notificationId)
+  }
 
-  public clearRemoteNotificationsV1() {
-    this.notificationsV1.clear()
-    this.emit('notification-v1:remote:clear')
+  public getAllNotifications() {
+    return [...this.notifications.values()]
+  }
+
+  public hasNotification(notificationId: string) {
+    return this.notifications.has(notificationId)
+  }
+
+  public deleteNotification(notificationId: string) {
+    return this.notifications.delete(notificationId)
+  }
+
+  public clearNotifications(version: NotificationVersion = 'all') {
+    switch (version) {
+      case 'v1': {
+        this.notifications.forEach((notification, notificationId) => {
+          if (notification.version === 'v1') {
+            this.notifications.delete(notificationId)
+          }
+        })
+        break
+      }
+      case 'v2': {
+        this.notifications.forEach((notification, notificationId) => {
+          if (notification.version === 'v2') {
+            this.notifications.delete(notificationId)
+          }
+        })
+        break
+      }
+      default: {
+        this.notifications.clear()
+      }
+    }
+
+    this.emit('notification:remote:clear', version)
   }
 
   public clear() {
-    this.clearRemoteNotificationsV1()
+    this.clearNotifications()
   }
 }

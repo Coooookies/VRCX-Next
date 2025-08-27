@@ -1,163 +1,177 @@
-import { parseLocation } from '../vrchat-worlds/location-parser'
-import { isGroupInstance } from '../vrchat-worlds/factory'
+import {
+  NotificationGlobalType,
+  NotificationSenderType
+} from '@shared/definition/vrchat-notifications'
 import { NotificationType, NotificationV2Type } from '@shared/definition/vrchat-api-response'
-import { NotificationSenderType } from '@shared/definition/vrchat-notifications'
-import type { Notification, NotificationV2 } from '@shared/definition/vrchat-api-response'
-import type { LocationInstanceGroup } from '@shared/definition/vrchat-instances'
+import type { NotificationEntity } from '../database/entities/notifications'
+import type { NotificationBaseInformation } from '@shared/definition/vrchat-notifications'
 import type {
-  NotificationOriginalInformation,
-  NotificationV2OriginalBase,
-  NotificationV2OriginalInformation
-} from './types'
+  Notification,
+  NotificationV2,
+  NotificationV2DataEventAnnouncement,
+  NotificationV2DataGroupAnnouncement
+} from '@shared/definition/vrchat-api-response'
 
-export function toBaseNotificationInformation(
+export function toNotificationV1BaseInformation(
   notification: Notification
-): NotificationOriginalInformation {
+): NotificationBaseInformation {
+  let type: NotificationGlobalType
+
+  switch (notification.type) {
+    case NotificationType.Invite: {
+      type = NotificationGlobalType.InviteV1
+      break
+    }
+    case NotificationType.InviteResponse: {
+      type = NotificationGlobalType.InviteResponseV1
+      break
+    }
+    case NotificationType.RequestInvite: {
+      type = NotificationGlobalType.RequestInviteV1
+      break
+    }
+    case NotificationType.RequestInviteResponse: {
+      type = NotificationGlobalType.RequestInviteResponseV1
+      break
+    }
+    case NotificationType.Votetokick: {
+      type = NotificationGlobalType.VotetokickV1
+      break
+    }
+    case NotificationType.FriendRequest: {
+      type = NotificationGlobalType.FriendRequestV1
+      break
+    }
+    case NotificationType.Message: {
+      type = NotificationGlobalType.MessageV1
+      break
+    }
+  }
+
   return {
     notificationId: notification.id,
-    type: notification.type,
-    seen: notification.seen || false,
+    type,
+    title: notification.message,
     message: notification.message,
-    senderUserId: notification.senderUserId,
+    thumbnailImageUrl: null,
+    senderId: notification.senderUserId,
+    senderType: NotificationSenderType.User,
+    isRead: notification.seen || false,
     createdAt: new Date(notification.created_at),
-    detail:
+    version: 'v1',
+    raw:
       typeof notification.details === 'string'
         ? JSON.parse(notification.details)
         : notification.details
-  } as NotificationOriginalInformation
+  } as NotificationBaseInformation
 }
 
-export function toBaseNotificationV2Information(
+export function toNotificationV2BaseInformation(
   notification: NotificationV2
-): NotificationV2OriginalInformation {
+): NotificationBaseInformation {
+  let type: NotificationGlobalType = NotificationGlobalType.UnknownV2
+  let senderId: string = ''
   let senderType: NotificationSenderType = NotificationSenderType.Unknown
-  let senderId: string | null = null
 
   switch (notification.type) {
     case NotificationV2Type.GroupAnnouncement: {
+      const data = notification.data as NotificationV2DataGroupAnnouncement
+      type = NotificationGlobalType.GroupAnnouncementV2
+      senderId = data.groupId
       senderType = NotificationSenderType.Group
-      senderId = notification.data.groupId
+      break
+    }
+    case NotificationV2Type.GroupInformative: {
+      type = NotificationGlobalType.GroupInformativeV2
+      break
+    }
+    case NotificationV2Type.GroupInvite: {
+      type = NotificationGlobalType.GroupInviteV2
+      break
+    }
+    case NotificationV2Type.GroupJoinRequest: {
+      type = NotificationGlobalType.GroupJoinRequestV2
+      break
+    }
+    case NotificationV2Type.GroupQueueReady: {
+      type = NotificationGlobalType.GroupQueueReadyV2
+      break
+    }
+    case NotificationV2Type.GroupTransfer: {
+      type = NotificationGlobalType.GroupTransferV2
       break
     }
     case NotificationV2Type.EventAnnouncement: {
-      senderId = notification.data.ownerId
-      if (notification.data.ownerId.startsWith('grp_')) {
-        senderType = NotificationSenderType.Group
-      } else if (notification.data.ownerId.startsWith('usr_')) {
-        senderType = NotificationSenderType.User
-      } else {
-        senderType = NotificationSenderType.Unknown
-      }
-    }
-  }
-
-  const base: NotificationV2OriginalBase = {
-    notificationId: notification.id,
-    seen: notification.seen || false,
-    title: notification.title,
-    message: notification.message,
-    relatedNotificationId: notification.relatedNotificationsId || null,
-    responses: notification.responses,
-    createdAt: new Date(notification.createdAt),
-    senderType,
-    senderId
-  }
-
-  switch (notification.type) {
-    case NotificationV2Type.EventAnnouncement: {
-      return {
-        ...base,
-        type: notification.type,
-        detail: {
-          ...notification.data,
-          thumbnailUrl: notification.imageUrl || ''
-        }
-      }
-    }
-    case NotificationV2Type.GroupAnnouncement: {
-      return {
-        ...base,
-        type: notification.type,
-        detail: {
-          ...notification.data,
-          thumbnailUrl: notification.imageUrl || ''
-        }
-      }
-    }
-    case NotificationV2Type.GroupInvite: {
-      return {
-        ...base,
-        type: notification.type,
-        detail: notification.data
-      }
-    }
-    case NotificationV2Type.GroupJoinRequest: {
-      return {
-        ...base,
-        type: notification.type,
-        detail: notification.data
-      }
-    }
-    case NotificationV2Type.GroupInformative: {
-      return {
-        ...base,
-        type: notification.type,
-        detail: notification.data
-      }
-    }
-    case NotificationV2Type.GroupQueueReady: {
-      return {
-        ...base,
-        type: notification.type,
-        detail: notification.data
-      }
-    }
-    case NotificationV2Type.GroupTransfer: {
-      return {
-        ...base,
-        type: notification.type,
-        detail: notification.data
-      }
-    }
-  }
-}
-
-export function toNotificationDependency(notifications: Notification[]) {
-  const baseNotifications = notifications.map((n) => toBaseNotificationInformation(n))
-  const userIds: string[] = []
-  const worldIds: string[] = []
-  const groupIds: string[] = []
-
-  for (const notification of baseNotifications) {
-    if (notification.senderUserId) {
-      userIds.push(notification.senderUserId)
-    }
-
-    switch (notification.type) {
-      case NotificationType.Invite: {
-        const detail = notification.detail
-        const location = parseLocation(detail.worldId)
-        if (location) {
-          worldIds.push(location.worldId)
-          if (isGroupInstance(location)) {
-            const groupLocation = location as LocationInstanceGroup
-            groupIds.push(groupLocation.groupId)
-          }
-        }
-        break
-      }
-      case NotificationType.Votetokick: {
-        const detail = notification.detail
-        if (detail.initiatorUserId) userIds.push(detail.initiatorUserId)
-        if (detail.userToKickId) userIds.push(detail.userToKickId)
-        break
-      }
+      const data = notification.data as NotificationV2DataEventAnnouncement
+      type = NotificationGlobalType.EventAnnouncementV2
+      senderId = data.ownerId
+      if (data.ownerId.startsWith('grp_')) senderType = NotificationSenderType.Group
+      else if (data.ownerId.startsWith('usr_')) senderType = NotificationSenderType.User
+      else senderType = NotificationSenderType.Unknown
+      break
     }
   }
 
   return {
-    userIds: [...new Set(userIds)],
-    worldIds: [...new Set(worldIds)],
-    groupIds: [...new Set(groupIds)]
+    notificationId: notification.id,
+    type,
+    title: notification.title,
+    message: notification.message,
+    thumbnailImageUrl: notification.imageUrl || null,
+    senderId,
+    senderType,
+    isRead: notification.seen || false,
+    createdAt: new Date(notification.createdAt),
+    version: 'v2',
+    raw: notification.data
+  } as NotificationBaseInformation
+}
+
+export function toNotificationEntity(
+  notification: NotificationBaseInformation,
+  ownerUserId: string
+): NotificationEntity {
+  return {
+    notificationId: notification.notificationId,
+    ownerUserId,
+    type: notification.type,
+    title: notification.title,
+    message: notification.message,
+    isRead: notification.isRead,
+    thumbnailImageUrl: notification.thumbnailImageUrl || undefined,
+    senderId: notification.senderId || undefined,
+    senderType: notification.senderType,
+    version: notification.version,
+    raw: notification.raw,
+    createAt: notification.createdAt
+  }
+}
+
+export function toNotificationDependency(
+  notification: NotificationBaseInformation | NotificationBaseInformation[]
+) {
+  const notifications = Array.isArray(notification) ? notification : [notification]
+  const userIds = new Set<string>()
+  const groupIds = new Set<string>()
+
+  for (const currentNotification of notifications) {
+    if (
+      currentNotification.senderId &&
+      currentNotification.senderType === NotificationSenderType.User
+    ) {
+      userIds.add(currentNotification.senderId)
+    }
+
+    if (
+      currentNotification.senderId &&
+      currentNotification.senderType === NotificationSenderType.Group
+    ) {
+      groupIds.add(currentNotification.senderId)
+    }
+  }
+
+  return {
+    userIds: [...userIds],
+    groupIds: [...groupIds]
   }
 }

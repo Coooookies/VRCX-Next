@@ -32,13 +32,13 @@ export class VRChatNotifications extends Module<{}> {
       this.repository,
       this.api,
       this.users,
-      this.worlds,
       this.groups
     )
     this.eventBinding = new NotificationEventBinding(
       this.logger,
       this.repository,
       this.fetcher,
+      this.users,
       this.pipeline
     )
 
