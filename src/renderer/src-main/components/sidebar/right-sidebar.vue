@@ -10,7 +10,7 @@ import SidebarFriends from './sidebar-friends.vue'
 import SidebarFriendsSearchInput from './sidebar-friends-search-input.vue'
 import SidebarFriendsAction from './sidebar-friends-action.vue'
 import { cn } from '@renderer/shared/utils/style'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useModule } from '@renderer/shared/hooks/use-module'
 import { useSidebarFriends } from '@renderer/src-main/composables/sidebar-friends'
 import type { SidebarContainerProps, SidebarStateEmits, SidebarStateProps } from './types'
@@ -22,13 +22,14 @@ const props = defineProps<SidebarContainerProps & SidebarStateProps>()
 const emits = defineEmits<SidebarStateEmits>()
 
 const { virtualFriends, searchModelValue, isLoading, toggleCollapse } = useSidebarFriends()
+const notificationPopoverVisible = ref(false)
 const statusMask = `url("${ProfileAvatarImageStatusMask}")`
 const phoneMask = `url("${ProfileAvatarImagePhoneMask}")`
 
 console.log(emits)
 
 const focus = computed(() => {
-  return searchModelValue.value.length > 0
+  return searchModelValue.value.length > 0 || notificationPopoverVisible.value
 })
 </script>
 
@@ -73,7 +74,7 @@ const focus = computed(() => {
         />
       </div>
       <div class="flex flex-row gap-2 px-4 pt-2 pb-1.5">
-        <SidebarFriendsAction />
+        <SidebarFriendsAction v-model:notification-visible="notificationPopoverVisible" />
         <SidebarFriendsSearchInput v-model="searchModelValue" class="flex-1" />
       </div>
       <div class="flex-1 w-full h-0">
