@@ -25,7 +25,7 @@ import { PopoverContent } from '@renderer/shared/components/ui/popover'
           value="tab-1"
           class="h-11 gap-2 data-[state=active]:after:bg-primary relative rounded-none px-0 py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
         >
-          <span>Common</span>
+          <span class="text-sm">Common</span>
           <Badge
             class="size-4 text-[10px] transition-opacity group-data-[state=inactive]:bg-primary/15"
           >
@@ -36,13 +36,13 @@ import { PopoverContent } from '@renderer/shared/components/ui/popover'
           value="tab-2"
           class="h-11 data-[state=active]:after:bg-primary relative rounded-none px-0 py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
         >
-          Group
+          <span class="text-sm">Group</span>
         </TabsTrigger>
         <TabsTrigger
           value="tab-3"
           class="h-11 data-[state=active]:after:bg-primary relative rounded-none px-0 py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
         >
-          System
+          <span class="text-sm">System</span>
         </TabsTrigger>
       </TabsList>
       <TabsContent value="tab-1">
