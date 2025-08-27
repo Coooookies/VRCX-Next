@@ -6,6 +6,7 @@ import { MobxRenderer } from '@renderer/shared/modules/mobx-renderer'
 import { SettingModule } from '@renderer/shared/modules/setting'
 import { VRChatUsers } from '@renderer/shared/modules/vrchat-users'
 import { VRChatFriends } from '@renderer/shared/modules/vrchat-friends'
+import { VRChatNotifications } from '@renderer/shared/modules/vrchat-notifications'
 import { VRChatAuthentication } from '@renderer/shared/modules/vrchat-authentication'
 import { Runtime } from '@renderer/shared/modules/runtime'
 
@@ -18,6 +19,7 @@ const modules: Record<string, ModuleConstructor> = {
   VRChatAuthentication,
   VRChatUsers,
   VRChatFriends,
+  VRChatNotifications,
   Runtime
 }
 

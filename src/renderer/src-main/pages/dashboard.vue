@@ -3,12 +3,14 @@ import AppRoute from '../layouts/app-route.vue'
 import { computed } from 'vue'
 import { useModule } from '@renderer/shared/hooks/use-module'
 import { Button } from '@renderer/shared/components/ui/button'
+import type { VRChatNotifications } from '@renderer/shared/modules/vrchat-notifications'
 import type { VRChatAuthentication } from '@renderer/shared/modules/vrchat-authentication'
 import type { VRChatUsers } from '@renderer/shared/modules/vrchat-users'
 import { LocaleCombobox } from '@renderer/shared/components/locale'
 
 const auth = useModule<VRChatAuthentication>('VRChatAuthentication')
 const users = useModule<VRChatUsers>('VRChatUsers')
+const notifications = useModule<VRChatNotifications>('VRChatNotifications')
 
 const userJson = computed(() => {
   return users.state.user ? JSON.stringify(users.state.user, null, 2) : 'null'
@@ -16,6 +18,10 @@ const userJson = computed(() => {
 
 const locationJson = computed(() => {
   return users.state.location ? JSON.stringify(users.state.location, null, 2) : 'null'
+})
+
+const notificationJson = computed(() => {
+  return JSON.stringify(notifications.notifications.value, null, 2)
 })
 
 function reset(): void {
@@ -40,6 +46,9 @@ function logout(): void {
       </div>
       <div class="bg-white/5 p-4 rounded-md">
         <p class="whitespace-pre-wrap text-xs">{{ locationJson }}</p>
+      </div>
+      <div class="bg-white/5 p-4 rounded-md">
+        <p class="whitespace-pre-wrap text-xs">{{ notificationJson }}</p>
       </div>
     </div>
   </AppRoute>
