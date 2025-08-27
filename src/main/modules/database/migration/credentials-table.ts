@@ -24,8 +24,7 @@ export class CreateCredentialsTable1710000000000 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
-      DROP TABLE "credentials"
-    `)
+    await queryRunner.query(`DROP INDEX "idx_credentials_user_name"`)
+    await queryRunner.query(`DROP TABLE "credentials"`)
   }
 }
