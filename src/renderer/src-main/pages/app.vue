@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '../layouts/app-layout.vue'
-import LeftSidebar from '../components/sidebar/left-sidebar.vue'
-import RightSidebar from '../components/sidebar/right-sidebar.vue'
+import SidebarLeft from '../components/sidebar/sidebar-left.vue'
+import SidebarRight from '../components/sidebar/sidebar-right.vue'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { SlideRouterView } from '../components/router-view'
@@ -32,7 +32,7 @@ const routeTo = (name: string) => {
     :collapse-width="collapseWidth"
   >
     <template #left-sidebar>
-      <LeftSidebar
+      <SidebarLeft
         v-model:expanded="leftExpanded"
         :expand-width="leftExpandWidth"
         :collapse-width="collapseWidth"
@@ -44,7 +44,7 @@ const routeTo = (name: string) => {
       <SlideRouterView />
     </template>
     <template #right-sidebar>
-      <RightSidebar
+      <SidebarRight
         v-model:expanded="rightExpanded"
         :expand-width="rightExpandWidth"
         :collapse-width="collapseWidth"
