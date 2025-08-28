@@ -73,6 +73,7 @@ export type NotificationGlobalRawInformation = {
     unknown
   >
   [NotificationGlobalType.MessageV1]: NotificationV1<typeof NotificationType.Message, unknown>
+  [NotificationGlobalType.UnknownV1]: NotificationV1<unknown, unknown>
   [NotificationGlobalType.GroupAnnouncementV2]: NotificationV2<
     typeof NotificationV2Type.GroupAnnouncement,
     typeof NotificationV2GroupCategory.SoocialGroup,
@@ -108,6 +109,7 @@ export type NotificationGlobalRawInformation = {
     typeof NotificationV2GroupCategory.Event,
     NotificationV2DataEventAnnouncement
   >
+  [NotificationGlobalType.UnknownV2]: NotificationV2<unknown, unknown, unknown>
 }
 
 export type NotificationBaseInformation = {
@@ -133,3 +135,12 @@ export type NotificationInformation = NotificationBaseInformation & {
 }
 
 export type NotificationVersion = 'v1' | 'v2' | 'all'
+
+export const NotificationGlobalCategory = {
+  Friends: 'friends',
+  Groups: 'groups',
+  Others: 'others'
+} as const
+
+export type NotificationGlobalCategory =
+  (typeof NotificationGlobalCategory)[keyof typeof NotificationGlobalCategory]

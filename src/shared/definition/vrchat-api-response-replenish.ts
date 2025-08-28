@@ -52,7 +52,7 @@ export type TwoFactorTypes = 'emailOtp' | 'totp' | 'otp'
  * @interface Notification
  */
 export interface NotificationV1<
-  T extends NotificationType = NotificationType,
+  T extends NotificationType | unknown = NotificationType,
   D extends NotificationV1Data = NotificationV1Data
 > {
   /**
@@ -125,8 +125,8 @@ export type NotificationV1Data =
  * @interface NotificationV2
  */
 export interface NotificationV2<
-  T extends NotificationV2Type = NotificationV2Type,
-  C extends NotificationV2GroupCategory = NotificationV2GroupCategory,
+  T extends NotificationV2Type | unknown = NotificationV2Type,
+  C extends NotificationV2GroupCategory | unknown = NotificationV2GroupCategory,
   D extends NotificationV2Data = unknown
 > {
   /**

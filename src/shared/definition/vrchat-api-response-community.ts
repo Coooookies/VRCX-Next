@@ -8404,6 +8404,12 @@ export interface NotificationDetailInvite {
    * @memberof NotificationDetailInvite
    */
   worldName: string
+  /**
+   *
+   * @type {string}
+   * @memberof NotificationDetailInvite
+   */
+  imageUrl?: string
 }
 /**
  *
