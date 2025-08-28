@@ -6,7 +6,7 @@ import { getLocationLabel } from '@renderer/src-main/composables/sidebar-friends
 import { ImageIcon } from 'lucide-vue-next'
 import { ImageFallback, ImageRoot } from '@renderer/shared/components/ui/image'
 import { Button } from '@renderer/shared/components/ui/button'
-import { ElapsedTimerText } from '@renderer/shared/components/elapsed-timer'
+import { ElapsedTimerText } from '@renderer/shared/components/timer'
 import type { LocationInstance } from '@shared/definition/vrchat-instances'
 import BadgeArea from '../badge/badge-area.vue'
 
