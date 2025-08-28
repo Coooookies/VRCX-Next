@@ -11,7 +11,7 @@ import { FunctionalComponent, HTMLAttributes } from 'vue'
 const props = defineProps<{
   icon: FunctionalComponent
   label?: string
-  active?: boolean
+  hotspot?: boolean
   class: HTMLAttributes['class']
 }>()
 
@@ -28,15 +28,22 @@ const emits = defineEmits<{
         :class="
           cn(
             'relative w-10 h-9 group/sidebar-button',
-            props.class,
-            props.active
-              ? '!bg-sidebar-foreground/10 dark:!bg-secondary/50'
-              : 'bg-sidebar-foreground/5 dark:bg-input/55 hover:bg-sidebar-foreground/10 hover:dark:bg-input/80 active:bg-sidebar-foreground/5 active:dark:!bg-input/40'
+            'bg-sidebar-foreground/5 dark:bg-input/55 hover:bg-sidebar-foreground/10 hover:dark:bg-input/80 active:bg-sidebar-foreground/5 active:dark:!bg-input/40',
+            props.class
           )
         "
         @click="emits('click', $event)"
       >
-        <div class="size-5.5 shrink-0">
+        <div
+          :class="
+            cn(
+              'relative size-5.5 shrink-0',
+              props.hotspot
+                ? 'after:absolute after:top-0 after:right-0 after:w-[5px] after:h-[5px] after:rounded-full after:bg-destructive'
+                : ''
+            )
+          "
+        >
           <component
             :is="props.icon"
             :class="
@@ -44,9 +51,12 @@ const emits = defineEmits<{
                 'size-full transition-colors duration-200 ease-in-out',
                 'text-sidebar-foreground/55 group-hover/sidebar-button:text-sidebar-foreground/70',
                 'dark:text-sidebar-foreground/50 group-hover/sidebar-button:dark:text-sidebar-foreground/70',
-                props.active && '!text-sidebar-foreground/85 dark:!text-sidebar-foreground/90'
+                props.hotspot && '!text-sidebar-foreground/85 dark:!text-sidebar-foreground/90'
               )
             "
+            :style="{
+              maskImage: props.hotspot ? 'var(--mask-sidebar-action-icon)' : 'none'
+            }"
           />
         </div>
       </Button>
