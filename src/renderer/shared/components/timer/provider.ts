@@ -1,6 +1,6 @@
 import { onMounted, onUnmounted, provide, ref } from 'vue'
 
-export function useElapsedTimer() {
+export function useTimer() {
   const currentTime = ref(Date.now())
   const handleTimeUpdate = () => {
     currentTime.value = Date.now()
@@ -8,7 +8,7 @@ export function useElapsedTimer() {
 
   let timer: number | null = null
 
-  provide('elapsedTimer', {
+  provide('globalTimer', {
     currentTime
   })
 
