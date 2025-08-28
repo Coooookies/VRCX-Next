@@ -1,5 +1,6 @@
 import { LANGUAGES } from '.'
 import { LCID_DEFINITIONS } from './lcid'
+import type { NotificationGlobalCategory } from '@shared/definition/vrchat-notifications'
 import type { UserLanguage } from '@shared/definition/vrchat-users'
 
 export type LanguageDefinition = {
@@ -97,6 +98,8 @@ export type LanguageDefinition = {
   }
   sidebar: {
     notifications: string
+    notifications_title: string
+    notifications_category: Record<NotificationGlobalCategory, string>
     friends_manage: string
     friends_search_input_placeholder: string
     friends_group_name: {
@@ -142,6 +145,30 @@ export type LanguageDefinition = {
       vrcapi_authentication_login_invalid_credentials: string
       vrcapi_authentication_relogin_invalid_credentials: string
     }
+  }
+  date: {
+    just_now: string
+    just_now_future: string
+    yesterday: string
+    tomorrow: string
+    minute_ago: string
+    minutes_ago: string
+    hour_ago: string
+    hours_ago: string
+    days_ago: string
+    one_month_ago: string
+    months_ago: string
+    one_year_ago: string
+    years_ago: string
+    in_minute: string
+    in_minutes: string
+    in_hour: string
+    in_hours: string
+    in_days: string
+    in_one_month: string
+    in_months: string
+    in_one_year: string
+    in_years: string
   }
 }
 

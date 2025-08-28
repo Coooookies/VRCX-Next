@@ -1,10 +1,11 @@
 import { LANGUAGE_EN_US } from './language-en-us'
 import { LANGUAGE_JA_JP } from './language-ja-jp'
-import { LANGUAGE_ZH_CNS } from './language-zh-cns'
+import { LANGUAGE_ZH_CN } from './language-zh-cn'
 import { LanguageAvailableCode } from './types'
 
+// IETF BCP 47 (RFC 5646)
 export const LANGUAGES = {
-  'zh-CN': LANGUAGE_ZH_CNS,
+  'zh-CN': LANGUAGE_ZH_CN,
   'ja-JP': LANGUAGE_JA_JP,
   'en-US': LANGUAGE_EN_US
 } as const

@@ -139,6 +139,12 @@ export const LANGUAGE_EN_US: Languageinstance = {
     },
     sidebar: {
       notifications: 'Notifications',
+      notifications_title: 'Notifications',
+      notifications_category: {
+        friends: 'Friends',
+        groups: 'Groups',
+        others: 'Others'
+      },
       friends_manage: 'Manage Friends',
       friends_search_input_placeholder: 'Search',
       friends_group_name: {
@@ -187,6 +193,30 @@ export const LANGUAGE_EN_US: Languageinstance = {
         vrcapi_authentication_relogin_invalid_credentials:
           'To ensure the security of your VRChat account, you need to provide your credentials again.'
       }
+    },
+    date: {
+      just_now: 'now',
+      just_now_future: 'in a moment',
+      yesterday: 'yesterday',
+      tomorrow: 'tomorrow',
+      minute_ago: '{value} minute ago',
+      minutes_ago: '{value} minutes ago',
+      hour_ago: '{value} hour ago',
+      hours_ago: '{value} hours ago',
+      days_ago: '{value} days ago',
+      one_month_ago: '{value} month ago',
+      months_ago: '{value} months ago',
+      one_year_ago: '{value} year ago',
+      years_ago: '{value} years ago',
+      in_minute: 'in {value} minute',
+      in_minutes: 'in {value} minutes',
+      in_hour: 'in {value} hour',
+      in_hours: 'in {value} hours',
+      in_days: 'in {value} days',
+      in_one_month: 'in {value} month',
+      in_months: 'in {value} months',
+      in_one_year: 'in {value} year',
+      in_years: 'in {value} years'
     }
   }
 }

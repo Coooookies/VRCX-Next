@@ -1,7 +1,7 @@
 import { UserLanguage } from '@shared/definition/vrchat-users'
 import type { Languageinstance } from './types'
 
-export const LANGUAGE_ZH_CNS: Languageinstance = {
+export const LANGUAGE_ZH_CN: Languageinstance = {
   label: '简体中文',
   value: 'zh-CN',
   definition: {
@@ -138,7 +138,13 @@ export const LANGUAGE_ZH_CNS: Languageinstance = {
       }
     },
     sidebar: {
-      notifications: '消息通知',
+      notifications: '通知',
+      notifications_title: '通知',
+      notifications_category: {
+        friends: '好友',
+        groups: '群组',
+        others: '其他'
+      },
       friends_manage: '好友管理',
       friends_search_input_placeholder: '搜索',
       friends_group_name: {
@@ -186,6 +192,30 @@ export const LANGUAGE_ZH_CNS: Languageinstance = {
         vrcapi_authentication_relogin_invalid_credentials:
           '为了保障VRChat账户的安全性，你需要再次提供您的身份凭据。'
       }
+    },
+    date: {
+      just_now: '刚刚',
+      just_now_future: '即刻',
+      yesterday: '昨天',
+      tomorrow: '明天',
+      minute_ago: '{value}分钟前',
+      minutes_ago: '{value}分钟前',
+      hour_ago: '{value}小时前',
+      hours_ago: '{value}小时前',
+      days_ago: '{value}天前',
+      one_month_ago: '{value}个月前',
+      months_ago: '{value}个月前',
+      one_year_ago: '{value}年前',
+      years_ago: '{value}年前',
+      in_minute: '{value}分钟后',
+      in_minutes: '{value}分钟后',
+      in_hour: '{value}小时后',
+      in_hours: '{value}小时后',
+      in_days: '{value}天后',
+      in_one_month: '{value}个月后',
+      in_months: '{value}个月后',
+      in_one_year: '{value}年后',
+      in_years: '{value}年后'
     }
   }
 }

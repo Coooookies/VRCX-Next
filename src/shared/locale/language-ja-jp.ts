@@ -139,6 +139,12 @@ export const LANGUAGE_JA_JP: Languageinstance = {
     },
     sidebar: {
       notifications: '通知',
+      notifications_title: '通知',
+      notifications_category: {
+        friends: 'フレンド',
+        groups: 'グループ',
+        others: 'その他'
+      },
       friends_manage: 'フレンド管理',
       friends_search_input_placeholder: '検索',
       friends_group_name: {
@@ -187,6 +193,30 @@ export const LANGUAGE_JA_JP: Languageinstance = {
         vrcapi_authentication_relogin_invalid_credentials:
           'VRChatアカウントのセキュリティを確保するため、再度認証情報を入力してください。'
       }
+    },
+    date: {
+      just_now: '今',
+      just_now_future: 'もうすぐ',
+      yesterday: '昨日',
+      tomorrow: '明日',
+      minute_ago: '{value}分前',
+      minutes_ago: '{value}分前',
+      hour_ago: '{value}時間前',
+      hours_ago: '{value}時間前',
+      days_ago: '{value}日前',
+      one_month_ago: '{value}ヶ月前',
+      months_ago: '{value}ヶ月前',
+      one_year_ago: '{value}年前',
+      years_ago: '{value}年前',
+      in_minute: '{value}分後',
+      in_minutes: '{value}分後',
+      in_hour: '{value}時間後',
+      in_hours: '{value}時間後',
+      in_days: '{value}日後',
+      in_one_month: '{value}ヶ月後',
+      in_months: '{value}ヶ月後',
+      in_one_year: '{value}年後',
+      in_years: '{value}年後'
     }
   }
 }
