@@ -68,7 +68,7 @@ const handleFocusNotification = () => {
           <CircleUserRoundIcon class="size-4 text-muted-foreground" />
         </ImageFallback>
       </ImageRoot>
-      <div class="grid flex-1 text-left text-sm leading-tight gap-y-1">
+      <div class="grid flex-1 text-left text-sm leading-tight gap-y-0.5">
         <div class="w-full flex flex-row items-center gap-1 overflow-hidden">
           <p class="flex-1 text-sm truncate">
             <Button
