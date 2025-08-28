@@ -11,6 +11,14 @@ import type {
 export class Notifications {
   constructor(private client: Got) {}
 
+  public getNotification(notificationId: string) {
+    return attempt<Response<Notification>, HTTPError<Response<ErrorResponse>>>(() =>
+      this.client.get(`/auth/user/notifications/${notificationId}`, {
+        responseType: 'json'
+      })
+    )
+  }
+
   public getNotifications(
     offset: number,
     n: number,

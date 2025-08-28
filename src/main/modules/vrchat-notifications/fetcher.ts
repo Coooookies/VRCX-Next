@@ -120,6 +120,18 @@ export class NotificationFetcher {
     return notifications
   }
 
+  public async fetchNotification(notificationId: string): Promise<NotificationInformation | null> {
+    const result = await this.api.ref.sessionAPI.notifications.getNotification(notificationId)
+    if (!result.success) {
+      this.logger.error(`Failed to fetch Notification: ${notificationId}`)
+      return null
+    }
+
+    const notification = result.value.body
+    const baseInformation = toNotificationV1BaseInformation(notification)
+    return this.enrichNotificationV1(baseInformation)
+  }
+
   public processNotification(
     notifications: NotificationBaseInformation[],
     users: Map<string, UserEntity>,

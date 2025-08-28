@@ -117,8 +117,15 @@ export class NotificationEventBinding extends Nanobus<{
   }
 
   private async handleResponseNotification({
-    notificationId
+    notificationId,
+    responseId
   }: PipelineEventResponseNotification): Promise<void> {
+    const responseNotification = await this.fetcher.fetchNotification(responseId)
+    if (responseNotification) {
+      this.upsertNotification(responseNotification)
+      this.emit('notification-v1:new', responseNotification)
+    }
+
     this.changeNotificationAsResponded(notificationId)
     this.emit('notification-v1:response', notificationId)
   }
