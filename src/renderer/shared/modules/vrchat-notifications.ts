@@ -35,10 +35,9 @@ export class VRChatNotifications extends Module {
       })
     })
 
-    this.ipc.listener.on('vrchat-notifications:notification:list-delete', (_, notificationId) => {
-      this.notifications.value.splice(
-        this.notifications.value.findIndex((f) => f.notificationId === notificationId),
-        1
+    this.ipc.listener.on('vrchat-notifications:notification:list-delete', (_, notificationIds) => {
+      this.notifications.value = this.notifications.value.filter(
+        (n) => !notificationIds.includes(n.notificationId)
       )
     })
 

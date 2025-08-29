@@ -26,7 +26,7 @@ export type IpcRendererEvent = {
   // VRChatNotifications
   'vrchat-notifications:notification:list-insert': [notifications: NotificationInformation[]]
   'vrchat-notifications:notification:list-update': [notifications: NotificationInformation[]]
-  'vrchat-notifications:notification:list-delete': [notificationId: string]
+  'vrchat-notifications:notification:list-delete': [notificationIds: string[]]
   'vrchat-notifications:notification:list-clear': [version: NotificationVersion]
 
   // SettingModule

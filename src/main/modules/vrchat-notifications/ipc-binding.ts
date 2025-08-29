@@ -16,8 +16,8 @@ export class NotificationIPCBinding {
       this.ipc.send('vrchat-notifications:notification:list-update', notifications)
     })
 
-    this.repository.on('notification:remote:delete', (notificationId) => {
-      this.ipc.send('vrchat-notifications:notification:list-delete', notificationId)
+    this.repository.on('notification:remote:delete', (notificationIds) => {
+      this.ipc.send('vrchat-notifications:notification:list-delete', notificationIds)
     })
 
     this.repository.on('notification:remote:clear', (version) => {

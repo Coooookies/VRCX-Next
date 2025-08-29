@@ -11,7 +11,7 @@ import type {
 export class NotificationRepository extends Nanobus<{
   'notification:remote:insert': (notifications: NotificationInformation[]) => void
   'notification:remote:update': (notifications: NotificationInformation[]) => void
-  'notification:remote:delete': (notificationId: string) => void
+  'notification:remote:delete': (notificationIds: string[]) => void
   'notification:remote:clear': (version: NotificationVersion) => void
 }> {
   constructor(private readonly database: Database) {
@@ -79,6 +79,7 @@ export class NotificationRepository extends Nanobus<{
     for (const id of ids) {
       this.notifications.delete(id)
     }
+    this.emit('notification:remote:delete', ids)
   }
 
   public clearNotifications(version: NotificationVersion = 'all') {
