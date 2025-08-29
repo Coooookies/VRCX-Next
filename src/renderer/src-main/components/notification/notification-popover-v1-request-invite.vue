@@ -44,7 +44,7 @@ const handleFocusNotification = () => {
     variant="ghost"
     @click="handleFocusNotification"
   >
-    <div class="w-full flex flex-row items-center justify-start gap-4">
+    <div class="w-full h-10 flex flex-row items-center justify-start gap-4">
       <ImageRoot class="block size-10 bg-muted rounded-full overflow-hidden">
         <ImageVrchatContext
           v-if="props.base.senderAvatarFileId && props.base.senderAvatarFileVersion"

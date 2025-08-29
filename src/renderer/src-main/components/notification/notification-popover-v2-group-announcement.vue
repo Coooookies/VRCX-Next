@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import ImageContext from '@renderer/shared/components/ui/image/ImageContext.vue'
 import ImageVrchatContext from '@renderer/shared/components/image-vrchat-context.vue'
 import { cn } from '@renderer/shared/utils/style'
+import { computed } from 'vue'
+import { parseFileUrl } from '@shared/utils/vrchat-url-parser'
 import { RelativeTimerText } from '@renderer/shared/components/timer'
 import { NotificationGlobalType } from '@shared/definition/vrchat-notifications'
 import { ImageFallback, ImageRoot } from '@renderer/shared/components/ui/image'
@@ -22,6 +23,10 @@ const emits = defineEmits<{
   (e: 'acknowledgeNotification'): void
   (e: 'unsubscribeNotification'): void
 }>()
+
+const imageFile = computed(() => {
+  return props.base.thumbnailImageUrl ? parseFileUrl(props.base.thumbnailImageUrl) : null
+})
 
 const handleFocusNotification = () => {
   if (!props.base.isRead) {
@@ -45,7 +50,7 @@ const handleFocusNotification = () => {
     variant="ghost"
     @click="handleFocusNotification"
   >
-    <div class="w-full flex flex-row items-center justify-start gap-4">
+    <div class="w-full h-10 flex flex-row items-center justify-start gap-4">
       <ImageRoot class="block size-10 bg-muted rounded-full overflow-hidden">
         <ImageVrchatContext
           v-if="props.base.senderAvatarFileId && props.base.senderAvatarFileVersion"
@@ -84,13 +89,15 @@ const handleFocusNotification = () => {
         </p>
       </div>
     </div>
-    <div
-      v-if="props.base.thumbnailImageUrl || props.base.message"
-      class="w-full pb-0.5 space-y-2.5"
-    >
-      <div v-if="props.base.thumbnailImageUrl" class="w-full pl-14">
+    <div v-if="imageFile || props.base.message" class="w-full pb-0.5 space-y-2.5">
+      <div v-if="imageFile" class="w-full pl-14">
         <ImageRoot class="block w-full bg-muted rounded-sm overflow-hidden">
-          <ImageContext :src="props.base.thumbnailImageUrl" />
+          <ImageVrchatContext
+            :file-id="imageFile.fileId"
+            :version="imageFile.version"
+            :size="420"
+            class="w-full"
+          />
           <ImageFallback class="w-full aspect-[1920/1080] flex items-center justify-center">
             <ImageIcon class="size-8 text-muted-foreground" />
           </ImageFallback>

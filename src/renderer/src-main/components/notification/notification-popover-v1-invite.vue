@@ -56,7 +56,7 @@ const handleFocusNotification = () => {
     variant="ghost"
     @click="handleFocusNotification"
   >
-    <div class="w-full flex flex-row items-center justify-start gap-4">
+    <div class="w-full h-10 flex flex-row items-center justify-start gap-4">
       <ImageRoot class="block size-10 bg-muted rounded-full overflow-hidden">
         <ImageVrchatContext
           v-if="props.base.senderAvatarFileId && props.base.senderAvatarFileVersion"
@@ -115,7 +115,7 @@ const handleFocusNotification = () => {
           <ImageVrchatContext
             :file-id="imageFile.fileId"
             :version="imageFile.version"
-            :size="320"
+            :size="420"
             class="w-full"
           />
           <ImageFallback class="w-full aspect-[1920/1080] flex items-center justify-center">

@@ -30,7 +30,7 @@ const handleFocusNotification = () => {
     :class="
       cn(
         'group/notification-card',
-        'w-full h-[unset] px-5 py-4.5 cursor-default rounded-none',
+        'w-full h-[unset] px-5 py-4 cursor-default rounded-none',
         'active:bg-accent dark:active:bg-accent/50 duration-0',
         'border-b border-border/40',
         'flex flex-col items-start gap-2.5',
@@ -40,7 +40,7 @@ const handleFocusNotification = () => {
     variant="ghost"
     @click="handleFocusNotification"
   >
-    <div class="w-full flex flex-row items-center justify-start gap-4">
+    <div class="w-full h-10 flex flex-row items-center justify-start gap-4">
       <div class="grid flex-1 text-left text-sm leading-tight gap-y-0.5">
         <div class="w-full flex flex-row items-center gap-1 overflow-hidden">
           <p class="flex-1 text-sm truncate">

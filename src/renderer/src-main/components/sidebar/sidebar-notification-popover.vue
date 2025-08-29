@@ -10,6 +10,8 @@ import NotificationPopoverV1FriendRequest from '../notification/notification-pop
 import NotificationPopoverV1VoteToKick from '../notification/notification-popover-v1-vote-to-kick.vue'
 import NotificationPopoverV1Message from '../notification/notification-popover-v1-message.vue'
 import NotificationPopoverV1Unknown from '../notification/notification-popover-v1-unknown.vue'
+import NotificationPopoverV2GroupAnnouncement from '../notification/notification-popover-v2-group-announcement.vue'
+import NotificationPopoverV2EventAnnouncement from '../notification/notification-popover-v2-event-announcement.vue'
 import { cn } from '@renderer/shared/utils/style'
 import { computed, ref } from 'vue'
 import { useI18n } from '@renderer/shared/locale'
@@ -19,8 +21,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/shared/compo
 import { NotificationGlobalType } from '@shared/definition/vrchat-notifications'
 import type { NotificationCollections } from '@renderer/src-main/composables/sidebar-notifications'
 import type { NotificationGlobalCategory } from '@shared/definition/vrchat-notifications'
-import NotificationPopoverV2GroupAnnouncement from '../notification/notification-popover-v2-group-announcement.vue'
-import NotificationPopoverV2EventAnnouncement from '../notification/notification-popover-v2-event-announcement.vue'
 
 const { t } = useI18n()
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ImageVrchatContext from '@renderer/shared/components/image-vrchat-context.vue'
 import { cn } from '@renderer/shared/utils/style'
+import { computed } from 'vue'
 import { RelativeTimerText } from '@renderer/shared/components/timer'
 import { NotificationGlobalType } from '@shared/definition/vrchat-notifications'
 import { ImageFallback, ImageRoot } from '@renderer/shared/components/ui/image'
@@ -19,6 +20,10 @@ const emits = defineEmits<{
   (e: 'readNotification'): void
   (e: 'showSender'): void
 }>()
+
+const isAvatarVisable = computed(
+  () => props.base.senderAvatarFileId && props.base.senderAvatarFileVersion
+)
 
 const handleFocusNotification = () => {
   if (!props.base.isRead) {
@@ -42,14 +47,11 @@ const handleFocusNotification = () => {
     variant="ghost"
     @click="handleFocusNotification"
   >
-    <div class="w-full flex flex-row items-center justify-start gap-4">
-      <ImageRoot
-        v-if="props.base.senderAvatarFileId && props.base.senderAvatarFileVersion"
-        class="block size-10 bg-muted rounded-full overflow-hidden"
-      >
+    <div class="w-full h-10 flex flex-row items-center justify-start gap-4">
+      <ImageRoot v-if="isAvatarVisable" class="block size-10 bg-muted rounded-full overflow-hidden">
         <ImageVrchatContext
-          :file-id="props.base.senderAvatarFileId"
-          :version="props.base.senderAvatarFileVersion"
+          :file-id="props.base.senderAvatarFileId!"
+          :version="props.base.senderAvatarFileVersion!"
           class="size-full object-cover"
         />
         <ImageFallback class="size-full flex items-center justify-center">
@@ -82,7 +84,7 @@ const handleFocusNotification = () => {
         </p>
       </div>
     </div>
-    <div v-if="props.base.message" class="w-full pl-14">
+    <div v-if="props.base.message" :class="cn('w-full', isAvatarVisable ? 'pl-14' : 'pl-0')">
       <p class="text-xs text-muted-foreground text-left italic whitespace-pre-wrap leading-4.5">
         {{ props.base.message }}
       </p>
