@@ -11,7 +11,7 @@ import type { NotificationGlobalRawInformation } from '@shared/definition/vrchat
 
 const props = defineProps<{
   base: NotificationBaseProps
-  raw: NotificationGlobalRawInformation[typeof NotificationGlobalType.RequestInviteResponseV1]
+  raw: NotificationGlobalRawInformation[typeof NotificationGlobalType.MessageV1]
 }>()
 
 const emits = defineEmits<{
@@ -43,9 +43,11 @@ const handleFocusNotification = () => {
     @click="handleFocusNotification"
   >
     <div class="w-full flex flex-row items-center justify-start gap-4">
-      <ImageRoot class="block size-10 bg-muted rounded-full overflow-hidden">
+      <ImageRoot
+        v-if="props.base.senderAvatarFileId && props.base.senderAvatarFileVersion"
+        class="block size-10 bg-muted rounded-full overflow-hidden"
+      >
         <ImageVrchatContext
-          v-if="props.base.senderAvatarFileId && props.base.senderAvatarFileVersion"
           :file-id="props.base.senderAvatarFileId"
           :version="props.base.senderAvatarFileVersion"
           class="size-full object-cover"
@@ -58,13 +60,14 @@ const handleFocusNotification = () => {
         <div class="w-full flex flex-row items-center gap-1 overflow-hidden">
           <p class="flex-1 text-sm truncate">
             <Button
+              v-if="props.base.senderName"
               as="a"
               class="bg-transparent dark:bg-transparent p-0 inline font-semibold hover:underline mr-1"
               @click="emits('showSender')"
             >
               {{ props.base.senderName }}
             </Button>
-            <span class="font-medium text-muted-foreground">declined your request.</span>
+            <span class="font-medium text-muted-foreground">{{ props.base.title }}</span>
           </p>
           <Button
             size="icon"
@@ -79,9 +82,9 @@ const handleFocusNotification = () => {
         </p>
       </div>
     </div>
-    <div v-if="props.raw.details.requestMessage" class="w-full pl-14 pb-0.5">
+    <div v-if="props.base.message" class="w-full pl-14">
       <p class="text-xs text-muted-foreground text-left italic whitespace-pre-wrap leading-4.5">
-        {{ props.raw.details.requestMessage }}
+        {{ props.base.message }}
       </p>
     </div>
   </Button>

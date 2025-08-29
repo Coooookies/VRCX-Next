@@ -1,14 +1,4 @@
 <script setup lang="ts">
-import { useI18n } from '@renderer/shared/locale'
-import { computed, ref } from 'vue'
-import { Badge } from '@renderer/shared/components/ui/badge'
-import { PopoverContent } from '@renderer/shared/components/ui/popover'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/shared/components/ui/tabs'
-import type { NotificationCollections } from '@renderer/src-main/composables/sidebar-notifications'
-import {
-  NotificationGlobalType,
-  type NotificationGlobalCategory
-} from '@shared/definition/vrchat-notifications'
 import ScrollContainer from '@renderer/shared/components/scroll-container.vue'
 import NotificationPopoverEmpty from '../notification/notification-popover-empty.vue'
 import NotificationPopoverLoading from '../notification/notification-popover-loading.vue'
@@ -17,6 +7,20 @@ import NotificationPopoverV1RequestInviteResponse from '../notification/notifica
 import NotificationPopoverV1InviteResponse from '../notification/notification-popover-v1-invite-response.vue'
 import NotificationPopoverV1RequestInvite from '../notification/notification-popover-v1-request-invite.vue'
 import NotificationPopoverV1FriendRequest from '../notification/notification-popover-v1-friend-request.vue'
+import NotificationPopoverV1VoteToKick from '../notification/notification-popover-v1-vote-to-kick.vue'
+import NotificationPopoverV1Message from '../notification/notification-popover-v1-message.vue'
+import NotificationPopoverV1Unknown from '../notification/notification-popover-v1-unknown.vue'
+import { cn } from '@renderer/shared/utils/style'
+import { computed, ref } from 'vue'
+import { useI18n } from '@renderer/shared/locale'
+import { Badge } from '@renderer/shared/components/ui/badge'
+import { PopoverContent } from '@renderer/shared/components/ui/popover'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/shared/components/ui/tabs'
+import { NotificationGlobalType } from '@shared/definition/vrchat-notifications'
+import type { NotificationCollections } from '@renderer/src-main/composables/sidebar-notifications'
+import type { NotificationGlobalCategory } from '@shared/definition/vrchat-notifications'
+import NotificationPopoverV2GroupAnnouncement from '../notification/notification-popover-v2-group-announcement.vue'
+import NotificationPopoverV2EventAnnouncement from '../notification/notification-popover-v2-event-announcement.vue'
 
 const { t } = useI18n()
 
@@ -50,7 +54,12 @@ const tabs = computed(() => {
     </div>
     <Tabs v-model="tabIndex" class="w-full h-146.5 items-center gap-0">
       <TabsList
-        class="w-full h-auto rounded-none border-b bg-transparent justify-start gap-4.5 px-5 py-0"
+        :class="
+          cn(
+            'w-full h-auto rounded-none border-b bg-transparent justify-start gap-4.5',
+            'px-5 py-0'
+          )
+        "
       >
         <TabsTrigger
           v-for="tab in tabs"
@@ -97,6 +106,31 @@ const tabs = computed(() => {
             />
             <NotificationPopoverV1FriendRequest
               v-else-if="notification.type === NotificationGlobalType.FriendRequestV1"
+              :base="notification"
+              :raw="notification.raw"
+            />
+            <NotificationPopoverV1VoteToKick
+              v-else-if="notification.type === NotificationGlobalType.VotetokickV1"
+              :base="notification"
+              :raw="notification.raw"
+            />
+            <NotificationPopoverV1Message
+              v-else-if="notification.type === NotificationGlobalType.MessageV1"
+              :base="notification"
+              :raw="notification.raw"
+            />
+            <NotificationPopoverV1Unknown
+              v-else-if="notification.type === NotificationGlobalType.UnknownV1"
+              :base="notification"
+              :raw="notification.raw"
+            />
+            <NotificationPopoverV2GroupAnnouncement
+              v-else-if="notification.type === NotificationGlobalType.GroupAnnouncementV2"
+              :base="notification"
+              :raw="notification.raw"
+            />
+            <NotificationPopoverV2EventAnnouncement
+              v-else-if="notification.type === NotificationGlobalType.EventAnnouncementV2"
               :base="notification"
               :raw="notification.raw"
             />

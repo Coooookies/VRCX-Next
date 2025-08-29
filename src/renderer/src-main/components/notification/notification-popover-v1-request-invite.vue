@@ -61,12 +61,12 @@ const handleFocusNotification = () => {
           <p class="flex-1 text-sm truncate">
             <Button
               as="a"
-              class="bg-transparent dark:bg-transparent p-0 inline font-semibold hover:underline"
+              class="bg-transparent dark:bg-transparent p-0 inline font-semibold hover:underline mr-1"
               @click="emits('showSender')"
             >
               {{ props.base.senderName }}
             </Button>
-            <span class="font-medium text-muted-foreground ml-1">want to join you.</span>
+            <span class="font-medium text-muted-foreground">want to join you.</span>
           </p>
           <Button
             size="icon"
@@ -81,7 +81,7 @@ const handleFocusNotification = () => {
         </p>
       </div>
     </div>
-    <div v-if="props.raw.details.requestMessage" class="w-full pl-14">
+    <div v-if="props.raw.details.requestMessage" class="w-full pl-14 pb-0.5">
       <p class="text-xs text-muted-foreground text-left italic whitespace-pre-wrap leading-4.5">
         {{ props.raw.details.requestMessage }}
       </p>

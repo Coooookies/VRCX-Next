@@ -1,16 +1,10 @@
 <script setup lang="ts">
+import ImageContext from '@renderer/shared/components/ui/image/ImageContext.vue'
 import ImageVrchatContext from '@renderer/shared/components/image-vrchat-context.vue'
 import { cn } from '@renderer/shared/utils/style'
-import { computed } from 'vue'
-import { parseFileUrl } from '@shared/utils/vrchat-url-parser'
 import { RelativeTimerText } from '@renderer/shared/components/timer'
 import { NotificationGlobalType } from '@shared/definition/vrchat-notifications'
 import { ImageFallback, ImageRoot } from '@renderer/shared/components/ui/image'
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger
-} from '@renderer/shared/components/ui/hover-card'
 import { Button } from '@renderer/shared/components/ui/button'
 import { CircleUserRoundIcon, ImageIcon, XIcon } from 'lucide-vue-next'
 import type { NotificationBaseProps } from './types'
@@ -18,21 +12,16 @@ import type { NotificationGlobalRawInformation } from '@shared/definition/vrchat
 
 const props = defineProps<{
   base: NotificationBaseProps
-  raw: NotificationGlobalRawInformation[typeof NotificationGlobalType.InviteV1]
+  raw: NotificationGlobalRawInformation[typeof NotificationGlobalType.EventAnnouncementV2]
 }>()
 
 const emits = defineEmits<{
   (e: 'hideNotification'): void
   (e: 'readNotification'): void
   (e: 'showSender'): void
-  (e: 'showInstance'): void
-  (e: 'declineInvite'): void
-  (e: 'declineInviteWithMessage'): void
+  (e: 'acknowledgeNotification'): void
+  (e: 'unsubscribeNotification'): void
 }>()
-
-const imageFile = computed(() => {
-  return props.raw.details.imageUrl ? parseFileUrl(props.raw.details.imageUrl) : null
-})
 
 const handleFocusNotification = () => {
   if (!props.base.isRead) {
@@ -78,23 +67,7 @@ const handleFocusNotification = () => {
             >
               {{ props.base.senderName }}
             </Button>
-            <HoverCard :open-delay="0" :close-delay="0">
-              <HoverCardTrigger as-child>
-                <Button
-                  as="a"
-                  class="bg-transparent dark:bg-transparent p-0 inline group/world-name"
-                  @click="emits('showInstance')"
-                >
-                  <span class="font-medium text-muted-foreground mr-1">invite you to</span>
-                  <span class="font-semibold group-hover/world-name:underline">
-                    {{ props.raw.details.worldName }}
-                  </span>
-                </Button>
-              </HoverCardTrigger>
-              <HoverCardContent class="w-auto px-2 py-1 text-xs" side="top" :align="'start'">
-                {{ props.raw.details.worldName }}
-              </HoverCardContent>
-            </HoverCard>
+            <span class="font-medium text-muted-foreground">{{ props.raw.data.title }}</span>
           </p>
           <Button
             size="icon"
@@ -109,23 +82,21 @@ const handleFocusNotification = () => {
         </p>
       </div>
     </div>
-    <div v-if="imageFile || props.raw.details.inviteMessage" class="w-full pb-0.5 space-y-2.5">
-      <div v-if="imageFile" class="w-full pl-14">
+    <div
+      v-if="props.base.thumbnailImageUrl || props.base.message"
+      class="w-full pb-0.5 space-y-2.5"
+    >
+      <div v-if="props.base.thumbnailImageUrl" class="w-full pl-14">
         <ImageRoot class="block w-full bg-muted rounded-sm overflow-hidden">
-          <ImageVrchatContext
-            :file-id="imageFile.fileId"
-            :version="imageFile.version"
-            :size="320"
-            class="w-full"
-          />
+          <ImageContext :src="props.base.thumbnailImageUrl" />
           <ImageFallback class="w-full aspect-[1920/1080] flex items-center justify-center">
             <ImageIcon class="size-8 text-muted-foreground" />
           </ImageFallback>
         </ImageRoot>
       </div>
-      <div v-if="props.raw.details.inviteMessage" class="w-full pl-14">
-        <p class="text-xs text-muted-foreground text-left italic whitespace-pre-wrap leading-4.5">
-          {{ props.raw.details.inviteMessage }}
+      <div v-if="props.base.message" class="w-full pl-14">
+        <p class="text-xs text-muted-foreground text-left whitespace-pre-wrap leading-4.5">
+          {{ props.base.message }}
         </p>
       </div>
     </div>
@@ -133,18 +104,18 @@ const handleFocusNotification = () => {
       <Button
         class="text-xs h-6 px-2 rounded-sm"
         size="sm"
-        variant="secondary"
-        @click="emits('declineInvite')"
+        variant="default"
+        @click="emits('acknowledgeNotification')"
       >
-        Decline
+        Acknowledge
       </Button>
       <Button
         class="text-xs h-6 px-2 rounded-sm"
         size="sm"
         variant="secondary"
-        @click="emits('declineInviteWithMessage')"
+        @click="emits('unsubscribeNotification')"
       >
-        Decline with message
+        Unsubscribe
       </Button>
     </div>
   </Button>

@@ -61,12 +61,12 @@ const handleFocusNotification = () => {
           <p class="flex-1 text-sm truncate">
             <Button
               as="a"
-              class="bg-transparent dark:bg-transparent p-0 inline font-semibold hover:underline"
+              class="bg-transparent dark:bg-transparent p-0 inline font-semibold hover:underline mr-1"
               @click="emits('showSender')"
             >
               {{ props.base.senderName }}
             </Button>
-            <span class="font-medium text-muted-foreground ml-1">want to be your friend.</span>
+            <span class="font-medium text-muted-foreground">want to be your friend.</span>
           </p>
           <Button
             size="icon"
