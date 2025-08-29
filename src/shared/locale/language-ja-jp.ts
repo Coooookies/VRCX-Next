@@ -121,6 +121,7 @@ export const LANGUAGE_JA_JP: Languageinstance = {
         [UserLanguage.VIE]: 'ベトナム語',
         [UserLanguage.IND]: 'インドネシア語',
         [UserLanguage.MSA]: 'マレー語',
+        [UserLanguage.TWS]: '潮州語',
         [UserLanguage.FIL]: 'フィリピン語',
         [UserLanguage.CMN]: '標準中国語',
         [UserLanguage.HEB]: 'ヘブライ語',

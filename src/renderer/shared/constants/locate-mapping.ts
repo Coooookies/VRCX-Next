@@ -23,6 +23,7 @@ import LanguageRonIcon from '@shared/assets/vector/language-ron.svg?component'
 import LanguageVieIcon from '@shared/assets/vector/language-vie.svg?component'
 import LanguageIndIcon from '@shared/assets/vector/language-ind.svg?component'
 import LanguageMsaIcon from '@shared/assets/vector/language-msa.svg?component'
+import LanguageTwsIcon from '@shared/assets/vector/language-tws.svg?component'
 import LanguageFilIcon from '@shared/assets/vector/language-fil.svg?component'
 import LanguageCmnIcon from '@shared/assets/vector/language-cmn.svg?component'
 import LanguageHebIcon from '@shared/assets/vector/language-heb.svg?component'
@@ -86,9 +87,10 @@ export const TRUST_RANK_TRANSLATE_KEY: Record<UserTrustRank, LocaleI18NKeys> = {
   [UserTrustRank.Moderator]: 'profile.trust_rank.moderator'
 }
 
-export const LANGUAGE_DEFINITION_KEY: {
-  [key in UserLanguage]: { icon: FunctionalComponent; label: LocaleI18NKeys }
-} = {
+export const LANGUAGE_DEFINITION_KEY: Record<
+  UserLanguage,
+  { icon: FunctionalComponent; label: LocaleI18NKeys }
+> = {
   [UserLanguage.ENG]: { icon: LanguageEngIcon, label: 'profile.locate.language_eng' },
   [UserLanguage.KOR]: { icon: LanguageKorIcon, label: 'profile.locate.language_kor' },
   [UserLanguage.RUS]: { icon: LanguageRusIcon, label: 'profile.locate.language_rus' },
@@ -115,6 +117,7 @@ export const LANGUAGE_DEFINITION_KEY: {
   [UserLanguage.IND]: { icon: LanguageIndIcon, label: 'profile.locate.language_ind' },
   [UserLanguage.MSA]: { icon: LanguageMsaIcon, label: 'profile.locate.language_msa' },
   [UserLanguage.FIL]: { icon: LanguageFilIcon, label: 'profile.locate.language_fil' },
+  [UserLanguage.TWS]: { icon: LanguageTwsIcon, label: 'profile.locate.language_tws' },
   [UserLanguage.CMN]: { icon: LanguageCmnIcon, label: 'profile.locate.language_cmn' },
   [UserLanguage.HEB]: { icon: LanguageHebIcon, label: 'profile.locate.language_heb' },
   [UserLanguage.HMN]: { icon: LanguageHmnIcon, label: 'profile.locate.language_hmn' },

@@ -121,6 +121,7 @@ export const LANGUAGE_ZH_CN: Languageinstance = {
         [UserLanguage.VIE]: '越南语',
         [UserLanguage.IND]: '印尼语',
         [UserLanguage.MSA]: '马来语',
+        [UserLanguage.TWS]: '潮州话',
         [UserLanguage.FIL]: '菲律宾语',
         [UserLanguage.CMN]: '普通话',
         [UserLanguage.HEB]: '希伯来语',

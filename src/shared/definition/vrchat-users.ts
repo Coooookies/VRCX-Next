@@ -47,6 +47,7 @@ export const UserLanguage = {
   MSA: 'language_msa',
   FIL: 'language_fil',
   CMN: 'language_cmn',
+  TWS: 'language_tws',
   HEB: 'language_heb',
   HMN: 'language_hmn',
   UKR: 'language_ukr',

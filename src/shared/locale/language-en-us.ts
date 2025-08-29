@@ -121,6 +121,7 @@ export const LANGUAGE_EN_US: Languageinstance = {
         [UserLanguage.VIE]: 'Vietnamese',
         [UserLanguage.IND]: 'Indonesian',
         [UserLanguage.MSA]: 'Malay',
+        [UserLanguage.TWS]: 'Teochew',
         [UserLanguage.FIL]: 'Filipino',
         [UserLanguage.CMN]: 'Mandarin',
         [UserLanguage.HEB]: 'Hebrew',
