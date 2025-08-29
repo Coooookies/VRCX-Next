@@ -10,13 +10,13 @@ import {
   type NotificationGlobalCategory
 } from '@shared/definition/vrchat-notifications'
 import ScrollContainer from '@renderer/shared/components/scroll-container.vue'
-import NotificationEmpty from '../notification/notification-empty.vue'
-import NotificationLoading from '../notification/notification-loading.vue'
-import NotificationV1Invite from '../notification/notification-v1-invite.vue'
-import NotificationV1RequestInviteResponse from '../notification/notification-v1-request-invite-response.vue'
-import NotificationV1InviteResponse from '../notification/notification-v1-invite-response.vue'
-import NotificationV1RequestInvite from '../notification/notification-v1-request-invite.vue'
-import NotificationV1FriendRequest from '../notification/notification-v1-friend-request.vue'
+import NotificationPopoverEmpty from '../notification/notification-popover-empty.vue'
+import NotificationPopoverLoading from '../notification/notification-popover-loading.vue'
+import NotificationPopoverV1Invite from '../notification/notification-popover-v1-invite.vue'
+import NotificationPopoverV1RequestInviteResponse from '../notification/notification-popover-v1-request-invite-response.vue'
+import NotificationPopoverV1InviteResponse from '../notification/notification-popover-v1-invite-response.vue'
+import NotificationPopoverV1RequestInvite from '../notification/notification-popover-v1-request-invite.vue'
+import NotificationPopoverV1FriendRequest from '../notification/notification-popover-v1-friend-request.vue'
 
 const { t } = useI18n()
 
@@ -75,35 +75,35 @@ const tabs = computed(() => {
       >
         <ScrollContainer v-if="tab.notifications.length > 0" class="w-full h-full">
           <template v-for="notification in tab.notifications" :key="notification.notificationId">
-            <NotificationV1Invite
+            <NotificationPopoverV1Invite
               v-if="notification.type === NotificationGlobalType.InviteV1"
               :base="notification"
               :raw="notification.raw"
             />
-            <NotificationV1RequestInvite
+            <NotificationPopoverV1RequestInvite
               v-else-if="notification.type === NotificationGlobalType.RequestInviteV1"
               :base="notification"
               :raw="notification.raw"
             />
-            <NotificationV1InviteResponse
+            <NotificationPopoverV1InviteResponse
               v-else-if="notification.type === NotificationGlobalType.InviteResponseV1"
               :base="notification"
               :raw="notification.raw"
             />
-            <NotificationV1RequestInviteResponse
+            <NotificationPopoverV1RequestInviteResponse
               v-else-if="notification.type === NotificationGlobalType.RequestInviteResponseV1"
               :base="notification"
               :raw="notification.raw"
             />
-            <NotificationV1FriendRequest
+            <NotificationPopoverV1FriendRequest
               v-else-if="notification.type === NotificationGlobalType.FriendRequestV1"
               :base="notification"
               :raw="notification.raw"
             />
           </template>
         </ScrollContainer>
-        <NotificationLoading v-else-if="props.isLoading" class="w-full h-full" />
-        <NotificationEmpty v-else class="w-full h-full" />
+        <NotificationPopoverLoading v-else-if="props.isLoading" class="w-full h-full" />
+        <NotificationPopoverEmpty v-else class="w-full h-full" />
       </TabsContent>
     </Tabs>
   </PopoverContent>
