@@ -49,19 +49,25 @@ export function useSidebarNotifications() {
     notifications.notifications.value.some((notification) => !notification.isRead)
   )
 
+  const sortedNotifications = computed(() => {
+    return [...notifications.notifications.value].sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    )
+  })
+
   const categories = computed(() => {
     const friends = filterNotificationsByCategory(
-      notifications.notifications.value,
+      sortedNotifications.value,
       NotificationGlobalCategory.Friends
     )
 
     const groups = filterNotificationsByCategory(
-      notifications.notifications.value,
+      sortedNotifications.value,
       NotificationGlobalCategory.Groups
     )
 
     const others = filterNotificationsByCategory(
-      notifications.notifications.value,
+      sortedNotifications.value,
       NotificationGlobalCategory.Others
     )
 

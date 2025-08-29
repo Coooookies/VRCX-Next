@@ -11,7 +11,13 @@ import NotificationPopoverV1VoteToKick from '../notification/notification-popove
 import NotificationPopoverV1Message from '../notification/notification-popover-v1-message.vue'
 import NotificationPopoverV1Unknown from '../notification/notification-popover-v1-unknown.vue'
 import NotificationPopoverV2GroupAnnouncement from '../notification/notification-popover-v2-group-announcement.vue'
+import NotificationPopoverV2GroupInformative from '../notification/notification-popover-v2-group-informative.vue'
+import NotificationPopoverV2GroupInvite from '../notification/notification-popover-v2-group-invite.vue'
+import NotificationPopoverV2GroupJoinRequest from '../notification/notification-popover-v2-group-join-request.vue'
+import NotificationPopoverV2GroupQueueReady from '../notification/notification-popover-v2-group-queue-ready.vue'
+import NotificationPopoverV2GroupTransfer from '../notification/notification-popover-v2-group-transfer.vue'
 import NotificationPopoverV2EventAnnouncement from '../notification/notification-popover-v2-event-announcement.vue'
+import NotificationPopoverV2Unknown from '../notification/notification-popover-v2-unknown.vue'
 import { cn } from '@renderer/shared/utils/style'
 import { computed, ref } from 'vue'
 import { useI18n } from '@renderer/shared/locale'
@@ -129,8 +135,38 @@ const tabs = computed(() => {
               :base="notification"
               :raw="notification.raw"
             />
+            <NotificationPopoverV2GroupInformative
+              v-else-if="notification.type === NotificationGlobalType.GroupInformativeV2"
+              :base="notification"
+              :raw="notification.raw"
+            />
+            <NotificationPopoverV2GroupInvite
+              v-else-if="notification.type === NotificationGlobalType.GroupInviteV2"
+              :base="notification"
+              :raw="notification.raw"
+            />
+            <NotificationPopoverV2GroupJoinRequest
+              v-else-if="notification.type === NotificationGlobalType.GroupJoinRequestV2"
+              :base="notification"
+              :raw="notification.raw"
+            />
+            <NotificationPopoverV2GroupQueueReady
+              v-else-if="notification.type === NotificationGlobalType.GroupQueueReadyV2"
+              :base="notification"
+              :raw="notification.raw"
+            />
+            <NotificationPopoverV2GroupTransfer
+              v-else-if="notification.type === NotificationGlobalType.GroupTransferV2"
+              :base="notification"
+              :raw="notification.raw"
+            />
             <NotificationPopoverV2EventAnnouncement
               v-else-if="notification.type === NotificationGlobalType.EventAnnouncementV2"
+              :base="notification"
+              :raw="notification.raw"
+            />
+            <NotificationPopoverV2Unknown
+              v-else-if="notification.type === NotificationGlobalType.UnknownV2"
               :base="notification"
               :raw="notification.raw"
             />
