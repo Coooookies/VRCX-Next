@@ -7,18 +7,26 @@ import { RelativeTimerText } from '@renderer/shared/components/timer'
 import { NotificationGlobalType } from '@shared/definition/vrchat-notifications'
 import { ImageFallback, ImageRoot } from '@renderer/shared/components/ui/image'
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@renderer/shared/components/ui/dropdown-menu'
+import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger
 } from '@renderer/shared/components/ui/hover-card'
 import { Button } from '@renderer/shared/components/ui/button'
-import { CircleUserRoundIcon, ImageIcon, XIcon } from 'lucide-vue-next'
+import { ChevronDownIcon, CircleUserRoundIcon, ImageIcon, XIcon } from 'lucide-vue-next'
 import type { NotificationBaseProps } from './types'
 import type { NotificationGlobalRawInformation } from '@shared/definition/vrchat-notifications'
+import BadgeVrchatPlus from '../badge/badge-vrchat-plus.vue'
 
 const props = defineProps<{
   base: NotificationBaseProps
   raw: NotificationGlobalRawInformation[typeof NotificationGlobalType.InviteV1]
+  isSupporter: boolean
 }>()
 
 const emits = defineEmits<{
@@ -28,6 +36,7 @@ const emits = defineEmits<{
   (e: 'showInstance'): void
   (e: 'declineInvite'): void
   (e: 'declineInviteWithMessage'): void
+  (e: 'declineInviteWithPhoto'): void
 }>()
 
 const imageFile = computed(() => {
@@ -100,6 +109,7 @@ const handleFocusNotification = () => {
             size="icon"
             variant="ghost"
             class="size-4 rounded-[4px] hidden group-hover/notification-card:flex"
+            @click.stop="emits('hideNotification')"
           >
             <XIcon class="size-3.5" />
           </Button>
@@ -130,22 +140,39 @@ const handleFocusNotification = () => {
       </div>
     </div>
     <div class="flex flex-row items-center justify-start gap-1.5 pl-14 pb-0.5">
-      <Button
-        class="text-xs h-6 px-2 rounded-sm"
-        size="sm"
-        variant="secondary"
-        @click="emits('declineInvite')"
-      >
-        Decline
-      </Button>
-      <Button
-        class="text-xs h-6 px-2 rounded-sm"
-        size="sm"
-        variant="secondary"
-        @click="emits('declineInviteWithMessage')"
-      >
-        Decline with message
-      </Button>
+      <div class="flex flex-row gap-px">
+        <Button
+          class="text-xs h-6 px-2 rounded-r-none rounded-l-sm"
+          size="sm"
+          variant="secondary"
+          @click="emits('declineInvite')"
+        >
+          Decline
+        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger as-child>
+            <Button class="size-6 p-0 rounded-l-none rounded-r-sm" size="icon" variant="secondary">
+              <ChevronDownIcon class="size-3.5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent class="w-50">
+            <DropdownMenuItem
+              class="h-7 pr-1.5 justify-between"
+              @click="emits('declineInviteWithMessage')"
+            >
+              <span class="text-xs">Decline with message</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              class="h-7 pr-1.5 justify-between"
+              :disabled="!props.isSupporter"
+              @click="emits('declineInviteWithPhoto')"
+            >
+              <span class="text-xs">Decline with Photo</span>
+              <BadgeVrchatPlus class="!w-10" />
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   </Button>
 </template>

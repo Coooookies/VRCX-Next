@@ -6,16 +6,31 @@ import SidebarFriendsIconButton from './sidebar-friends-icon-button.vue'
 import SidebarNotificationPopover from './sidebar-notification-popover.vue'
 import { Popover, PopoverTrigger } from '@renderer/shared/components/ui/popover'
 
+import { computed } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
 import { useI18n } from '@renderer/shared/locale'
 import { useSidebarNotifications } from '@renderer/src-main/composables/sidebar-notifications'
+import { useModule } from '@renderer/shared/hooks/use-module'
+import { useSidebarNotificationsSubmit } from '@renderer/src-main/composables/sidebar-notifications-submit'
+import type { VRChatUsers } from '@renderer/shared/modules/vrchat-users'
 
 const { t } = useI18n()
 const { categories, isLoading, isUnread } = useSidebarNotifications()
+const {
+  markNotificationV1AsRead,
+  respondNotificationV2,
+  deleteNotificationV1,
+  deleteNotificationV2
+} = useSidebarNotificationsSubmit()
 
+const users = useModule<VRChatUsers>('VRChatUsers')
 const actionIconMask = `url("${SidebarActionIconMask}")`
 const notificationVisible = defineModel<boolean>('notificationVisible', {
   default: false
+})
+
+const isSupporter = computed(() => {
+  return users.state.user?.isSupporter || false
 })
 </script>
 
@@ -36,7 +51,15 @@ const notificationVisible = defineModel<boolean>('notificationVisible', {
             class="group-has-[*]/sidebar-expanded:rounded-r-none group-hover/sidebar-collapsed:rounded-r-none"
           />
         </PopoverTrigger>
-        <SidebarNotificationPopover :categories="categories" :is-loading="isLoading" />
+        <SidebarNotificationPopover
+          :categories="categories"
+          :is-supporter="isSupporter"
+          :is-loading="isLoading"
+          @read-notification-v1="markNotificationV1AsRead"
+          @hide-notification-v1="deleteNotificationV1"
+          @hide-notification-v2="deleteNotificationV2"
+          @respond-notification-v2="respondNotificationV2"
+        />
       </Popover>
     </div>
     <div

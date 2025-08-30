@@ -71,6 +71,7 @@ const handleFocusNotification = () => {
             size="icon"
             variant="ghost"
             class="size-4 rounded-[4px] hidden group-hover/notification-card:flex"
+            @click.stop="emits('hideNotification')"
           >
             <XIcon class="size-3.5" />
           </Button>

@@ -9,6 +9,7 @@ import { ImageFallback, ImageRoot } from '@renderer/shared/components/ui/image'
 import { Button } from '@renderer/shared/components/ui/button'
 import { CircleUserRoundIcon, ImageIcon, XIcon } from 'lucide-vue-next'
 import type { NotificationBaseProps } from './types'
+import type { NotificationV2ResponseType } from '@shared/definition/vrchat-api-response'
 import type { NotificationGlobalRawInformation } from '@shared/definition/vrchat-notifications'
 
 const props = defineProps<{
@@ -20,8 +21,7 @@ const emits = defineEmits<{
   (e: 'hideNotification'): void
   (e: 'readNotification'): void
   (e: 'showSender'): void
-  (e: 'acknowledgeNotification'): void
-  (e: 'unsubscribeNotification'): void
+  (e: 'respondNotification', type: NotificationV2ResponseType): void
 }>()
 
 const imageFile = computed(() => {
@@ -78,6 +78,7 @@ const handleFocusNotification = () => {
             size="icon"
             variant="ghost"
             class="size-4 rounded-[4px] hidden group-hover/notification-card:flex"
+            @click.stop="emits('hideNotification')"
           >
             <XIcon class="size-3.5" />
           </Button>
@@ -108,7 +109,7 @@ const handleFocusNotification = () => {
       </div>
     </div>
     <div class="flex flex-row items-center justify-start gap-1.5 pl-14 pb-0.5">
-      <Button
+      <!-- <Button
         class="text-xs h-6 px-2 rounded-sm"
         size="sm"
         variant="default"
@@ -123,7 +124,7 @@ const handleFocusNotification = () => {
         @click="emits('unsubscribeNotification')"
       >
         Unsubscribe
-      </Button>
+      </Button> -->
     </div>
   </Button>
 </template>
