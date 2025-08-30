@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ImageVrchatContext from '@renderer/shared/components/image-vrchat-context.vue'
+import BadgeVrchatPlus from '../badge/badge-vrchat-plus.vue'
 import { cn } from '@renderer/shared/utils/style'
 import { computed } from 'vue'
 import { parseFileUrl } from '@shared/utils/vrchat-url-parser'
@@ -21,7 +22,6 @@ import { Button } from '@renderer/shared/components/ui/button'
 import { ChevronDownIcon, CircleUserRoundIcon, ImageIcon, XIcon } from 'lucide-vue-next'
 import type { NotificationBaseProps } from './types'
 import type { NotificationGlobalRawInformation } from '@shared/definition/vrchat-notifications'
-import BadgeVrchatPlus from '../badge/badge-vrchat-plus.vue'
 
 const props = defineProps<{
   base: NotificationBaseProps
@@ -34,9 +34,9 @@ const emits = defineEmits<{
   (e: 'readNotification'): void
   (e: 'showSender'): void
   (e: 'showInstance'): void
-  (e: 'declineInvite'): void
-  (e: 'declineInviteWithMessage'): void
-  (e: 'declineInviteWithPhoto'): void
+  (e: 'respondInvite'): void
+  (e: 'respondInviteWithMessage'): void
+  (e: 'respondInviteWithPhoto'): void
 }>()
 
 const imageFile = computed(() => {
@@ -145,7 +145,7 @@ const handleFocusNotification = () => {
           class="text-xs h-6 px-2 rounded-r-none rounded-l-sm"
           size="sm"
           variant="secondary"
-          @click="emits('declineInvite')"
+          @click="emits('respondInvite')"
         >
           Decline
         </Button>
@@ -158,14 +158,14 @@ const handleFocusNotification = () => {
           <DropdownMenuContent class="w-50">
             <DropdownMenuItem
               class="h-7 pr-1.5 justify-between"
-              @click="emits('declineInviteWithMessage')"
+              @click="emits('respondInviteWithMessage')"
             >
               <span class="text-xs">Decline with message</span>
             </DropdownMenuItem>
             <DropdownMenuItem
               class="h-7 pr-1.5 justify-between"
               :disabled="!props.isSupporter"
-              @click="emits('declineInviteWithPhoto')"
+              @click="emits('respondInviteWithPhoto')"
             >
               <span class="text-xs">Decline with Photo</span>
               <BadgeVrchatPlus class="!w-10" />

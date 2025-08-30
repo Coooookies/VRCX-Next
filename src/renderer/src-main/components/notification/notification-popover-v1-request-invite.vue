@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import ImageVrchatContext from '@renderer/shared/components/image-vrchat-context.vue'
+import BadgeVrchatPlus from '../badge/badge-vrchat-plus.vue'
 import { cn } from '@renderer/shared/utils/style'
 import { RelativeTimerText } from '@renderer/shared/components/timer'
 import { NotificationGlobalType } from '@shared/definition/vrchat-notifications'
 import { ImageFallback, ImageRoot } from '@renderer/shared/components/ui/image'
 import { Button } from '@renderer/shared/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@renderer/shared/components/ui/dropdown-menu'
 import { CircleUserRoundIcon, XIcon } from 'lucide-vue-next'
 import type { NotificationBaseProps } from './types'
 import type { NotificationGlobalRawInformation } from '@shared/definition/vrchat-notifications'
@@ -12,14 +19,16 @@ import type { NotificationGlobalRawInformation } from '@shared/definition/vrchat
 const props = defineProps<{
   base: NotificationBaseProps
   raw: NotificationGlobalRawInformation[typeof NotificationGlobalType.RequestInviteV1]
+  isSupporter: boolean
 }>()
 
 const emits = defineEmits<{
   (e: 'hideNotification'): void
   (e: 'readNotification'): void
   (e: 'showSender'): void
-  (e: 'declineRequest'): void
-  (e: 'declineRequestWithMessage'): void
+  (e: 'respondInvite'): void
+  (e: 'respondInviteWithMessage'): void
+  (e: 'respondInviteWithPhoto'): void
 }>()
 
 const handleFocusNotification = () => {
@@ -88,22 +97,39 @@ const handleFocusNotification = () => {
       </p>
     </div>
     <div class="flex flex-row items-center justify-start gap-1.5 pl-14 pb-0.5">
-      <Button
-        class="text-xs h-6 px-2 rounded-sm"
-        size="sm"
-        variant="secondary"
-        @click="emits('declineRequest')"
-      >
-        Decline
-      </Button>
-      <Button
-        class="text-xs h-6 px-2 rounded-sm"
-        size="sm"
-        variant="secondary"
-        @click="emits('declineRequestWithMessage')"
-      >
-        Decline with message
-      </Button>
+      <div class="flex flex-row gap-px">
+        <Button
+          class="text-xs h-6 px-2 rounded-r-none rounded-l-sm"
+          size="sm"
+          variant="secondary"
+          @click="emits('respondInvite')"
+        >
+          Decline
+        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger as-child>
+            <Button class="size-6 p-0 rounded-l-none rounded-r-sm" size="icon" variant="secondary">
+              <ChevronDownIcon class="size-3.5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent class="w-50">
+            <DropdownMenuItem
+              class="h-7 pr-1.5 justify-between"
+              @click="emits('respondInviteWithMessage')"
+            >
+              <span class="text-xs">Decline with message</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              class="h-7 pr-1.5 justify-between"
+              :disabled="!props.isSupporter"
+              @click="emits('respondInviteWithPhoto')"
+            >
+              <span class="text-xs">Decline with Photo</span>
+              <BadgeVrchatPlus class="!w-10" />
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   </Button>
 </template>
