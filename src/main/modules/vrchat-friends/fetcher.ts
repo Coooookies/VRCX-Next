@@ -15,7 +15,7 @@ import { parseLocation } from '../vrchat-worlds/location-parser'
 import { toFriendUserEntity } from '../vrchat-users/factory'
 import { isGroupInstance } from '../vrchat-worlds/factory'
 import { toBaseFriendInformation, toFriendInstanceDependency } from './factory'
-import { FRIENDS_QUERY_SIZE } from './constants'
+import { ONLINE_FRIENDS_QUERY_SIZE, OFFLINE_FRIENDS_QUERY_SIZE } from './constants'
 
 export class FriendsFetcher {
   constructor(
@@ -35,8 +35,8 @@ export class FriendsFetcher {
     this.repository.clear()
 
     const friends: FriendInformation[] = []
-    const onlineFriends = await this.loadFriends(false, processHandler)
-    const offlineFriends = await this.loadFriends(true, processHandler)
+    const onlineFriends = await this.loadFriends(false, ONLINE_FRIENDS_QUERY_SIZE, processHandler)
+    const offlineFriends = await this.loadFriends(true, OFFLINE_FRIENDS_QUERY_SIZE, processHandler)
     friends.push(...onlineFriends)
     friends.push(...offlineFriends)
 
@@ -51,19 +51,16 @@ export class FriendsFetcher {
 
   private async loadFriends(
     offline: boolean,
+    querySize: number,
     processHandler?: FriendLoaderProcessHandler
   ): Promise<FriendInformation[]> {
     const friends: FriendInformation[] = []
     let startOffset = 0
 
     while (true) {
-      const result = await this.api.ref.sessionAPI.friends.getFriends(
-        startOffset,
-        FRIENDS_QUERY_SIZE,
-        {
-          offline
-        }
-      )
+      const result = await this.api.ref.sessionAPI.friends.getFriends(startOffset, querySize, {
+        offline
+      })
 
       if (!result.success) {
         this.logger.warn('Failed to fetch friends')
@@ -92,7 +89,7 @@ export class FriendsFetcher {
 
       this.logger.info(`Fetched ${friends.length} ${offline ? 'offline' : 'online'} friends...`)
 
-      if (friendsBatch.length < FRIENDS_QUERY_SIZE) {
+      if (friendsBatch.length < querySize) {
         break
       }
     }

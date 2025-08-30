@@ -1,1 +1,2 @@
-export const FRIENDS_QUERY_SIZE = 50
+export const ONLINE_FRIENDS_QUERY_SIZE = 50
+export const OFFLINE_FRIENDS_QUERY_SIZE = 100
