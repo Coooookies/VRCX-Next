@@ -3,6 +3,7 @@ import { createLogger } from '@main/logger'
 import { NotificationEventBinding } from './event-binding'
 import { NotificationRepository } from './repository'
 import { NotificationFetcher } from './fetcher'
+import { NotificationOperation } from './operation'
 import { NotificationIPCBinding } from './ipc-binding'
 import type { IPCModule } from '../ipc'
 import type { VRChatAPI } from '../vrchat-api'
@@ -29,13 +30,14 @@ export class VRChatNotifications extends Module<{}> {
   private readonly logger = createLogger(this.moduleId)
   private repository!: NotificationRepository
   private fetcher!: NotificationFetcher
-  private ipcBinding!: NotificationIPCBinding
+  private operation!: NotificationOperation
   private eventBinding!: NotificationEventBinding
+  private ipcBinding!: NotificationIPCBinding
   private $!: NotificationSharedState
 
   protected onInit(): void {
     this.repository = new NotificationRepository(this.database)
-    this.ipcBinding = new NotificationIPCBinding(this.ipc, this.repository)
+    this.operation = new NotificationOperation(this.repository, this.api, this.users)
     this.fetcher = new NotificationFetcher(
       this.logger,
       this.repository,
@@ -43,6 +45,7 @@ export class VRChatNotifications extends Module<{}> {
       this.users,
       this.groups
     )
+    this.ipcBinding = new NotificationIPCBinding(this.ipc, this.repository, this.operation)
     this.eventBinding = new NotificationEventBinding(
       this.logger,
       this.repository,

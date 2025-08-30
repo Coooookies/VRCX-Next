@@ -1,4 +1,3 @@
-import Nanobus from 'nanobus'
 import { toNotificationV1BaseInformation, toNotificationV2BaseInformation } from './factory'
 import { PipelineEvents } from '@shared/definition/vrchat-pipeline'
 import type { VRChatUsers } from '../vrchat-users'
@@ -15,36 +14,48 @@ import type {
   PipelineEventResponseNotification
 } from '@shared/definition/vrchat-pipeline'
 
-export class NotificationEventBinding extends Nanobus<{
-  'notification-v1:new': (notification: NotificationInformation) => void
-  'notification-v1:see': (notificationId: string) => void
-  'notification-v1:hide': (notificationId: string) => void
-  'notification-v1:response': (notificationId: string) => void
-  'notification-v1:clear': () => void
-}> {
+export class NotificationEventBinding {
   constructor(
     private readonly logger: LoggerFactory,
     private readonly repository: NotificationRepository,
     private readonly fetcher: NotificationFetcher,
     private readonly users: VRChatUsers,
     private readonly pipeline: VRChatPipeline
-  ) {
-    super('VRChatNotifications:EventBinding')
-  }
+  ) {}
 
   public bindEvents() {
     this.pipeline.on('message', (message: PipelineEventMessage) => {
       this.handlePipeMessage(message)
     })
 
-    this.on('notification-v1:new', (notification) => {
-      this.logger.debug(
-        'received new notification(v1)',
-        notification.type,
-        notification.senderType,
-        notification.senderName,
-        notification.message
-      )
+    this.repository.on('notification:remote:insert', (notifications) => {
+      notifications.forEach((notification) => {
+        this.logger.info(
+          `New notification received: [${notification.notificationId}] ${notification.type} from ${
+            notification.senderName || 'Unknown Sender'
+          }`
+        )
+      })
+    })
+
+    this.repository.on('notification:remote:update', (notifications) => {
+      notifications.forEach((notification) => {
+        this.logger.info(
+          `Notification updated: [${notification.notificationId}] ${notification.type} from ${
+            notification.senderName || 'Unknown Sender'
+          }`
+        )
+      })
+    })
+
+    this.repository.on('notification:remote:delete', (notificationIds) => {
+      notificationIds.forEach((notificationId) => {
+        this.logger.info(`Notification deleted: [${notificationId}]`)
+      })
+    })
+
+    this.repository.on('notification:remote:clear', (version) => {
+      this.logger.info(`Notifications cleared for version: ${version}`)
     })
   }
 
@@ -96,24 +107,20 @@ export class NotificationEventBinding extends Nanobus<{
     const beforeNotification = toNotificationV1BaseInformation(notification)
     const processedNotification = await this.fetcher.enrichNotificationV1(beforeNotification)
     this.upsertNotification(processedNotification)
-    this.emit('notification-v1:new', processedNotification)
   }
 
   private async handleNotificationV2(notification: NotificationV2): Promise<void> {
     const beforeNotification = toNotificationV2BaseInformation(notification)
     const processedNotification = await this.fetcher.enrichNotificationV1(beforeNotification)
     this.upsertNotification(processedNotification)
-    this.emit('notification-v1:new', processedNotification)
   }
 
   private async handleSeeNotification(notificationId: string): Promise<void> {
     this.changeNotificationAsSeen(notificationId, true)
-    this.emit('notification-v1:see', notificationId)
   }
 
   private async handleHideNotification(notificationId: string): Promise<void> {
     this.changeNotificationAsResponded(notificationId)
-    this.emit('notification-v1:hide', notificationId)
   }
 
   private async handleResponseNotification({
@@ -123,16 +130,13 @@ export class NotificationEventBinding extends Nanobus<{
     const responseNotification = await this.fetcher.fetchNotification(responseId)
     if (responseNotification) {
       this.upsertNotification(responseNotification)
-      this.emit('notification-v1:new', responseNotification)
     }
 
     this.changeNotificationAsResponded(notificationId)
-    this.emit('notification-v1:response', notificationId)
   }
 
   private async handleClearNotification(): Promise<void> {
     this.repository.clearNotifications('v1')
-    this.emit('notification-v1:clear')
   }
 
   private async handleDeleteNotificationsV2({
@@ -147,14 +151,13 @@ export class NotificationEventBinding extends Nanobus<{
   }: PipelineEventNotificationV2Update): Promise<void> {
     const notification = this.repository.getNotification(id)
     if (notification) {
-      const newRaw = {
-        ...notification.raw,
-        ...updates
-      } as NotificationV2
-
+      const raw = notification.raw as NotificationV2
       this.upsertNotification({
         ...notification,
-        ...toNotificationV2BaseInformation(newRaw)
+        ...toNotificationV2BaseInformation({
+          ...raw,
+          ...updates
+        })
       })
     }
   }

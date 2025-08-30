@@ -1,16 +1,16 @@
 import { NOTIFICATIONS_QUERY_SIZE } from './constants'
 import type { VRChatAPI } from '../vrchat-api'
 import type { NotificationRepository } from './repository'
-import {
-  NotificationSenderType,
-  type NotificationBaseInformation,
-  type NotificationInformation
-} from '@shared/definition/vrchat-notifications'
+import { NotificationSenderType } from '@shared/definition/vrchat-notifications'
 import type { LoggerFactory } from '@main/logger'
 import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatGroups } from '../vrchat-groups'
 import type { UserEntity } from '../database/entities/users'
 import type { GroupEntity } from '../database/entities/group'
+import type {
+  NotificationBaseInformation,
+  NotificationInformation
+} from '@shared/definition/vrchat-notifications'
 import {
   toNotificationDependency,
   toNotificationV1BaseInformation,

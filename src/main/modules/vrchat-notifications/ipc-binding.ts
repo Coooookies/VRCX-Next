@@ -1,10 +1,12 @@
 import type { IPCModule } from '../ipc'
+import { NotificationOperation } from './operation'
 import type { NotificationRepository } from './repository'
 
 export class NotificationIPCBinding {
   constructor(
     private ipc: IPCModule,
-    private repository: NotificationRepository
+    private repository: NotificationRepository,
+    private operation: NotificationOperation
   ) {}
 
   public bindEvents() {
@@ -29,5 +31,31 @@ export class NotificationIPCBinding {
     this.ipc.listener.handle('vrchat-notifications:get-notifications', () => {
       return this.repository.getAllNotifications()
     })
+
+    this.ipc.listener.handle(
+      'vrchat-notifications:mark-notificationv1-as-read',
+      (_, notificationId) => {
+        return this.operation.markNotificationV1AsRead(notificationId).then(() => {})
+      }
+    )
+
+    this.ipc.listener.handle('vrchat-notifications:delete-notification-v1', (_, notificationId) => {
+      return this.operation.deleteNotificationV1(notificationId).then(() => {})
+    })
+
+    this.ipc.listener.handle('vrchat-notifications:delete-notification-v2', (_, notificationId) => {
+      return this.operation.deleteNotificationV2(notificationId).then(() => {})
+    })
+
+    this.ipc.listener.handle('vrchat-notifications:clear-notifications', () => {
+      return this.operation.clearNotifications().then(() => {})
+    })
+
+    this.ipc.listener.handle(
+      'vrchat-notifications:respond-notification-v2',
+      (_, notificationId, type) => {
+        return this.operation.respondNotificationV2(notificationId, type).then(() => {})
+      }
+    )
   }
 }
