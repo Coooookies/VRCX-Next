@@ -1,6 +1,7 @@
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
 import type { SettingDefinition, SettingKey, SettingNamespace } from '@shared/definition/setting'
 import type { NotificationInformation } from '@shared/definition/vrchat-notifications'
+import type { NotificationV2ResponseType } from '@shared/definition/vrchat-api-response'
 import type {
   AuthenticationCredentialEntity,
   AuthenticationResumeSessionState,
@@ -37,6 +38,14 @@ export type IpcInvokeEvents = {
 
   // VRChatNotifications
   'vrchat-notifications:get-notifications': () => NotificationInformation[]
+  'vrchat-notifications:mark-notificationv1-as-read': (notificationId: string) => void
+  'vrchat-notifications:delete-notification-v1': (notificationId: string) => void
+  'vrchat-notifications:delete-notification-v2': (notificationId: string) => void
+  'vrchat-notifications:clear-notifications': () => void
+  'vrchat-notifications:respond-notification-v2': (
+    notificationId: string,
+    type: NotificationV2ResponseType
+  ) => void
 
   // Runtime
   'runtime:relaunch': () => void

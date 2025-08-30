@@ -4,6 +4,7 @@ import type { IPCRenderer } from './ipc'
 import type { MobxRenderer } from './mobx-renderer'
 import type { NotificationSharedState } from '@shared/definition/mobx-shared'
 import type { NotificationInformation } from '@shared/definition/vrchat-notifications'
+import type { NotificationV2ResponseType } from '@shared/definition/vrchat-api-response-replenish'
 
 export class VRChatNotifications extends Module {
   @Dependency('IPCRenderer') declare private ipc: IPCRenderer
@@ -49,6 +50,33 @@ export class VRChatNotifications extends Module {
 
   public getAllNotifications() {
     return this.ipc.emitter.invoke('vrchat-notifications:get-notifications')
+  }
+
+  public markNotificationV1AsRead(notificationId: string) {
+    return this.ipc.emitter.invoke(
+      'vrchat-notifications:mark-notificationv1-as-read',
+      notificationId
+    )
+  }
+
+  public deleteNotificationV1(notificationId: string) {
+    return this.ipc.emitter.invoke('vrchat-notifications:delete-notification-v1', notificationId)
+  }
+
+  public deleteNotificationV2(notificationId: string) {
+    return this.ipc.emitter.invoke('vrchat-notifications:delete-notification-v2', notificationId)
+  }
+
+  public clearNotifications() {
+    return this.ipc.emitter.invoke('vrchat-notifications:clear-notifications')
+  }
+
+  public respondNotificationV2(notificationId: string, type: NotificationV2ResponseType) {
+    return this.ipc.emitter.invoke(
+      'vrchat-notifications:respond-notification-v2',
+      notificationId,
+      type
+    )
   }
 
   public get state() {
