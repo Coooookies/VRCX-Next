@@ -1,6 +1,7 @@
-import { join, relative } from 'node:path'
-import { access, readdir } from 'node:fs/promises'
+import { join, relative, basename } from 'node:path'
+import { open, access, readdir } from 'node:fs/promises'
 import { toUrl } from './path'
+import { File } from 'buffer'
 import type { Dirent, ReadStream } from 'node:fs'
 import type { Readable } from 'node:stream'
 
@@ -61,4 +62,16 @@ export const toReadableStream = (stream: ReadStream | Readable) => {
       stream.destroy()
     }
   })
+}
+
+export async function createStreamableFile(path: string): Promise<File> {
+  const name = basename(path)
+  const handle = await open(path)
+  const { size } = await handle.stat()
+
+  const file = new File([], name)
+  file.stream = () => handle.readableWebStream()
+
+  Object.defineProperty(file, 'size', { get: () => size })
+  return file
 }
