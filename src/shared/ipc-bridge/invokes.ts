@@ -44,7 +44,8 @@ export type IpcInvokeEvents = {
   'vrchat-notifications:clear-notifications': () => void
   'vrchat-notifications:respond-notification-v2': (
     notificationId: string,
-    type: NotificationV2ResponseType
+    type: NotificationV2ResponseType,
+    data: string
   ) => void
 
   // Runtime

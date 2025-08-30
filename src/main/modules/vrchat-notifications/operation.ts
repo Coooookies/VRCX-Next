@@ -27,9 +27,13 @@ export class NotificationOperation {
     return this.api.ref.sessionAPI.notifications.markNotificationAsRead(notificationId)
   }
 
-  public respondNotificationV2(notificationId: string, type: NotificationV2ResponseType) {
+  public respondNotificationV2(
+    notificationId: string,
+    type: NotificationV2ResponseType,
+    data: string
+  ) {
     this.repository.deleteNotification(notificationId)
-    return this.api.ref.sessionAPI.notifications.respondToNotificationV2(notificationId, type, '')
+    return this.api.ref.sessionAPI.notifications.respondToNotificationV2(notificationId, type, data)
   }
 
   public deleteNotificationV1(notificationId: string) {

@@ -20,7 +20,7 @@ const emits = defineEmits<{
   (e: 'readNotification'): void
   (e: 'searchUserByName'): void
   (e: 'searchGroupByName'): void
-  (e: 'respondNotification', type: NotificationV2ResponseType): void
+  (e: 'respondNotification', type: NotificationV2ResponseType, data: string): void
 }>()
 
 const handleFocusNotification = () => {

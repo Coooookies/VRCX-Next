@@ -71,11 +71,16 @@ export class VRChatNotifications extends Module {
     return this.ipc.emitter.invoke('vrchat-notifications:clear-notifications')
   }
 
-  public respondNotificationV2(notificationId: string, type: NotificationV2ResponseType) {
+  public respondNotificationV2(
+    notificationId: string,
+    type: NotificationV2ResponseType,
+    data: string
+  ) {
     return this.ipc.emitter.invoke(
       'vrchat-notifications:respond-notification-v2',
       notificationId,
-      type
+      type,
+      data
     )
   }
 

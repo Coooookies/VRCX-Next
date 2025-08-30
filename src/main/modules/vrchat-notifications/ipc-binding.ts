@@ -53,8 +53,8 @@ export class NotificationIPCBinding {
 
     this.ipc.listener.handle(
       'vrchat-notifications:respond-notification-v2',
-      (_, notificationId, type) => {
-        return this.operation.respondNotificationV2(notificationId, type).then(() => {})
+      (_, notificationId, type, data) => {
+        return this.operation.respondNotificationV2(notificationId, type, data).then(() => {})
       }
     )
   }

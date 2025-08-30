@@ -20,7 +20,7 @@ const emits = defineEmits<{
   (e: 'readNotification'): void
   (e: 'searchUserByName'): void
   (e: 'searchGroupByName'): void
-  (e: 'respondNotification', type: NotificationV2ResponseType): void
+  (e: 'respondNotification', type: NotificationV2ResponseType, data: string): void
 }>()
 
 const handleFocusNotification = () => {
@@ -93,22 +93,16 @@ const handleFocusNotification = () => {
       </div>
     </div>
     <div class="flex flex-row items-center justify-start gap-1.5 pl-14 pb-0.5">
-      <!-- <Button
-        class="text-xs h-6 px-2 rounded-sm"
-        size="sm"
-        variant="default"
-        @click="emits('acceptRequest')"
-      >
-        Accept
-      </Button>
       <Button
+        v-for="(action, index) in props.raw.responses"
+        :key="index"
+        :variant="action.type === 'accept' || action.type === 'delete' ? 'default' : 'secondary'"
         class="text-xs h-6 px-2 rounded-sm"
         size="sm"
-        variant="secondary"
-        @click="emits('declineRequest')"
+        @click="emits('respondNotification', action.type, action.data)"
       >
-        Decline
-      </Button> -->
+        {{ action.text }}
+      </Button>
     </div>
   </Button>
 </template>
