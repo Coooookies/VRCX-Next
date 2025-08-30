@@ -19,16 +19,18 @@ import NotificationPopoverV2GroupTransfer from '../notification/notification-pop
 import NotificationPopoverV2EventAnnouncement from '../notification/notification-popover-v2-event-announcement.vue'
 import NotificationPopoverV2Unknown from '../notification/notification-popover-v2-unknown.vue'
 import { cn } from '@renderer/shared/utils/style'
-import { computed, ref } from 'vue'
+import { computed, ref, shallowReadonly } from 'vue'
 import { useI18n } from '@renderer/shared/locale'
 import { Badge } from '@renderer/shared/components/ui/badge'
 import { PopoverContent } from '@renderer/shared/components/ui/popover'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/shared/components/ui/tabs'
 import { NotificationGlobalType } from '@shared/definition/vrchat-notifications'
+import type { Component } from 'vue'
 import type { NotificationV2ResponseType } from '@shared/definition/vrchat-api-response'
 import type { NotificationCollections } from '@renderer/src-main/composables/sidebar-notifications'
 import type {
   NotificationGlobalCategory,
+  NotificationInformation,
   NotificationSenderType
 } from '@shared/definition/vrchat-notifications'
 
@@ -55,6 +57,74 @@ const emits = defineEmits<{
   (e: 'respondInviteWithMessage', notificationId: string): void
   (e: 'respondInviteWithPhoto', notificationId: string): void
 }>()
+
+const notificationComponents = shallowReadonly({
+  [NotificationGlobalType.InviteV1]: NotificationPopoverV1Invite,
+  [NotificationGlobalType.RequestInviteV1]: NotificationPopoverV1RequestInvite,
+  [NotificationGlobalType.InviteResponseV1]: NotificationPopoverV1InviteResponse,
+  [NotificationGlobalType.RequestInviteResponseV1]: NotificationPopoverV1RequestInviteResponse,
+  [NotificationGlobalType.FriendRequestV1]: NotificationPopoverV1FriendRequest,
+  [NotificationGlobalType.VotetokickV1]: NotificationPopoverV1VoteToKick,
+  [NotificationGlobalType.MessageV1]: NotificationPopoverV1Message,
+  [NotificationGlobalType.UnknownV1]: NotificationPopoverV1Unknown,
+  [NotificationGlobalType.GroupAnnouncementV2]: NotificationPopoverV2GroupAnnouncement,
+  [NotificationGlobalType.GroupInformativeV2]: NotificationPopoverV2GroupInformative,
+  [NotificationGlobalType.GroupInviteV2]: NotificationPopoverV2GroupInvite,
+  [NotificationGlobalType.GroupJoinRequestV2]: NotificationPopoverV2GroupJoinRequest,
+  [NotificationGlobalType.GroupQueueReadyV2]: NotificationPopoverV2GroupQueueReady,
+  [NotificationGlobalType.GroupTransferV2]: NotificationPopoverV2GroupTransfer,
+  [NotificationGlobalType.EventAnnouncementV2]: NotificationPopoverV2EventAnnouncement,
+  [NotificationGlobalType.UnknownV2]: NotificationPopoverV2Unknown
+} as const satisfies Record<NotificationGlobalType, Component>)
+
+const getNotificationComponent = (type: NotificationGlobalType): Component => {
+  return notificationComponents[type] ?? NotificationPopoverV1Unknown
+}
+
+const handleHideNotification = (notification: NotificationInformation) => {
+  if (notification.version === 'v2') {
+    emits('hideNotificationV2', notification.notificationId)
+  } else {
+    emits('hideNotificationV1', notification.notificationId)
+  }
+}
+
+const handleReadNotification = (notification: NotificationInformation) => {
+  if (notification.version === 'v2') {
+    emits('readNotificationV2', notification.notificationId)
+  } else {
+    emits('readNotificationV1', notification.notificationId)
+  }
+}
+
+const getEventHandlers = (notification: NotificationInformation) => {
+  const baseHandlers = {
+    hideNotification: () => handleHideNotification(notification),
+    readNotification: () => handleReadNotification(notification),
+    showSender: (senderType: NotificationSenderType, senderId: string | null) =>
+      emits('showSender', senderType, senderId)
+  }
+
+  const v1Handlers = {
+    showInstance: (worldId: string) => emits('showInstance', worldId),
+    showDetails: () => emits('showVoteToKickDetails', notification.notificationId),
+    respondInvite: () => emits('respondInvite', notification.notificationId),
+    respondInviteWithMessage: () => emits('respondInviteWithMessage', notification.notificationId),
+    respondInviteWithPhoto: () => emits('respondInviteWithPhoto', notification.notificationId)
+  }
+
+  const v2Handlers = {
+    searchGroupByName: (groupName: string) => emits('searchGroupByName', groupName),
+    searchUserByName: (userName: string) => emits('searchUserByName', userName),
+    respondNotification: (type: NotificationV2ResponseType) =>
+      emits('respondNotificationV2', notification.notificationId, type)
+  }
+
+  return {
+    ...baseHandlers,
+    ...(notification.version === 'v2' ? v2Handlers : v1Handlers)
+  }
+}
 
 const tabIndex = ref<NotificationGlobalCategory>('friends')
 
@@ -92,7 +162,12 @@ const tabs = computed(() => {
           v-for="tab in tabs"
           :key="tab.key"
           :value="tab.key"
-          class="h-10 gap-1.5 data-[state=active]:after:bg-primary relative rounded-none px-0 py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+          :class="
+            cn(
+              'h-10 gap-1.5 relative rounded-none px-0 py-2 after:absolute data-[state=active]:bg-transparent data-[state=active]:shadow-none',
+              'data-[state=active]:after:bg-primary after:inset-x-0 after:bottom-0 after:h-0.5'
+            )
+          "
         >
           <span class="text-[13px]">{{ tab.label(t) }}</span>
           <Badge
@@ -111,170 +186,12 @@ const tabs = computed(() => {
       >
         <ScrollContainer v-if="tab.notifications.length > 0" class="w-full h-full">
           <template v-for="notification in tab.notifications" :key="notification.notificationId">
-            <NotificationPopoverV1Invite
-              v-if="notification.type === NotificationGlobalType.InviteV1"
+            <component
+              :is="getNotificationComponent(notification.type)"
               :base="notification"
               :raw="notification.raw"
               :is-supporter="isSupporter"
-              @hide-notification="emits('hideNotificationV1', notification.notificationId)"
-              @read-notification="emits('readNotificationV1', notification.notificationId)"
-              @show-sender="emits('showSender', notification.senderType, notification.senderId)"
-              @show-instance="emits('showInstance', notification.raw.details.worldId)"
-              @decline-invite="emits('respondInvite', notification.notificationId)"
-              @decline-invite-with-message="
-                emits('respondInviteWithMessage', notification.notificationId)
-              "
-              @decline-invite-with-photo="
-                emits('respondInviteWithPhoto', notification.notificationId)
-              "
-            />
-            <NotificationPopoverV1RequestInvite
-              v-else-if="notification.type === NotificationGlobalType.RequestInviteV1"
-              :base="notification"
-              :raw="notification.raw"
-              @hide-notification="emits('hideNotificationV1', notification.notificationId)"
-              @read-notification="emits('readNotificationV1', notification.notificationId)"
-              @show-sender="emits('showSender', notification.senderType, notification.senderId)"
-              @decline-invite="emits('respondInvite', notification.notificationId)"
-              @decline-invite-with-message="
-                emits('respondInviteWithMessage', notification.notificationId)
-              "
-              @decline-invite-with-photo="
-                emits('respondInviteWithPhoto', notification.notificationId)
-              "
-            />
-            <NotificationPopoverV1InviteResponse
-              v-else-if="notification.type === NotificationGlobalType.InviteResponseV1"
-              :base="notification"
-              :raw="notification.raw"
-              @hide-notification="emits('hideNotificationV1', notification.notificationId)"
-              @read-notification="emits('readNotificationV1', notification.notificationId)"
-              @show-sender="emits('showSender', notification.senderType, notification.senderId)"
-            />
-            <NotificationPopoverV1RequestInviteResponse
-              v-else-if="notification.type === NotificationGlobalType.RequestInviteResponseV1"
-              :base="notification"
-              :raw="notification.raw"
-              @hide-notification="emits('hideNotificationV1', notification.notificationId)"
-              @read-notification="emits('readNotificationV1', notification.notificationId)"
-              @show-sender="emits('showSender', notification.senderType, notification.senderId)"
-            />
-            <NotificationPopoverV1FriendRequest
-              v-else-if="notification.type === NotificationGlobalType.FriendRequestV1"
-              :base="notification"
-              :raw="notification.raw"
-              @hide-notification="emits('hideNotificationV1', notification.notificationId)"
-              @read-notification="emits('readNotificationV1', notification.notificationId)"
-              @show-sender="emits('showSender', notification.senderType, notification.senderId)"
-            />
-            <NotificationPopoverV1VoteToKick
-              v-else-if="notification.type === NotificationGlobalType.VotetokickV1"
-              :base="notification"
-              :raw="notification.raw"
-              @hide-notification="emits('hideNotificationV1', notification.notificationId)"
-              @read-notification="emits('readNotificationV1', notification.notificationId)"
-              @show-sender="emits('showSender', notification.senderType, notification.senderId)"
-              @show-details="emits('showVoteToKickDetails', notification.notificationId)"
-            />
-            <NotificationPopoverV1Message
-              v-else-if="notification.type === NotificationGlobalType.MessageV1"
-              :base="notification"
-              :raw="notification.raw"
-              @hide-notification="emits('hideNotificationV1', notification.notificationId)"
-              @read-notification="emits('readNotificationV1', notification.notificationId)"
-              @show-sender="emits('showSender', notification.senderType, notification.senderId)"
-            />
-            <NotificationPopoverV1Unknown
-              v-else-if="notification.type === NotificationGlobalType.UnknownV1"
-              :base="notification"
-              :raw="notification.raw"
-              @hide-notification="emits('hideNotificationV1', notification.notificationId)"
-              @read-notification="emits('readNotificationV1', notification.notificationId)"
-              @show-sender="emits('showSender', notification.senderType, notification.senderId)"
-            />
-            <NotificationPopoverV2GroupAnnouncement
-              v-else-if="notification.type === NotificationGlobalType.GroupAnnouncementV2"
-              :base="notification"
-              :raw="notification.raw"
-              @hide-notification="emits('hideNotificationV2', notification.notificationId)"
-              @read-notification="emits('readNotificationV2', notification.notificationId)"
-              @show-sender="emits('showSender', notification.senderType, notification.senderId)"
-              @respond-notification="
-                emits('respondNotificationV2', notification.notificationId, $event)
-              "
-            />
-            <NotificationPopoverV2GroupInformative
-              v-else-if="notification.type === NotificationGlobalType.GroupInformativeV2"
-              :base="notification"
-              :raw="notification.raw"
-              @hide-notification="emits('hideNotificationV2', notification.notificationId)"
-              @read-notification="emits('readNotificationV2', notification.notificationId)"
-              @show-sender="emits('showSender', notification.senderType, notification.senderId)"
-            />
-            <NotificationPopoverV2GroupInvite
-              v-else-if="notification.type === NotificationGlobalType.GroupInviteV2"
-              :base="notification"
-              :raw="notification.raw"
-              @hide-notification="emits('hideNotificationV2', notification.notificationId)"
-              @read-notification="emits('readNotificationV2', notification.notificationId)"
-              @show-sender="emits('showSender', notification.senderType, notification.senderId)"
-              @search-group-by-name="emits('searchGroupByName', notification.raw.data.groupName)"
-              @search-user-by-name="
-                emits('searchUserByName', notification.raw.data.manageruserDisplayName)
-              "
-              @respond-notification="
-                emits('respondNotificationV2', notification.notificationId, $event)
-              "
-            />
-            <NotificationPopoverV2GroupJoinRequest
-              v-else-if="notification.type === NotificationGlobalType.GroupJoinRequestV2"
-              :base="notification"
-              :raw="notification.raw"
-              @hide-notification="emits('hideNotificationV2', notification.notificationId)"
-              @read-notification="emits('readNotificationV2', notification.notificationId)"
-              @show-sender="emits('showSender', notification.senderType, notification.senderId)"
-              @search-group-by-name="emits('searchGroupByName', notification.raw.data.groupName)"
-              @search-user-by-name="
-                emits('searchUserByName', notification.raw.data.userDisplayName)
-              "
-              @respond-notification="
-                emits('respondNotificationV2', notification.notificationId, $event)
-              "
-            />
-            <NotificationPopoverV2GroupQueueReady
-              v-else-if="notification.type === NotificationGlobalType.GroupQueueReadyV2"
-              :base="notification"
-              :raw="notification.raw"
-              @hide-notification="emits('hideNotificationV2', notification.notificationId)"
-              @read-notification="emits('readNotificationV2', notification.notificationId)"
-              @show-sender="emits('showSender', notification.senderType, notification.senderId)"
-            />
-            <NotificationPopoverV2GroupTransfer
-              v-else-if="notification.type === NotificationGlobalType.GroupTransferV2"
-              :base="notification"
-              :raw="notification.raw"
-              @hide-notification="emits('hideNotificationV2', notification.notificationId)"
-              @read-notification="emits('readNotificationV2', notification.notificationId)"
-              @show-sender="emits('showSender', notification.senderType, notification.senderId)"
-            />
-            <NotificationPopoverV2EventAnnouncement
-              v-else-if="notification.type === NotificationGlobalType.EventAnnouncementV2"
-              :base="notification"
-              :raw="notification.raw"
-              @hide-notification="emits('hideNotificationV2', notification.notificationId)"
-              @read-notification="emits('readNotificationV2', notification.notificationId)"
-              @show-sender="emits('showSender', notification.senderType, notification.senderId)"
-              @respond-notification="
-                emits('respondNotificationV2', notification.notificationId, $event)
-              "
-            />
-            <NotificationPopoverV2Unknown
-              v-else-if="notification.type === NotificationGlobalType.UnknownV2"
-              :base="notification"
-              :raw="notification.raw"
-              @hide-notification="emits('hideNotificationV2', notification.notificationId)"
-              @read-notification="emits('readNotificationV2', notification.notificationId)"
-              @show-sender="emits('showSender', notification.senderType, notification.senderId)"
+              v-on="getEventHandlers(notification)"
             />
           </template>
         </ScrollContainer>
