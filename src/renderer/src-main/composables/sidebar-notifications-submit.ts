@@ -9,8 +9,12 @@ export function useSidebarNotificationsSubmit() {
     return notifications.markNotificationV1AsRead(notificationId)
   }
 
-  function respondNotificationV2(notificationId: string, type: NotificationV2ResponseType) {
-    return notifications.respondNotificationV2(notificationId, type)
+  function respondNotificationV2(
+    notificationId: string,
+    type: NotificationV2ResponseType,
+    data: string
+  ) {
+    return notifications.respondNotificationV2(notificationId, type, data)
   }
 
   function deleteNotificationV1(notificationId: string) {
