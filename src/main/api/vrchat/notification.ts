@@ -62,7 +62,7 @@ export class Notifications {
 
   public deleteNotificationV2(notificationId: string) {
     return attempt<Response<Success>, HTTPError<Response<ErrorResponse>>>(() =>
-      this.client.put(`notifications/${notificationId}`, {
+      this.client.delete(`notifications/${notificationId}`, {
         responseType: 'json'
       })
     )
@@ -100,9 +100,17 @@ export class Notifications {
     )
   }
 
-  public clearAllNotifications() {
+  public clearNotificationsV1() {
     return attempt<Response<Success>, HTTPError<Response<ErrorResponse>>>(() =>
       this.client.put('auth/user/notifications/clear', {
+        responseType: 'json'
+      })
+    )
+  }
+
+  public clearNotificationsV2() {
+    return attempt<Response<Success>, HTTPError<Response<ErrorResponse>>>(() =>
+      this.client.delete('notifications', {
         responseType: 'json'
       })
     )
