@@ -52,7 +52,12 @@ const emits = defineEmits<{
   (e: 'showVoteToKickDetails', notificationId: string): void
   (e: 'searchGroupByName', name: string): void
   (e: 'searchUserByName', name: string): void
-  (e: 'respondNotificationV2', notificationId: string, type: NotificationV2ResponseType): void
+  (
+    e: 'respondNotificationV2',
+    notificationId: string,
+    type: NotificationV2ResponseType,
+    data: string
+  ): void
   (e: 'respondInvite', notificationId: string): void
   (e: 'respondInviteWithMessage', notificationId: string): void
   (e: 'respondInviteWithPhoto', notificationId: string): void
@@ -116,8 +121,8 @@ const getEventHandlers = (notification: NotificationInformation) => {
   const v2Handlers = {
     searchGroupByName: (groupName: string) => emits('searchGroupByName', groupName),
     searchUserByName: (userName: string) => emits('searchUserByName', userName),
-    respondNotification: (type: NotificationV2ResponseType) =>
-      emits('respondNotificationV2', notification.notificationId, type)
+    respondNotification: (type: NotificationV2ResponseType, data: string) =>
+      emits('respondNotificationV2', notification.notificationId, type, data)
   }
 
   return {
