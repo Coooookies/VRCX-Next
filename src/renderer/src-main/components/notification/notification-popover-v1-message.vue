@@ -5,12 +5,12 @@ import {
   NotificationSenderType
 } from '@shared/definition/vrchat-notifications'
 import { Button } from '@renderer/shared/components/ui/button'
-import { RelativeTimerText } from '@renderer/shared/components/timer'
 import type { NotificationBaseProps } from './types'
 import type { NotificationGlobalRawInformation } from '@shared/definition/vrchat-notifications'
 import NotificationPopoverAvatar from './notification-popover-avatar.vue'
 import NotificationPopoverMessageTitle from './notification-popover-message-title.vue'
 import NotificationPopoverContent from './notification-popover-content.vue'
+import NotificationPopoverSubtitle from './notification-popover-subtitle.vue'
 
 const props = defineProps<{
   base: NotificationBaseProps
@@ -58,9 +58,7 @@ const handleFocusNotification = () => {
           @show-sender="emits('showSender')"
           @hide-notification="emits('hideNotification')"
         />
-        <p class="text-xs text-muted-foreground capitalize truncate">
-          <RelativeTimerText :start-time="props.base.createdAt" />
-        </p>
+        <NotificationPopoverSubtitle :created-at="props.base.createdAt" />
       </div>
     </div>
     <NotificationPopoverContent :message-content="props.base.message" message-italic />
