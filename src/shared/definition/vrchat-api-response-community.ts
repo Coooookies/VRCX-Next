@@ -8448,6 +8448,12 @@ export interface NotificationDetailRequestInvite {
    * @memberof NotificationDetailRequestInvite
    */
   requestMessage?: string
+  /**
+   *
+   * @type {string}
+   * @memberof NotificationDetailInvite
+   */
+  imageUrl?: string
 }
 /**
  *
