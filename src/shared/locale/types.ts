@@ -3,7 +3,7 @@ import { LCID_DEFINITIONS } from './lcid'
 import type { NotificationGlobalCategory } from '@shared/definition/vrchat-notifications'
 import type { UserLanguage } from '@shared/definition/vrchat-users'
 
-export type LanguageDefinition = {
+export type LocaleDefinition = {
   authentication: {
     global: {
       or: string
@@ -96,6 +96,29 @@ export type LanguageDefinition = {
     }
     locate: Record<UserLanguage, string>
   }
+  notification: {
+    empty_title: string
+    empty_description: string
+    content: {
+      friend_request: string
+      instance_invite: string
+      instance_invite_response: string
+      instance_request_invite: string
+      instance_request_invite_response: string
+      system_vote_to_kick: string
+      group_join_request: string
+      group_invite: string
+      friend_accept: string
+      friend_decline: string
+      instance_invite_decline: string
+      instance_invite_decline_with_message: string
+      instance_invite_decline_with_photo: string
+      instance_request_invite_decline: string
+      instance_request_invite_decline_with_message: string
+      instance_request_invite_decline_with_photo: string
+      system_vote_to_kick_show_details: string
+    }
+  }
   sidebar: {
     notifications: string
     notifications_title: string
@@ -172,10 +195,10 @@ export type LanguageDefinition = {
   }
 }
 
-export type Languageinstance = {
+export type LocaleStructure = {
   label: string
   value: string
-  definition: LanguageDefinition
+  definition: LocaleDefinition
 }
 
 export type LanguageAvailableCode = keyof typeof LANGUAGES

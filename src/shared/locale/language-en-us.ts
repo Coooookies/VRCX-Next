@@ -1,7 +1,7 @@
 import { UserLanguage } from '@shared/definition/vrchat-users'
-import type { Languageinstance } from './types'
+import type { LocaleStructure } from './types'
 
-export const LANGUAGE_EN_US: Languageinstance = {
+export const LANGUAGE_EN_US: LocaleStructure = {
   label: 'English (US)',
   value: 'en-US',
   definition: {
@@ -136,6 +136,29 @@ export const LANGUAGE_EN_US: Languageinstance = {
         [UserLanguage.FSL]: 'French Sign Language',
         [UserLanguage.JSL]: 'Japanese Sign Language',
         [UserLanguage.KVK]: 'Korean Sign Language'
+      }
+    },
+    notification: {
+      empty_title: 'No notifications',
+      empty_description: 'It’s very quiet here...',
+      content: {
+        friend_request: 'wants to be your friend.',
+        instance_invite: 'invited you to',
+        instance_invite_response: 'declined your invitation.',
+        instance_request_invite: 'requested to join your world.',
+        instance_request_invite_response: 'declined your request.',
+        system_vote_to_kick: 'A player started a kick vote.',
+        group_join_request: 'wants to join the group',
+        group_invite: 'invited you to the group',
+        friend_accept: 'Accept',
+        friend_decline: 'Decline',
+        instance_invite_decline: 'Decline',
+        instance_invite_decline_with_message: 'Decline with message',
+        instance_invite_decline_with_photo: 'Decline with photo',
+        instance_request_invite_decline: 'Decline',
+        instance_request_invite_decline_with_message: 'Decline with message',
+        instance_request_invite_decline_with_photo: 'Decline with photo',
+        system_vote_to_kick_show_details: 'View details'
       }
     },
     sidebar: {

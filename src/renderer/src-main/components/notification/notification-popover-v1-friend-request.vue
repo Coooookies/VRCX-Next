@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { cn } from '@renderer/shared/utils/style'
+import { useI18n } from '@renderer/shared/locale'
 import {
   NotificationGlobalType,
   NotificationSenderType
@@ -11,6 +12,8 @@ import type { NotificationGlobalRawInformation } from '@shared/definition/vrchat
 import NotificationPopoverAvatar from './notification-popover-avatar.vue'
 import NotificationPopoverMessageTitle from './notification-popover-message-title.vue'
 import NotificationPopoverActionButton from './notification-popover-action-button.vue'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   base: NotificationBaseProps
@@ -56,7 +59,7 @@ const handleFocusNotification = () => {
       <div class="grid flex-1 text-left text-sm leading-tight gap-y-0.5">
         <NotificationPopoverMessageTitle
           :sender-name="props.base.senderName"
-          description="want to be your friend."
+          :description="t('notification.content.friend_request')"
           @show-sender="emits('showSender')"
           @hide-notification="emits('hideNotification')"
         />
@@ -67,13 +70,13 @@ const handleFocusNotification = () => {
     </div>
     <div class="flex flex-row items-center justify-start gap-1.5 pl-14 pb-0.5">
       <NotificationPopoverActionButton
-        description="Accept"
         variant="default"
+        :description="t('notification.content.friend_accept')"
         @click="emits('acceptRequest')"
       />
       <NotificationPopoverActionButton
-        description="Decline"
         variant="secondary"
+        :description="t('notification.content.friend_decline')"
         @click="emits('declineRequest')"
       />
     </div>

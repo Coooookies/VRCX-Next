@@ -1,7 +1,7 @@
 import { UserLanguage } from '@shared/definition/vrchat-users'
-import type { Languageinstance } from './types'
+import type { LocaleStructure } from './types'
 
-export const LANGUAGE_ZH_CN: Languageinstance = {
+export const LANGUAGE_ZH_CN: LocaleStructure = {
   label: '简体中文',
   value: 'zh-CN',
   definition: {
@@ -136,6 +136,29 @@ export const LANGUAGE_ZH_CN: Languageinstance = {
         [UserLanguage.FSL]: '法国手语',
         [UserLanguage.JSL]: '日本手语',
         [UserLanguage.KVK]: '韩国手语'
+      }
+    },
+    notification: {
+      empty_title: '暂时没有通知',
+      empty_description: '这里似乎非常安静...',
+      content: {
+        friend_request: '想要成为你的好友。',
+        instance_invite: '邀请你前往',
+        instance_invite_response: '婉拒了你的邀请。',
+        instance_request_invite: '申请加入你的世界。',
+        instance_request_invite_response: '婉拒了你的申请。',
+        system_vote_to_kick: '一位玩家发起了踢出投票。',
+        group_join_request: '想要加入群组',
+        group_invite: '邀请你加入群组',
+        friend_accept: '接受',
+        friend_decline: '婉拒',
+        instance_invite_decline: '婉拒',
+        instance_invite_decline_with_message: '婉拒并附带留言',
+        instance_invite_decline_with_photo: '婉拒并附带照片',
+        instance_request_invite_decline: '婉拒',
+        instance_request_invite_decline_with_message: '婉拒并附带留言',
+        instance_request_invite_decline_with_photo: '婉拒并附带照片',
+        system_vote_to_kick_show_details: '查看详情'
       }
     },
     sidebar: {

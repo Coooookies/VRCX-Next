@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { cn } from '@renderer/shared/utils/style'
+import { useI18n } from '@renderer/shared/locale'
 import {
   NotificationGlobalType,
   NotificationSenderType
@@ -13,6 +14,8 @@ import NotificationPopoverAvatar from './notification-popover-avatar.vue'
 import NotificationPopoverInviteGroupTitle from './notification-popover-invite-group-title.vue'
 import NotificationPopoverContent from './notification-popover-content.vue'
 import NotificationPopoverActionButton from './notification-popover-action-button.vue'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   base: NotificationBaseProps
@@ -59,7 +62,7 @@ const handleFocusNotification = () => {
         <NotificationPopoverInviteGroupTitle
           :user-name="props.raw.data.userDisplayName"
           :group-name="props.raw.data.groupName"
-          description="want to join"
+          :description="t('notification.content.group_join_request')"
           @search-group-by-name="emits('searchGroupByName')"
           @search-user-by-name="emits('searchUserByName')"
           @hide-notification="emits('hideNotification')"

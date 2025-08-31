@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { cn } from '@renderer/shared/utils/style'
+import { useI18n } from '@renderer/shared/locale'
 import {
   NotificationGlobalType,
   NotificationSenderType
@@ -11,6 +12,8 @@ import type { NotificationGlobalRawInformation } from '@shared/definition/vrchat
 import NotificationPopoverAvatar from './notification-popover-avatar.vue'
 import NotificationPopoverMessageTitle from './notification-popover-message-title.vue'
 import NotificationPopoverContent from './notification-popover-content.vue'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   base: NotificationBaseProps
@@ -54,7 +57,7 @@ const handleFocusNotification = () => {
       <div class="grid flex-1 text-left text-sm leading-tight gap-y-0.5">
         <NotificationPopoverMessageTitle
           :sender-name="props.base.senderName"
-          description="declined your request."
+          :description="t('notification.content.instance_request_invite_response')"
           @show-sender="emits('showSender')"
           @hide-notification="emits('hideNotification')"
         />

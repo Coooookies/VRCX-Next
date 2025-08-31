@@ -1,7 +1,7 @@
 import { UserLanguage } from '@shared/definition/vrchat-users'
-import type { Languageinstance } from './types'
+import type { LocaleStructure } from './types'
 
-export const LANGUAGE_JA_JP: Languageinstance = {
+export const LANGUAGE_JA_JP: LocaleStructure = {
   label: '日本語',
   value: 'ja-JP',
   definition: {
@@ -136,6 +136,29 @@ export const LANGUAGE_JA_JP: Languageinstance = {
         [UserLanguage.FSL]: 'フランス手話',
         [UserLanguage.JSL]: '日本手話',
         [UserLanguage.KVK]: '韓国手話'
+      }
+    },
+    notification: {
+      empty_title: '通知はありません',
+      empty_description: 'ここはとても静かです...',
+      content: {
+        friend_request: 'フレンドになりたい。',
+        instance_invite: 'に招待しました',
+        instance_invite_response: '招待を辞退しました。',
+        instance_request_invite: 'ワールド参加を申請しました。',
+        instance_request_invite_response: '申請を辞退しました。',
+        system_vote_to_kick: 'プレイヤーがキック投票を開始しました。',
+        group_join_request: 'グループ参加を希望しています',
+        group_invite: 'グループに招待しました',
+        friend_accept: '承認',
+        friend_decline: '辞退',
+        instance_invite_decline: '辞退',
+        instance_invite_decline_with_message: '辞退（メッセージ付き）',
+        instance_invite_decline_with_photo: '辞退（写真付き）',
+        instance_request_invite_decline: '辞退',
+        instance_request_invite_decline_with_message: '辞退（メッセージ付き）',
+        instance_request_invite_decline_with_photo: '辞退（写真付き）',
+        system_vote_to_kick_show_details: '詳細を見る'
       }
     },
     sidebar: {

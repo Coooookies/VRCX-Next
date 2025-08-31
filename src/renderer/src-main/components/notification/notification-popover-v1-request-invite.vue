@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { cn } from '@renderer/shared/utils/style'
+import { useI18n } from '@renderer/shared/locale'
 import {
   NotificationGlobalType,
   NotificationSenderType
@@ -13,6 +14,8 @@ import NotificationPopoverMessageTitle from './notification-popover-message-titl
 import NotificationPopoverContent from './notification-popover-content.vue'
 import NotificationPopoverActionButton from './notification-popover-action-button.vue'
 import NotificationPopoverInviteDeclineOption from './notification-popover-invite-decline-option.vue'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   base: NotificationBaseProps
@@ -61,7 +64,7 @@ const handleFocusNotification = () => {
       <div class="grid flex-1 text-left text-sm leading-tight gap-y-0.5">
         <NotificationPopoverMessageTitle
           :sender-name="props.base.senderName"
-          description="wants to join you."
+          :description="t('notification.content.instance_request_invite')"
           @show-sender="emits('showSender')"
           @hide-notification="emits('hideNotification')"
         />
@@ -80,12 +83,16 @@ const handleFocusNotification = () => {
         <NotificationPopoverActionButton
           class="rounded-r-none rounded-l-sm"
           variant="secondary"
-          description="Decline"
+          :description="t('notification.content.instance_invite_decline')"
           @click="emits('respondInvite')"
         />
         <NotificationPopoverInviteDeclineOption
-          decline-with-message-title="Decline with message"
-          decline-with-photo-title="Decline with Photo"
+          :decline-with-message-title="
+            t('notification.content.instance_request_invite_decline_with_message')
+          "
+          :decline-with-photo-title="
+            t('notification.content.instance_request_invite_decline_with_photo')
+          "
           :is-supporter="props.isSupporter"
           @respond-invite-with-message="emits('respondInviteWithMessage')"
           @respond-invite-with-photo="emits('respondInviteWithPhoto')"

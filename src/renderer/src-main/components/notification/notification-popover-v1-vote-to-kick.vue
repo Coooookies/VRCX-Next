@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { cn } from '@renderer/shared/utils/style'
+import { useI18n } from '@renderer/shared/locale'
 import {
   NotificationGlobalType,
   NotificationSenderType
@@ -11,6 +12,8 @@ import type { NotificationGlobalRawInformation } from '@shared/definition/vrchat
 import NotificationPopoverAvatar from './notification-popover-avatar.vue'
 import NotificationPopoverMessageTitle from './notification-popover-message-title.vue'
 import NotificationPopoverActionButton from './notification-popover-action-button.vue'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   base: NotificationBaseProps
@@ -53,7 +56,7 @@ const handleFocusNotification = () => {
       />
       <div class="grid flex-1 text-left text-sm leading-tight gap-y-0.5">
         <NotificationPopoverMessageTitle
-          description="A player is being kicked from the poll."
+          :description="t('notification.content.system_vote_to_kick')"
           @hide-notification="emits('hideNotification')"
         />
         <p class="text-xs text-muted-foreground capitalize truncate">
@@ -65,7 +68,7 @@ const handleFocusNotification = () => {
       <NotificationPopoverActionButton
         class="rounded-r-none rounded-l-sm"
         variant="default"
-        description="View Details"
+        :description="t('notification.content.system_vote_to_kick_show_details')"
         @click="emits('showDetails')"
       />
     </div>
