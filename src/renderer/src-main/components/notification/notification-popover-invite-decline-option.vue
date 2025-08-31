@@ -28,7 +28,7 @@ const emits = defineEmits<{
         <ChevronDownIcon class="size-3.5" />
       </Button>
     </DropdownMenuTrigger>
-    <DropdownMenuContent class="w-50">
+    <DropdownMenuContent class="w-fit">
       <DropdownMenuItem
         class="h-7 pr-1.5 justify-between"
         @click="emits('respondInviteWithMessage')"
@@ -41,7 +41,7 @@ const emits = defineEmits<{
         @click="emits('respondInviteWithPhoto')"
       >
         <span class="text-xs">{{ props.declineWithPhotoTitle }}</span>
-        <BadgeVRChatPlus class="!w-10" />
+        <BadgeVRChatPlus class="!w-10 ml-2" />
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
