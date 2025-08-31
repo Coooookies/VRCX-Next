@@ -3,10 +3,12 @@ import { toNotificationEntity } from './factory'
 import { NotificationEntity } from '../database/entities/notifications'
 import type { Repository } from 'typeorm'
 import type { Database } from '../database'
+import type { MobxState } from '../mobx-state'
 import type {
   NotificationInformation,
   NotificationVersion
 } from '@shared/definition/vrchat-notifications'
+import type { NotificationSharedState } from '@shared/definition/mobx-shared'
 
 export class NotificationRepository extends Nanobus<{
   'notification:remote:insert': (notifications: NotificationInformation[]) => void
@@ -14,8 +16,21 @@ export class NotificationRepository extends Nanobus<{
   'notification:remote:delete': (notificationIds: string[]) => void
   'notification:remote:clear': (version: NotificationVersion) => void
 }> {
-  constructor(private readonly database: Database) {
+  private $!: NotificationSharedState
+
+  constructor(
+    moduleId: string,
+    private readonly mobx: MobxState,
+    private readonly database: Database
+  ) {
     super('VRChatNotifications:Repository')
+    this.$ = this.mobx.observable(
+      moduleId,
+      {
+        loading: false
+      },
+      ['loading']
+    )
   }
 
   private notifications = new Map<string, NotificationInformation>()
@@ -108,7 +123,17 @@ export class NotificationRepository extends Nanobus<{
     this.emit('notification:remote:clear', version)
   }
 
+  public setLoadingState(loading: boolean) {
+    this.mobx.action(() => {
+      this.$.loading = loading
+    })
+  }
+
   public clear() {
     this.clearNotifications()
+  }
+
+  public get State(): NotificationSharedState {
+    return this.$
   }
 }

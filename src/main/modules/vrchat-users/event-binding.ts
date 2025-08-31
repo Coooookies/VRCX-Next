@@ -16,8 +16,7 @@ import type {
   PipelineEventUserUpdate
 } from '@shared/definition/vrchat-pipeline'
 import type { CurrentUserInformation, UserLocation } from '@shared/definition/vrchat-users'
-import type { UserSharedState } from '@shared/definition/mobx-shared'
-import type { MobxState } from '../mobx-state'
+import type { UsersRepository } from './repository'
 
 export class UsersEventBinding extends Nanobus<{
   'user:update': (user: CurrentUserInformation, diff: Partial<CurrentUserInformation>) => void
@@ -25,11 +24,10 @@ export class UsersEventBinding extends Nanobus<{
 }> {
   constructor(
     private readonly logger: LoggerFactory,
-    private readonly state: UserSharedState,
+    private readonly repository: UsersRepository,
     private readonly pipeline: VRChatPipeline,
     private readonly worlds: VRChatWorlds,
-    private readonly groups: VRChatGroups,
-    private readonly mobx: MobxState
+    private readonly groups: VRChatGroups
   ) {
     super('VRChatFriends:EventBinding')
   }
@@ -62,15 +60,13 @@ export class UsersEventBinding extends Nanobus<{
     const isOffline = location === 'offline:offline' || travelingToLocation === 'offline'
 
     if (isOffline) {
-      return this.mobx.action(() => {
-        this.state.location = null
-      })
+      return this.repository.setLocationState(null)
     }
 
     const originalTarget = parseLocation(location)
     const travelingTarget = parseLocation(travelingToLocation)
     const nextLocation = isTraveling ? travelingTarget : originalTarget
-    const prevLocation = this.state.location?.location || null
+    const prevLocation = this.repository.State.location?.location || null
     const isSameLocation = this.isSameLocation(prevLocation, nextLocation)
 
     if (nextLocation) {
@@ -82,7 +78,7 @@ export class UsersEventBinding extends Nanobus<{
     }
 
     const locationArrivedAt = isSameLocation
-      ? this.state.location?.locationArrivedAt || null
+      ? this.repository.State.location?.locationArrivedAt || null
       : nextLocation
         ? new Date()
         : null
@@ -98,22 +94,17 @@ export class UsersEventBinding extends Nanobus<{
     )
 
     this.emit('user:location', newLocation)
-    return this.mobx.action(() => {
-      this.state.location = newLocation
-    })
+    this.repository.setLocationState(newLocation)
   }
 
   private async handleUserUpdate({ user }: PipelineEventUserUpdate): Promise<void> {
-    const oldUser = toJS(this.state.user)
+    const oldUser = toJS(this.repository.State.user)
     const newUser = toCurrentUserInformation(user)
     const diff = oldUser ? diffSurface<CurrentUserInformation>(oldUser, newUser) : newUser
 
     this.logger.info(`User updated: ${user.id}`, diff)
     this.emit('user:update', newUser, diff)
-
-    return this.mobx.action(() => {
-      this.state.user = newUser
-    })
+    this.repository.setUserState(newUser)
   }
 
   private isSameLocation(

@@ -12,7 +12,6 @@ import type { VRChatGroups } from '../vrchat-groups'
 import type { VRChatWorlds } from '../vrchat-worlds'
 import type { MobxState } from '../mobx-state'
 import type { Database } from '../database'
-import type { UserSharedState } from '@shared/definition/mobx-shared'
 
 export class VRChatUsers extends Module<{}> {
   @Dependency('VRChatAPI') declare private api: VRChatAPI
@@ -28,26 +27,16 @@ export class VRChatUsers extends Module<{}> {
   private repository!: UsersRepository
   private eventBinding!: UsersEventBinding
   private fetcher!: UsersFetcher
-  private $!: UserSharedState
 
   protected onInit(): void {
-    this.$ = this.mobx.observable(
-      this.moduleId,
-      {
-        user: null,
-        location: null
-      },
-      ['user', 'location']
-    )
-    this.repository = new UsersRepository(this.database)
+    this.repository = new UsersRepository(this.moduleId, this.mobx, this.database)
     this.fetcher = new UsersFetcher(this.logger, this.repository, this.api)
     this.eventBinding = new UsersEventBinding(
       this.logger,
-      this.$,
+      this.repository,
       this.pipeline,
       this.worlds,
-      this.groups,
-      this.mobx
+      this.groups
     )
     this.bindEvents()
     this.eventBinding.bindEvents()
@@ -55,21 +44,18 @@ export class VRChatUsers extends Module<{}> {
 
   private bindEvents(): void {
     this.workflow.registerPostLoginTask('user-notes-resolver', 40, async () => {
-      this.mobx.action(() => {
-        this.$.user =
-          this.auth.currentState.type === 'authenticated'
-            ? toCurrentUserInformation(this.auth.currentState.userInfo)
-            : null
-      })
-
+      this.repository.setUserState(
+        this.auth.currentState.type === 'authenticated'
+          ? toCurrentUserInformation(this.auth.currentState.userInfo)
+          : null
+      )
       await this.fetcher.initNotes()
     })
 
     this.workflow.registerPostLogoutTask('user-notes-clear', 40, () => {
-      this.mobx.action(() => {
-        this.$.user = null
-        this.$.location = null
-      })
+      this.repository.setUserState(null)
+      this.repository.setLocationState(null)
+      this.repository.clearNotes()
     })
   }
 
@@ -82,6 +68,6 @@ export class VRChatUsers extends Module<{}> {
   }
 
   public get state() {
-    return this.$
+    return this.repository.State
   }
 }

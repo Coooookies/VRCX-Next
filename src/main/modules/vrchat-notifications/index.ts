@@ -14,7 +14,6 @@ import type { VRChatGroups } from '../vrchat-groups'
 import type { VRChatWorkflowCoordinator } from '../vrchat-workflow-coordinator'
 import type { Database } from '../database'
 import type { MobxState } from '../mobx-state'
-import type { NotificationSharedState } from '@shared/definition/mobx-shared'
 
 export class VRChatNotifications extends Module<{}> {
   @Dependency('IPCModule') declare private ipc: IPCModule
@@ -33,10 +32,9 @@ export class VRChatNotifications extends Module<{}> {
   private operation!: NotificationOperation
   private eventBinding!: NotificationEventBinding
   private ipcBinding!: NotificationIPCBinding
-  private $!: NotificationSharedState
 
   protected onInit(): void {
-    this.repository = new NotificationRepository(this.database)
+    this.repository = new NotificationRepository(this.moduleId, this.mobx, this.database)
     this.operation = new NotificationOperation(this.repository, this.api, this.users)
     this.fetcher = new NotificationFetcher(
       this.logger,
@@ -57,13 +55,6 @@ export class VRChatNotifications extends Module<{}> {
     this.ipcBinding.bindEvents()
     this.ipcBinding.bindInvokes()
     this.eventBinding.bindEvents()
-    this.$ = this.mobx.observable(
-      this.moduleId,
-      {
-        loading: false
-      },
-      ['loading']
-    )
 
     this.workflow.registerPostLoginTask('notifications-resolver', 60, async () => {
       await this.refreshNotifications(true)
@@ -75,26 +66,24 @@ export class VRChatNotifications extends Module<{}> {
 
     this.workflow.on('workflow:start', (type) => {
       if (type === 'post-login') {
-        this.mobx.action(() => {
-          this.$.loading = true
-        })
+        this.repository.setLoadingState(true)
       }
     })
   }
 
   public async refreshNotifications(force?: boolean) {
-    if (this.$.loading && !force) {
+    if (this.repository.State.loading && !force) {
       return
     }
 
     this.mobx.action(() => {
-      this.$.loading = true
+      this.repository.State.loading = true
     })
 
     await this.fetcher.initNotifications()
 
     this.mobx.action(() => {
-      this.$.loading = false
+      this.repository.State.loading = false
     })
   }
 
