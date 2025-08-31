@@ -25,3 +25,7 @@ export interface FriendSharedState {
 export interface NotificationSharedState {
   loading: boolean
 }
+
+export interface MiscellaneousSharedState {
+  serverTimeOffset: number
+}

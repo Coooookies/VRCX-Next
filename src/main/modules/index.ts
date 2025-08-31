@@ -7,6 +7,7 @@ import { SettingModule } from './setting'
 import { Database } from './database'
 import { VRChatAPI } from './vrchat-api'
 import { VRChatAuthentication } from './vrchat-authentication'
+import { VRChatMiscellaneous } from './vrchat-miscellaneous'
 import { VRChatWorkflowCoordinator } from './vrchat-workflow-coordinator'
 import { VRChatPipeline } from './vrchat-pipeline'
 import { VRChatFiles } from './vrchat-files'
@@ -27,6 +28,7 @@ export const APP_MODULES: Record<string, ModuleConstructor> = {
   ProtocolServer,
   IPCModule,
   VRChatAPI,
+  VRChatMiscellaneous,
   VRChatAuthentication,
   VRChatWorkflowCoordinator,
   VRChatPipeline,
