@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import ImageVrchatContext from '@renderer/shared/components/image-vrchat-context.vue'
 import { cn } from '@renderer/shared/utils/style'
-import { computed } from 'vue'
-import { RelativeTimerText } from '@renderer/shared/components/timer'
-import { NotificationGlobalType } from '@shared/definition/vrchat-notifications'
-import { ImageFallback, ImageRoot } from '@renderer/shared/components/ui/image'
+import {
+  NotificationGlobalType,
+  NotificationSenderType
+} from '@shared/definition/vrchat-notifications'
 import { Button } from '@renderer/shared/components/ui/button'
-import { CircleUserRoundIcon, XIcon } from 'lucide-vue-next'
+import { RelativeTimerText } from '@renderer/shared/components/timer'
 import type { NotificationBaseProps } from './types'
 import type { NotificationGlobalRawInformation } from '@shared/definition/vrchat-notifications'
+import NotificationPopoverAvatar from './notification-popover-avatar.vue'
+import NotificationPopoverMessageTitle from './notification-popover-message-title.vue'
+import NotificationPopoverContent from './notification-popover-content.vue'
 
 const props = defineProps<{
   base: NotificationBaseProps
@@ -20,10 +22,6 @@ const emits = defineEmits<{
   (e: 'readNotification'): void
   (e: 'showSender'): void
 }>()
-
-const isAvatarVisable = computed(
-  () => props.base.senderAvatarFileId && props.base.senderAvatarFileVersion
-)
 
 const handleFocusNotification = () => {
   if (!props.base.isRead) {
@@ -48,47 +46,23 @@ const handleFocusNotification = () => {
     @click="handleFocusNotification"
   >
     <div class="w-full h-10 flex flex-row items-center justify-start gap-4">
-      <ImageRoot v-if="isAvatarVisable" class="block size-10 bg-muted rounded-full overflow-hidden">
-        <ImageVrchatContext
-          :file-id="props.base.senderAvatarFileId!"
-          :version="props.base.senderAvatarFileVersion!"
-          class="size-full object-cover"
-        />
-        <ImageFallback class="size-full flex items-center justify-center">
-          <CircleUserRoundIcon class="size-4 text-muted-foreground" />
-        </ImageFallback>
-      </ImageRoot>
+      <NotificationPopoverAvatar
+        :file-id="props.base.senderAvatarFileId"
+        :version="props.base.senderAvatarFileVersion"
+        :type="NotificationSenderType.System"
+      />
       <div class="grid flex-1 text-left text-sm leading-tight gap-y-0.5">
-        <div class="w-full flex flex-row items-center gap-1 overflow-hidden">
-          <p class="flex-1 text-sm truncate">
-            <Button
-              v-if="props.base.senderName"
-              as="a"
-              class="bg-transparent dark:bg-transparent p-0 inline font-semibold hover:underline mr-1"
-              @click="emits('showSender')"
-            >
-              {{ props.base.senderName }}
-            </Button>
-            <span class="font-medium text-muted-foreground">{{ props.base.title }}</span>
-          </p>
-          <Button
-            size="icon"
-            variant="ghost"
-            class="size-4 rounded-[4px] hidden group-hover/notification-card:flex"
-            @click.stop="emits('hideNotification')"
-          >
-            <XIcon class="size-3.5" />
-          </Button>
-        </div>
+        <NotificationPopoverMessageTitle
+          :sender-name="props.base.senderName"
+          :description="props.base.title"
+          @show-sender="emits('showSender')"
+          @hide-notification="emits('hideNotification')"
+        />
         <p class="text-xs text-muted-foreground capitalize truncate">
           <RelativeTimerText :start-time="props.base.createdAt" />
         </p>
       </div>
     </div>
-    <div v-if="props.base.message" :class="cn('w-full', isAvatarVisable ? 'pl-14' : 'pl-0')">
-      <p class="text-xs text-muted-foreground text-left italic whitespace-pre-wrap leading-4.5">
-        {{ props.base.message }}
-      </p>
-    </div>
+    <NotificationPopoverContent :message-content="props.base.message" message-italic />
   </Button>
 </template>

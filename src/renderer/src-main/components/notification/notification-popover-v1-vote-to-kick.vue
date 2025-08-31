@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { cn } from '@renderer/shared/utils/style'
-import { RelativeTimerText } from '@renderer/shared/components/timer'
-import { NotificationGlobalType } from '@shared/definition/vrchat-notifications'
+import {
+  NotificationGlobalType,
+  NotificationSenderType
+} from '@shared/definition/vrchat-notifications'
 import { Button } from '@renderer/shared/components/ui/button'
-import { XIcon } from 'lucide-vue-next'
+import { RelativeTimerText } from '@renderer/shared/components/timer'
 import type { NotificationBaseProps } from './types'
 import type { NotificationGlobalRawInformation } from '@shared/definition/vrchat-notifications'
+import NotificationPopoverAvatar from './notification-popover-avatar.vue'
+import NotificationPopoverMessageTitle from './notification-popover-message-title.vue'
+import NotificationPopoverActionButton from './notification-popover-action-button.vue'
 
 const props = defineProps<{
   base: NotificationBaseProps
@@ -41,36 +46,28 @@ const handleFocusNotification = () => {
     @click="handleFocusNotification"
   >
     <div class="w-full h-10 flex flex-row items-center justify-start gap-4">
+      <NotificationPopoverAvatar
+        :file-id="props.base.senderAvatarFileId"
+        :version="props.base.senderAvatarFileVersion"
+        :type="NotificationSenderType.System"
+      />
       <div class="grid flex-1 text-left text-sm leading-tight gap-y-0.5">
-        <div class="w-full flex flex-row items-center gap-1 overflow-hidden">
-          <p class="flex-1 text-sm truncate">
-            <span class="font-medium text-muted-foreground">
-              A player is being kicked from the poll.
-            </span>
-          </p>
-          <Button
-            size="icon"
-            variant="ghost"
-            class="size-4 rounded-[4px] hidden group-hover/notification-card:flex"
-            @click.stop="emits('hideNotification')"
-          >
-            <XIcon class="size-3.5" />
-          </Button>
-        </div>
+        <NotificationPopoverMessageTitle
+          description="A player is being kicked from the poll."
+          @hide-notification="emits('hideNotification')"
+        />
         <p class="text-xs text-muted-foreground capitalize truncate">
           <RelativeTimerText :start-time="props.base.createdAt" />
         </p>
       </div>
     </div>
     <div class="flex flex-row items-center justify-start gap-1.5">
-      <Button
-        class="text-xs h-6 px-2 rounded-sm"
-        size="sm"
-        variant="secondary"
+      <NotificationPopoverActionButton
+        class="rounded-r-none rounded-l-sm"
+        variant="default"
+        description="View Details"
         @click="emits('showDetails')"
-      >
-        View Details
-      </Button>
+      />
     </div>
   </Button>
 </template>
