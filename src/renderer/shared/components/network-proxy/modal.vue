@@ -54,10 +54,6 @@ const typeItems: TypeItem[] = [
     label: 'HTTP',
     value: 'http'
   },
-  // {
-  //   label: 'HTTPS',
-  //   value: 'https'
-  // },
   {
     label: 'Socks',
     value: 'socks'
