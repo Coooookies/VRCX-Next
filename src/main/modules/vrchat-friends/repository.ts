@@ -1,5 +1,7 @@
 import Nanobus from 'nanobus'
+import type { MobxState } from '../mobx-state'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
+import type { FriendSharedState } from '@shared/definition/mobx-shared'
 
 export class FriendsRepository extends Nanobus<{
   'friends:insert': (friends: FriendInformation[]) => void
@@ -8,6 +10,21 @@ export class FriendsRepository extends Nanobus<{
   'friends:clear': () => void
 }> {
   private readonly friends = new Map<string, FriendInformation>()
+  private $!: FriendSharedState
+
+  constructor(
+    moduleId: string,
+    private readonly mobx: MobxState
+  ) {
+    super('VRChatFriends:Repository')
+    this.$ = this.mobx.observable(
+      moduleId,
+      {
+        loading: false
+      },
+      ['loading']
+    )
+  }
 
   public get(userId: string) {
     return this.friends.get(userId)
@@ -57,5 +74,15 @@ export class FriendsRepository extends Nanobus<{
 
   public has(userId: string) {
     return this.friends.has(userId)
+  }
+
+  public setLoadingState(loading: boolean): void {
+    this.mobx.action(() => {
+      this.$.loading = loading
+    })
+  }
+
+  public get State(): FriendSharedState {
+    return this.$
   }
 }

@@ -13,7 +13,6 @@ import type { VRChatWorlds } from '../vrchat-worlds'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { VRChatAuthentication } from '../vrchat-authentication'
 import type { VRChatWorkflowCoordinator } from '../vrchat-workflow-coordinator'
-import type { FriendSharedState } from '@shared/definition/mobx-shared'
 
 export class VRChatFriends extends Module<{}> {
   @Dependency('IPCModule') declare private ipc: IPCModule
@@ -31,11 +30,10 @@ export class VRChatFriends extends Module<{}> {
   private ipcBinding!: FriendsIPCBinding
   private eventBinding!: FriendsEventBinding
   private fetcher!: FriendsFetcher
-  private $!: FriendSharedState
 
   protected onInit(): void {
     this.bindEvents()
-    this.repository = new FriendsRepository()
+    this.repository = new FriendsRepository(this.moduleId, this.mobx)
     this.ipcBinding = new FriendsIPCBinding(this.ipc, this.repository)
     this.fetcher = new FriendsFetcher(
       this.logger,
@@ -56,13 +54,6 @@ export class VRChatFriends extends Module<{}> {
     this.ipcBinding.bindEvents()
     this.ipcBinding.bindInvokes()
     this.eventBinding.bindEvents()
-    this.$ = this.mobx.observable(
-      this.moduleId,
-      {
-        loading: false
-      },
-      ['loading']
-    )
   }
 
   private bindEvents(): void {
@@ -77,28 +68,22 @@ export class VRChatFriends extends Module<{}> {
 
     this.workflow.on('workflow:start', (type) => {
       if (type === 'post-login') {
-        this.mobx.action(() => {
-          this.$.loading = true
-        })
+        this.repository.setLoadingState(true)
       }
     })
   }
 
   public async refreshFriends(force?: boolean) {
-    if (this.$.loading && !force) {
+    if (this.repository.State.loading && !force) {
       return
     }
 
     this.eventBinding.stopPipeProcessing()
-    this.mobx.action(() => {
-      this.$.loading = true
-    })
+    this.repository.setLoadingState(true)
 
     await this.fetcher.initFriends()
     await this.eventBinding.startPipeProcessing(this.pipeline.cachedEvents)
 
-    this.mobx.action(() => {
-      this.$.loading = false
-    })
+    this.repository.setLoadingState(false)
   }
 }
