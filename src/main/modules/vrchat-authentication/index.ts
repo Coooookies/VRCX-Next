@@ -14,7 +14,6 @@ import type { VRChatAPI } from '../vrchat-api'
 import type { MobxState } from '../mobx-state'
 import type { SettingModule } from '../setting'
 import type { AuthenticationState, AuthenticationUserOverview } from './types'
-import type { AuthenticationSharedState } from '@shared/definition/mobx-shared'
 
 export class VRChatAuthentication extends Module<{
   'state:update': (state: AuthenticationState) => void
@@ -30,27 +29,18 @@ export class VRChatAuthentication extends Module<{
   private state!: ActorRefFrom<typeof createAuthenticationMachine>
   private binding!: AuthenticationIPCBinding
   private repository!: AuthenticationRepository
-  private $!: AuthenticationSharedState
 
   protected async onInit(): Promise<void> {
     const logic = createAuthenticationLogic(this.api)
     const machine = createAuthenticationMachine(logic)
-
-    this.repository = new AuthenticationRepository(this.database)
-    this.binding = new AuthenticationIPCBinding(this, this.ipc, this.repository)
     this.state = createActor(machine)
     this.state.start()
+
+    this.repository = new AuthenticationRepository(this, this.mobx, this.database)
+    this.binding = new AuthenticationIPCBinding(this, this.ipc, this.repository)
     this.binding.bindEvents()
     this.binding.bindInvokes()
     this.bindEvents()
-
-    this.$ = this.mobx.observable(
-      this.moduleId,
-      {
-        state: this.currentState
-      },
-      ['state']
-    )
   }
 
   protected onLoad(): void {
@@ -92,9 +82,7 @@ export class VRChatAuthentication extends Module<{
         this.cancelAutoLoginSession()
       }
 
-      this.mobx.action(() => {
-        this.$.state = state
-      })
+      this.repository.setState(state)
     })
   }
 

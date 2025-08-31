@@ -1,10 +1,30 @@
 import { CredentialEntity } from '../database/entities/credential'
 import type { Repository } from 'typeorm'
 import type { Database } from '../database'
-import type { AuthenticationCredentialEntity } from '@shared/definition/vrchat-authentication'
+import type { MobxState } from '../mobx-state'
+import type {
+  AuthenticationCredentialEntity,
+  AuthenticationState
+} from '@shared/definition/vrchat-authentication'
+import type { AuthenticationSharedState } from '@shared/definition/mobx-shared'
+import type { VRChatAuthentication } from '.'
 
 export class AuthenticationRepository {
-  constructor(private database: Database) {}
+  private $!: AuthenticationSharedState
+
+  constructor(
+    self: VRChatAuthentication,
+    private readonly mobx: MobxState,
+    private readonly database: Database
+  ) {
+    this.$ = mobx.observable(
+      self.moduleId,
+      {
+        state: self.currentState
+      },
+      ['state']
+    )
+  }
 
   public get repository(): Repository<CredentialEntity> {
     return this.database.source.getRepository(CredentialEntity)
@@ -33,6 +53,12 @@ export class AuthenticationRepository {
 
   public deleteCredentialByUserId(userId: string) {
     return this.repository.delete({ userId }).then(() => {})
+  }
+
+  public setState(state: AuthenticationState) {
+    this.mobx.action(() => {
+      this.$.state = state
+    })
   }
 
   public upsertCredential(entity: CredentialEntity) {
