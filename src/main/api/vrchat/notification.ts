@@ -13,7 +13,7 @@ export class Notifications {
 
   public getNotification(notificationId: string) {
     return attempt<Response<Notification>, HTTPError<Response<ErrorResponse>>>(() =>
-      this.client.get(`/auth/user/notifications/${notificationId}`, {
+      this.client.get(`auth/user/notifications/${notificationId}`, {
         responseType: 'json'
       })
     )
