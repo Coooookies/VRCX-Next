@@ -2,17 +2,28 @@
 import AppLayout from '../layouts/app-layout.vue'
 import SidebarLeft from '../components/sidebar/sidebar-left.vue'
 import SidebarRight from '../components/sidebar/sidebar-right.vue'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { SlideRouterView } from '../components/router-view'
+import { useModule } from '@renderer/shared/hooks/use-module'
+import { SettingModule } from '@renderer/shared/modules/setting'
+
+const settings = useModule<SettingModule>('SettingModule')
 
 const router = useRouter()
 const route = useRoute()
+const leftExpanded = computed({
+  get: () => settings.state.appearance.sidebar_left_expand,
+  set: (val: boolean) => settings.update('appearance', 'sidebar_left_expand', val)
+})
+
+const rightExpanded = computed({
+  get: () => settings.state.appearance.sidebar_right_expand,
+  set: (val: boolean) => settings.update('appearance', 'sidebar_right_expand', val)
+})
 
 const leftExpandWidth = 260
-const leftExpanded = ref(false)
 const rightExpandWidth = 310
-const rightExpanded = ref(false)
 const collapseWidth = 72
 
 const routeName = computed(() => route.name?.toString() || '')
