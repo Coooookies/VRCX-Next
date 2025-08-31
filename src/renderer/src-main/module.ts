@@ -8,6 +8,7 @@ import { VRChatUsers } from '@renderer/shared/modules/vrchat-users'
 import { VRChatFriends } from '@renderer/shared/modules/vrchat-friends'
 import { VRChatNotifications } from '@renderer/shared/modules/vrchat-notifications'
 import { VRChatAuthentication } from '@renderer/shared/modules/vrchat-authentication'
+import { VRChatMiscellaneous } from '@renderer/shared/modules/vrchat-miscellaneous'
 import { Runtime } from '@renderer/shared/modules/runtime'
 
 const module = createModuleManager()
@@ -20,6 +21,7 @@ const modules: Record<string, ModuleConstructor> = {
   VRChatUsers,
   VRChatFriends,
   VRChatNotifications,
+  VRChatMiscellaneous,
   Runtime
 }
 
