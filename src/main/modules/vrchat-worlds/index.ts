@@ -1,4 +1,5 @@
 import { WorldFetcher } from './fetcher'
+import { WorldEventBinding } from './event-binding'
 import { WorldRepository } from './repository'
 import { Dependency, Module } from '@shared/module-constructor'
 import { createLogger } from '@main/logger'
@@ -6,7 +7,6 @@ import type { VRChatAPI } from '../vrchat-api'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { VRChatAuthentication } from '../vrchat-authentication'
 import type { Database } from '../database'
-import { WorldEventBinding } from './event-binding'
 
 export class VRChatWorlds extends Module<{}> {
   @Dependency('VRChatAPI') declare private api: VRChatAPI
