@@ -22,6 +22,7 @@ import { cn } from '@renderer/shared/utils/style'
 import { computed, ref, shallowReadonly } from 'vue'
 import { useI18n } from '@renderer/shared/locale'
 import { Badge } from '@renderer/shared/components/ui/badge'
+import { Button } from '@renderer/shared/components/ui/button'
 import { PopoverContent } from '@renderer/shared/components/ui/popover'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/shared/components/ui/tabs'
 import { NotificationGlobalType } from '@shared/definition/vrchat-notifications'
@@ -61,6 +62,7 @@ const emits = defineEmits<{
   (e: 'respondInvite', notificationId: string): void
   (e: 'respondInviteWithMessage', notificationId: string): void
   (e: 'respondInviteWithPhoto', notificationId: string): void
+  (e: 'showAllNotifications'): void
 }>()
 
 const notificationComponents = shallowReadonly({
@@ -151,8 +153,8 @@ const tabs = computed(() => {
     disable-update-on-layout-shift
     class="relative w-94 p-0 rounded-lg overflow-hidden"
   >
-    <div class="pt-4 px-5 pb-1.5">
-      <h2 class="text-base font-semibold">{{ t('sidebar.notifications_title') }}</h2>
+    <div class="flex flex-row pt-4 px-5 pb-1.5">
+      <h2 class="flex-1 text-base font-semibold">{{ t('sidebar.notifications_title') }}</h2>
     </div>
     <Tabs v-model="tabIndex" class="w-full h-146.5 items-center gap-0">
       <TabsList
@@ -182,6 +184,14 @@ const tabs = computed(() => {
             {{ tab.unreadCount }}
           </Badge>
         </TabsTrigger>
+        <Button
+          class="px-0 py-2 ml-auto"
+          variant="link"
+          size="sm"
+          @click="emits('showAllNotifications')"
+        >
+          <span class="text-[13px]">{{ t('notification.show_all_notification') }}</span>
+        </Button>
       </TabsList>
       <TabsContent
         v-for="tab in tabs"
