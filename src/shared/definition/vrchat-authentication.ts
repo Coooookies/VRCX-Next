@@ -14,7 +14,7 @@ export interface AuthenticationCredentialEntity {
   displayName: string
   profileIconFileId: string
   profileIconFileVersion: number
-  createdAt: Date
+  updatedAt: Date
 }
 
 export interface AuthenticationStateUnauthenticated {
