@@ -2,7 +2,8 @@ import { createActor } from 'xstate'
 import { createLogger } from '@main/logger'
 import { createAuthenticationMachine } from './state-machine'
 import { createAuthenticationLogic } from './state-logic'
-import { getProfileIconUrl, parseFileUrl } from '../vrchat-files/parser'
+import { parseFileUrl } from '../vrchat-files/factory'
+import { getProfileIconUrl } from '../vrchat-users/factory'
 import { snapshotToAuthenticationState } from './factory'
 import { AuthenticationRepository } from './repository'
 import { AuthenticationIPCBinding } from './ipc-binding'
@@ -74,7 +75,7 @@ export class VRChatAuthentication extends Module<{
             profileIconFileVersion: thumbnailFile.version,
             token: state.authToken,
             twoFactorToken: state.twoFactorAuthToken,
-            createdAt: new Date()
+            updatedAt: new Date()
           })
         }
       } else {

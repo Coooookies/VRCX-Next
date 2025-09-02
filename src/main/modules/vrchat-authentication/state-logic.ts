@@ -1,6 +1,7 @@
 import cookieParser from 'set-cookie-parser'
 import { tokenizeError } from '../vrchat-api/exceptions'
-import { getProfileIconUrl, parseFileUrl } from '../vrchat-files/parser'
+import { parseFileUrl } from '../vrchat-files/factory'
+import { getProfileIconUrl } from '../vrchat-users/factory'
 import { ResponseErrorReason } from '@shared/definition/vrchat-api-status'
 import type { TwoFactorTypes } from '@shared/definition/vrchat-api-response'
 import type { VRChatAPI } from '../vrchat-api'
