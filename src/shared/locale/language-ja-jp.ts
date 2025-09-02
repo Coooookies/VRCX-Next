@@ -141,6 +141,7 @@ export const LANGUAGE_JA_JP: LocaleStructure = {
     notification: {
       empty_title: '通知はありません',
       empty_description: 'ここはとても静かです...',
+      show_all_notification: 'すべての通知',
       content: {
         friend_request: 'フレンドになりたい。',
         instance_invite: 'に招待しました',

@@ -141,6 +141,7 @@ export const LANGUAGE_EN_US: LocaleStructure = {
     notification: {
       empty_title: 'No notifications',
       empty_description: 'It’s very quiet here...',
+      show_all_notification: 'Show all',
       content: {
         friend_request: 'wants to be your friend.',
         instance_invite: 'invited you to',

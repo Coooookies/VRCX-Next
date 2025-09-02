@@ -141,6 +141,7 @@ export const LANGUAGE_ZH_CN: LocaleStructure = {
     notification: {
       empty_title: '暂时没有通知',
       empty_description: '这里似乎非常安静...',
+      show_all_notification: '所有通知',
       content: {
         friend_request: '想要成为你的好友。',
         instance_invite: '邀请你前往',

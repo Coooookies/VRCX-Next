@@ -99,6 +99,7 @@ export type LocaleDefinition = {
   notification: {
     empty_title: string
     empty_description: string
+    show_all_notification: string
     content: {
       friend_request: string
       instance_invite: string
