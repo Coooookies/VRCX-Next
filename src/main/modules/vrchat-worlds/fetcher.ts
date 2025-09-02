@@ -30,7 +30,7 @@ export class WorldFetcher {
     const invalidIds = _worldIds.filter(
       (id) =>
         !entities.has(id) ||
-        _date.getTime() - entities.get(id)!.cacheUpdatedAt.getTime() >
+        _date.getTime() - entities.get(id)!.cacheUpdatedAt!.getTime() >
           SAVED_WORLD_ENTITY_EXPIRE_DELAY
     )
 

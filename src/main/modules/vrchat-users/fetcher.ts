@@ -73,7 +73,7 @@ export class UsersFetcher {
     const invalidIds = _userIds.filter(
       (id) =>
         !entities.has(id) ||
-        _date.getTime() - entities.get(id)!.cacheUpdatedAt.getTime() >
+        _date.getTime() - entities.get(id)!.cacheUpdatedAt!.getTime() >
           SAVED_USER_ENTITY_EXPIRE_DELAY
     )
 

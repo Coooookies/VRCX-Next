@@ -17,6 +17,12 @@ export class ImageSelectionEntity {
   declare fileName: string
 
   @Column({
+    name: 'file_extension',
+    type: 'text'
+  })
+  declare fileExtension: string
+
+  @Column({
     name: 'path',
     type: 'text'
   })
@@ -27,7 +33,7 @@ export class ImageSelectionEntity {
     type: 'text',
     nullable: true
   })
-  declare macosBookmark: string | null
+  declare macosBookmark?: string
 
   @Column({
     name: 'recorded_at',
@@ -36,5 +42,5 @@ export class ImageSelectionEntity {
     ...datetimeTransformer,
     ...datetimeDefault
   })
-  declare recordedAt: Date
+  declare recordedAt?: Date
 }

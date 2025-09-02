@@ -56,5 +56,5 @@ export class UserEntity implements UserSummary {
     ...datetimeTransformer,
     ...datetimeDefault
   })
-  declare cacheUpdatedAt: Date
+  declare cacheUpdatedAt?: Date
 }

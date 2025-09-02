@@ -90,5 +90,5 @@ export class NotificationEntity {
     ...datetimeTransformer,
     ...datetimeDefault
   })
-  declare createdAt: Date
+  declare createdAt?: Date
 }

@@ -30,7 +30,7 @@ export class GroupFetcher {
     const invalidIds = _worldIds.filter(
       (id) =>
         !entities.has(id) ||
-        _date.getTime() - entities.get(id)!.cacheUpdatedAt.getTime() >
+        _date.getTime() - entities.get(id)!.cacheUpdatedAt!.getTime() >
           SAVED_GROUP_ENTITY_EXPIRE_DELAY
     )
 

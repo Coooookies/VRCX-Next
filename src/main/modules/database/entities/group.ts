@@ -73,5 +73,5 @@ export class GroupEntity implements GroupSummary {
     ...datetimeTransformer,
     ...datetimeDefault
   })
-  declare cacheUpdatedAt: Date
+  declare cacheUpdatedAt?: Date
 }

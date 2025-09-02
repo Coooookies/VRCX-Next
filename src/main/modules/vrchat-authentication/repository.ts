@@ -38,7 +38,7 @@ export class AuthenticationRepository {
         displayName: credential.displayName,
         profileIconFileId: credential.profileIconFileId,
         profileIconFileVersion: credential.profileIconFileVersion,
-        createdAt: credential.createdAt
+        updatedAt: credential.updatedAt!
       }))
     )
   }
