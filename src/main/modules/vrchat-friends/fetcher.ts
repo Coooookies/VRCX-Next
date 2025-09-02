@@ -10,7 +10,7 @@ import type { LimitedUserFriend, World } from '@shared/definition/vrchat-api-res
 import type { WorldEntity } from '../database/entities/world'
 import type { GroupEntity } from '../database/entities/group'
 import type { LoggerFactory } from '@main/logger'
-import { parseFileUrl } from '../vrchat-files/parser'
+import { parseFileUrl } from '../vrchat-files/factory'
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { toFriendUserEntity } from '../vrchat-users/factory'
 import { isGroupInstance } from '../vrchat-worlds/factory'

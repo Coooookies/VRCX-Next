@@ -1,6 +1,11 @@
 import { isGroupInstance } from '../vrchat-worlds/factory'
-import { isSupporter, toUserLanguageTags, toUserTrustRank } from '../vrchat-users/factory'
-import { parseFileUrl, getProfileIconUrl } from '../vrchat-files/parser'
+import {
+  getProfileIconUrl,
+  isSupporter,
+  toUserLanguageTags,
+  toUserTrustRank
+} from '../vrchat-users/factory'
+import { parseFileUrl } from '../vrchat-files/factory'
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { Platform } from '@shared/definition/vrchat-api-response'
 import type { ReferenceAvatar } from '@shared/definition/vrchat-avatars'

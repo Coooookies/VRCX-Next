@@ -1,4 +1,4 @@
-import { parseFileUrl, getProfileIconUrl } from '../vrchat-files/parser'
+import { parseFileUrl } from '../vrchat-files/factory'
 import { UserTrustRank, UserLanguage } from '@shared/definition/vrchat-users'
 import { UserEntity } from '../database/entities/users'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
@@ -10,6 +10,12 @@ import type {
   Platform,
   User
 } from '@shared/definition/vrchat-api-response'
+
+export function getProfileIconUrl(target: User | CurrentUser | LimitedUserFriend): string {
+  return (
+    target.userIcon || target.currentAvatarThumbnailImageUrl || target.profilePicOverrideThumbnail
+  )
+}
 
 export function toCurrentUserInformation(user: CurrentUser): CurrentUserInformation {
   const profileIconUrl = getProfileIconUrl(user)

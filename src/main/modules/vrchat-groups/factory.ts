@@ -1,4 +1,4 @@
-import { parseFileUrl } from '../vrchat-files/parser'
+import { parseFileUrl } from '../vrchat-files/factory'
 import { Group } from '@shared/definition/vrchat-api-response'
 import type { GroupEntity } from '../database/entities/group'
 

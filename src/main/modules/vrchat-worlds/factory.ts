@@ -1,4 +1,4 @@
-import { parseFileUrl } from '../vrchat-files/parser'
+import { parseFileUrl } from '../vrchat-files/factory'
 import { WorldEntity } from '../database/entities/world'
 import { LocationInstance, LocationInstanceGroupType } from '@shared/definition/vrchat-instances'
 import type { FavoritedWorld, World } from '@shared/definition/vrchat-api-response'
