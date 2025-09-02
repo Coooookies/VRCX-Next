@@ -7,6 +7,8 @@ import { WorldEntity } from './entities/world'
 import { GroupEntity } from './entities/group'
 import { SettingEntity } from './entities/setting'
 import { UserEntity } from './entities/users'
+import { NotificationEntity } from './entities/notifications'
+import { ImageSelectionEntity } from './entities/image-selection'
 import { APP_DATABASE_DIR } from '@main/constants'
 
 import {
@@ -15,9 +17,9 @@ import {
   CreateSettingTable1710000000000,
   CreateWorldsTable1710000000000,
   CreateUsersTable1710000000000,
-  CreateNotificationTable1710000000000
+  CreateNotificationTable1710000000000,
+  CreateImageSelectionTable1710000000000
 } from './migration'
-import { NotificationEntity } from './entities/notifications'
 
 const STORAGE_DATABASE_NAME = 'storage.db'
 
@@ -37,7 +39,8 @@ export class Database extends Module {
         WorldEntity,
         GroupEntity,
         UserEntity,
-        NotificationEntity
+        NotificationEntity,
+        ImageSelectionEntity
       ],
       migrationsRun: true,
       migrations: [
@@ -46,7 +49,8 @@ export class Database extends Module {
         CreateWorldsTable1710000000000,
         CreateGroupsTable1710000000000,
         CreateUsersTable1710000000000,
-        CreateNotificationTable1710000000000
+        CreateNotificationTable1710000000000,
+        CreateImageSelectionTable1710000000000
       ]
     })
 
