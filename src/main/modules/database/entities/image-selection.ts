@@ -23,6 +23,13 @@ export class ImageSelectionEntity {
   declare path: string
 
   @Column({
+    name: 'macos_bookmark',
+    type: 'text',
+    nullable: true
+  })
+  declare macosBookmark: string | null
+
+  @Column({
     name: 'recorded_at',
     type: 'datetime',
     nullable: true,

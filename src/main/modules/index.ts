@@ -4,6 +4,7 @@ import { IPCModule } from './ipc'
 import { MobxState } from './mobx-state'
 import { MainWindow } from './main-window'
 import { SettingModule } from './setting'
+import { ImageSelection } from './image-selection'
 import { Database } from './database'
 import { VRChatAPI } from './vrchat-api'
 import { VRChatAuthentication } from './vrchat-authentication'
@@ -27,6 +28,7 @@ export const APP_MODULES: Record<string, ModuleConstructor> = {
   MainWindow,
   ProtocolServer,
   IPCModule,
+  ImageSelection,
   VRChatAPI,
   VRChatMiscellaneous,
   VRChatAuthentication,
