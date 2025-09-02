@@ -54,5 +54,5 @@ export class CredentialEntity {
     ...datetimeTransformer,
     ...datetimeDefault
   })
-  declare createdAt: Date
+  declare updatedAt?: Date
 }
