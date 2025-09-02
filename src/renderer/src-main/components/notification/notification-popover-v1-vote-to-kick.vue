@@ -66,7 +66,7 @@ const handleFocusNotification = () => {
       <NotificationPopoverActionButton
         class="rounded-r-none rounded-l-sm"
         variant="default"
-        :description="t('notification.content.system_vote_to_kick_show_details')"
+        :description="t('notification.response.system_vote_to_kick_show_details')"
         @click="emits('showDetails')"
       />
     </div>

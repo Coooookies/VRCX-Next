@@ -150,9 +150,13 @@ export const LANGUAGE_ZH_CN: LocaleStructure = {
         instance_request_invite_response: '婉拒了你的申请。',
         system_vote_to_kick: '一位玩家发起了踢出投票。',
         group_join_request: '想要加入群组',
-        group_invite: '邀请你加入群组',
-        friend_accept: '接受',
-        friend_decline: '婉拒',
+        group_invite: '邀请你加入群组'
+      },
+      response: {
+        acknowledge: '知道了',
+        unsubscribe: '取消订阅',
+        friend_request_accept: '接受',
+        friend_request_decline: '婉拒',
         instance_invite_decline: '婉拒',
         instance_invite_decline_with_message: '婉拒并附带留言',
         instance_invite_decline_with_photo: '婉拒并附带照片',

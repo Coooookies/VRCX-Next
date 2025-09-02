@@ -83,14 +83,14 @@ const handleFocusNotification = () => {
         <NotificationPopoverActionButton
           class="rounded-r-none rounded-l-sm"
           variant="secondary"
-          :description="t('notification.content.instance_invite_decline')"
+          :description="t('notification.response.instance_invite_decline')"
           @click="emits('respondInvite')"
         />
         <NotificationPopoverInviteDeclineOption
           :decline-with-message-title="
-            t('notification.content.instance_invite_decline_with_message')
+            t('notification.response.instance_invite_decline_with_message')
           "
-          :decline-with-photo-title="t('notification.content.instance_invite_decline_with_photo')"
+          :decline-with-photo-title="t('notification.response.instance_invite_decline_with_photo')"
           :is-supporter="props.isSupporter"
           @respond-invite-with-message="emits('respondInviteWithMessage')"
           @respond-invite-with-photo="emits('respondInviteWithPhoto')"

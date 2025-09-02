@@ -150,9 +150,13 @@ export const LANGUAGE_JA_JP: LocaleStructure = {
         instance_request_invite_response: '申請を辞退しました。',
         system_vote_to_kick: 'プレイヤーがキック投票を開始しました。',
         group_join_request: 'グループ参加を希望しています',
-        group_invite: 'グループに招待しました',
-        friend_accept: '承認',
-        friend_decline: '辞退',
+        group_invite: 'グループに招待しました'
+      },
+      response: {
+        acknowledge: '了解',
+        unsubscribe: '購読解除',
+        friend_request_accept: '承認',
+        friend_request_decline: '辞退',
         instance_invite_decline: '辞退',
         instance_invite_decline_with_message: '辞退（メッセージ付き）',
         instance_invite_decline_with_photo: '辞退（写真付き）',

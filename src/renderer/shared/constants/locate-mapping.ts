@@ -87,6 +87,11 @@ export const TRUST_RANK_TRANSLATE_KEY: Record<UserTrustRank, LocaleI18NKeys> = {
   [UserTrustRank.Moderator]: 'profile.trust_rank.moderator'
 }
 
+export const NOTIFICATION_V2_RESPONSE_TEXTKEY: Record<string, LocaleI18NKeys> = {
+  'notifications.default.response.acknowledge': 'notification.response.acknowledge',
+  'notifications.event.responses.unsubscribe': 'notification.response.unsubscribe'
+}
+
 export const LANGUAGE_DEFINITION_KEY: Record<
   UserLanguage,
   { icon: FunctionalComponent; label: LocaleI18NKeys }

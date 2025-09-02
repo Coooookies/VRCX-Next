@@ -69,12 +69,12 @@ const handleFocusNotification = () => {
     <div class="flex flex-row items-center justify-start gap-1.5 pl-14 pb-0.5">
       <NotificationPopoverActionButton
         variant="default"
-        :description="t('notification.content.friend_accept')"
+        :description="t('notification.response.friend_request_accept')"
         @click="emits('acceptRequest')"
       />
       <NotificationPopoverActionButton
         variant="secondary"
-        :description="t('notification.content.friend_decline')"
+        :description="t('notification.response.friend_request_decline')"
         @click="emits('declineRequest')"
       />
     </div>

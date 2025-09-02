@@ -6,6 +6,7 @@ import {
   NotificationSenderType
 } from '@shared/definition/vrchat-notifications'
 import { Button } from '@renderer/shared/components/ui/button'
+import { NOTIFICATION_V2_RESPONSE_TEXTKEY } from '@renderer/shared/constants/locate-mapping'
 import type { NotificationBaseProps } from './types'
 import type { NotificationV2ResponseType } from '@shared/definition/vrchat-api-response'
 import type { NotificationGlobalRawInformation } from '@shared/definition/vrchat-notifications'
@@ -34,6 +35,13 @@ const handleFocusNotification = () => {
   if (!props.base.isRead) {
     emits('readNotification')
   }
+}
+
+const getActionDescription = (textKey: string | null, title: string) => {
+  if (textKey && textKey in NOTIFICATION_V2_RESPONSE_TEXTKEY) {
+    return t(NOTIFICATION_V2_RESPONSE_TEXTKEY[textKey])
+  }
+  return title
 }
 </script>
 
@@ -79,7 +87,7 @@ const handleFocusNotification = () => {
         v-for="(action, index) in props.raw.responses"
         :key="index"
         :variant="action.type === 'accept' || action.type === 'delete' ? 'default' : 'secondary'"
-        :description="action.text"
+        :description="getActionDescription(action.textKey, action.text)"
         size="sm"
         @click="emits('respondNotification', action.type, action.data)"
       />

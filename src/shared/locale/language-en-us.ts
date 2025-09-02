@@ -150,9 +150,13 @@ export const LANGUAGE_EN_US: LocaleStructure = {
         instance_request_invite_response: 'declined your request.',
         system_vote_to_kick: 'A player started a kick vote.',
         group_join_request: 'wants to join the group',
-        group_invite: 'invited you to the group',
-        friend_accept: 'Accept',
-        friend_decline: 'Decline',
+        group_invite: 'invited you to the group'
+      },
+      response: {
+        acknowledge: 'Acknowledge',
+        unsubscribe: 'Unsubscribe',
+        friend_request_accept: 'Accept',
+        friend_request_decline: 'Decline',
         instance_invite_decline: 'Decline',
         instance_invite_decline_with_message: 'Decline with message',
         instance_invite_decline_with_photo: 'Decline with photo',

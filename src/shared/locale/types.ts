@@ -109,8 +109,12 @@ export type LocaleDefinition = {
       system_vote_to_kick: string
       group_join_request: string
       group_invite: string
-      friend_accept: string
-      friend_decline: string
+    }
+    response: {
+      acknowledge: string
+      unsubscribe: string
+      friend_request_accept: string
+      friend_request_decline: string
       instance_invite_decline: string
       instance_invite_decline_with_message: string
       instance_invite_decline_with_photo: string
