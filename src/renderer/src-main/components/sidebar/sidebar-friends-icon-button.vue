@@ -61,7 +61,7 @@ const emits = defineEmits<{
         </div>
       </Button>
     </HoverCardTrigger>
-    <HoverCardContent v-if="props.label" class="w-auto px-2 py-1 text-xs" :side-offset="6">
+    <HoverCardContent v-if="props.label" class="w-auto px-2 py-1.5 text-xs" :side-offset="6">
       {{ props.label }}
     </HoverCardContent>
   </HoverCard>

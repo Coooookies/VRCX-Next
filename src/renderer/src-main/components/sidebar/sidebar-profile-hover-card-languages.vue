@@ -21,7 +21,7 @@ const props = defineProps<{
       <HoverCardTrigger>
         <component :is="LANGUAGE_DEFINITION_KEY[language].icon" class="size-4.5" />
       </HoverCardTrigger>
-      <HoverCardContent class="w-auto px-2 py-1 text-xs">
+      <HoverCardContent class="w-auto px-2 py-1.5 text-xs">
         {{ t(LANGUAGE_DEFINITION_KEY[language].label) }}
       </HoverCardContent>
     </HoverCard>

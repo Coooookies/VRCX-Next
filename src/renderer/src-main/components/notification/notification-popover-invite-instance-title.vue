@@ -44,7 +44,7 @@ const emits = defineEmits<{
             </span>
           </Button>
         </HoverCardTrigger>
-        <HoverCardContent class="w-auto px-2 py-1 text-xs" side="top" :align="'start'">
+        <HoverCardContent class="w-auto px-2 py-1.5 text-xs" side="top" :align="'start'">
           {{ props.worldName }}
         </HoverCardContent>
       </HoverCard>

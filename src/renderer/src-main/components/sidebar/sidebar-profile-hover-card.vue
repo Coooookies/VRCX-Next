@@ -105,6 +105,7 @@ const isSameThumbnail = computed(() => {
         <p class="text-xs text-foreground">位置</p>
         <SidebarProfileHoverCardLocation
           :location="props.location"
+          :is-traveling="props.isTraveling"
           :arrived-at="props.locationArrivedAt"
         />
       </div>

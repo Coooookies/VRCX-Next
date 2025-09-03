@@ -32,16 +32,16 @@ const locationText = computed(() => {
       <span>{{ t('profile.instance_type.private') }}</span>
     </template>
     <template v-else-if="props.isTraveling">
-      <div class="size-4 shrink-0flex items-center justify-center">
+      <div class="size-4 shrink-0 flex flex-row items-center">
         <BadgeArea
           :region="props.location.region"
-          class="size-3.5 animate-[animation-icon-shiny_2s_infinite]"
+          class="size-3.5 animate-[animation-icon-shiny_2.5s_infinite]"
         />
       </div>
       <ShinyText class="truncate" :text="locationText" :speed="2" />
     </template>
     <template v-else>
-      <div class="size-4 shirnk-0 flex items-center justify-center">
+      <div class="size-4 shirnk-0 flex flex-row items-center">
         <BadgeArea :region="props.location.region" class="size-3.5" />
       </div>
       <span class="truncate">{{ locationText }}</span>

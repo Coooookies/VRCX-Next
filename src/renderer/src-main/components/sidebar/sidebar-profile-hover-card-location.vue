@@ -15,12 +15,13 @@ const thumbnailMask = `url("${AreaThumbnailMask}")`
 
 const props = defineProps<{
   location: LocationInstance
+  isTraveling: boolean
   arrivedAt: Date | null
 }>()
 </script>
 
 <template>
-  <Button variant="outline" class="w-full h-18 flex flex-row items-center gap-2.5 p-2">
+  <Button variant="outline" class="w-full h-19 flex flex-row items-center gap-2.5 px-2">
     <div class="relative size-14">
       <ImageRoot
         class="block bg-popover size-full rounded-[6px] overflow-hidden"
@@ -41,18 +42,17 @@ const props = defineProps<{
       <BadgeArea class="absolute -bottom-0.5 right-0 size-4" :region="props.location.region" />
     </div>
     <div class="grid flex-1 text-left leading-tight gap-px overflow-hidden">
-      <p class="font-semibold text-[13px] text-foreground truncate">
+      <p class="font-semibold text-sm text-foreground truncate">
         {{ props.location.worldName }}
       </p>
-      <p class="text-xs text-muted-foreground truncate">
+      <p class="leading-4 text-xs text-muted-foreground truncate">
         {{ getLocationLabel(props.location, false)(t) }}
       </p>
-      <ElapsedTimerText
-        v-if="props.arrivedAt"
-        :start-time="props.arrivedAt"
-        class="text-xs text-muted-foreground"
-      />
-      <span v-else class="text-xs text-muted-foreground">{{ `--:--:--` }}</span>
+      <p class="leading-4 text-xs text-muted-foreground">
+        <span v-if="props.isTraveling">{{ t('profile.loaction.traveling') }} - </span>
+        <ElapsedTimerText v-if="props.arrivedAt" :start-time="props.arrivedAt" />
+        <span v-else>{{ `--:--:--` }}</span>
+      </p>
     </div>
   </Button>
 </template>

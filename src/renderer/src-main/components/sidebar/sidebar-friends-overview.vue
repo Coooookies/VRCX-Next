@@ -7,10 +7,13 @@ import SidebarProfileStatusTimer from './sidebar-profile-status-timer.vue'
 import SidebarProfileHoverCard from './sidebar-profile-hover-card.vue'
 import { computed } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
+import { useI18n } from '@renderer/shared/locale'
 import { Button } from '@renderer/shared/components/ui/button'
 import { Platform, UserStatus } from '@shared/definition/vrchat-api-response'
 import { HoverCard, HoverCardTrigger } from '@renderer/shared/components/ui/hover-card'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   user: FriendInformation
@@ -50,7 +53,11 @@ const showBadge = computed(() => {
             :trust-rank="props.user.trustRank"
           />
           <template v-if="props.showElapsedTimer">
-            <SidebarProfileStatusText v-if="props.user.isTraveling" :text="`正在前往`" shiny />
+            <SidebarProfileStatusText
+              v-if="props.user.isTraveling"
+              :text="t('profile.loaction.traveling')"
+              shiny
+            />
             <SidebarProfileStatusTimer v-else :arrived-at="props.user.locationArrivedAt" />
           </template>
           <template v-else-if="props.user.status !== UserStatus.Offline">
