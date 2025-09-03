@@ -17,7 +17,7 @@ import type { VRChatUsers } from '@renderer/shared/modules/vrchat-users'
 const { t } = useI18n()
 const { categories, isLoading, isUnread } = useSidebarNotifications()
 const {
-  markNotificationV1AsRead,
+  markNotificationAsRead,
   respondNotificationV2,
   deleteNotificationV1,
   deleteNotificationV2,
@@ -60,16 +60,16 @@ const isSupporter = computed(() => {
           :categories="categories"
           :is-supporter="isSupporter"
           :is-loading="isLoading"
-          :read-notification-v1="markNotificationV1AsRead"
-          :read-notification-v2="markNotificationV1AsRead"
-          :hide-notification-v1="deleteNotificationV1"
-          :hide-notification-v2="deleteNotificationV2"
           :respond-notification-v2="respondNotificationV2"
           :respond-invite="responseInvite"
           :respond-invite-with-message="responseInviteWithMessage"
           :respond-invite-with-photo="responseInviteWithPhoto"
           :accept-friend-request="acceptFriendRequest"
           :decline-friend-request="declineFriendRequest"
+          @read-notification-v1="markNotificationAsRead"
+          @read-notification-v2="markNotificationAsRead"
+          @hide-notification-v1="deleteNotificationV1"
+          @hide-notification-v2="deleteNotificationV2"
         />
       </Popover>
     </div>

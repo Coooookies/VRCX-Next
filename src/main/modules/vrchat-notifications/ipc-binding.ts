@@ -33,9 +33,9 @@ export class NotificationIPCBinding {
     })
 
     this.ipc.listener.handle(
-      'vrchat-notifications:mark-notificationv1-as-read',
+      'vrchat-notifications:mark-notification-as-read',
       (_, notificationId) => {
-        return this.operation.markNotificationV1AsRead(notificationId).then(() => {})
+        return this.operation.markNotificationAsRead(notificationId).then(() => {})
       }
     )
 

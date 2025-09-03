@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { cn } from '@renderer/shared/utils/style'
 import { useI18n } from '@renderer/shared/locale'
+import { useAsyncState } from '@vueuse/core'
 import {
   NotificationGlobalType,
   NotificationSenderType
 } from '@shared/definition/vrchat-notifications'
 import { Button } from '@renderer/shared/components/ui/button'
+import { Spinner } from '@renderer/shared/components/ui/spinner'
 import { NOTIFICATION_V2_RESPONSE_TEXTKEY } from '@renderer/shared/constants/locate-mapping'
 import type { NotificationBaseProps } from './types'
 import type { NotificationV2ResponseType } from '@shared/definition/vrchat-api-response'
@@ -21,19 +23,29 @@ const { t } = useI18n()
 const props = defineProps<{
   base: NotificationBaseProps
   raw: NotificationGlobalRawInformation[typeof NotificationGlobalType.GroupInviteV2]
+  respondNotificationV2: (
+    notificationId: string,
+    type: NotificationV2ResponseType,
+    data: string
+  ) => Promise<void>
 }>()
 
 const emits = defineEmits<{
-  (e: 'hideNotification'): void
-  (e: 'readNotification'): void
-  (e: 'searchUserByName'): void
-  (e: 'searchGroupByName'): void
-  (e: 'respondNotification', type: NotificationV2ResponseType, data: string): void
+  (e: 'hideNotificationV2', notificationId: string): void
+  (e: 'readNotificationV2', notificationId: string): void
+  (e: 'searchUserByName', userName: string): void
+  (e: 'searchGroupByName', groupName: string): void
 }>()
+
+const { executeImmediate: respondNotification, isLoading: responsing } = useAsyncState(
+  props.respondNotificationV2,
+  void 0,
+  { immediate: false }
+)
 
 const handleFocusNotification = () => {
   if (!props.base.isRead) {
-    emits('readNotification')
+    emits('readNotificationV2', props.base.notificationId)
   }
 }
 
@@ -71,9 +83,9 @@ const getActionDescription = (textKey: string | null, title: string) => {
           :user-name="props.raw.data.manageruserDisplayName"
           :group-name="props.raw.data.groupName"
           :description="t('notification.content.group_invite')"
-          @search-group-by-name="emits('searchGroupByName')"
-          @search-user-by-name="emits('searchUserByName')"
-          @hide-notification="emits('hideNotification')"
+          @search-group-by-name="emits('searchGroupByName', props.raw.data.groupName)"
+          @search-user-by-name="emits('searchUserByName', props.raw.data.manageruserDisplayName)"
+          @hide-notification="emits('hideNotificationV2', props.base.notificationId)"
         />
         <NotificationPopoverSubtitle :created-at="props.base.createdAt" />
       </div>
@@ -83,14 +95,19 @@ const getActionDescription = (textKey: string | null, title: string) => {
       :message-content="props.base.message"
     />
     <div class="flex flex-row items-center justify-start gap-1.5 pl-14 pb-0.5">
-      <NotificationPopoverActionButton
-        v-for="(action, index) in props.raw.responses"
-        :key="index"
-        :variant="action.type === 'accept' || action.type === 'delete' ? 'default' : 'secondary'"
-        :description="getActionDescription(action.textKey, action.text)"
-        size="sm"
-        @click="emits('respondNotification', action.type, action.data)"
-      />
+      <div v-if="responsing" class="h-6 flex items-center justify-center">
+        <Spinner class="size-5" />
+      </div>
+      <template v-else>
+        <NotificationPopoverActionButton
+          v-for="(action, index) in props.raw.responses"
+          :key="index"
+          :variant="action.type === 'accept' || action.type === 'delete' ? 'default' : 'secondary'"
+          :description="getActionDescription(action.textKey, action.text)"
+          size="sm"
+          @click.stop="respondNotification(props.base.notificationId, action.type, action.data)"
+        />
+      </template>
     </div>
   </Button>
 </template>

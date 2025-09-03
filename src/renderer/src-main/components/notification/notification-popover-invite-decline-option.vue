@@ -24,21 +24,26 @@ const emits = defineEmits<{
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
-      <Button class="size-6 p-0 rounded-l-none rounded-r-sm" size="icon" variant="secondary">
+      <Button
+        class="size-6 p-0 rounded-l-none rounded-r-sm"
+        size="icon"
+        variant="secondary"
+        @click.stop
+      >
         <ChevronDownIcon class="size-3.5" />
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent class="w-fit">
       <DropdownMenuItem
         class="h-7 pr-1.5 justify-between"
-        @click="emits('respondInviteWithMessage')"
+        @click.stop="emits('respondInviteWithMessage')"
       >
         <span class="text-xs">{{ props.declineWithMessageTitle }}</span>
       </DropdownMenuItem>
       <DropdownMenuItem
         class="h-7 pr-1.5 justify-between"
         :disabled="!props.isSupporter"
-        @click="emits('respondInviteWithPhoto')"
+        @click.stop="emits('respondInviteWithPhoto')"
       >
         <span class="text-xs">{{ props.declineWithPhotoTitle }}</span>
         <BadgeVRChatPlus class="!w-10 ml-2" />

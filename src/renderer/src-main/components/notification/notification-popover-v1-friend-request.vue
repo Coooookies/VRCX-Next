@@ -26,8 +26,8 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  (e: 'hideNotification', notificationId: string): void
-  (e: 'readNotification', notificationId: string): void
+  (e: 'hideNotificationV1', notificationId: string): void
+  (e: 'readNotificationV1', notificationId: string): void
   (e: 'showSender', senderType: NotificationSenderType, senderId: string): void
 }>()
 
@@ -51,7 +51,7 @@ const isLoading = computed(() => accepting.value || declining.value)
 
 const handleFocusNotification = () => {
   if (!props.base.isRead) {
-    emits('readNotification', props.base.notificationId)
+    emits('readNotificationV1', props.base.notificationId)
   }
 }
 
@@ -88,13 +88,15 @@ const handleShowSender = () => {
           :sender-name="props.base.senderName"
           :description="t('notification.content.friend_request')"
           @show-sender="handleShowSender"
-          @hide-notification="emits('hideNotification', props.base.notificationId)"
+          @hide-notification="emits('hideNotificationV1', props.base.notificationId)"
         />
         <NotificationPopoverSubtitle :created-at="props.base.createdAt" />
       </div>
     </div>
     <div class="flex flex-row items-center justify-start gap-1.5 pl-14 pb-0.5">
-      <Spinner v-if="isLoading" class="size-6" />
+      <div v-if="isLoading" class="h-6 flex items-center justify-center">
+        <Spinner class="size-5" />
+      </div>
       <template v-else>
         <NotificationPopoverActionButton
           variant="default"

@@ -21,14 +21,14 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  (e: 'hideNotification'): void
-  (e: 'readNotification'): void
-  (e: 'showDetails'): void
+  (e: 'hideNotificationV1', notificationId: string): void
+  (e: 'readNotificationV1', notificationId: string): void
+  (e: 'showVoteToKickDetails', notificationId: string): void
 }>()
 
 const handleFocusNotification = () => {
   if (!props.base.isRead) {
-    emits('readNotification')
+    emits('readNotificationV1', props.base.notificationId)
   }
 }
 </script>
@@ -57,7 +57,7 @@ const handleFocusNotification = () => {
       <div class="grid flex-1 text-left text-sm leading-tight gap-y-0.5">
         <NotificationPopoverMessageTitle
           :description="t('notification.content.system_vote_to_kick')"
-          @hide-notification="emits('hideNotification')"
+          @hide-notification="emits('hideNotificationV1', props.base.notificationId)"
         />
         <NotificationPopoverSubtitle :created-at="props.base.createdAt" />
       </div>
@@ -67,7 +67,7 @@ const handleFocusNotification = () => {
         class="rounded-r-none rounded-l-sm"
         variant="default"
         :description="t('notification.response.system_vote_to_kick_show_details')"
-        @click="emits('showDetails')"
+        @click="emits('showVoteToKickDetails', props.base.notificationId)"
       />
     </div>
   </Button>

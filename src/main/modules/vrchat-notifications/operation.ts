@@ -10,7 +10,7 @@ export class NotificationOperation {
     private readonly users: VRChatUsers
   ) {}
 
-  public markNotificationV1AsRead(notificationId: string) {
+  public markNotificationAsRead(notificationId: string) {
     const notification = this.repository.getNotification(notificationId)
     const currentUser = this.users.state.user
 

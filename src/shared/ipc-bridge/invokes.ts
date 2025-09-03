@@ -38,7 +38,7 @@ export type IpcInvokeEvents = {
 
   // VRChatNotifications
   'vrchat-notifications:get-notifications': () => NotificationInformation[]
-  'vrchat-notifications:mark-notificationv1-as-read': (notificationId: string) => void
+  'vrchat-notifications:mark-notification-as-read': (notificationId: string) => void
   'vrchat-notifications:delete-notification-v1': (notificationId: string) => void
   'vrchat-notifications:delete-notification-v2': (notificationId: string) => void
   'vrchat-notifications:clear-notifications': () => void

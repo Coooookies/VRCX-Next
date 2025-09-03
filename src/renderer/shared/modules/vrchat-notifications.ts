@@ -52,11 +52,8 @@ export class VRChatNotifications extends Module {
     return this.ipc.emitter.invoke('vrchat-notifications:get-notifications')
   }
 
-  public markNotificationV1AsRead(notificationId: string) {
-    return this.ipc.emitter.invoke(
-      'vrchat-notifications:mark-notificationv1-as-read',
-      notificationId
-    )
+  public markNotificationAsRead(notificationId: string) {
+    return this.ipc.emitter.invoke('vrchat-notifications:mark-notification-as-read', notificationId)
   }
 
   public deleteNotificationV1(notificationId: string) {

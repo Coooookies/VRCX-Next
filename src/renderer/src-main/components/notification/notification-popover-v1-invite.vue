@@ -30,8 +30,8 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  (e: 'hideNotification', notificationId: string): void
-  (e: 'readNotification', notificationId: string): void
+  (e: 'hideNotificationV1', notificationId: string): void
+  (e: 'readNotificationV1', notificationId: string): void
   (e: 'showSender', senderType: NotificationSenderType, senderId: string): void
   (e: 'showInstance', instanceId: string): void
 }>()
@@ -55,7 +55,7 @@ const isLoading = computed(
 
 const handleFocusNotification = () => {
   if (!props.base.isRead) {
-    emits('readNotification', props.base.notificationId)
+    emits('readNotificationV1', props.base.notificationId)
   }
 }
 
@@ -94,7 +94,7 @@ const handleShowSender = () => {
           :description="t('notification.content.instance_invite')"
           @show-sender="handleShowSender"
           @show-instance="emits('showInstance', props.raw.details.worldId)"
-          @hide-notification="emits('hideNotification', props.base.notificationId)"
+          @hide-notification="emits('hideNotificationV1', props.base.notificationId)"
         />
         <NotificationPopoverSubtitle :created-at="props.base.createdAt" />
       </div>
@@ -105,13 +105,15 @@ const handleShowSender = () => {
       message-italic
     />
     <div class="flex flex-row items-center justify-start gap-1.5 pl-14 pb-0.5">
-      <Spinner v-if="isLoading" class="size-6" />
+      <div v-if="isLoading" class="h-6 flex items-center justify-center">
+        <Spinner class="size-5" />
+      </div>
       <div v-else class="flex flex-row gap-px">
         <NotificationPopoverActionButton
           class="rounded-r-none rounded-l-sm"
           variant="secondary"
           :description="t('notification.response.instance_invite_decline')"
-          @click="respondInvite(props.base.notificationId)"
+          @click.stop="respondInvite(props.base.notificationId)"
         />
         <NotificationPopoverInviteDeclineOption
           :decline-with-message-title="

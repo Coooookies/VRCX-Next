@@ -18,14 +18,20 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits<{
-  (e: 'hideNotification'): void
-  (e: 'readNotification'): void
-  (e: 'showSender'): void
+  (e: 'hideNotificationV1', notificationId: string): void
+  (e: 'readNotificationV1', notificationId: string): void
+  (e: 'showSender', senderType: NotificationSenderType, senderId: string): void
 }>()
 
 const handleFocusNotification = () => {
   if (!props.base.isRead) {
-    emits('readNotification')
+    emits('readNotificationV1', props.base.notificationId)
+  }
+}
+
+const handleShowSender = () => {
+  if (props.base.senderId) {
+    emits('showSender', props.base.senderType, props.base.senderId)
   }
 }
 </script>
@@ -55,8 +61,8 @@ const handleFocusNotification = () => {
         <NotificationPopoverMessageTitle
           :sender-name="props.base.senderName"
           :description="props.base.title"
-          @show-sender="emits('showSender')"
-          @hide-notification="emits('hideNotification')"
+          @show-sender="handleShowSender"
+          @hide-notification="emits('hideNotificationV1', props.base.notificationId)"
         />
         <NotificationPopoverSubtitle :created-at="props.base.createdAt" />
       </div>

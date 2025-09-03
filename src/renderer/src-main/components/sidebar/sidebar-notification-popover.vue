@@ -164,7 +164,7 @@ const tabs = computed(() => {
                 isSupporter,
                 acceptFriendRequest: props.acceptFriendRequest,
                 declineFriendRequest: props.declineFriendRequest,
-                respondNotification: props.respondNotificationV2,
+                respondNotificationV2: props.respondNotificationV2,
                 respondInvite: props.respondInvite,
                 respondInviteWithMessage: props.respondInviteWithMessage,
                 respondInviteWithPhoto: props.respondInviteWithPhoto
@@ -172,8 +172,8 @@ const tabs = computed(() => {
               v-on="{
                 showSender: (senderType, senderId) => emits('showSender', senderType, senderId),
                 showInstance: (location) => emits('showInstance', location),
-                searchGroupByName: (name) => emits('searchGroupByName', name),
-                searchUserByName: (name) => emits('searchUserByName', name),
+                searchGroupByName: (userName) => emits('searchGroupByName', userName),
+                searchUserByName: (groupName) => emits('searchUserByName', groupName),
                 showVoteToKickDetails: (notificationId) =>
                   emits('showVoteToKickDetails', notificationId),
                 hideNotificationV1: (notificationId) => emits('hideNotificationV1', notificationId),

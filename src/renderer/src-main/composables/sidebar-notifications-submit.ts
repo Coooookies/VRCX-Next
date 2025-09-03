@@ -1,12 +1,13 @@
 import { useModule } from '@renderer/shared/hooks/use-module'
+import { sleep } from '@shared/utils/async'
 import type { VRChatNotifications } from '@renderer/shared/modules/vrchat-notifications'
 import type { NotificationV2ResponseType } from '@shared/definition/vrchat-api-response-replenish'
 
 export function useSidebarNotificationsSubmit() {
   const notifications = useModule<VRChatNotifications>('VRChatNotifications')
 
-  function markNotificationV1AsRead(notificationId: string) {
-    return notifications.markNotificationV1AsRead(notificationId)
+  function markNotificationAsRead(notificationId: string) {
+    return notifications.markNotificationAsRead(notificationId)
   }
 
   function respondNotificationV2(
@@ -31,31 +32,31 @@ export function useSidebarNotificationsSubmit() {
 
   function responseInvite(notificationId: string) {
     console.log(notificationId)
-    return Promise.resolve()
+    return sleep(1000)
   }
 
   function responseInviteWithMessage(notificationId: string) {
     console.log(notificationId)
-    return Promise.resolve()
+    return sleep(1000)
   }
 
   function responseInviteWithPhoto(notificationId: string) {
     console.log(notificationId)
-    return Promise.resolve()
+    return sleep(1000)
   }
 
   function acceptFriendRequest(notificationId: string) {
     console.log(notificationId)
-    return Promise.resolve()
+    return sleep(1000)
   }
 
   function declineFriendRequest(notificationId: string) {
     console.log(notificationId)
-    return Promise.resolve()
+    return sleep(1000)
   }
 
   return {
-    markNotificationV1AsRead,
+    markNotificationAsRead,
     respondNotificationV2,
     deleteNotificationV1,
     deleteNotificationV2,
