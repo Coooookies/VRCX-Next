@@ -32,8 +32,9 @@ export class NotificationOperation {
     type: NotificationV2ResponseType,
     data: string
   ) {
-    this.repository.deleteNotification(notificationId)
-    return this.api.ref.sessionAPI.notifications.respondToNotificationV2(notificationId, type, data)
+    return this.api.ref.sessionAPI.notifications
+      .respondToNotificationV2(notificationId, type, data)
+      .then(() => this.repository.deleteNotification(notificationId))
   }
 
   public deleteNotificationV1(notificationId: string) {
