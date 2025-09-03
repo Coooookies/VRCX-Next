@@ -76,13 +76,13 @@ export const LANGUAGE_JA_JP: LocaleStructure = {
         offline: 'オフライン'
       },
       trust_rank: {
-        visitor: 'ビジター',
-        troll: '問題のあるプレイヤー',
-        new: '新規プレイヤー',
-        user: 'プレイヤー',
-        known: '常連プレイヤー',
-        trusted: 'ベテラン',
-        moderator: 'モデレーター'
+        visitor: 'Visitor',
+        troll: 'Nuisance',
+        new: 'New User',
+        user: 'User',
+        known: 'Known User',
+        trusted: 'Trusted User',
+        moderator: 'Administrator'
       },
       instance_type: {
         friends_plus: 'フレンド+',

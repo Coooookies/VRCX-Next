@@ -77,12 +77,12 @@ export const LANGUAGE_EN_US: LocaleStructure = {
       },
       trust_rank: {
         visitor: 'Visitor',
-        troll: 'Troll',
+        troll: 'Nuisance',
         new: 'New User',
         user: 'User',
         known: 'Known User',
         trusted: 'Trusted User',
-        moderator: 'Moderator'
+        moderator: 'Administrator'
       },
       instance_type: {
         friends_plus: 'Friends+',

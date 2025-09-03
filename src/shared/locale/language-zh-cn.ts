@@ -78,11 +78,11 @@ export const LANGUAGE_ZH_CN: LocaleStructure = {
       trust_rank: {
         visitor: '游客',
         troll: '劣迹玩家',
-        new: '新玩家',
+        new: '萌新',
         user: '玩家',
         known: '长期玩家',
         trusted: '资深玩家',
-        moderator: '管理员'
+        moderator: 'VRChat 团队'
       },
       instance_type: {
         friends_plus: '好友+',
