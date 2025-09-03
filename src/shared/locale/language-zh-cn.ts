@@ -95,6 +95,9 @@ export const LANGUAGE_ZH_CN: LocaleStructure = {
         public: '公开',
         private: '位于私人房间'
       },
+      loaction: {
+        traveling: '正在前往'
+      },
       locate: {
         [UserLanguage.ENG]: '英语',
         [UserLanguage.KOR]: '韩语',

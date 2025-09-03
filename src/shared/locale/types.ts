@@ -94,6 +94,9 @@ export type LocaleDefinition = {
       public: string
       private: string
     }
+    loaction: {
+      traveling: string
+    }
     locate: Record<UserLanguage, string>
   }
   notification: {

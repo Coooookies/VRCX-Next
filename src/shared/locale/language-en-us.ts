@@ -95,6 +95,9 @@ export const LANGUAGE_EN_US: LocaleStructure = {
         public: 'Public',
         private: 'Private'
       },
+      loaction: {
+        traveling: 'Taveling'
+      },
       locate: {
         [UserLanguage.ENG]: 'English',
         [UserLanguage.KOR]: 'Korean',

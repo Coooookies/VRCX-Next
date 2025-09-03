@@ -95,6 +95,9 @@ export const LANGUAGE_JA_JP: LocaleStructure = {
         public: '公開',
         private: 'プライベート'
       },
+      loaction: {
+        traveling: '進入中'
+      },
       locate: {
         [UserLanguage.ENG]: '英語',
         [UserLanguage.KOR]: '韓国語',
