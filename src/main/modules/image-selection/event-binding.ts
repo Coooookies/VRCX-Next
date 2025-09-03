@@ -2,7 +2,6 @@ import { toReadableStream } from '@main/utils/fs'
 import type { LoggerFactory } from '@main/logger'
 import type { ProtocolServer } from '../protocol-server'
 import type { ImageSelectionRepository } from './repository'
-import type { Response } from 'got'
 
 export class ImageSelectionEventBinding {
   constructor(
