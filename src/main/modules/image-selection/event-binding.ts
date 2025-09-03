@@ -23,7 +23,7 @@ export class ImageSelectionEventBinding {
       async (_, params) => {
         const size = +params.size
         const selectionId = params.selectionId
-        const localCache = await this.repository.resolveLocalImageOverviewCache(selectionId, size)
+        const localCache = await this.repository.resolveLocalImageThumbnailCache(selectionId, size)
 
         this.logger.debug(
           'Overview request:',
@@ -49,7 +49,7 @@ export class ImageSelectionEventBinding {
           }
         }
 
-        const response = await this.repository.resolveLocalImageOverview(selectionId, size)
+        const response = await this.repository.resolveLocalImageThumbnail(selectionId, size)
         if (!response) {
           return createNotFoundResponse()
         }

@@ -11,7 +11,6 @@ import { Database } from '../database'
 import { ImageSelectionEntity } from '../database/entities/image-selection'
 import { APP_CACHE_DIR } from '@main/constants'
 import type { LoggerFactory } from '@main/logger'
-import type { FormatEnum } from 'sharp'
 import type { Repository } from 'typeorm'
 import type { ImageSelectionInstance } from '@shared/definition/image-selection'
 import type { DirentResolver } from '../vrchat-files/types'
@@ -62,7 +61,7 @@ export class ImageSelectionRepository {
     }
   }
 
-  public async resolveLocalImageOverviewCache(
+  public async resolveLocalImageThumbnailCache(
     selectionId: string,
     size: number
   ): Promise<DirentResolver | null> {
@@ -93,11 +92,13 @@ export class ImageSelectionRepository {
     return null
   }
 
-  public async resolveLocalImageOverview(
+  public async resolveLocalImageThumbnail(
     selectionId: string,
     size: number
   ): Promise<SelectionResolver | null> {
     const selection = await this.getSelection(selectionId)
+    const mime = 'image/webp' as const
+    const format = 'webp' as const
 
     if (!selection || !(await exists(selection.path))) {
       return null
@@ -109,16 +110,14 @@ export class ImageSelectionRepository {
       return null
     }
 
-    const format = selection.fileExtension as keyof FormatEnum
     const result = attempt(() => processedSharp.value.toFormat(format))
-
     if (!result.success) {
       this.logger.error('Failed to process selection overview', selectionId, result.error)
       return null
     }
 
     return {
-      mime: getMimeType(selection.path) || 'text/plain',
+      mime: mime,
       buffer: () => result.value.toBuffer(),
       stream: () => {
         const tee1 = new PassThrough()
