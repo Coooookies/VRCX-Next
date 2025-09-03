@@ -104,13 +104,13 @@ export class ImageSelectionRepository {
       return null
     }
 
-    const processedSharp = await attempt(() => resizeToMinEdge(selection.path, size))
-    if (!processedSharp.success) {
-      this.logger.error('Failed to process selection overview', selectionId, processedSharp.error)
+    const processed = await attempt(() => resizeToMinEdge(selection.path, size))
+    if (!processed.success) {
+      this.logger.error('Failed to process selection overview', selectionId, processed.error)
       return null
     }
 
-    const result = attempt(() => processedSharp.value.toFormat(format))
+    const result = attempt(() => processed.value.toFormat(format))
     if (!result.success) {
       this.logger.error('Failed to process selection overview', selectionId, result.error)
       return null
