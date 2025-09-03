@@ -1,22 +1,15 @@
 <script setup lang="ts">
-import { cn } from '@renderer/shared/utils/style'
 import { useI18n } from '@renderer/shared/locale'
-import { useAsyncState } from '@vueuse/core'
 import {
   NotificationGlobalType,
   NotificationSenderType
 } from '@shared/definition/vrchat-notifications'
-import { Button } from '@renderer/shared/components/ui/button'
-import { Spinner } from '@renderer/shared/components/ui/spinner'
-import { NOTIFICATION_V2_RESPONSE_TEXTKEY } from '@renderer/shared/constants/locate-mapping'
 import type { NotificationBaseProps } from './types'
-import type { NotificationV2ResponseType } from '@shared/definition/vrchat-api-response'
 import type { NotificationGlobalRawInformation } from '@shared/definition/vrchat-notifications'
-import NotificationPopoverAvatar from './notification-popover-avatar.vue'
-import NotificationPopoverInviteGroupTitle from './notification-popover-invite-group-title.vue'
-import NotificationPopoverContent from './notification-popover-content.vue'
-import NotificationPopoverActionButton from './notification-popover-action-button.vue'
+import type { NotificationV2ResponseType } from '@shared/definition/vrchat-api-response'
 import NotificationPopoverSubtitle from './notification-popover-subtitle.vue'
+import NotificationPopoverV2Base from './notification-popover-v2-base.vue'
+import NotificationPopoverInviteGroupTitle from './notification-popover-invite-group-title.vue'
 
 const { t } = useI18n()
 
@@ -36,78 +29,24 @@ const emits = defineEmits<{
   (e: 'searchUserByName', userName: string): void
   (e: 'searchGroupByName', groupName: string): void
 }>()
-
-const { executeImmediate: respondNotification, isLoading: responsing } = useAsyncState(
-  props.respondNotificationV2,
-  void 0,
-  { immediate: false }
-)
-
-const handleFocusNotification = () => {
-  if (!props.base.isRead) {
-    emits('readNotificationV2', props.base.notificationId)
-  }
-}
-
-const getActionDescription = (textKey: string | null, title: string) => {
-  if (textKey && textKey in NOTIFICATION_V2_RESPONSE_TEXTKEY) {
-    return t(NOTIFICATION_V2_RESPONSE_TEXTKEY[textKey])
-  }
-  return title
-}
 </script>
 
 <template>
-  <Button
-    :class="
-      cn(
-        'group/notification-card',
-        'w-full h-[unset] px-5 py-4 cursor-default rounded-none',
-        'active:bg-accent dark:active:bg-accent/50 duration-0',
-        'border-b border-border/40',
-        'flex flex-col items-start gap-2.5',
-        props.base.isRead ? 'bg-transparent' : 'bg-accent/20 dark:bg-accent/30'
-      )
-    "
-    variant="ghost"
-    @click="handleFocusNotification"
+  <NotificationPopoverV2Base
+    :base="props.base"
+    :raw="props.raw"
+    :type="NotificationSenderType.Group"
+    :respond-notification-v2="props.respondNotificationV2"
+    @read-notification-v2="emits('readNotificationV2', props.base.notificationId)"
   >
-    <div class="w-full h-10 flex flex-row items-center justify-start gap-4">
-      <NotificationPopoverAvatar
-        :file-id="props.base.senderAvatarFileId"
-        :version="props.base.senderAvatarFileVersion"
-        :type="NotificationSenderType.Group"
-      />
-      <div class="grid flex-1 text-left text-sm leading-tight gap-y-0.5">
-        <NotificationPopoverInviteGroupTitle
-          :user-name="props.raw.data.manageruserDisplayName"
-          :group-name="props.raw.data.groupName"
-          :description="t('notification.content.group_invite')"
-          @search-group-by-name="emits('searchGroupByName', props.raw.data.groupName)"
-          @search-user-by-name="emits('searchUserByName', props.raw.data.manageruserDisplayName)"
-          @hide-notification="emits('hideNotificationV2', props.base.notificationId)"
-        />
-        <NotificationPopoverSubtitle :created-at="props.base.createdAt" />
-      </div>
-    </div>
-    <NotificationPopoverContent
-      :message-thumbnail-url="props.base.thumbnailImageUrl"
-      :message-content="props.base.message"
+    <NotificationPopoverInviteGroupTitle
+      :user-name="props.raw.data.manageruserDisplayName"
+      :group-name="props.raw.data.groupName"
+      :description="t('notification.content.group_invite')"
+      @search-group-by-name="emits('searchGroupByName', props.raw.data.groupName)"
+      @search-user-by-name="emits('searchUserByName', props.raw.data.manageruserDisplayName)"
+      @hide-notification="emits('hideNotificationV2', props.base.notificationId)"
     />
-    <div class="flex flex-row items-center justify-start gap-1.5 pl-14 pb-0.5">
-      <div v-if="responsing" class="h-6 flex items-center justify-center">
-        <Spinner class="size-5" />
-      </div>
-      <template v-else>
-        <NotificationPopoverActionButton
-          v-for="(action, index) in props.raw.responses"
-          :key="index"
-          :variant="action.type === 'accept' || action.type === 'delete' ? 'default' : 'secondary'"
-          :description="getActionDescription(action.textKey, action.text)"
-          size="sm"
-          @click.stop="respondNotification(props.base.notificationId, action.type, action.data)"
-        />
-      </template>
-    </div>
-  </Button>
+    <NotificationPopoverSubtitle :created-at="props.base.createdAt" />
+  </NotificationPopoverV2Base>
 </template>
