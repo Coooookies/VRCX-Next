@@ -15,4 +15,8 @@ export class ImageSelection extends Module {
     this.repository = new ImageSelectionRepository(this.database)
     this.operation = new ImageSelectionOperation(this.logger, this.repository)
   }
+
+  public get Operation(): ImageSelectionOperation {
+    return this.operation
+  }
 }
