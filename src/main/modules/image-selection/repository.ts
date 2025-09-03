@@ -42,8 +42,12 @@ export class ImageSelectionRepository {
     })
   }
 
+  public async getSelection(selectionId: string) {
+    return this.repository.findOneBy({ selectionId })
+  }
+
   public async resolveImageSelection(selectionId: string): Promise<ImageSelectionInstance | null> {
-    const result = await this.repository.findOneBy({ selectionId })
+    const result = await this.getSelection(selectionId)
 
     if (!result) {
       return null
@@ -53,7 +57,6 @@ export class ImageSelectionRepository {
       selectionId: result.selectionId,
       fileName: result.fileName,
       fileExtension: result.fileExtension,
-      path: result.path,
       exist: await exists(result.path),
       recordedAt: result.recordedAt!
     }
@@ -94,8 +97,9 @@ export class ImageSelectionRepository {
     selectionId: string,
     size: number
   ): Promise<SelectionResolver | null> {
-    const selection = await this.resolveImageSelection(selectionId)
-    if (!selection || !selection.exist) {
+    const selection = await this.getSelection(selectionId)
+
+    if (!selection || !(await exists(selection.path))) {
       return null
     }
 

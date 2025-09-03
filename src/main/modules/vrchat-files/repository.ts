@@ -1,12 +1,12 @@
 import { basename, extname, join } from 'node:path'
 import { PassThrough } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
-import { readFile } from 'node:fs/promises'
+import { mkdir, readFile } from 'node:fs/promises'
 import { getExtension, getMimeType } from 'hono/utils/mime'
-import { readSubFiles } from '@main/utils/fs'
+import { exists, readSubFiles } from '@main/utils/fs'
 import { APP_CACHE_DIR } from '@main/constants'
 import { mkdirSync, existsSync, createWriteStream, createReadStream } from 'node:fs'
-import type { DirentResolver } from './types'
+import { DirentResolver } from './types'
 
 const CACHE_VRCHAT_IMAGE_DIR = 'vrchat/images'
 
@@ -26,7 +26,7 @@ export class FilesRepository {
   ): Promise<DirentResolver | null> {
     const targetDir = join(this.imageCacheDir, `${fileId}/${version}`)
 
-    if (!existsSync(targetDir)) {
+    if (!(await exists(targetDir))) {
       return null
     }
 
@@ -61,8 +61,8 @@ export class FilesRepository {
     const targetDir = join(this.imageCacheDir, `${fileId}/${version}`)
     const ext = getExtension(mime) || 'cache'
 
-    if (!existsSync(targetDir)) {
-      mkdirSync(targetDir, { recursive: true })
+    if (!(await exists(targetDir))) {
+      await mkdir(targetDir, { recursive: true })
     }
 
     const filePath = join(targetDir, `${size}.${ext}`)
