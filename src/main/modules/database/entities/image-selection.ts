@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryColumn } from 'typeorm'
 import { datetimeDefault, datetimeTransformer } from '../transform'
 
-@Entity('image_selection')
+@Entity('selection_images')
 export class ImageSelectionEntity {
   @PrimaryColumn({
     name: 'selection_id',
