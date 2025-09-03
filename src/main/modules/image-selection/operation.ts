@@ -34,12 +34,13 @@ export class ImageSelectionOperation {
     selections: ImageSelectionDialogReturnValue[]
   ): ImageSelectionEntity[] {
     return selections.map((selection) => {
-      const ext = extname(selection.path).toLowerCase()
+      const ext = extname(selection.path)
       const name = basename(selection.path, ext)
+      const _ext = ext.toLowerCase().replace(/^\./, '')
       return {
         selectionId: `imgsel_${randomUUID()}`,
         fileName: name,
-        fileExtension: ext,
+        fileExtension: _ext,
         path: selection.path,
         macosBookmark: selection.bookmark || undefined,
         recordedAt: new Date()
@@ -56,6 +57,6 @@ export class ImageSelectionOperation {
     }
 
     const entities = this.processImageSelections(selections)
-    await this.repository.upsertSelections(entities)
+    return this.repository.upsertSelections(entities)
   }
 }
