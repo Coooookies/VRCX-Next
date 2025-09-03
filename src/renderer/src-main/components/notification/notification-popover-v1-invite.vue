@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { cn } from '@renderer/shared/utils/style'
+import { computed } from 'vue'
 import { useI18n } from '@renderer/shared/locale'
+import { useAsyncState } from '@vueuse/core'
 import {
   NotificationGlobalType,
   NotificationSenderType
 } from '@shared/definition/vrchat-notifications'
 import { Button } from '@renderer/shared/components/ui/button'
+import { Spinner } from '@renderer/shared/components/ui/spinner'
 import type { NotificationBaseProps } from './types'
 import type { NotificationGlobalRawInformation } from '@shared/definition/vrchat-notifications'
 import NotificationPopoverAvatar from './notification-popover-avatar.vue'
@@ -21,21 +24,44 @@ const props = defineProps<{
   base: NotificationBaseProps
   raw: NotificationGlobalRawInformation[typeof NotificationGlobalType.InviteV1]
   isSupporter: boolean
+  respondInvite: (notificationId: string) => Promise<void>
+  respondInviteWithMessage: (notificationId: string) => Promise<void>
+  respondInviteWithPhoto: (notificationId: string) => Promise<void>
 }>()
 
 const emits = defineEmits<{
-  (e: 'hideNotification'): void
-  (e: 'readNotification'): void
-  (e: 'showSender'): void
-  (e: 'showInstance'): void
-  (e: 'respondInvite'): void
-  (e: 'respondInviteWithMessage'): void
-  (e: 'respondInviteWithPhoto'): void
+  (e: 'hideNotification', notificationId: string): void
+  (e: 'readNotification', notificationId: string): void
+  (e: 'showSender', senderType: NotificationSenderType, senderId: string): void
+  (e: 'showInstance', instanceId: string): void
 }>()
+
+const { executeImmediate: respondInvite, isLoading: responsingInvite } = useAsyncState(
+  props.respondInvite,
+  void 0,
+  { immediate: false }
+)
+
+const { executeImmediate: respondInviteWithMessage, isLoading: responsingInviteWithMessage } =
+  useAsyncState(props.respondInviteWithMessage, void 0, { immediate: false })
+
+const { executeImmediate: respondInviteWithPhoto, isLoading: responsingInviteWithPhoto } =
+  useAsyncState(props.respondInviteWithPhoto, void 0, { immediate: false })
+
+const isLoading = computed(
+  () =>
+    responsingInvite.value || responsingInviteWithMessage.value || responsingInviteWithPhoto.value
+)
 
 const handleFocusNotification = () => {
   if (!props.base.isRead) {
-    emits('readNotification')
+    emits('readNotification', props.base.notificationId)
+  }
+}
+
+const handleShowSender = () => {
+  if (props.base.senderId) {
+    emits('showSender', props.base.senderType, props.base.senderId)
   }
 }
 </script>
@@ -66,9 +92,9 @@ const handleFocusNotification = () => {
           :sender-name="props.base.senderName"
           :world-name="props.raw.details.worldName"
           :description="t('notification.content.instance_invite')"
-          @show-sender="emits('showSender')"
-          @show-instance="emits('showInstance')"
-          @hide-notification="emits('hideNotification')"
+          @show-sender="handleShowSender"
+          @show-instance="emits('showInstance', props.raw.details.worldId)"
+          @hide-notification="emits('hideNotification', props.base.notificationId)"
         />
         <NotificationPopoverSubtitle :created-at="props.base.createdAt" />
       </div>
@@ -79,12 +105,13 @@ const handleFocusNotification = () => {
       message-italic
     />
     <div class="flex flex-row items-center justify-start gap-1.5 pl-14 pb-0.5">
-      <div class="flex flex-row gap-px">
+      <Spinner v-if="isLoading" class="size-6" />
+      <div v-else class="flex flex-row gap-px">
         <NotificationPopoverActionButton
           class="rounded-r-none rounded-l-sm"
           variant="secondary"
           :description="t('notification.response.instance_invite_decline')"
-          @click="emits('respondInvite')"
+          @click="respondInvite(props.base.notificationId)"
         />
         <NotificationPopoverInviteDeclineOption
           :decline-with-message-title="
@@ -92,8 +119,8 @@ const handleFocusNotification = () => {
           "
           :decline-with-photo-title="t('notification.response.instance_invite_decline_with_photo')"
           :is-supporter="props.isSupporter"
-          @respond-invite-with-message="emits('respondInviteWithMessage')"
-          @respond-invite-with-photo="emits('respondInviteWithPhoto')"
+          @respond-invite-with-message="respondInviteWithMessage(props.base.notificationId)"
+          @respond-invite-with-photo="respondInviteWithPhoto(props.base.notificationId)"
         />
       </div>
     </div>

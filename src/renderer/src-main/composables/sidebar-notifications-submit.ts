@@ -29,11 +29,41 @@ export function useSidebarNotificationsSubmit() {
     return notifications.clearNotifications()
   }
 
+  function responseInvite(notificationId: string) {
+    console.log(notificationId)
+    return Promise.resolve()
+  }
+
+  function responseInviteWithMessage(notificationId: string) {
+    console.log(notificationId)
+    return Promise.resolve()
+  }
+
+  function responseInviteWithPhoto(notificationId: string) {
+    console.log(notificationId)
+    return Promise.resolve()
+  }
+
+  function acceptFriendRequest(notificationId: string) {
+    console.log(notificationId)
+    return Promise.resolve()
+  }
+
+  function declineFriendRequest(notificationId: string) {
+    console.log(notificationId)
+    return Promise.resolve()
+  }
+
   return {
     markNotificationV1AsRead,
     respondNotificationV2,
     deleteNotificationV1,
     deleteNotificationV2,
-    clearNotifications
+    clearNotifications,
+    responseInvite,
+    responseInviteWithMessage,
+    responseInviteWithPhoto,
+    acceptFriendRequest,
+    declineFriendRequest
   }
 }

@@ -31,7 +31,6 @@ import type { NotificationV2ResponseType } from '@shared/definition/vrchat-api-r
 import type { NotificationCollections } from '@renderer/src-main/composables/sidebar-notifications'
 import type {
   NotificationGlobalCategory,
-  NotificationInformation,
   NotificationSenderType
 } from '@shared/definition/vrchat-notifications'
 
@@ -40,29 +39,30 @@ const { t } = useI18n()
 const props = defineProps<{
   categories: NotificationCollections
   isSupporter: boolean
-  isLoading?: boolean
+  isLoading: boolean
+  acceptFriendRequest: (notificationId: string) => Promise<void>
+  declineFriendRequest: (notificationId: string) => Promise<void>
+  respondNotificationV2: (
+    notificationId: string,
+    type: NotificationV2ResponseType,
+    data: string
+  ) => Promise<void>
+  respondInvite: (notificationId: string) => Promise<void>
+  respondInviteWithMessage: (notificationId: string) => Promise<void>
+  respondInviteWithPhoto: (notificationId: string) => Promise<void>
 }>()
 
 const emits = defineEmits<{
+  (e: 'showAllNotifications'): void
+  (e: 'showSender', senderType: NotificationSenderType, senderId: string): void
+  (e: 'showInstance', instanceId: string): void
+  (e: 'showVoteToKickDetails', notificationId: string): void
+  (e: 'searchGroupByName', name: string): void
+  (e: 'searchUserByName', name: string): void
   (e: 'hideNotificationV1', notificationId: string): void
   (e: 'hideNotificationV2', notificationId: string): void
   (e: 'readNotificationV1', notificationId: string): void
   (e: 'readNotificationV2', notificationId: string): void
-  (e: 'showSender', senderType: NotificationSenderType, senderId: string | null): void
-  (e: 'showInstance', location: string): void
-  (e: 'showVoteToKickDetails', notificationId: string): void
-  (e: 'searchGroupByName', name: string): void
-  (e: 'searchUserByName', name: string): void
-  (
-    e: 'respondNotificationV2',
-    notificationId: string,
-    type: NotificationV2ResponseType,
-    data: string
-  ): void
-  (e: 'respondInvite', notificationId: string): void
-  (e: 'respondInviteWithMessage', notificationId: string): void
-  (e: 'respondInviteWithPhoto', notificationId: string): void
-  (e: 'showAllNotifications'): void
 }>()
 
 const notificationComponents = shallowReadonly({
@@ -86,51 +86,6 @@ const notificationComponents = shallowReadonly({
 
 const getNotificationComponent = (type: NotificationGlobalType): Component => {
   return notificationComponents[type] ?? NotificationPopoverV1Unknown
-}
-
-const handleHideNotification = (notification: NotificationInformation) => {
-  if (notification.version === 'v2') {
-    emits('hideNotificationV2', notification.notificationId)
-  } else {
-    emits('hideNotificationV1', notification.notificationId)
-  }
-}
-
-const handleReadNotification = (notification: NotificationInformation) => {
-  if (notification.version === 'v2') {
-    emits('readNotificationV2', notification.notificationId)
-  } else {
-    emits('readNotificationV1', notification.notificationId)
-  }
-}
-
-const getEventHandlers = (notification: NotificationInformation) => {
-  const baseHandlers = {
-    hideNotification: () => handleHideNotification(notification),
-    readNotification: () => handleReadNotification(notification),
-    showSender: (senderType: NotificationSenderType, senderId: string | null) =>
-      emits('showSender', senderType, senderId)
-  }
-
-  const v1Handlers = {
-    showInstance: (worldId: string) => emits('showInstance', worldId),
-    showDetails: () => emits('showVoteToKickDetails', notification.notificationId),
-    respondInvite: () => emits('respondInvite', notification.notificationId),
-    respondInviteWithMessage: () => emits('respondInviteWithMessage', notification.notificationId),
-    respondInviteWithPhoto: () => emits('respondInviteWithPhoto', notification.notificationId)
-  }
-
-  const v2Handlers = {
-    searchGroupByName: (groupName: string) => emits('searchGroupByName', groupName),
-    searchUserByName: (userName: string) => emits('searchUserByName', userName),
-    respondNotification: (type: NotificationV2ResponseType, data: string) =>
-      emits('respondNotificationV2', notification.notificationId, type, data)
-  }
-
-  return {
-    ...baseHandlers,
-    ...(notification.version === 'v2' ? v2Handlers : v1Handlers)
-  }
 }
 
 const tabIndex = ref<NotificationGlobalCategory>('friends')
@@ -203,10 +158,29 @@ const tabs = computed(() => {
           <template v-for="notification in tab.notifications" :key="notification.notificationId">
             <component
               :is="getNotificationComponent(notification.type)"
-              :base="notification"
-              :raw="notification.raw"
-              :is-supporter="isSupporter"
-              v-on="getEventHandlers(notification)"
+              v-bind="{
+                base: notification,
+                raw: notification.raw,
+                isSupporter,
+                acceptFriendRequest: props.acceptFriendRequest,
+                declineFriendRequest: props.declineFriendRequest,
+                respondNotification: props.respondNotificationV2,
+                respondInvite: props.respondInvite,
+                respondInviteWithMessage: props.respondInviteWithMessage,
+                respondInviteWithPhoto: props.respondInviteWithPhoto
+              }"
+              v-on="{
+                showSender: (senderType, senderId) => emits('showSender', senderType, senderId),
+                showInstance: (location) => emits('showInstance', location),
+                searchGroupByName: (name) => emits('searchGroupByName', name),
+                searchUserByName: (name) => emits('searchUserByName', name),
+                showVoteToKickDetails: (notificationId) =>
+                  emits('showVoteToKickDetails', notificationId),
+                hideNotificationV1: (notificationId) => emits('hideNotificationV1', notificationId),
+                hideNotificationV2: (notificationId) => emits('hideNotificationV2', notificationId),
+                readNotificationV1: (notificationId) => emits('readNotificationV1', notificationId),
+                readNotificationV2: (notificationId) => emits('readNotificationV2', notificationId)
+              }"
             />
           </template>
         </ScrollContainer>

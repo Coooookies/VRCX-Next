@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { cn } from '@renderer/shared/utils/style'
+import { computed } from 'vue'
 import { useI18n } from '@renderer/shared/locale'
+import { useAsyncState } from '@vueuse/core'
 import {
   NotificationGlobalType,
   NotificationSenderType
 } from '@shared/definition/vrchat-notifications'
 import { Button } from '@renderer/shared/components/ui/button'
+import { Spinner } from '@renderer/shared/components/ui/spinner'
 import type { NotificationBaseProps } from './types'
 import type { NotificationGlobalRawInformation } from '@shared/definition/vrchat-notifications'
 import NotificationPopoverAvatar from './notification-popover-avatar.vue'
@@ -18,19 +21,43 @@ const { t } = useI18n()
 const props = defineProps<{
   base: NotificationBaseProps
   raw: NotificationGlobalRawInformation[typeof NotificationGlobalType.FriendRequestV1]
+  acceptFriendRequest: (notificationId: string) => Promise<void>
+  declineFriendRequest: (notificationId: string) => Promise<void>
 }>()
 
 const emits = defineEmits<{
-  (e: 'hideNotification'): void
-  (e: 'readNotification'): void
-  (e: 'showSender'): void
-  (e: 'acceptRequest'): void
-  (e: 'declineRequest'): void
+  (e: 'hideNotification', notificationId: string): void
+  (e: 'readNotification', notificationId: string): void
+  (e: 'showSender', senderType: NotificationSenderType, senderId: string): void
 }>()
+
+const { executeImmediate: acceptRequest, isLoading: accepting } = useAsyncState(
+  props.acceptFriendRequest,
+  void 0,
+  {
+    immediate: false
+  }
+)
+
+const { executeImmediate: declineRequest, isLoading: declining } = useAsyncState(
+  props.declineFriendRequest,
+  void 0,
+  {
+    immediate: false
+  }
+)
+
+const isLoading = computed(() => accepting.value || declining.value)
 
 const handleFocusNotification = () => {
   if (!props.base.isRead) {
-    emits('readNotification')
+    emits('readNotification', props.base.notificationId)
+  }
+}
+
+const handleShowSender = () => {
+  if (props.base.senderId) {
+    emits('showSender', props.base.senderType, props.base.senderId)
   }
 }
 </script>
@@ -60,23 +87,26 @@ const handleFocusNotification = () => {
         <NotificationPopoverMessageTitle
           :sender-name="props.base.senderName"
           :description="t('notification.content.friend_request')"
-          @show-sender="emits('showSender')"
-          @hide-notification="emits('hideNotification')"
+          @show-sender="handleShowSender"
+          @hide-notification="emits('hideNotification', props.base.notificationId)"
         />
         <NotificationPopoverSubtitle :created-at="props.base.createdAt" />
       </div>
     </div>
     <div class="flex flex-row items-center justify-start gap-1.5 pl-14 pb-0.5">
-      <NotificationPopoverActionButton
-        variant="default"
-        :description="t('notification.response.friend_request_accept')"
-        @click="emits('acceptRequest')"
-      />
-      <NotificationPopoverActionButton
-        variant="secondary"
-        :description="t('notification.response.friend_request_decline')"
-        @click="emits('declineRequest')"
-      />
+      <Spinner v-if="isLoading" class="size-6" />
+      <template v-else>
+        <NotificationPopoverActionButton
+          variant="default"
+          :description="t('notification.response.friend_request_accept')"
+          @click="acceptRequest(props.base.notificationId)"
+        />
+        <NotificationPopoverActionButton
+          variant="secondary"
+          :description="t('notification.response.friend_request_decline')"
+          @click="declineRequest(props.base.notificationId)"
+        />
+      </template>
     </div>
   </Button>
 </template>

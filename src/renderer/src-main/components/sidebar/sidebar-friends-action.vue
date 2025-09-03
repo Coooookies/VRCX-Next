@@ -20,7 +20,12 @@ const {
   markNotificationV1AsRead,
   respondNotificationV2,
   deleteNotificationV1,
-  deleteNotificationV2
+  deleteNotificationV2,
+  responseInvite,
+  responseInviteWithMessage,
+  responseInviteWithPhoto,
+  acceptFriendRequest,
+  declineFriendRequest
 } = useSidebarNotificationsSubmit()
 
 const users = useModule<VRChatUsers>('VRChatUsers')
@@ -55,10 +60,16 @@ const isSupporter = computed(() => {
           :categories="categories"
           :is-supporter="isSupporter"
           :is-loading="isLoading"
-          @read-notification-v1="markNotificationV1AsRead"
-          @hide-notification-v1="deleteNotificationV1"
-          @hide-notification-v2="deleteNotificationV2"
-          @respond-notification-v2="respondNotificationV2"
+          :read-notification-v1="markNotificationV1AsRead"
+          :read-notification-v2="markNotificationV1AsRead"
+          :hide-notification-v1="deleteNotificationV1"
+          :hide-notification-v2="deleteNotificationV2"
+          :respond-notification-v2="respondNotificationV2"
+          :respond-invite="responseInvite"
+          :respond-invite-with-message="responseInviteWithMessage"
+          :respond-invite-with-photo="responseInviteWithPhoto"
+          :accept-friend-request="acceptFriendRequest"
+          :decline-friend-request="declineFriendRequest"
         />
       </Popover>
     </div>
