@@ -13,7 +13,7 @@ import type { ImageSelectionInstance } from '@shared/definition/image-selection'
 export class ImageSelectionOperation {
   constructor(
     private readonly logger: LoggerFactory,
-    private readonly mainWindow: MainWindow,
+    private readonly window: MainWindow,
     private readonly repository: ImageSelectionRepository
   ) {}
 
@@ -21,7 +21,7 @@ export class ImageSelectionOperation {
     title: string,
     multiSelections?: boolean
   ): Promise<ImageSelectionDialogReturnValue[] | null> {
-    const returnValue = await dialog.showOpenDialog(this.mainWindow.window!, {
+    const returnValue = await dialog.showOpenDialog(this.window.window!, {
       title,
       properties: ['openFile', 'createDirectory', ...insertIf(multiSelections, 'multiSelections')],
       filters: [

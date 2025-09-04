@@ -10,10 +10,10 @@ import type { ProtocolServer } from '../protocol-server'
 import type { MainWindow } from '../main-window'
 
 export class ImageSelection extends Module {
-  @Dependency('IPCModule') declare private ipc: IPCModule
-  @Dependency('MainWindow') declare private mainWindow: MainWindow
   @Dependency('Database') declare private database: Database
+  @Dependency('IPCModule') declare private ipc: IPCModule
   @Dependency('ProtocolServer') declare private protocol: ProtocolServer
+  @Dependency('MainWindow') declare private window: MainWindow
 
   private readonly logger = createLogger(this.moduleId)
   private repository!: ImageSelectionRepository
@@ -23,7 +23,7 @@ export class ImageSelection extends Module {
 
   protected onInit(): void {
     this.repository = new ImageSelectionRepository(this.logger, this.database)
-    this.operation = new ImageSelectionOperation(this.logger, this.mainWindow, this.repository)
+    this.operation = new ImageSelectionOperation(this.logger, this.window, this.repository)
     this.eventBinding = new ImageSelectionEventBinding(this.logger, this.protocol, this.repository)
     this.ipcBinding = new ImageSelectionIPCBinding(this.ipc, this.repository, this.operation)
     this.eventBinding.bindProtocolEvents()
