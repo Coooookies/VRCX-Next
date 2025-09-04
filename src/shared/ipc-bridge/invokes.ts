@@ -7,6 +7,7 @@ import type {
   AuthenticationResumeSessionState,
   AuthenticationState
 } from '@shared/definition/vrchat-authentication'
+import type { ImageSelectionInstance } from '@shared/definition/image-selection'
 
 export type IpcInvokeEvents = {
   // MobxState
@@ -47,6 +48,14 @@ export type IpcInvokeEvents = {
     type: NotificationV2ResponseType,
     data: string
   ) => void
+
+  // ImageSelection
+  'image-selection:select-image': (
+    title: string,
+    multiSelections?: boolean
+  ) => Promise<ImageSelectionInstance[] | null>
+  'image-selection:get-latest-selections': (limit: number) => Promise<ImageSelectionInstance[]>
+  'image-selection:get-selection': (selectionId: string) => Promise<ImageSelectionInstance | null>
 
   // Runtime
   'runtime:relaunch': () => void
