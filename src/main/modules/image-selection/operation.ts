@@ -2,22 +2,34 @@ import { randomUUID } from 'node:crypto'
 import { basename, extname } from 'node:path'
 import { dialog } from 'electron'
 import { insertIf } from '@shared/utils/array'
+import { IMAGE_SELECT_FORMAT_FILTERS } from './constants'
+import type { MainWindow } from '../main-window'
 import type { LoggerFactory } from '@main/logger'
 import type { ImageSelectionRepository } from './repository'
 import type { ImageSelectionDialogReturnValue } from './types'
 import type { ImageSelectionEntity } from '../database/entities/image-selection'
+import type { ImageSelectionInstance } from '@shared/definition/image-selection'
 
 export class ImageSelectionOperation {
   constructor(
     private readonly logger: LoggerFactory,
+    private readonly mainWindow: MainWindow,
     private readonly repository: ImageSelectionRepository
   ) {}
 
   private async openDialog(
+    title: string,
     multiSelections?: boolean
   ): Promise<ImageSelectionDialogReturnValue[] | null> {
-    const returnValue = await dialog.showOpenDialog({
-      properties: ['openFile', 'createDirectory', ...insertIf(multiSelections, 'multiSelections')]
+    const returnValue = await dialog.showOpenDialog(this.mainWindow.window!, {
+      title,
+      properties: ['openFile', 'createDirectory', ...insertIf(multiSelections, 'multiSelections')],
+      filters: [
+        {
+          name: 'Images',
+          extensions: IMAGE_SELECT_FORMAT_FILTERS
+        }
+      ]
     })
 
     if (returnValue.canceled) {
@@ -48,15 +60,22 @@ export class ImageSelectionOperation {
     })
   }
 
-  public async selectAndCacheSelection() {
-    const selections = await this.openDialog(true)
-
+  public async selectImage(
+    title: string,
+    multiSelections?: boolean
+  ): Promise<ImageSelectionInstance[] | null> {
+    const selections = await this.openDialog(title, multiSelections)
     if (!selections) {
       this.logger.info('Image selection canceled')
-      return
+      return null
     }
 
     const entities = this.processImageSelections(selections)
-    return this.repository.upsertSelections(entities)
+    await this.repository.upsertSelections(entities)
+    return entities.map((entity) => ({
+      ...entity,
+      exist: true,
+      recordedAt: entity.recordedAt!
+    }))
   }
 }

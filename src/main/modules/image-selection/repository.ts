@@ -10,6 +10,7 @@ import { PassThrough } from 'node:stream'
 import { Database } from '../database'
 import { ImageSelectionEntity } from '../database/entities/image-selection'
 import { APP_CACHE_DIR } from '@main/constants'
+import { CACHE_THUMBNAIL_FORMAT, CACHE_THUMBNAIL_MIMETYPE } from './constants'
 import type { LoggerFactory } from '@main/logger'
 import type { Repository } from 'typeorm'
 import type { ImageSelectionInstance } from '@shared/definition/image-selection'
@@ -61,6 +62,27 @@ export class ImageSelectionRepository {
     }
   }
 
+  public resolveLatestImageSelections(limit: number): Promise<ImageSelectionInstance[]> {
+    return this.repository
+      .find({
+        order: { recordedAt: 'DESC' },
+        take: limit
+      })
+      .then((results) =>
+        results.map(async (result) => {
+          const exist = await exists(result.path)
+          return {
+            selectionId: result.selectionId,
+            fileName: result.fileName,
+            fileExtension: result.fileExtension,
+            exist,
+            recordedAt: result.recordedAt!
+          }
+        })
+      )
+      .then((promises) => Promise.all(promises))
+  }
+
   public async resolveLocalImageThumbnailCache(
     selectionId: string,
     size: number
@@ -97,8 +119,8 @@ export class ImageSelectionRepository {
     size: number
   ): Promise<SelectionResolver | null> {
     const selection = await this.getSelection(selectionId)
-    const mime = 'image/webp' as const
-    const format = 'webp' as const
+    const mime = CACHE_THUMBNAIL_MIMETYPE
+    const format = CACHE_THUMBNAIL_FORMAT
 
     if (!selection || !(await exists(selection.path))) {
       return null

@@ -3,10 +3,15 @@ import { Dependency, Module } from '@shared/module-constructor'
 import { ImageSelectionRepository } from './repository'
 import { ImageSelectionOperation } from './operation'
 import { ImageSelectionEventBinding } from './event-binding'
+import { ImageSelectionIPCBinding } from './ipc-binding'
+import type { IPCModule } from '../ipc'
 import type { Database } from '../database'
 import type { ProtocolServer } from '../protocol-server'
+import type { MainWindow } from '../main-window'
 
 export class ImageSelection extends Module {
+  @Dependency('IPCModule') declare private ipc: IPCModule
+  @Dependency('MainWindow') declare private mainWindow: MainWindow
   @Dependency('Database') declare private database: Database
   @Dependency('ProtocolServer') declare private protocol: ProtocolServer
 
@@ -14,19 +19,16 @@ export class ImageSelection extends Module {
   private repository!: ImageSelectionRepository
   private operation!: ImageSelectionOperation
   private eventBinding!: ImageSelectionEventBinding
+  private ipcBinding!: ImageSelectionIPCBinding
 
   protected onInit(): void {
     this.repository = new ImageSelectionRepository(this.logger, this.database)
-    this.operation = new ImageSelectionOperation(this.logger, this.repository)
+    this.operation = new ImageSelectionOperation(this.logger, this.mainWindow, this.repository)
     this.eventBinding = new ImageSelectionEventBinding(this.logger, this.protocol, this.repository)
+    this.ipcBinding = new ImageSelectionIPCBinding(this.ipc, this.repository, this.operation)
     this.eventBinding.bindProtocolEvents()
+    this.ipcBinding.bindInvokes()
   }
-
-  // protected onLoad(): void {
-  //   setTimeout(() => {
-  //     this.operation.selectAndCacheSelection()
-  //   }, 5000)
-  // }
 
   public get Operation(): ImageSelectionOperation {
     return this.operation

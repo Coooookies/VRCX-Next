@@ -345,6 +345,15 @@ export class FriendsEventBinding extends Nanobus<{
     }
 
     const diff = diffSurface<BaseFriendInformation>(friend, result)
+
+    if ('status' in diff) {
+      if (diff.status === UserStatus.Busy || diff.status === UserStatus.AskMe) {
+        result.location = null
+        result.locationArrivedAt = null
+        result.isTraveling = false
+      }
+    }
+
     await this.users.Repository.saveUserEntities(toUserEntity(user))
 
     this.repository.set(result)
