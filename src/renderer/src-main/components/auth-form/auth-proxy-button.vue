@@ -14,7 +14,7 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <TooltipProvider>
+  <TooltipProvider :delay-duration="500">
     <Tooltip>
       <NetworkProxyModal>
         <TooltipTrigger as-child>

@@ -9,10 +9,11 @@ import {
 import { Button } from '@renderer/shared/components/ui/button'
 import { Spinner } from '@renderer/shared/components/ui/spinner'
 import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger
-} from '@renderer/shared/components/ui/hover-card'
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@renderer/shared/components/ui/tooltip'
 import { NOTIFICATION_V2_RESPONSE_TEXTKEY } from '@renderer/shared/constants/locate-mapping'
 import type { NotificationBaseProps } from './types'
 import type { NotificationGlobalRawInformation } from '@shared/definition/vrchat-notifications'
@@ -92,24 +93,27 @@ const getActionDescription = (textKey: string | null, title: string) => {
         <Spinner class="size-5" />
       </div>
       <template v-else-if="'responses' in props.raw">
-        <HoverCard
+        <TooltipProvider
           v-for="(action, index) in props.raw.responses"
           :key="index"
-          :open-delay="500"
-          :close-delay="0"
+          :delay-duration="500"
         >
-          <HoverCardTrigger as-child>
-            <NotificationPopoverActionButton
-              size="sm"
-              :variant="['accept', 'delete'].includes(action.type) ? 'default' : 'secondary'"
-              :description="getActionDescription(action.textKey, action.text)"
-              @click.stop="respondNotification(props.base.notificationId, action.type, action.data)"
-            />
-          </HoverCardTrigger>
-          <HoverCardContent class="w-auto px-2 py-1.5 text-xs" side="top" :side-offset="6">
-            {{ action.text }}
-          </HoverCardContent>
-        </HoverCard>
+          <Tooltip>
+            <TooltipTrigger as-child>
+              <NotificationPopoverActionButton
+                size="sm"
+                :variant="['accept', 'delete'].includes(action.type) ? 'default' : 'secondary'"
+                :description="getActionDescription(action.textKey, action.text)"
+                @click.stop="
+                  respondNotification(props.base.notificationId, action.type, action.data)
+                "
+              />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{{ action.text }}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </template>
     </div>
   </Button>
