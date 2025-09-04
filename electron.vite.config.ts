@@ -11,7 +11,7 @@ export default defineConfig({
   main: {
     plugins: [swcPlugin(), externalizeDepsPlugin()],
     build: {
-      minify
+      // minify
     },
     resolve: {
       alias: {
