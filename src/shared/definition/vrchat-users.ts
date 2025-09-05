@@ -1,5 +1,5 @@
 import type { ReferenceAvatar, UserAvatar } from './vrchat-avatars'
-import type { LocationInstance } from './vrchat-instances'
+import type { LocationInstanceSummary } from './vrchat-instances'
 import type {
   AgeVerificationStatus,
   DeveloperType,
@@ -115,7 +115,7 @@ export interface CurrentUserInformation extends UserInformationBase {
 }
 
 export interface UserLocation {
-  location: LocationInstance | null
+  location: LocationInstanceSummary | null
   locationArrivedAt: Date | null
   isTraveling: boolean
 }

@@ -1,5 +1,5 @@
 import type { ReferenceAvatar } from './vrchat-avatars'
-import type { LocationInstance } from './vrchat-instances'
+import type { LocationInstanceSummary } from './vrchat-instances'
 import type { UserInformationBase } from './vrchat-users'
 
 export interface BaseFriendInformation extends UserInformationBase {
@@ -11,7 +11,7 @@ export interface BaseFriendInformation extends UserInformationBase {
 }
 
 export interface FriendInformation extends BaseFriendInformation {
-  location: LocationInstance | null
+  location: LocationInstanceSummary | null
   locationArrivedAt: Date | null
   isTraveling: boolean
 }

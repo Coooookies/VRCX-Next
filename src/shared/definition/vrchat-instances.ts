@@ -29,9 +29,6 @@ export type LocationInstanceGroupType =
 interface LocationInstanceBase {
   location: string
   worldId: string
-  worldName: string
-  worldImageFileId: string
-  worldImageFileVersion: number
   name: string
   region?: Region
 }
@@ -48,10 +45,40 @@ export interface LocationInstanceUser extends LocationInstanceBase {
 export interface LocationInstanceGroup extends LocationInstanceBase {
   type: LocationInstanceGroupType
   groupId: string
+  require18yo: boolean
+}
+
+export type LocationInstance = LocationInstancePublic | LocationInstanceUser | LocationInstanceGroup
+
+interface LocationInstanceBaseSummary {
+  location: string
+  worldId: string
+  worldName: string
+  worldImageFileId: string
+  worldImageFileVersion: number
+  name: string
+  region?: Region
+}
+
+export interface LocationInstancePublicSummary extends LocationInstanceBaseSummary {
+  type: LocationInstancePublicType
+}
+
+export interface LocationInstanceUserSummary extends LocationInstanceBaseSummary {
+  type: LocationInstanceUserType
+  userId: string
+}
+
+export interface LocationInstanceGroupSummary extends LocationInstanceBaseSummary {
+  type: LocationInstanceGroupType
+  groupId: string
   groupName: string
   groupImageFileId: string
   groupImageFileVersion: number
   require18yo: boolean
 }
 
-export type LocationInstance = LocationInstancePublic | LocationInstanceUser | LocationInstanceGroup
+export type LocationInstanceSummary =
+  | LocationInstancePublicSummary
+  | LocationInstanceUserSummary
+  | LocationInstanceGroupSummary
