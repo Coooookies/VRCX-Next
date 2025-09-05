@@ -28,9 +28,6 @@ export function parseInstance(worldId: string, instanceId: string): LocationInst
   let instance: LocationInstance = {
     location: `${worldId}:${instanceId}`,
     worldId: worldId,
-    worldName: 'World',
-    worldImageFileId: '',
-    worldImageFileVersion: 0,
     name: instanceName,
     type: 'public'
   }
@@ -76,9 +73,6 @@ export function parseInstance(worldId: string, instanceId: string): LocationInst
             ? 'group+'
             : 'group',
       groupId: instanceIdParts.group,
-      groupName: 'Group',
-      groupImageFileId: '',
-      groupImageFileVersion: 0,
       require18yo: 'ageGate' in instanceIdParts
     }
   }
