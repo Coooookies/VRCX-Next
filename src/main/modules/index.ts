@@ -12,6 +12,7 @@ import { VRChatLogWatcher } from './vrchat-log-watcher'
 import { VRChatMiscellaneous } from './vrchat-miscellaneous'
 import { VRChatWorkflowCoordinator } from './vrchat-workflow-coordinator'
 import { VRChatPipeline } from './vrchat-pipeline'
+import { VRChatInstances } from './vrchat-instances'
 import { VRChatFiles } from './vrchat-files'
 import { VRChatFriends } from './vrchat-friends'
 import { VRChatUsers } from './vrchat-users'
@@ -36,6 +37,7 @@ export const APP_MODULES: Record<string, ModuleConstructor> = {
   VRChatAuthentication,
   VRChatWorkflowCoordinator,
   VRChatPipeline,
+  VRChatInstances,
   VRChatFiles,
   VRChatWorlds,
   VRChatGroups,

@@ -11,7 +11,7 @@ import type { LogEventContext, LogEventMessage } from './types'
 
 export class VRChatLogWatcher extends Module<{
   raw: (raw: string) => void
-  message: (context: LogEventContext, data: LogEventMessage) => void
+  message: (data: LogEventMessage, context: LogEventContext) => void
 }> {
   private readonly logger = createLogger(this.moduleId)
   public static lineRegex = GAMELOG_PARSER_REGEXP
@@ -28,9 +28,9 @@ export class VRChatLogWatcher extends Module<{
   }
 
   private bindEvents() {
-    this.on('raw', (data) => {
-      this.logger.trace('Raw log line:', data)
-    })
+    // this.on('raw', (data) => {
+    //   this.logger.trace('Raw log line:', data)
+    // })
 
     this.on('message', (context, data) => {
       this.logger.trace(
@@ -90,7 +90,7 @@ export class VRChatLogWatcher extends Module<{
 
     const specialEvent = parseSpecialEventLine(context)
     if (specialEvent) {
-      this.emit('message', context, specialEvent)
+      this.emit('message', specialEvent, context)
     }
   }
 }
