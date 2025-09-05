@@ -116,6 +116,9 @@ export type LocaleDefinition = {
     response: {
       acknowledge: string
       unsubscribe: string
+      group_invite_accept: string
+      group_invite_decline: string
+      group_invite_block: string
       friend_request_accept: string
       friend_request_decline: string
       instance_invite_decline: string

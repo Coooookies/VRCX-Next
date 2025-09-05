@@ -158,6 +158,9 @@ export const LANGUAGE_JA_JP: LocaleStructure = {
       response: {
         acknowledge: '了解',
         unsubscribe: '購読解除',
+        group_invite_accept: '承認',
+        group_invite_decline: '辞退',
+        group_invite_block: 'ブロック',
         friend_request_accept: '承認',
         friend_request_decline: '辞退',
         instance_invite_decline: '辞退',

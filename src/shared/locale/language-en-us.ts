@@ -158,6 +158,9 @@ export const LANGUAGE_EN_US: LocaleStructure = {
       response: {
         acknowledge: 'Acknowledge',
         unsubscribe: 'Unsubscribe',
+        group_invite_accept: 'Accept',
+        group_invite_decline: 'Decline',
+        group_invite_block: 'Block',
         friend_request_accept: 'Accept',
         friend_request_decline: 'Decline',
         instance_invite_decline: 'Decline',
