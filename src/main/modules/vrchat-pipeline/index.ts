@@ -11,6 +11,7 @@ import type { VRChatWorkflowCoordinator } from '../vrchat-workflow-coordinator'
 import type { VRChatAuthentication } from '../vrchat-authentication'
 
 export class VRChatPipeline extends Module<{
+  raw: (data: string) => void
   message: (message: PipelineEventMessage) => void
 }> {
   @Dependency('VRChatAuthentication') declare private auth: VRChatAuthentication
@@ -225,6 +226,7 @@ export class VRChatPipeline extends Module<{
       content: isJson ? parsedMessage : originMessage.content
     } as PipelineEventMessage
 
+    this.emit('raw', data.toString())
     this.emit('message', message)
   }
 
