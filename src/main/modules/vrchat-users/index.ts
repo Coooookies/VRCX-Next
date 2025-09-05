@@ -30,13 +30,18 @@ export class VRChatUsers extends Module<{}> {
 
   protected onInit(): void {
     this.repository = new UsersRepository(this.moduleId, this.mobx, this.database)
-    this.fetcher = new UsersFetcher(this.logger, this.repository, this.api)
+    this.fetcher = new UsersFetcher(
+      this.logger,
+      this.repository,
+      this.api,
+      this.worlds,
+      this.groups
+    )
     this.eventBinding = new UsersEventBinding(
       this.logger,
       this.repository,
       this.pipeline,
-      this.worlds,
-      this.groups
+      this.fetcher
     )
     this.bindEvents()
     this.eventBinding.bindEvents()

@@ -1,15 +1,13 @@
 import Nanobus from 'nanobus'
 import { toJS } from 'mobx'
-import { isGroupInstance } from '../vrchat-worlds/factory'
+import { isGroupInstance, isSameLocation } from '../vrchat-worlds/utils'
 import { toCurrentUserInformation } from './factory'
 import { diffSurface } from '@main/utils/object'
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { PipelineEvents } from '@shared/definition/vrchat-pipeline'
 import type { LoggerFactory } from '@main/logger'
-import type { VRChatGroups } from '../vrchat-groups'
-import type { VRChatWorlds } from '../vrchat-worlds'
 import type { VRChatPipeline } from '../vrchat-pipeline'
-import type { LocationInstance, LocationInstanceGroup } from '@shared/definition/vrchat-instances'
+import type { LocationInstanceGroupSummary } from '@shared/definition/vrchat-instances'
 import type {
   PipelineEventMessage,
   PipelineEventUserLocation,
@@ -17,6 +15,7 @@ import type {
 } from '@shared/definition/vrchat-pipeline'
 import type { CurrentUserInformation, UserLocation } from '@shared/definition/vrchat-users'
 import type { UsersRepository } from './repository'
+import { UsersFetcher } from './fetcher'
 
 export class UsersEventBinding extends Nanobus<{
   'user:update': (user: CurrentUserInformation, diff: Partial<CurrentUserInformation>) => void
@@ -26,8 +25,7 @@ export class UsersEventBinding extends Nanobus<{
     private readonly logger: LoggerFactory,
     private readonly repository: UsersRepository,
     private readonly pipeline: VRChatPipeline,
-    private readonly worlds: VRChatWorlds,
-    private readonly groups: VRChatGroups
+    private readonly fetcher: UsersFetcher
   ) {
     super('VRChatFriends:EventBinding')
   }
@@ -67,17 +65,19 @@ export class UsersEventBinding extends Nanobus<{
     const travelingTarget = parseLocation(travelingToLocation)
     const nextLocation = isTraveling ? travelingTarget : originalTarget
     const prevLocation = this.repository.State.location?.location || null
-    const isSameLocation = this.isSameLocation(prevLocation, nextLocation)
+    const isSameInstance = isSameLocation(prevLocation, nextLocation)
 
-    if (nextLocation) {
-      await this.enrichLocationWithWorldInfo(nextLocation)
+    let nextLocationSummary = nextLocation
+      ? await this.fetcher.enrichLocationWithWorldInfo(nextLocation)
+      : null
 
-      if (isGroupInstance(nextLocation)) {
-        await this.enrichLocationWithGroupInfo(nextLocation as LocationInstanceGroup)
-      }
+    if (nextLocationSummary && isGroupInstance(nextLocationSummary)) {
+      nextLocationSummary = await this.fetcher.enrichLocationWithGroupInfo(
+        <LocationInstanceGroupSummary>nextLocation
+      )
     }
 
-    const locationArrivedAt = isSameLocation
+    const locationArrivedAt = isSameInstance
       ? this.repository.State.location?.locationArrivedAt || null
       : nextLocation
         ? new Date()
@@ -85,7 +85,7 @@ export class UsersEventBinding extends Nanobus<{
 
     const newLocation = {
       isTraveling,
-      location: nextLocation,
+      location: nextLocationSummary,
       locationArrivedAt
     }
 
@@ -105,36 +105,5 @@ export class UsersEventBinding extends Nanobus<{
     this.logger.info(`User updated: ${user.id}`, diff)
     this.emit('user:update', newUser, diff)
     this.repository.setUserState(newUser)
-  }
-
-  private isSameLocation(
-    currentLocation: LocationInstance | null,
-    nextLocation: LocationInstance | null
-  ): boolean {
-    return (
-      !!currentLocation &&
-      !!nextLocation &&
-      nextLocation.worldId === currentLocation.worldId &&
-      nextLocation.name === currentLocation.name
-    )
-  }
-
-  private async enrichLocationWithWorldInfo(location: LocationInstance) {
-    const world = await this.worlds.Fetcher.fetchWorldEntities(location.worldId)
-
-    if (world) {
-      location.worldName = world.worldName
-      location.worldImageFileId = world.imageFileId
-      location.worldImageFileVersion = world.imageFileVersion
-    }
-  }
-
-  private async enrichLocationWithGroupInfo(groupLocation: LocationInstanceGroup) {
-    const group = await this.groups.Fetcher.fetchGroupEntities(groupLocation.groupId)
-    if (group) {
-      groupLocation.groupName = group.groupName
-      groupLocation.groupImageFileId = group.iconFileId
-      groupLocation.groupImageFileVersion = group.iconFileVersion
-    }
   }
 }

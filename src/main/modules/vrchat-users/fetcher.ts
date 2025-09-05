@@ -1,8 +1,16 @@
 import type { LoggerFactory } from '@main/logger'
 import type { UsersRepository } from './repository'
 import type { VRChatAPI } from '../vrchat-api'
+import type { VRChatWorlds } from '../vrchat-worlds'
+import type { VRChatGroups } from '../vrchat-groups'
 import type { UserNote } from '@shared/definition/vrchat-api-response'
 import type { UserEntity } from '../database/entities/users'
+import type {
+  LocationInstance,
+  LocationInstanceGroup,
+  LocationInstanceGroupSummary,
+  LocationInstanceSummary
+} from '@shared/definition/vrchat-instances'
 import { limitedAllSettled } from '@shared/utils/async'
 import { toUserEntity } from './factory'
 import {
@@ -15,7 +23,9 @@ export class UsersFetcher {
   constructor(
     private readonly logger: LoggerFactory,
     private readonly repository: UsersRepository,
-    private readonly api: VRChatAPI
+    private readonly api: VRChatAPI,
+    private readonly worlds: VRChatWorlds,
+    private readonly groups: VRChatGroups
   ) {}
 
   public async initNotes() {
@@ -104,5 +114,41 @@ export class UsersFetcher {
     }
 
     return Array.isArray(userIds) ? entities : (entities.get(userIds) ?? null)
+  }
+
+  public async enrichLocationWithWorldInfo(location: LocationInstance) {
+    const world = await this.worlds.Fetcher.fetchWorldEntities(location.worldId)
+    const summary = <LocationInstanceSummary>{
+      ...location,
+      worldName: 'Unknown World',
+      worldImageFileId: '',
+      worldImageFileVersion: 0
+    }
+
+    if (world) {
+      summary.worldName = world.worldName
+      summary.worldImageFileId = world.imageFileId
+      summary.worldImageFileVersion = world.imageFileVersion
+    }
+
+    return summary
+  }
+
+  public async enrichLocationWithGroupInfo(groupLocation: LocationInstanceGroup) {
+    const group = await this.groups.Fetcher.fetchGroupEntities(groupLocation.groupId)
+    const summary = <LocationInstanceGroupSummary>{
+      ...groupLocation,
+      groupName: 'Unknown Group',
+      groupImageFileId: '',
+      groupImageFileVersion: 0
+    }
+
+    if (group) {
+      summary.groupName = group.groupName
+      summary.groupImageFileId = group.iconFileId
+      summary.groupImageFileVersion = group.iconFileVersion
+    }
+
+    return summary
   }
 }
