@@ -40,11 +40,11 @@ const emits = defineEmits<{
     @read-notification-v2="emits('readNotificationV2', props.base.notificationId)"
   >
     <NotificationPopoverInviteGroupTitle
-      :user-name="props.raw.data.manageruserDisplayName"
+      :user-name="props.raw.data.managerUserDisplayName"
       :group-name="props.raw.data.groupName"
       :description="t('notification.content.group_invite')"
       @search-group-by-name="emits('searchGroupByName', props.raw.data.groupName)"
-      @search-user-by-name="emits('searchUserByName', props.raw.data.manageruserDisplayName)"
+      @search-user-by-name="emits('searchUserByName', props.raw.data.managerUserDisplayName)"
       @hide-notification="emits('hideNotificationV2', props.base.notificationId)"
     />
     <NotificationPopoverSubtitle :created-at="props.base.createdAt" />
