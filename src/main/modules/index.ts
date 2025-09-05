@@ -8,6 +8,7 @@ import { ImageSelection } from './image-selection'
 import { Database } from './database'
 import { VRChatAPI } from './vrchat-api'
 import { VRChatAuthentication } from './vrchat-authentication'
+import { VRChatLogWatcher } from './vrchat-log-watcher'
 import { VRChatMiscellaneous } from './vrchat-miscellaneous'
 import { VRChatWorkflowCoordinator } from './vrchat-workflow-coordinator'
 import { VRChatPipeline } from './vrchat-pipeline'
@@ -29,6 +30,7 @@ export const APP_MODULES: Record<string, ModuleConstructor> = {
   ProtocolServer,
   IPCModule,
   ImageSelection,
+  VRChatLogWatcher,
   VRChatAPI,
   VRChatMiscellaneous,
   VRChatAuthentication,
