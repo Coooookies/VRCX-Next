@@ -14,7 +14,7 @@ import {
 import type { VRChatFriends } from '@renderer/shared/modules/vrchat-friends'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
 import type { FunctionalComponent } from 'vue'
-import type { LocationInstance } from '@shared/definition/vrchat-instances'
+import type { LocationInstanceSummary } from '@shared/definition/vrchat-instances'
 import type { LocaleI18NKeys } from '@renderer/shared/locale/types'
 import type { TranslationFunction } from '@renderer/shared/locale'
 
@@ -25,7 +25,7 @@ export interface GroupedFriends {
 }
 
 export interface LocationGroup {
-  location: LocationInstance
+  location: LocationInstanceSummary
   friends: FriendInformation[]
 }
 
@@ -150,7 +150,10 @@ function wrapGroupedFriends(
   return [header, ...filteredFriends]
 }
 
-export function getLocationLabel(location: LocationInstance, includeWorldName: boolean = true) {
+export function getLocationLabel(
+  location: LocationInstanceSummary,
+  includeWorldName: boolean = true
+) {
   switch (location.type) {
     case LocationInstanceGroupType.Group:
     case LocationInstanceGroupType.GroupPlus:

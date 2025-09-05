@@ -9,13 +9,13 @@ import { ImageFallback, ImageRoot } from '@renderer/shared/components/ui/image'
 import { Skeleton } from '@renderer/shared/components/ui/skeleton'
 import { Button } from '@renderer/shared/components/ui/button'
 import { ElapsedTimerText } from '@renderer/shared/components/timer'
-import type { LocationInstance } from '@shared/definition/vrchat-instances'
+import type { LocationInstanceSummary } from '@shared/definition/vrchat-instances'
 
 const { t } = useI18n()
 const thumbnailMask = `url("${AreaThumbnailMask}")`
 
 const props = defineProps<{
-  location: LocationInstance
+  location: LocationInstanceSummary
   isTraveling: boolean
   arrivedAt: Date | null
 }>()

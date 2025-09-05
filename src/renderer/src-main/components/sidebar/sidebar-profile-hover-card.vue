@@ -14,7 +14,7 @@ import { HoverCardContent } from '@renderer/shared/components/ui/hover-card'
 import { UserLanguage, UserTrustRank } from '@shared/definition/vrchat-users'
 import { UserStatus } from '@shared/definition/vrchat-api-response'
 import type { HoverCardContentProps } from 'reka-ui'
-import type { LocationInstance } from '@shared/definition/vrchat-instances'
+import type { LocationInstanceSummary } from '@shared/definition/vrchat-instances'
 
 const props = defineProps<{
   displayName: string
@@ -28,7 +28,7 @@ const props = defineProps<{
   statusDescription: string
   trustRank: UserTrustRank
   languages: UserLanguage[]
-  location: LocationInstance | null
+  location: LocationInstanceSummary | null
   locationArrivedAt: Date | null
   isTraveling: boolean
   displayAlign: HoverCardContentProps['align']
@@ -76,7 +76,9 @@ const isSameThumbnail = computed(() => {
     </ImageRoot>
     <div class="relative px-5 pb-5 pt-27">
       <div class="w-full">
-        <ImageRoot class="block size-20 rounded-full overflow-hidden ring-4 ring-popover">
+        <ImageRoot
+          class="block size-20 rounded-full bg-popover overflow-hidden ring-4 ring-popover"
+        >
           <ImageVRChatContext
             :key="`${props.profileIconFileId}-${props.profileIconFileVersion}`"
             :file-id="props.profileIconFileId"
@@ -84,7 +86,7 @@ const isSameThumbnail = computed(() => {
             :size="128"
             class="size-full object-cover"
           />
-          <ImageFallback class="size-full bg-popover flex items-center justify-center">
+          <ImageFallback class="size-full flex items-center justify-center">
             <template #default>
               <CircleUserRoundIcon class="size-7 text-muted-foreground" />
             </template>
