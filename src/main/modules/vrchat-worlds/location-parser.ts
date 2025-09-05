@@ -1,5 +1,6 @@
 // https://github.com/LunyaaDev/vrchat-location-parser/blob/main/src/index.ts
 
+import { LOCATION_PARSER_REGEXP } from './constants'
 import type { LocationInstance } from '@shared/definition/vrchat-instances'
 
 export function parseLocation(location: string): LocationInstance | null {
@@ -14,7 +15,7 @@ export function parseLocation(location: string): LocationInstance | null {
 export function parseInstance(worldId: string, instanceId: string): LocationInstance | null {
   const instanceIdParts: { [key: string]: string | null } = Object.fromEntries(
     instanceId.split('~').map((x) => {
-      const regexRes = x.match(/^(?<key>[^(]+)(\((?<value>[^)]+)\))?$/)
+      const regexRes = x.match(LOCATION_PARSER_REGEXP)
       return !regexRes?.groups?.key ? [] : [regexRes.groups.key, regexRes.groups.value || null]
     })
   )
@@ -25,6 +26,7 @@ export function parseInstance(worldId: string, instanceId: string): LocationInst
   }
 
   let instance: LocationInstance = {
+    location: `${worldId}:${instanceId}`,
     worldId: worldId,
     worldName: 'World',
     worldImageFileId: '',
