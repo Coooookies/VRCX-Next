@@ -484,7 +484,9 @@ export type NotificationV2ResponseType =
 
 export const NotificationV2ResponseIcon = {
   Check: 'check',
-  BellSlash: 'bell-slash'
+  Cancel: 'cancel',
+  BellSlash: 'bell-slash',
+  Ban: 'ban'
 } as const
 
 export type NotificationV2ResponseIcon =
