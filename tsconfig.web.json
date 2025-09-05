@@ -16,6 +16,7 @@
     "noEmit": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "moduleResolution": "bundler",
     "paths": {
       "@renderer/*": ["src/renderer/*"],
       "@shared/*": ["src/shared/*"]
