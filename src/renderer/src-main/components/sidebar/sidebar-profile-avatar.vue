@@ -3,6 +3,7 @@ import ImageVRChatContext from '@renderer/shared/components/image-vrchat-context
 import PhoneIcon from '@shared/assets/vector/profile-icon-phone.svg?component'
 import { computed } from 'vue'
 import { CircleUserRoundIcon } from 'lucide-vue-next'
+import { Skeleton } from '@renderer/shared/components/ui/skeleton'
 import { ImageRoot, ImageFallback } from '@renderer/shared/components/ui/image'
 import { Platform, UserStatus } from '@shared/definition/vrchat-api-response'
 import { cn } from '@renderer/shared/utils/style'
@@ -46,7 +47,7 @@ const UserStatusBackgroundColors: Record<UserStatus, string> = {
             : 'var(--mask-status-avatar)'
           : 'none'
       }"
-      class="block size-full bg-muted rounded-full overflow-hidden"
+      class="block size-full rounded-full overflow-hidden"
     >
       <ImageVRChatContext
         :key="`${props.fileId}-${props.version}`"
@@ -54,8 +55,13 @@ const UserStatusBackgroundColors: Record<UserStatus, string> = {
         :version="props.version"
         class="size-full object-cover"
       />
-      <ImageFallback class="size-full flex items-center justify-center">
-        <CircleUserRoundIcon class="size-4 text-muted-foreground" />
+      <ImageFallback class="size-full bg-muted/50 flex items-center justify-center">
+        <template #default>
+          <CircleUserRoundIcon class="size-4 text-muted-foreground" />
+        </template>
+        <template #loading>
+          <Skeleton class="size-full" />
+        </template>
       </ImageFallback>
     </ImageRoot>
     <template v-if="props.showBadge">

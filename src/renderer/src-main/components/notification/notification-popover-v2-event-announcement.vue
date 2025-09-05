@@ -23,12 +23,24 @@ const props = defineProps<{
 const emits = defineEmits<{
   (e: 'hideNotificationV2', notificationId: string): void
   (e: 'readNotificationV2', notificationId: string): void
-  (e: 'showSender', senderType: NotificationSenderType, senderId: string): void
+  (e: 'showUser', userrId: string): void
+  (e: 'showGroup', groupId: string): void
 }>()
 
 const handleShowSender = () => {
-  if (props.base.senderId) {
-    emits('showSender', props.base.senderType, props.base.senderId)
+  if (!props.base.senderId) {
+    return
+  }
+
+  switch (props.base.senderType) {
+    case NotificationSenderType.User:
+      emits('showUser', props.base.senderId)
+      break
+    case NotificationSenderType.Group:
+      emits('showGroup', props.base.senderId)
+      break
+    default:
+      break
   }
 }
 </script>

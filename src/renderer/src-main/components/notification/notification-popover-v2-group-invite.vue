@@ -27,7 +27,7 @@ const emits = defineEmits<{
   (e: 'hideNotificationV2', notificationId: string): void
   (e: 'readNotificationV2', notificationId: string): void
   (e: 'searchUserByName', userName: string): void
-  (e: 'searchGroupByName', groupName: string): void
+  (e: 'showGroup', groupId: string): void
 }>()
 </script>
 
@@ -43,7 +43,7 @@ const emits = defineEmits<{
       :user-name="props.raw.data.managerUserDisplayName"
       :group-name="props.raw.data.groupName"
       :description="t('notification.content.group_invite')"
-      @search-group-by-name="emits('searchGroupByName', props.raw.data.groupName)"
+      @search-group-by-name="emits('showGroup', props.base.senderId!)"
       @search-user-by-name="emits('searchUserByName', props.raw.data.managerUserDisplayName)"
       @hide-notification="emits('hideNotificationV2', props.base.notificationId)"
     />

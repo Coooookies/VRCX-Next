@@ -3,6 +3,7 @@ import ImageVRChatContext from '@renderer/shared/components/image-vrchat-context
 import { cn } from '@renderer/shared/utils/style'
 import { CircleUserRoundIcon } from 'lucide-vue-next'
 import { Button } from '@renderer/shared/components/ui/button'
+import { Skeleton } from '@renderer/shared/components/ui/skeleton'
 import { ImageRoot, ImageFallback } from '@renderer/shared/components/ui/image'
 import type { ButtonProps } from '@renderer/shared/components/ui/button/Button.vue'
 
@@ -27,15 +28,20 @@ const props = withDefaults(
     v-bind="props"
     @click="() => {}"
   >
-    <ImageRoot class="block size-8 bg-muted rounded-full overflow-hidden">
+    <ImageRoot class="block size-8 rounded-full overflow-hidden">
       <ImageVRChatContext
         v-if="props.profileIconFileId && props.profileIconFileVersion"
         class="size-full object-cover"
         :file-id="props.profileIconFileId"
         :version="props.profileIconFileVersion"
       />
-      <ImageFallback class="size-full flex items-center justify-center">
-        <CircleUserRoundIcon class="size-4 text-muted-foreground" />
+      <ImageFallback class="size-full bg-muted/50 flex items-center justify-center">
+        <template #default>
+          <CircleUserRoundIcon class="size-4 text-muted-foreground" />
+        </template>
+        <template #loading>
+          <Skeleton class="size-full" />
+        </template>
       </ImageFallback>
     </ImageRoot>
     <div className="grid flex-1 text-left text-sm leading-tight">

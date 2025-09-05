@@ -6,6 +6,7 @@ import { cn } from '@renderer/shared/utils/style'
 import { computed } from 'vue'
 import { Button } from '@renderer/shared/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@renderer/shared/components/ui/popover'
+import { Skeleton } from '@renderer/shared/components/ui/skeleton'
 import { ImageRoot, ImageFallback } from '@renderer/shared/components/ui/image'
 import { ChevronsUpDownIcon, CircleUserRoundIcon } from 'lucide-vue-next'
 import type { ButtonProps } from '@renderer/shared/components/ui/button/Button.vue'
@@ -52,7 +53,12 @@ const handleSelect = (userId: string) => {
             :version="currentItem.profileIconFileVersion"
           />
           <ImageFallback class="size-full flex items-center justify-center">
-            <CircleUserRoundIcon class="size-4 text-muted-foreground" />
+            <template #default>
+              <CircleUserRoundIcon class="size-4 text-muted-foreground" />
+            </template>
+            <template #loading>
+              <Skeleton class="size-full" />
+            </template>
           </ImageFallback>
         </ImageRoot>
         <div className="grid flex-1 text-left text-sm leading-tight">

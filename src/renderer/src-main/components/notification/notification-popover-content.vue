@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ImageVRChatContext from '@renderer/shared/components/image-vrchat-context.vue'
+import { Skeleton } from '@renderer/shared/components/ui/skeleton'
 import { ImageContext, ImageFallback, ImageRoot } from '@renderer/shared/components/ui/image'
 import { ImageIcon } from 'lucide-vue-next'
 import { computed } from 'vue'
@@ -30,7 +31,12 @@ const imageFile = computed(() => {
         />
         <ImageContext v-else :src="props.messageThumbnailUrl" class="w-full" />
         <ImageFallback class="w-full aspect-[1920/1080] flex items-center justify-center">
-          <ImageIcon class="size-8 text-muted-foreground" />
+          <template #default>
+            <ImageIcon class="size-8 text-muted-foreground" />
+          </template>
+          <template #loading>
+            <Skeleton class="size-full" />
+          </template>
         </ImageFallback>
       </ImageRoot>
     </div>

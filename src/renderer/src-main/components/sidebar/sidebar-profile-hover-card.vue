@@ -9,6 +9,7 @@ import { computed } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
 import { CircleUserRoundIcon, ImageIcon } from 'lucide-vue-next'
 import { ImageFallback, ImageRoot } from '@renderer/shared/components/ui/image'
+import { Skeleton } from '@renderer/shared/components/ui/skeleton'
 import { HoverCardContent } from '@renderer/shared/components/ui/hover-card'
 import { UserLanguage, UserTrustRank } from '@shared/definition/vrchat-users'
 import { UserStatus } from '@shared/definition/vrchat-api-response'
@@ -65,12 +66,17 @@ const isSameThumbnail = computed(() => {
         :class="cn('size-full object-cover', isSameThumbnail ? 'opacity-40' : 'opacity-100')"
       />
       <ImageFallback class="size-full flex items-center justify-center">
-        <ImageIcon class="size-10 text-muted-foreground opacity-10" />
+        <template #default>
+          <ImageIcon class="size-10 text-muted-foreground opacity-10" />
+        </template>
+        <template #loading>
+          <Skeleton class="size-full" />
+        </template>
       </ImageFallback>
     </ImageRoot>
     <div class="relative px-5 pb-5 pt-27">
       <div class="w-full">
-        <ImageRoot class="block size-20 bg-muted rounded-full overflow-hidden ring-4 ring-popover">
+        <ImageRoot class="block size-20 rounded-full overflow-hidden ring-4 ring-popover">
           <ImageVRChatContext
             :key="`${props.profileIconFileId}-${props.profileIconFileVersion}`"
             :file-id="props.profileIconFileId"
@@ -78,8 +84,13 @@ const isSameThumbnail = computed(() => {
             :size="128"
             class="size-full object-cover"
           />
-          <ImageFallback class="size-full flex items-center justify-center">
-            <CircleUserRoundIcon class="size-8 text-muted-foreground" />
+          <ImageFallback class="size-full bg-popover flex items-center justify-center">
+            <template #default>
+              <CircleUserRoundIcon class="size-7 text-muted-foreground" />
+            </template>
+            <template #loading>
+              <Skeleton class="size-full bg-muted/50" />
+            </template>
           </ImageFallback>
         </ImageRoot>
       </div>

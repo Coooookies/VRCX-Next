@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import AreaThumbnailMask from '@shared/assets/vector/area-thumbnail-mask.svg?url'
 import ImageVRChatContext from '@renderer/shared/components/image-vrchat-context.vue'
+import BadgeArea from '../badge/badge-area.vue'
 import { useI18n } from '@renderer/shared/locale'
 import { getLocationLabel } from '@renderer/src-main/composables/sidebar-friends'
 import { ImageIcon } from 'lucide-vue-next'
 import { ImageFallback, ImageRoot } from '@renderer/shared/components/ui/image'
+import { Skeleton } from '@renderer/shared/components/ui/skeleton'
 import { Button } from '@renderer/shared/components/ui/button'
 import { ElapsedTimerText } from '@renderer/shared/components/timer'
 import type { LocationInstance } from '@shared/definition/vrchat-instances'
-import BadgeArea from '../badge/badge-area.vue'
 
 const { t } = useI18n()
 const thumbnailMask = `url("${AreaThumbnailMask}")`
@@ -36,7 +37,12 @@ const props = defineProps<{
           class="size-full object-cover"
         />
         <ImageFallback class="size-full flex items-center justify-center">
-          <ImageIcon class="size-4 text-muted-foreground" />
+          <template #default>
+            <ImageIcon class="size-4 text-muted-foreground" />
+          </template>
+          <template #loading>
+            <Skeleton class="size-full" />
+          </template>
         </ImageFallback>
       </ImageRoot>
       <BadgeArea class="absolute -bottom-0.5 right-0 size-4" :region="props.location.region" />

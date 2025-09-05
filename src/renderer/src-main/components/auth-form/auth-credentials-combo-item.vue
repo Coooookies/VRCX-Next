@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ImageVRChatContext from '@renderer/shared/components/image-vrchat-context.vue'
 import { Button } from '@renderer/shared/components/ui/button'
+import { Skeleton } from '@renderer/shared/components/ui/skeleton'
 import { ImageRoot, ImageFallback } from '@renderer/shared/components/ui/image'
 import { CheckIcon, CircleUserRoundIcon, TrashIcon } from 'lucide-vue-next'
 
@@ -35,14 +36,19 @@ const emits = defineEmits<{
         <div v-if="props.checked" class="w-full h-full flex items-center justify-center">
           <CheckIcon class="size-5" />
         </div>
-        <ImageRoot v-else class="block size-8 bg-muted rounded-full overflow-hidden">
+        <ImageRoot v-else class="block size-8 rounded-full overflow-hidden">
           <ImageVRChatContext
             class="size-full object-cover"
             :file-id="props.profileIconFileId"
             :version="props.profileIconFileVersion"
           />
-          <ImageFallback class="size-full flex items-center justify-center">
-            <CircleUserRoundIcon class="size-4 text-muted-foreground" />
+          <ImageFallback class="size-full bg-muted/50 flex items-center justify-center">
+            <template #default>
+              <CircleUserRoundIcon class="size-4 text-muted-foreground" />
+            </template>
+            <template #loading>
+              <Skeleton class="size-full bg-muted/50" />
+            </template>
           </ImageFallback>
         </ImageRoot>
       </div>

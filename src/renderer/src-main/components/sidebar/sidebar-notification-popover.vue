@@ -29,10 +29,7 @@ import { NotificationGlobalType } from '@shared/definition/vrchat-notifications'
 import type { Component } from 'vue'
 import type { NotificationV2ResponseType } from '@shared/definition/vrchat-api-response'
 import type { NotificationCollections } from '@renderer/src-main/composables/sidebar-notifications'
-import type {
-  NotificationGlobalCategory,
-  NotificationSenderType
-} from '@shared/definition/vrchat-notifications'
+import type { NotificationGlobalCategory } from '@shared/definition/vrchat-notifications'
 
 const { t } = useI18n()
 
@@ -54,7 +51,8 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   (e: 'showAllNotifications'): void
-  (e: 'showSender', senderType: NotificationSenderType, senderId: string): void
+  (e: 'showUser', userId: string): void
+  (e: 'showGroup', groupId: string): void
   (e: 'showInstance', instanceId: string): void
   (e: 'showVoteToKickDetails', notificationId: string): void
   (e: 'searchGroupByName', name: string): void
@@ -172,7 +170,8 @@ const tabs = computed(() => {
                 respondInviteWithPhoto: props.respondInviteWithPhoto
               }"
               v-on="{
-                showSender: (senderType, senderId) => emits('showSender', senderType, senderId),
+                showUser: (userId) => emits('showUser', userId),
+                showGroup: (groupId) => emits('showGroup', groupId),
                 showInstance: (location) => emits('showInstance', location),
                 searchGroupByName: (userName) => emits('searchGroupByName', userName),
                 searchUserByName: (groupName) => emits('searchUserByName', groupName),

@@ -32,7 +32,7 @@ const props = defineProps<{
 const emits = defineEmits<{
   (e: 'hideNotificationV1', notificationId: string): void
   (e: 'readNotificationV1', notificationId: string): void
-  (e: 'showSender', senderType: NotificationSenderType, senderId: string): void
+  (e: 'showUser', userId: string): void
   (e: 'showInstance', instanceId: string): void
 }>()
 
@@ -61,7 +61,7 @@ const handleFocusNotification = () => {
 
 const handleShowSender = () => {
   if (props.base.senderId) {
-    emits('showSender', props.base.senderType, props.base.senderId)
+    emits('showUser', props.base.senderId)
   }
 }
 </script>

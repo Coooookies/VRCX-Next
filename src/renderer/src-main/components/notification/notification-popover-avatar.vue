@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ImageVRChatContext from '@renderer/shared/components/image-vrchat-context.vue'
 import { ImageFallback, ImageRoot } from '@renderer/shared/components/ui/image'
+import { Skeleton } from '@renderer/shared/components/ui/skeleton'
 import { NotificationSenderType } from '@shared/definition/vrchat-notifications'
 import {
   MegaphoneIcon,
@@ -30,22 +31,27 @@ const props = withDefaults(
       class="size-full object-cover"
     />
     <ImageFallback class="size-full flex items-center justify-center">
-      <UserRoundIcon
-        v-if="type === NotificationSenderType.User"
-        class="size-4 text-muted-foreground"
-      />
-      <UsersRoundIcon
-        v-else-if="type === NotificationSenderType.Group"
-        class="size-4 text-muted-foreground"
-      />
-      <MegaphoneIcon
-        v-else-if="type === NotificationSenderType.System"
-        class="size-4 text-muted-foreground"
-      />
-      <ShieldQuestionMarkIcon
-        v-else-if="type === NotificationSenderType.Unknown"
-        class="size-4 text-muted-foreground"
-      />
+      <template #default>
+        <UserRoundIcon
+          v-if="type === NotificationSenderType.User"
+          class="size-4 text-muted-foreground"
+        />
+        <UsersRoundIcon
+          v-else-if="type === NotificationSenderType.Group"
+          class="size-4 text-muted-foreground"
+        />
+        <MegaphoneIcon
+          v-else-if="type === NotificationSenderType.System"
+          class="size-4 text-muted-foreground"
+        />
+        <ShieldQuestionMarkIcon
+          v-else-if="type === NotificationSenderType.Unknown"
+          class="size-4 text-muted-foreground"
+        />
+      </template>
+      <template #loading>
+        <Skeleton class="size-full" />
+      </template>
     </ImageFallback>
   </ImageRoot>
 </template>
