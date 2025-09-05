@@ -12,10 +12,7 @@ import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { FriendsRepository } from './repository'
 import type { FriendsFetcher } from './fetcher'
 import type { BaseFriendInformation, FriendInformation } from '@shared/definition/vrchat-friends'
-import type {
-  LocationInstanceGroupSummary,
-  LocationInstanceSummary
-} from '@shared/definition/vrchat-instances'
+import type { LocationInstanceGroupSummary } from '@shared/definition/vrchat-instances'
 import type {
   PipelineEventFriendActive,
   PipelineEventFriendAdd,
@@ -286,22 +283,25 @@ export class FriendsEventBinding extends Nanobus<{
     const travelingTarget = parseLocation(travelingToLocation)
     const originalTarget = parseLocation(location)
     const prevLocation = newFriend.location
-    const nextLocation = <LocationInstanceSummary>(isTraveling ? travelingTarget : originalTarget)
+    const nextLocation = isTraveling ? travelingTarget : originalTarget
     const isSameInstance = isSameLocation(prevLocation, nextLocation)
 
-    if (nextLocation && world) {
-      this.fetcher.enrichLocationWithWorldInfo(nextLocation, world)
+    let nextLocationSummary =
+      nextLocation && world
+        ? await this.fetcher.enrichLocationWithWorldInfo(nextLocation, world)
+        : null
 
-      if (isGroupInstance(nextLocation)) {
-        await this.fetcher.enrichLocationWithGroupInfo(<LocationInstanceGroupSummary>nextLocation)
-      }
+    if (nextLocationSummary && isGroupInstance(nextLocationSummary)) {
+      nextLocationSummary = await this.fetcher.enrichLocationWithGroupInfo(
+        <LocationInstanceGroupSummary>nextLocation
+      )
     }
 
     if (!isSameInstance) {
       newFriend.locationArrivedAt = nextLocation ? new Date() : null
     }
 
-    newFriend.location = nextLocation
+    newFriend.location = nextLocationSummary
     newFriend.isTraveling = isTraveling
 
     this.repository.set(newFriend)
