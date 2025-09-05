@@ -14,7 +14,8 @@ const props = defineProps<{
 }>()
 
 const imageFile = computed(() => {
-  return props.messageThumbnailUrl ? parseFileUrl(props.messageThumbnailUrl) : null
+  const file = props.messageThumbnailUrl ? parseFileUrl(props.messageThumbnailUrl) : null
+  return file && file.fileId && file.version ? file : null
 })
 </script>
 
