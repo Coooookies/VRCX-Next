@@ -41,6 +41,16 @@ watchEffect((onCleanup) => {
     :as-child="asChild"
     :as="as"
   >
-    <slot />
+    <template
+      v-if="
+        rootContext.imageLoadingStatus.value === 'loading' ||
+        rootContext.imageLoadingStatus.value === 'pending'
+      "
+    >
+      <slot name="loading" />
+    </template>
+    <template v-else>
+      <slot />
+    </template>
   </Primitive>
 </template>
