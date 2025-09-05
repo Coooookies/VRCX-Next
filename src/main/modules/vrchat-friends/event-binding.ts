@@ -3,7 +3,7 @@ import { diffSurface } from '@main/utils/object'
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { toBaseFriendInformation } from './factory'
 import { toUserEntity } from '../vrchat-users/factory'
-import { isGroupInstance } from '../vrchat-worlds/factory'
+import { isGroupInstance, isSameLocation } from '../vrchat-worlds/utils'
 import { UserStatus } from '@shared/definition/vrchat-api-response'
 import { PipelineEvents } from '@shared/definition/vrchat-pipeline'
 import type { LoggerFactory } from '@main/logger'
@@ -12,7 +12,10 @@ import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { FriendsRepository } from './repository'
 import type { FriendsFetcher } from './fetcher'
 import type { BaseFriendInformation, FriendInformation } from '@shared/definition/vrchat-friends'
-import type { LocationInstance, LocationInstanceGroup } from '@shared/definition/vrchat-instances'
+import type {
+  LocationInstanceGroupSummary,
+  LocationInstanceSummary
+} from '@shared/definition/vrchat-instances'
 import type {
   PipelineEventFriendActive,
   PipelineEventFriendAdd,
@@ -224,13 +227,14 @@ export class FriendsEventBinding extends Nanobus<{
     const originalTarget = parseLocation(location)
     const nextLocation = isTraveling ? travelingTarget : originalTarget
 
-    if (nextLocation && world) {
-      await this.fetcher.enrichLocationWithWorldInfo(nextLocation, world)
-    }
+    const nextLocationSummary =
+      nextLocation && world
+        ? await this.fetcher.enrichLocationWithWorldInfo(nextLocation, world)
+        : null
 
     newFriend.isTraveling = false
     newFriend.platform = platform
-    newFriend.location = nextLocation
+    newFriend.location = nextLocationSummary
     newFriend.locationArrivedAt = nextLocation ? new Date() : null
 
     this.repository.set(newFriend)
@@ -282,18 +286,18 @@ export class FriendsEventBinding extends Nanobus<{
     const travelingTarget = parseLocation(travelingToLocation)
     const originalTarget = parseLocation(location)
     const prevLocation = newFriend.location
-    const nextLocation = isTraveling ? travelingTarget : originalTarget
-    const isSameLocation = this.isSameLocation(prevLocation, nextLocation)
+    const nextLocation = <LocationInstanceSummary>(isTraveling ? travelingTarget : originalTarget)
+    const isSameInstance = isSameLocation(prevLocation, nextLocation)
 
     if (nextLocation && world) {
       this.fetcher.enrichLocationWithWorldInfo(nextLocation, world)
 
       if (isGroupInstance(nextLocation)) {
-        await this.fetcher.enrichLocationWithGroupInfo(nextLocation as LocationInstanceGroup)
+        await this.fetcher.enrichLocationWithGroupInfo(<LocationInstanceGroupSummary>nextLocation)
       }
     }
 
-    if (!isSameLocation) {
+    if (!isSameInstance) {
       newFriend.locationArrivedAt = nextLocation ? new Date() : null
     }
 
@@ -358,17 +362,5 @@ export class FriendsEventBinding extends Nanobus<{
 
     this.repository.set(result)
     this.emit('friend:update', result, diff)
-  }
-
-  private isSameLocation(
-    currentLocation: LocationInstance | null,
-    nextLocation: LocationInstance | null
-  ): boolean {
-    return (
-      !!currentLocation &&
-      !!nextLocation &&
-      nextLocation.worldId === currentLocation.worldId &&
-      nextLocation.name === currentLocation.name
-    )
   }
 }

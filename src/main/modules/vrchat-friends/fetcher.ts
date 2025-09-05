@@ -5,7 +5,12 @@ import type { VRChatUsers } from '../vrchat-users'
 import type { FriendsRepository } from './repository'
 import type { FriendLoaderProcessHandler } from './types'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
-import type { LocationInstance, LocationInstanceGroup } from '@shared/definition/vrchat-instances'
+import type {
+  LocationInstance,
+  LocationInstanceGroup,
+  LocationInstanceGroupSummary,
+  LocationInstanceSummary
+} from '@shared/definition/vrchat-instances'
 import type { LimitedUserFriend, World } from '@shared/definition/vrchat-api-response'
 import type { WorldEntity } from '../database/entities/world'
 import type { GroupEntity } from '../database/entities/group'
@@ -13,7 +18,7 @@ import type { LoggerFactory } from '@main/logger'
 import { parseFileUrl } from '../vrchat-files/factory'
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { toFriendUserEntity } from '../vrchat-users/factory'
-import { isGroupInstance } from '../vrchat-worlds/factory'
+import { isGroupInstance } from '../vrchat-worlds/utils'
 import { toBaseFriendInformation, toFriendInstanceDependency } from './factory'
 import { ONLINE_FRIENDS_QUERY_SIZE, OFFLINE_FRIENDS_QUERY_SIZE } from './constants'
 
@@ -106,19 +111,21 @@ export class FriendsFetcher {
     const location = parseLocation(friend.location)
     const locationArrivedAt = location ? new Date() : null
 
+    const locationSummary = <LocationInstanceSummary>location
+
     if (location) {
       const world = worlds.get(location.worldId)
       if (world) {
-        location.worldName = world.worldName
-        location.worldImageFileId = world.imageFileId
-        location.worldImageFileVersion = world.imageFileVersion
+        locationSummary.worldName = world.worldName
+        locationSummary.worldImageFileId = world.imageFileId
+        locationSummary.worldImageFileVersion = world.imageFileVersion
       } else {
-        location.worldName = 'Unknown World'
+        locationSummary.worldName = 'Unknown World'
       }
     }
 
     if (location && isGroupInstance(location)) {
-      const groupLocation = location as LocationInstanceGroup
+      const groupLocation = locationSummary as LocationInstanceGroupSummary
       const group = groups.get(groupLocation.groupId)
       if (group) {
         groupLocation.groupName = group.groupName
@@ -133,24 +140,44 @@ export class FriendsFetcher {
       ...toBaseFriendInformation(friend),
       note: note ? note.note : null,
       isTraveling: false,
-      location,
+      location: locationSummary,
       locationArrivedAt
     }
   }
 
   public enrichLocationWithWorldInfo(location: LocationInstance, world: World) {
     const worldImageInfo = parseFileUrl(world.imageUrl)
-    location.worldName = world.name
-    location.worldImageFileId = worldImageInfo.fileId
-    location.worldImageFileVersion = worldImageInfo.version
+    const summary = <LocationInstanceSummary>{
+      ...location,
+      worldName: 'Unknown World',
+      worldImageFileId: '',
+      worldImageFileVersion: 0
+    }
+
+    if (world) {
+      summary.worldName = world.name
+      summary.worldImageFileId = worldImageInfo.fileId
+      summary.worldImageFileVersion = worldImageInfo.version
+    }
+
+    return summary
   }
 
   public async enrichLocationWithGroupInfo(groupLocation: LocationInstanceGroup) {
     const group = await this.groups.Fetcher.fetchGroupEntities(groupLocation.groupId)
-    if (group) {
-      groupLocation.groupName = group.groupName
-      groupLocation.groupImageFileId = group.iconFileId
-      groupLocation.groupImageFileVersion = group.iconFileVersion
+    const summary = <LocationInstanceGroupSummary>{
+      ...groupLocation,
+      groupName: 'Unknown Group',
+      groupImageFileId: '',
+      groupImageFileVersion: 0
     }
+
+    if (group) {
+      summary.groupName = group.groupName
+      summary.groupImageFileId = group.iconFileId
+      summary.groupImageFileVersion = group.iconFileVersion
+    }
+
+    return summary
   }
 }

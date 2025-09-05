@@ -1,10 +1,10 @@
-import { isGroupInstance } from '../vrchat-worlds/factory'
 import {
   getProfileIconUrl,
   isSupporter,
   toUserLanguageTags,
   toUserTrustRank
 } from '../vrchat-users/factory'
+import { isGroupInstance } from '../vrchat-worlds/utils'
 import { parseFileUrl } from '../vrchat-files/factory'
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { Platform } from '@shared/definition/vrchat-api-response'
