@@ -27,6 +27,7 @@ export type LocationInstanceGroupType =
   (typeof LocationInstanceGroupType)[keyof typeof LocationInstanceGroupType]
 
 interface LocationInstanceBase {
+  location: string
   worldId: string
   worldName: string
   worldImageFileId: string
