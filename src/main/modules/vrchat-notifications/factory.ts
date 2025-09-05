@@ -90,6 +90,13 @@ export function toNotificationV2BaseInformation(
     }
     case NotificationV2Type.GroupInvite: {
       type = NotificationGlobalType.GroupInviteV2
+
+      // group:grp_00000000-0000-0000-0000-000000000000"
+      const linkPrefix = 'group:'
+      if (notification.link.startsWith(linkPrefix)) {
+        senderId = notification.link.replace(linkPrefix, '')
+        senderType = NotificationSenderType.Group
+      }
       break
     }
     case NotificationV2Type.GroupJoinRequest: {

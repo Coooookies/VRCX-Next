@@ -426,7 +426,7 @@ export interface NotificationV2DataGroupInvite {
    * @type {string}
    * @memberof NotificationV2DataGroupInvite
    */
-  manageruserDisplayName: string
+  managerUserDisplayName: string
 }
 
 /**
