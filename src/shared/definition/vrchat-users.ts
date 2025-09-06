@@ -137,7 +137,7 @@ export interface UserBadge {
 }
 
 export interface CurrentUserBadge extends UserBadge {
-  assignedAt: Date
-  updatedAt: Date
+  assignedAt: Date | null
+  updatedAt: Date | null
   hidden: boolean
 }
