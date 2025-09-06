@@ -7,7 +7,6 @@ import type { FriendLoaderProcessHandler } from './types'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
 import type {
   LocationInstance,
-  LocationInstanceGroup,
   LocationInstanceGroupSummary,
   LocationInstanceSummary
 } from '@shared/definition/vrchat-instances'
@@ -110,7 +109,6 @@ export class FriendsFetcher {
     const note = this.users.Repository.getNote(friend.id)
     const location = parseLocation(friend.location)
     const locationArrivedAt = location ? new Date() : null
-
     const locationSummary = <LocationInstanceSummary>location
 
     if (location) {
@@ -145,6 +143,20 @@ export class FriendsFetcher {
     }
   }
 
+  public async enrichLocation(location: LocationInstance, world: World) {
+    let nextLocationSummary: LocationInstanceSummary | null = null
+
+    if (world) {
+      nextLocationSummary = await this.enrichLocationWithWorldInfo(location, world)
+    }
+
+    if (nextLocationSummary && isGroupInstance(nextLocationSummary)) {
+      nextLocationSummary = await this.enrichLocationWithGroupInfo(nextLocationSummary)
+    }
+
+    return nextLocationSummary
+  }
+
   public enrichLocationWithWorldInfo(location: LocationInstance, world: World) {
     const worldImageInfo = parseFileUrl(world.imageUrl)
     const summary = <LocationInstanceSummary>{
@@ -163,19 +175,22 @@ export class FriendsFetcher {
     return summary
   }
 
-  public async enrichLocationWithGroupInfo(groupLocation: LocationInstanceGroup) {
-    const group = await this.groups.Fetcher.fetchGroupEntities(groupLocation.groupId)
+  public async enrichLocationWithGroupInfo(location: LocationInstance) {
     const summary = <LocationInstanceGroupSummary>{
-      ...groupLocation,
+      ...location,
       groupName: 'Unknown Group',
       groupImageFileId: '',
       groupImageFileVersion: 0
     }
 
-    if (group) {
-      summary.groupName = group.groupName
-      summary.groupImageFileId = group.iconFileId
-      summary.groupImageFileVersion = group.iconFileVersion
+    if ('groupId' in location) {
+      const group = await this.groups.Fetcher.fetchGroupEntities(location.groupId)
+
+      if (group) {
+        summary.groupName = group.groupName
+        summary.groupImageFileId = group.iconFileId
+        summary.groupImageFileVersion = group.iconFileVersion
+      }
     }
 
     return summary

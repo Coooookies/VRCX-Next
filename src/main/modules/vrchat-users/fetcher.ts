@@ -7,11 +7,11 @@ import type { UserNote } from '@shared/definition/vrchat-api-response'
 import type { UserEntity } from '../database/entities/users'
 import type {
   LocationInstance,
-  LocationInstanceGroup,
   LocationInstanceGroupSummary,
   LocationInstanceSummary
 } from '@shared/definition/vrchat-instances'
 import { limitedAllSettled } from '@shared/utils/async'
+import { isGroupInstance } from '../vrchat-worlds/utils'
 import { toUserEntity } from './factory'
 import {
   SAVED_USER_ENTITY_EXPIRE_DELAY,
@@ -116,6 +116,16 @@ export class UsersFetcher {
     return Array.isArray(userIds) ? entities : (entities.get(userIds) ?? null)
   }
 
+  public async enrichLocation(location: LocationInstance) {
+    let nextLocationSummary = await this.enrichLocationWithWorldInfo(location)
+
+    if (isGroupInstance(nextLocationSummary)) {
+      nextLocationSummary = await this.enrichLocationWithGroupInfo(nextLocationSummary)
+    }
+
+    return nextLocationSummary
+  }
+
   public async enrichLocationWithWorldInfo(location: LocationInstance) {
     const world = await this.worlds.Fetcher.fetchWorldEntities(location.worldId)
     const summary = <LocationInstanceSummary>{
@@ -134,19 +144,22 @@ export class UsersFetcher {
     return summary
   }
 
-  public async enrichLocationWithGroupInfo(groupLocation: LocationInstanceGroup) {
-    const group = await this.groups.Fetcher.fetchGroupEntities(groupLocation.groupId)
+  public async enrichLocationWithGroupInfo(location: LocationInstance) {
     const summary = <LocationInstanceGroupSummary>{
-      ...groupLocation,
+      ...location,
       groupName: 'Unknown Group',
       groupImageFileId: '',
       groupImageFileVersion: 0
     }
 
-    if (group) {
-      summary.groupName = group.groupName
-      summary.groupImageFileId = group.iconFileId
-      summary.groupImageFileVersion = group.iconFileVersion
+    if ('groupId' in location) {
+      const group = await this.groups.Fetcher.fetchGroupEntities(location.groupId)
+
+      if (group) {
+        summary.groupName = group.groupName
+        summary.groupImageFileId = group.iconFileId
+        summary.groupImageFileVersion = group.iconFileVersion
+      }
     }
 
     return summary

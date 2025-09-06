@@ -1,13 +1,13 @@
 import Nanobus from 'nanobus'
 import { toJS } from 'mobx'
-import { isGroupInstance, isSameLocation } from '../vrchat-worlds/utils'
+import { isSameLocation } from '../vrchat-worlds/utils'
 import { toCurrentUserInformation } from './factory'
 import { diffSurface } from '@main/utils/object'
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { PipelineEvents } from '@shared/definition/vrchat-pipeline'
-import type { LoggerFactory } from '@main/logger'
 import type { VRChatPipeline } from '../vrchat-pipeline'
-import type { LocationInstanceGroupSummary } from '@shared/definition/vrchat-instances'
+import type { LoggerFactory } from '@main/logger'
+import type { LocationInstanceSummary } from '@shared/definition/vrchat-instances'
 import type {
   PipelineEventMessage,
   PipelineEventUserLocation,
@@ -15,7 +15,7 @@ import type {
 } from '@shared/definition/vrchat-pipeline'
 import type { CurrentUserInformation, UserLocation } from '@shared/definition/vrchat-users'
 import type { UsersRepository } from './repository'
-import { UsersFetcher } from './fetcher'
+import type { UsersFetcher } from './fetcher'
 
 export class UsersEventBinding extends Nanobus<{
   'user:update': (user: CurrentUserInformation, diff: Partial<CurrentUserInformation>) => void
@@ -65,28 +65,22 @@ export class UsersEventBinding extends Nanobus<{
     const travelingTarget = parseLocation(travelingToLocation)
     const nextLocation = isTraveling ? travelingTarget : originalTarget
     const prevLocation = this.repository.State.location?.location || null
-    const isSameInstance = isSameLocation(prevLocation, nextLocation)
 
-    let nextLocationSummary = nextLocation
-      ? await this.fetcher.enrichLocationWithWorldInfo(nextLocation)
-      : null
+    let nextLocationSummary: LocationInstanceSummary | null
+    let nextLocationArrivedAt: Date | null
 
-    if (nextLocationSummary && isGroupInstance(nextLocationSummary)) {
-      nextLocationSummary = await this.fetcher.enrichLocationWithGroupInfo(
-        <LocationInstanceGroupSummary>nextLocation
-      )
+    if (isSameLocation(prevLocation, nextLocation)) {
+      nextLocationArrivedAt = this.repository.State.location?.locationArrivedAt || null
+      nextLocationSummary = prevLocation || null
+    } else {
+      nextLocationArrivedAt = nextLocation ? new Date() : null
+      nextLocationSummary = nextLocation ? await this.fetcher.enrichLocation(nextLocation) : null
     }
-
-    const locationArrivedAt = isSameInstance
-      ? this.repository.State.location?.locationArrivedAt || null
-      : nextLocation
-        ? new Date()
-        : null
 
     const newLocation = {
       isTraveling,
       location: nextLocationSummary,
-      locationArrivedAt
+      locationArrivedAt: nextLocationArrivedAt
     }
 
     this.logger.info(

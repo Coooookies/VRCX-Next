@@ -3,7 +3,7 @@ import { diffSurface } from '@main/utils/object'
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { toBaseFriendInformation } from './factory'
 import { toUserEntity } from '../vrchat-users/factory'
-import { isGroupInstance, isSameLocation } from '../vrchat-worlds/utils'
+import { isSameLocation } from '../vrchat-worlds/utils'
 import { UserStatus } from '@shared/definition/vrchat-api-response'
 import { PipelineEvents } from '@shared/definition/vrchat-pipeline'
 import type { LoggerFactory } from '@main/logger'
@@ -12,7 +12,6 @@ import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { FriendsRepository } from './repository'
 import type { FriendsFetcher } from './fetcher'
 import type { BaseFriendInformation, FriendInformation } from '@shared/definition/vrchat-friends'
-import type { LocationInstanceGroupSummary } from '@shared/definition/vrchat-instances'
 import type {
   PipelineEventFriendActive,
   PipelineEventFriendAdd,
@@ -113,7 +112,7 @@ export class FriendsEventBinding extends Nanobus<{
         friend.userId,
         friend.displayName,
         friend.location ? `${friend.location.worldName}(${friend.location.worldId})` : 'Private',
-        friend.isTraveling
+        friend.isTraveling ? 'Traveling' : 'Not-Traveling'
       )
     })
 
@@ -223,11 +222,9 @@ export class FriendsEventBinding extends Nanobus<{
     const travelingTarget = parseLocation(travelingToLocation)
     const originalTarget = parseLocation(location)
     const nextLocation = isTraveling ? travelingTarget : originalTarget
-
-    const nextLocationSummary =
-      nextLocation && world
-        ? await this.fetcher.enrichLocationWithWorldInfo(nextLocation, world)
-        : null
+    const nextLocationSummary = nextLocation
+      ? await this.fetcher.enrichLocation(nextLocation, world!)
+      : null
 
     newFriend.isTraveling = false
     newFriend.platform = platform
@@ -284,24 +281,15 @@ export class FriendsEventBinding extends Nanobus<{
     const originalTarget = parseLocation(location)
     const prevLocation = newFriend.location
     const nextLocation = isTraveling ? travelingTarget : originalTarget
-    const isSameInstance = isSameLocation(prevLocation, nextLocation)
+    const nextLocationArrivedAt = nextLocation ? new Date() : null
 
-    let nextLocationSummary =
-      nextLocation && world
-        ? await this.fetcher.enrichLocationWithWorldInfo(nextLocation, world)
+    if (!isSameLocation(prevLocation, nextLocation)) {
+      newFriend.locationArrivedAt = nextLocationArrivedAt
+      newFriend.location = nextLocation
+        ? await this.fetcher.enrichLocation(nextLocation, world!)
         : null
-
-    if (nextLocationSummary && isGroupInstance(nextLocationSummary)) {
-      nextLocationSummary = await this.fetcher.enrichLocationWithGroupInfo(
-        <LocationInstanceGroupSummary>nextLocation
-      )
     }
 
-    if (!isSameInstance) {
-      newFriend.locationArrivedAt = nextLocation ? new Date() : null
-    }
-
-    newFriend.location = nextLocationSummary
     newFriend.isTraveling = isTraveling
 
     this.repository.set(newFriend)
