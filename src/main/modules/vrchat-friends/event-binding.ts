@@ -117,15 +117,19 @@ export class FriendsEventBinding extends Nanobus<{
     })
 
     this.on('friend:add', (friend) => {
-      this.logger.debug('friend-add', friend.userId, friend.displayName)
+      this.logger.debug('friend-add', `${friend.displayName}(${friend.userId})`)
     })
 
     this.on('friend:delete', (friend) => {
-      this.logger.debug('friend-delete', friend.userId, friend.displayName)
+      this.logger.debug('friend-delete', `${friend.displayName}(${friend.userId})`)
     })
 
     this.on('friend:update', (friend, diff) => {
-      this.logger.debug('friend-update', friend.userId, friend.displayName, JSON.stringify(diff))
+      this.logger.debug(
+        'friend-update',
+        `${friend.displayName}(${friend.userId})`,
+        JSON.stringify(diff)
+      )
     })
   }
 
