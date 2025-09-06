@@ -1,6 +1,6 @@
 // https://github.com/LunyaaDev/vrchat-log-watcher/blob/main/src/index.ts
 
-import { watch } from 'fs'
+import { existsSync, watch } from 'fs'
 import { createLogger } from '@main/logger'
 import { readLinesReverse, ReverseReadStopSignal } from '@main/utils/fs'
 import { parseEventLine, parseSpecialEventLine } from './log-parser'
@@ -8,7 +8,7 @@ import { getLatestLogfile, getLogDir, isLogFile } from './utils'
 import { Tail } from 'tail'
 import { Module } from '@shared/module-constructor'
 import { GAMELOG_PARSER_DATE_REGEXP, GAMELOG_PARSER_REGEXP } from './constants'
-import type { LogEventContext, LogEventMessage } from './types'
+import type { LogEventContext, LogEventMessage, LogEventSummary } from './types'
 
 export class VRChatLogWatcher extends Module<{
   raw: (raw: string) => void
@@ -29,16 +29,20 @@ export class VRChatLogWatcher extends Module<{
   }
 
   private bindEvents() {
-    this.on('raw', (data) => {
-      this.logger.debug('Raw log line:', data)
-    })
+    // this.on('raw', (data) => {
+    //   this.logger.debug('Raw log line:', data)
+    // })
 
-    this.on('message', (data, context) => {
-      this.logger.debug('Parsed log event:', context.type, JSON.stringify(data, null, 2))
+    this.on('message', (data) => {
+      this.logger.debug('Parsed log event:', data.type, JSON.stringify(data.content, null, 2))
     })
   }
 
   private startWatchFile() {
+    if (!existsSync(this.currentLogDir)) {
+      return
+    }
+
     this.watchFile()
     watch(this.currentLogDir, (event, filename) => {
       if (!filename || event !== 'rename') {
@@ -98,8 +102,12 @@ export class VRChatLogWatcher extends Module<{
       context: LogEventContext,
       signal: ReverseReadStopSignal
     ) => boolean = () => true
-  ) {
-    const lines = await readLinesReverse(this.currentLogFile!, {
+  ): Promise<LogEventSummary[]> {
+    if (!this.currentLogFile) {
+      return []
+    }
+
+    const lines = await readLinesReverse(this.currentLogFile, {
       maxLines,
       filter: (line, signal) => {
         const context = parseEventLine(line)

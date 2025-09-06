@@ -45,3 +45,8 @@ export type LogEventMessage = {
     content: LogEventDefinition[K]
   }
 }[LogEvents]
+
+export interface LogEventSummary {
+  data: LogEventMessage
+  context: LogEventContext
+}
