@@ -41,7 +41,7 @@ export class WorldEventBinding {
     if (world) {
       const entity = toWorldEntity(world)
       this.repository.saveEntities(entity)
-      this.logger.info('Received world info from pipeline:', `${worldId}(${world.name})`)
+      this.logger.info('Received world info from pipeline:', `${world.name}(${worldId})`)
     }
   }
 }
