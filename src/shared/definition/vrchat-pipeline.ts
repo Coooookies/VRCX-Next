@@ -137,6 +137,12 @@ export interface PipelineEventInstanceQueueJoined {
   position: number
 }
 
+export interface PipelineEventInstanceQueuePosition {
+  instanceLocation: string
+  position: number
+  queueSize: number
+}
+
 export interface PipelineEventInstanceQueueReady {
   instanceLocation: string
   expiry: string
@@ -206,6 +212,7 @@ export const PipelineEvents = {
   ContentRefresh: 'content-refresh',
   ModifiedImageUpdate: 'modified-image-update',
   InstanceQueueJoined: 'instance-queue-joined',
+  InstanceQueuePosition: 'instance-queue-position',
   InstanceQueueReady: 'instance-queue-ready',
   GroupJoined: 'group-joined',
   GroupLeft: 'group-left',
@@ -238,6 +245,7 @@ export type PipelineEventDefinition = {
   [PipelineEvents.ContentRefresh]: PipelineEventContentRefresh
   [PipelineEvents.ModifiedImageUpdate]: PipelineEventModifiedImageUpdate
   [PipelineEvents.InstanceQueueJoined]: PipelineEventInstanceQueueJoined
+  [PipelineEvents.InstanceQueuePosition]: PipelineEventInstanceQueuePosition
   [PipelineEvents.InstanceQueueReady]: PipelineEventInstanceQueueReady
   [PipelineEvents.GroupJoined]: PipelineEventGroupJoined
   [PipelineEvents.GroupLeft]: PipelineEventGroupLeft
