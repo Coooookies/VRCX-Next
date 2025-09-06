@@ -83,11 +83,8 @@ export class UsersEventBinding extends Nanobus<{
       locationArrivedAt: nextLocationArrivedAt
     }
 
-    this.logger.info(
-      `User location updated, location: ${location}, travelingToLocation: ${travelingToLocation}`
-    )
-
     this.emit('user:location', newLocation)
+    this.logger.info(`User location updated: from ${location}, toLocation: ${travelingToLocation}`)
     this.repository.setLocationState(newLocation)
   }
 
@@ -96,8 +93,8 @@ export class UsersEventBinding extends Nanobus<{
     const newUser = toCurrentUserInformation(user)
     const diff = oldUser ? diffSurface<CurrentUserInformation>(oldUser, newUser) : newUser
 
-    this.logger.info(`User updated: ${user.id}`, diff)
     this.emit('user:update', newUser, diff)
+    this.logger.info(`User updated: ${user.id}`, diff)
     this.repository.setUserState(newUser)
   }
 }
