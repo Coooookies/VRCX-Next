@@ -59,9 +59,9 @@ const isSameThumbnail = computed(() => {
       "
     >
       <ImageVRChatContext
-        :key="`${props.profileBackgroundFileId}-${props.profileIconFileVersion}`"
+        :key="`${props.profileBackgroundFileId}-${props.profileBackgroundFileVersion}`"
         :file-id="props.profileBackgroundFileId"
-        :version="props.profileIconFileVersion"
+        :version="props.profileBackgroundFileVersion"
         :size="360"
         :class="cn('size-full object-cover', isSameThumbnail ? 'opacity-40' : 'opacity-100')"
       />
