@@ -34,8 +34,8 @@ export function toCurrentUserInformation(user: CurrentUser): CurrentUserInformat
     thumbnailUrl: badge.badgeImageUrl,
     showcased: badge.showcased,
     hidden: badge.hidden || false,
-    updatedAt: new Date(badge.updatedAt || 0),
-    assignedAt: new Date(badge.assignedAt || 0)
+    updatedAt: badge.updatedAt ? new Date(badge.updatedAt) : null,
+    assignedAt: badge.assignedAt ? new Date(badge.assignedAt) : null
   }))
 
   const joinDate = user.date_joined ? new Date(user.date_joined) : null
@@ -92,8 +92,8 @@ export function toUserInformation(user: User): UserInformation {
     thumbnailUrl: badge.badgeImageUrl,
     showcased: badge.showcased,
     hidden: badge.hidden || false,
-    updatedAt: new Date(badge.updatedAt || 0),
-    assignedAt: new Date(badge.assignedAt || 0)
+    updatedAt: badge.updatedAt ? new Date(badge.updatedAt) : null,
+    assignedAt: badge.assignedAt ? new Date(badge.assignedAt) : null
   }))
 
   const joinDate = user.date_joined ? new Date(user.date_joined) : null
