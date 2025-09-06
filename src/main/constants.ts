@@ -13,7 +13,7 @@ export const APP_ENV = env.NODE_ENV === 'development' ? 'development' : 'product
 export const APP_SAVED_DIR = app.getPath('userData')
 export const APP_RUN_DIR = app.getPath('exe')
 
-export const APP_LOG_DIR = join(APP_SAVED_DIR, APP_ENV === 'development' ? 'logs\\dev' : 'logs')
+export const APP_LOG_DIR = join(APP_SAVED_DIR, APP_ENV === 'development' ? 'logs/dev' : 'logs')
 export const APP_DATABASE_DIR = join(APP_SAVED_DIR, 'databases')
 export const APP_CACHE_DIR = join(APP_SAVED_DIR, 'caches')
 
