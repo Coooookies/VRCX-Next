@@ -1,23 +1,97 @@
+import { debounce } from 'lodash'
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { LogEvents } from '../vrchat-log-watcher/types'
+import { INSTANCE_USERS_INITIAL_BATCH_DELAY } from './constants'
 import type { LocationInstance } from '@shared/definition/vrchat-instances'
 import type { VRChatLogWatcher } from '../vrchat-log-watcher'
 import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatWorlds } from '../vrchat-worlds'
-import type { InstanceUser, InstanceUserActivity } from './types'
+import type { LoggerFactory } from '@main/logger'
+import type { InstanceRepository } from './repository'
+import type { InstanceUser, InstanceUserActivity } from '@shared/definition/vrchat-instances'
+import type {
+  LogEventContext,
+  LogEventMessage,
+  LogEventPlayerActivity,
+  LogEventSelfJoin,
+  LogEventSummary
+} from '../vrchat-log-watcher/types'
 
 export class CurrentInstance {
-  private location: LocationInstance | null = null
-  private locationArrivedAt: Date | null = null
+  private isListening = false
+  private isInitialBatchMode = false
+  private isPending = false
+  private pendingInitialUsers = new Map<string, InstanceUser>()
+  private pendingInitialEvents: LogEventSummary[] = []
 
   constructor(
-    private logWatcher: VRChatLogWatcher,
-    private users: VRChatUsers,
-    private world: VRChatWorlds
-  ) {
-    this.getLatestInstance().then((instance) => {
-      console.log(JSON.stringify(instance, null, 2))
+    private readonly logger: LoggerFactory,
+    private readonly repository: InstanceRepository,
+    private readonly logWatcher: VRChatLogWatcher,
+    private readonly users: VRChatUsers,
+    private readonly world: VRChatWorlds
+  ) {}
+
+  private resetInitialBatchTimer = debounce(() => {
+    this.processInitialBatchEvents()
+  }, INSTANCE_USERS_INITIAL_BATCH_DELAY)
+
+  public bindEvents() {
+    this.logWatcher.on('message', (data, context) => {
+      if (!this.isListening) {
+        return
+      }
+
+      if (this.isPending) {
+        this.pendingInitialEvents.push({ data, context })
+        return
+      }
+
+      this.handleMessage(data, context)
     })
+  }
+
+  public async listen() {
+    if (this.isListening && this.isPending) {
+      return
+    }
+
+    return this.start()
+  }
+
+  public async start() {
+    this.isPending = true
+    this.isListening = true
+
+    const latestInstance = await this.getLatestInstance()
+    if (latestInstance) {
+      const worldId = latestInstance.location.worldId
+      const location = latestInstance.location
+      const pendingUsers = latestInstance.users
+      const activities = latestInstance.userActivities
+
+      this.repository.setCurrentInstanceLoading(true)
+      this.repository.setCurrentInstanceLocation(location, latestInstance.joinedAt)
+
+      const summary = await this.world.Fetcher.fetchWorldEntities(worldId)
+      await this.initialUsers(pendingUsers)
+
+      this.repository.setCurrentInstanceWorldSummary(summary)
+      this.repository.setCurrentInstanceLoading(false)
+      this.repository.appendCurrentInstanceUserActivity(activities)
+      this.logger.info(
+        'Users in instance:',
+        pendingUsers.map((user) => `${user.userName}(${user.userId})`).join(',')
+      )
+    }
+
+    this.isPending = false
+    this.processPendingInitialEvents()
+  }
+
+  public async stop() {
+    this.isListening = false
+    await this.resetInitialBatchTimer.cancel()
   }
 
   private async getLatestInstance() {
@@ -106,49 +180,151 @@ export class CurrentInstance {
     })
   }
 
-  // private listen() {
-  //   let isInitialBatchMode = false
-  //   let currentPlayerQueue: { userId: string; userName: string }[] = []
-  //   let currentLocation: LocationInstance | null = null
-  //   const resetInitialBatchTimer = debounce(() => {
-  //     isInitialBatchMode = false
-  //     this.logger.debug(
-  //       'Initial player batch:',
-  //       currentPlayerQueue.length,
-  //       'players in',
-  //       currentLocation?.location
-  //     )
-  //     currentPlayerQueue.forEach((player, index) => {
-  //       this.logger.debug(`player-join (queue ${index})`, player.userName, player.userId)
-  //     })
-  //   }, 2000)
+  private async initialUsers(users: InstanceUser[]) {
+    const userIds = users.map((u) => u.userId)
+    const fetchedUsers = await this.users.Fetcher.fetchUserEntities(userIds)
+    this.repository.appendCurrentInstanceUser(
+      users.map((currentUser) => {
+        const user = fetchedUsers.get(currentUser.userId)
+        return {
+          ...currentUser,
+          userSummary: user || null
+        }
+      })
+    )
+  }
 
-  //   this.logWatcher.on('message', (data) => {
-  //     switch (data.type) {
-  //       case LogEvents.SelfJoin: {
-  //         isInitialBatchMode = true
-  //         currentLocation = parseLocation(data.content.location)
-  //         break
-  //       }
-  //       case LogEvents.SelfLeave: {
-  //         isInitialBatchMode = false
-  //         currentPlayerQueue = []
-  //         currentLocation = null
-  //         break
-  //       }
-  //       case LogEvents.PlayerJoined: {
-  //         if (isInitialBatchMode) {
-  //           resetInitialBatchTimer()
-  //           currentPlayerQueue.push({
-  //             userId: data.content.userId!,
-  //             userName: data.content.userName
-  //           })
-  //         } else {
-  //           this.logger.debug('player-join', data.content.userName, data.content.userId)
-  //         }
-  //         break
-  //       }
-  //     }
-  //   })
-  // }
+  private async processPendingInitialEvents() {
+    for (const event of this.pendingInitialEvents) {
+      await this.handleMessage(event.data, event.context)
+    }
+
+    this.pendingInitialEvents = []
+  }
+
+  private async processInitialBatchEvents() {
+    this.isInitialBatchMode = false
+    this.isPending = true
+
+    const pendingUsers = [...this.pendingInitialUsers.values()]
+    const userIds = pendingUsers.map((u) => u.userId)
+    const users = await this.users.Fetcher.fetchUserEntities([...userIds])
+    await this.initialUsers(
+      pendingUsers.map((user) => ({
+        ...user,
+        userSummary: users.get(user.userId) || null
+      }))
+    )
+
+    this.isPending = false
+    this.processPendingInitialEvents()
+
+    this.pendingInitialUsers.clear()
+    this.repository.setCurrentInstanceLoading(false)
+    this.logger.info(
+      'Users in instance:',
+      pendingUsers.map((user) => `${user.userName}(${user.userId})`).join(',')
+    )
+  }
+
+  private async handleMessage(data: LogEventMessage, context: LogEventContext) {
+    switch (data.type) {
+      case LogEvents.SelfJoin: {
+        await this.handleSelfJoin(data.content, context)
+        break
+      }
+      case LogEvents.SelfLeave: {
+        await this.handleSelfLeave()
+        break
+      }
+      case LogEvents.PlayerJoined: {
+        await this.handlePlayerJoined(data.content, context)
+        break
+      }
+      case LogEvents.PlayerLeft: {
+        await this.handlePlayerLeft(data.content, context)
+        break
+      }
+    }
+  }
+
+  private async handleSelfJoin(data: LogEventSelfJoin, context: LogEventContext) {
+    const location = parseLocation(data.location)
+
+    if (location) {
+      this.isInitialBatchMode = true
+      this.repository.setCurrentInstanceLoading(true)
+      this.repository.setCurrentInstanceLocation(location, context.date)
+
+      const summary = await this.world.Fetcher.fetchWorldEntities(location.worldId)
+
+      this.repository.setCurrentInstanceWorldSummary(summary)
+      this.logger.info(`Joined instance:`, `${summary?.worldName || 'Unknown'}(${data.location})`)
+    }
+  }
+
+  private handleSelfLeave() {
+    this.clear()
+    this.repository.clearCurrentInstance()
+    this.logger.info('Left current instance')
+
+    return this.resetInitialBatchTimer.cancel()
+  }
+
+  private async handlePlayerJoined(data: LogEventPlayerActivity, context: LogEventContext) {
+    if (!data.userId) {
+      return
+    }
+
+    const user = {
+      userId: data.userId,
+      userName: data.userName,
+      joinedAt: context.date
+    }
+
+    if (this.isInitialBatchMode) {
+      this.resetInitialBatchTimer()
+      this.pendingInitialUsers.set(data.userId, user)
+    } else {
+      const summary = await this.users.Fetcher.fetchUserEntities(data.userId)
+
+      this.logger.info(`User joined:`, `${data.userName}(${data.userId})`)
+      this.repository.appendCurrentInstanceUser({
+        ...user,
+        userSummary: summary
+      })
+    }
+
+    this.repository.appendCurrentInstanceUserActivity({
+      userId: data.userId,
+      userName: data.userName,
+      type: 'join',
+      at: context.date
+    })
+  }
+
+  private async handlePlayerLeft(data: LogEventPlayerActivity, context: LogEventContext) {
+    if (!data.userId) {
+      return
+    }
+
+    if (this.isInitialBatchMode) {
+      this.pendingInitialUsers.delete(data.userId)
+    } else {
+      this.repository.removeCurrentInstanceUser(data.userId)
+    }
+
+    this.repository.appendCurrentInstanceUserActivity({
+      userId: data.userId,
+      userName: data.userName,
+      type: 'leave',
+      at: context.date
+    })
+  }
+
+  private clear() {
+    this.isInitialBatchMode = false
+    this.pendingInitialUsers.clear()
+    this.pendingInitialEvents = []
+  }
 }
