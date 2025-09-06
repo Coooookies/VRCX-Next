@@ -5,11 +5,7 @@ import type { VRChatWorlds } from '../vrchat-worlds'
 import type { VRChatGroups } from '../vrchat-groups'
 import type { UserNote } from '@shared/definition/vrchat-api-response'
 import type { UserEntity } from '../database/entities/users'
-import type {
-  LocationInstance,
-  LocationInstanceGroupSummary,
-  LocationInstanceSummary
-} from '@shared/definition/vrchat-instances'
+import type { LocationInstance } from '@shared/definition/vrchat-instances'
 import { limitedAllSettled } from '@shared/utils/async'
 import { isGroupInstance } from '../vrchat-worlds/utils'
 import { toUserEntity } from './factory'
@@ -66,10 +62,17 @@ export class UsersFetcher {
     )
   }
 
-  public async fetchUserEntities(userId: string): Promise<UserEntity | null>
-  public async fetchUserEntities(userIds: string[]): Promise<Map<string, UserEntity>>
   public async fetchUserEntities(
-    userIds: string | string[]
+    userId: string,
+    ignoreExpiration?: boolean
+  ): Promise<UserEntity | null>
+  public async fetchUserEntities(
+    userIds: string[],
+    ignoreExpiration?: boolean
+  ): Promise<Map<string, UserEntity>>
+  public async fetchUserEntities(
+    userIds: string | string[],
+    ignoreExpiration?: boolean
   ): Promise<UserEntity | Map<string, UserEntity> | null> {
     if (Array.isArray(userIds) && userIds.length === 0) {
       return new Map()
@@ -80,12 +83,21 @@ export class UsersFetcher {
 
     // Get entity from cache
     const entities = await this.repository.getSavedUserEntities(_userIds)
-    const invalidIds = _userIds.filter(
-      (id) =>
-        !entities.has(id) ||
+    const invalidIds = _userIds.filter((id) => {
+      if (!entities.has(id)) {
+        return true
+      }
+
+      const expired =
         _date.getTime() - entities.get(id)!.cacheUpdatedAt!.getTime() >
-          SAVED_USER_ENTITY_EXPIRE_DELAY
-    )
+        SAVED_USER_ENTITY_EXPIRE_DELAY
+
+      if (!ignoreExpiration && expired) {
+        return true
+      }
+
+      return false
+    })
 
     if (invalidIds.length > 0) {
       this.logger.info(`Fetching users entities for IDs: ${invalidIds.join(',')}`)
@@ -117,51 +129,13 @@ export class UsersFetcher {
   }
 
   public async enrichLocation(location: LocationInstance) {
-    let nextLocationSummary = await this.enrichLocationWithWorldInfo(location)
+    let nextLocationSummary = await this.worlds.Fetcher.enrichLocationWithWorldInfo(location)
 
     if (isGroupInstance(nextLocationSummary)) {
-      nextLocationSummary = await this.enrichLocationWithGroupInfo(nextLocationSummary)
+      nextLocationSummary =
+        await this.groups.Fetcher.enrichLocationWithGroupInfo(nextLocationSummary)
     }
 
     return nextLocationSummary
-  }
-
-  public async enrichLocationWithWorldInfo(location: LocationInstance) {
-    const world = await this.worlds.Fetcher.fetchWorldEntities(location.worldId)
-    const summary = <LocationInstanceSummary>{
-      ...location,
-      worldName: 'Unknown World',
-      worldImageFileId: '',
-      worldImageFileVersion: 0
-    }
-
-    if (world) {
-      summary.worldName = world.worldName
-      summary.worldImageFileId = world.imageFileId
-      summary.worldImageFileVersion = world.imageFileVersion
-    }
-
-    return summary
-  }
-
-  public async enrichLocationWithGroupInfo(location: LocationInstance) {
-    const summary = <LocationInstanceGroupSummary>{
-      ...location,
-      groupName: 'Unknown Group',
-      groupImageFileId: '',
-      groupImageFileVersion: 0
-    }
-
-    if ('groupId' in location) {
-      const group = await this.groups.Fetcher.fetchGroupEntities(location.groupId)
-
-      if (group) {
-        summary.groupName = group.groupName
-        summary.groupImageFileId = group.iconFileId
-        summary.groupImageFileVersion = group.iconFileVersion
-      }
-    }
-
-    return summary
   }
 }

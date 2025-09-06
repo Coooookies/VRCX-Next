@@ -5,6 +5,7 @@ import { WorldEntity } from '../database/entities/world'
 import { WorldRepository } from './repository'
 import { VRChatAPI } from '../vrchat-api'
 import { SAVED_WORLD_ENTITY_EXPIRE_DELAY, WORLD_ENTITIES_QUERY_THREAD_SIZE } from './constants'
+import type { LocationInstance, LocationInstanceSummary } from '@shared/definition/vrchat-instances'
 
 export class WorldFetcher {
   constructor(
@@ -61,5 +62,23 @@ export class WorldFetcher {
     }
 
     return Array.isArray(worldIds) ? entities : (entities.get(worldIds) ?? null)
+  }
+
+  public async enrichLocationWithWorldInfo(location: LocationInstance) {
+    const world = await this.fetchWorldEntities(location.worldId)
+    const summary = <LocationInstanceSummary>{
+      ...location,
+      worldName: 'Unknown World',
+      worldImageFileId: '',
+      worldImageFileVersion: 0
+    }
+
+    if (world) {
+      summary.worldName = world.worldName
+      summary.worldImageFileId = world.imageFileId
+      summary.worldImageFileVersion = world.imageFileVersion
+    }
+
+    return summary
   }
 }

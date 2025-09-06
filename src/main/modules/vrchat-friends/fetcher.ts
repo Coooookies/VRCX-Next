@@ -151,7 +151,8 @@ export class FriendsFetcher {
     }
 
     if (nextLocationSummary && isGroupInstance(nextLocationSummary)) {
-      nextLocationSummary = await this.enrichLocationWithGroupInfo(nextLocationSummary)
+      nextLocationSummary =
+        await this.groups.Fetcher.enrichLocationWithGroupInfo(nextLocationSummary)
     }
 
     return nextLocationSummary
@@ -170,27 +171,6 @@ export class FriendsFetcher {
       summary.worldName = world.name
       summary.worldImageFileId = worldImageInfo.fileId
       summary.worldImageFileVersion = worldImageInfo.version
-    }
-
-    return summary
-  }
-
-  public async enrichLocationWithGroupInfo(location: LocationInstance) {
-    const summary = <LocationInstanceGroupSummary>{
-      ...location,
-      groupName: 'Unknown Group',
-      groupImageFileId: '',
-      groupImageFileVersion: 0
-    }
-
-    if ('groupId' in location) {
-      const group = await this.groups.Fetcher.fetchGroupEntities(location.groupId)
-
-      if (group) {
-        summary.groupName = group.groupName
-        summary.groupImageFileId = group.iconFileId
-        summary.groupImageFileVersion = group.iconFileVersion
-      }
     }
 
     return summary

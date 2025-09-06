@@ -5,6 +5,10 @@ import { GroupEntity } from '../database/entities/group'
 import { GroupRepository } from './repository'
 import { VRChatAPI } from '../vrchat-api'
 import { GROUP_ENTITIES_QUERY_THREAD_SIZE, SAVED_GROUP_ENTITY_EXPIRE_DELAY } from './constants'
+import type {
+  LocationInstance,
+  LocationInstanceGroupSummary
+} from '@shared/definition/vrchat-instances'
 
 export class GroupFetcher {
   constructor(
@@ -61,5 +65,26 @@ export class GroupFetcher {
     }
 
     return Array.isArray(groupIds) ? entities : (entities.get(groupIds) ?? null)
+  }
+
+  public async enrichLocationWithGroupInfo(location: LocationInstance) {
+    const summary = <LocationInstanceGroupSummary>{
+      ...location,
+      groupName: 'Unknown Group',
+      groupImageFileId: '',
+      groupImageFileVersion: 0
+    }
+
+    if ('groupId' in location) {
+      const group = await this.fetchGroupEntities(location.groupId)
+
+      if (group) {
+        summary.groupName = group.groupName
+        summary.groupImageFileId = group.iconFileId
+        summary.groupImageFileVersion = group.iconFileVersion
+      }
+    }
+
+    return summary
   }
 }
