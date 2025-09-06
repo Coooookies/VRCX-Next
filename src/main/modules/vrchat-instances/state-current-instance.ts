@@ -72,13 +72,13 @@ export class CurrentInstance {
 
       this.repository.setCurrentInstanceLoading(true)
       this.repository.setCurrentInstanceLocation(location, latestInstance.joinedAt)
+      this.repository.appendCurrentInstanceUserActivity(activities)
 
       const summary = await this.world.Fetcher.fetchWorldEntities(worldId)
       await this.initialUsers(pendingUsers)
 
       this.repository.setCurrentInstanceWorldSummary(summary)
       this.repository.setCurrentInstanceLoading(false)
-      this.repository.appendCurrentInstanceUserActivity(activities)
       this.logger.info(
         'Users in instance:',
         pendingUsers.map((user) => `${user.userName}(${user.userId})`).join(',')
