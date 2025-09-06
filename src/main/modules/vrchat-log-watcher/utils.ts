@@ -29,24 +29,12 @@ export function getLogDir() {
   switch (process.platform) {
     case 'win32': {
       // Windows version
-      return join(homedir(), 'Appdata', 'LocalLow', 'VRChat', 'VRChat')
+      return join(homedir(), 'Appdata/LocalLow/VRChat/VRChat')
     }
     default: {
       return join(
         homedir(),
-        '.steam',
-        'steam',
-        'steamapps',
-        'compatdata',
-        '438100',
-        'pfx',
-        'drive_c',
-        'users',
-        'steamuser',
-        'AppData',
-        'LocalLow',
-        'VRChat',
-        'VRChat'
+        '.steam/steam/steamapps/compatdata/438100/pfx/drive_c/users/steamuser/AppData/LocalLow/VRChat/VRChat'
       )
     }
   }

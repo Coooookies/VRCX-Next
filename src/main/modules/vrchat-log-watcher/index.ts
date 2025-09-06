@@ -2,6 +2,7 @@
 
 import { watch } from 'fs'
 import { createLogger } from '@main/logger'
+import { readLinesReverse, ReverseReadStopSignal } from '@main/utils/fs'
 import { parseEventLine, parseSpecialEventLine } from './log-parser'
 import { getLatestLogfile, getLogDir, isLogFile } from './utils'
 import { Tail } from 'tail'
@@ -17,12 +18,12 @@ export class VRChatLogWatcher extends Module<{
   public static lineRegex = GAMELOG_PARSER_REGEXP
   public static lineDataRegex = GAMELOG_PARSER_DATE_REGEXP
 
-  private vrchatLogDir: string = getLogDir()
+  private currentLogDir: string = getLogDir()
   private currentLogFile: null | string = null
   private tail: null | Tail = null
 
   protected onInit(): void {
-    this.currentLogFile = getLatestLogfile(this.vrchatLogDir)
+    this.currentLogFile = getLatestLogfile(this.currentLogDir)
     this.startWatchFile()
     this.bindEvents()
   }
@@ -39,7 +40,7 @@ export class VRChatLogWatcher extends Module<{
 
   private startWatchFile() {
     this.watchFile()
-    watch(this.vrchatLogDir, (event, filename) => {
+    watch(this.currentLogDir, (event, filename) => {
       if (!filename || event !== 'rename') {
         return
       }
@@ -48,7 +49,7 @@ export class VRChatLogWatcher extends Module<{
         return
       }
 
-      const newLogFile = getLatestLogfile(this.vrchatLogDir)
+      const newLogFile = getLatestLogfile(this.currentLogDir)
       if (newLogFile === this.currentLogFile) {
         return
       }
@@ -88,5 +89,37 @@ export class VRChatLogWatcher extends Module<{
     if (specialEvent) {
       this.emit('message', specialEvent, context)
     }
+  }
+
+  public async resolveBackwardEvents(
+    maxLines = 1500,
+    filter: (
+      data: LogEventMessage,
+      context: LogEventContext,
+      signal: ReverseReadStopSignal
+    ) => boolean = () => true
+  ) {
+    const lines = await readLinesReverse(this.currentLogFile!, {
+      maxLines,
+      filter: (line, signal) => {
+        const context = parseEventLine(line)
+        if (!context) {
+          return false
+        }
+
+        const data = parseSpecialEventLine(context)
+        if (data) {
+          return filter(data, context, signal)
+        }
+
+        return false
+      }
+    })
+
+    return lines.map((line) => {
+      const context = parseEventLine(line)!
+      const data = parseSpecialEventLine(context)!
+      return { context, data }
+    })
   }
 }
