@@ -41,8 +41,6 @@ export class VRChatInstances extends Module {
               userId: data.content.userId!,
               userName: data.content.userName!
             })
-          } else {
-            this.logger.trace('Player joined:', JSON.stringify(data.content))
           }
           break
         }
