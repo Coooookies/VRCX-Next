@@ -29,15 +29,11 @@ export class VRChatLogWatcher extends Module<{
 
   private bindEvents() {
     this.on('raw', (data) => {
-      this.logger.trace('Raw log line:', data)
+      this.logger.debug('Raw log line:', data)
     })
 
-    this.on('message', (context, data) => {
-      this.logger.trace(
-        'Parsed log event:',
-        JSON.stringify(context, null, 2),
-        JSON.stringify(data, null, 2)
-      )
+    this.on('message', (data, context) => {
+      this.logger.debug('Parsed log event:', context.type, JSON.stringify(data, null, 2))
     })
   }
 
