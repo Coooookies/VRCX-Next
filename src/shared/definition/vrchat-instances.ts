@@ -1,4 +1,5 @@
 import type { Region } from './vrchat-api-response'
+import type { UserSummary } from './vrchat-users'
 
 export const LocationInstancePublicType = {
   Public: 'public'
@@ -82,3 +83,20 @@ export type LocationInstanceSummary =
   | LocationInstancePublicSummary
   | LocationInstanceUserSummary
   | LocationInstanceGroupSummary
+
+export interface InstanceUser {
+  userName: string
+  userId: string
+  joinedAt: Date
+}
+
+export interface InstanceUserActivity {
+  userName: string
+  userId: string
+  type: 'leave' | 'join'
+  at: Date
+}
+
+export interface InstanceUserSummary extends InstanceUser {
+  userSummary: UserSummary | null
+}
