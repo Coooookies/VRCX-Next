@@ -64,6 +64,17 @@ export class WorldFetcher {
     return Array.isArray(worldIds) ? entities : (entities.get(worldIds) ?? null)
   }
 
+  public async fetchWorld(worldId: string) {
+    const world = await this.api.ref.sessionAPI.worlds.getWorld(worldId)
+
+    if (world.success) {
+      const entity = await toWorldEntity(world.value.body)
+      await this.repository.saveEntities(entity)
+    }
+
+    return world
+  }
+
   public async enrichLocationWithWorldInfo(location: LocationInstance) {
     const world = await this.fetchWorldEntities(location.worldId)
     const summary = <LocationInstanceSummary>{
