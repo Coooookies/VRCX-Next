@@ -91,6 +91,8 @@ export class CurrentInstance {
 
   public async stop() {
     this.isListening = false
+    this.clear()
+    this.repository.clearCurrentInstance()
     await this.resetInitialBatchTimer.cancel()
   }
 
