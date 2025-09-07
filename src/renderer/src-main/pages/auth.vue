@@ -50,7 +50,6 @@ const {
       return
     }
 
-    toastError(error)
     clearInput()
   },
   onReauthenticateRequest(error) {
@@ -58,8 +57,6 @@ const {
       toast.error(t('toast.error.vrcapi_authentication_relogin_invalid_credentials'))
       return
     }
-
-    toastError(error)
   },
   on2FAError(error) {
     if (error === ResponseErrorReason.BadRequest) {
@@ -90,34 +87,31 @@ function clearInput() {
   twoFactorEmailFormRef.value?.resetPinInput()
 }
 
-function toastError(error: ResponseErrorReason) {
-  switch (error) {
-    case ResponseErrorReason.BadRequest:
-      toast.error(t('toast.error.vrcapi_api_bad_request'))
-      break
-    case ResponseErrorReason.NetworkError:
-      toast.error(t('toast.error.vrcapi_api_network_error'))
-      break
-    case ResponseErrorReason.Forbidden:
-      toast.error(t('toast.error.vrcapi_api_forbidden'))
-      break
-    case ResponseErrorReason.ServerError:
-      toast.error(t('toast.error.vrcapi_api_server_error'))
-      break
-    case ResponseErrorReason.RateLimitExceeded:
-      toast.error(t('toast.error.vrcapi_api_ratelimit_exceeded'))
-      break
-    case ResponseErrorReason.InvalidCredentials:
-      toast.error(t('toast.error.vrcapi_api_invalid_credentials'))
-      break
-    case ResponseErrorReason.NotFound:
-      toast.error(t('toast.error.vrcapi_api_not_found'))
-      break
-    case ResponseErrorReason.UnknownError:
-      toast.error(t('toast.error.vrcapi_api_unknown_error'))
-      break
-  }
-}
+// function toastError(error: ResponseErrorReason) {
+//   switch (error) {
+//     case ResponseErrorReason.BadRequest:
+//       toast.error(t('toast.error.vrcapi_api_bad_request'))
+//       break
+//     case ResponseErrorReason.NetworkError:
+//       toast.error(t('toast.error.vrcapi_api_network_error'))
+//       break
+//     case ResponseErrorReason.Forbidden:
+//       toast.error(t('toast.error.vrcapi_api_forbidden'))
+//       break
+//     case ResponseErrorReason.ServerError:
+//       toast.error(t('toast.error.vrcapi_api_server_error'))
+//       break
+//     case ResponseErrorReason.RateLimitExceeded:
+//       toast.error(t('toast.error.vrcapi_api_ratelimit_exceeded'))
+//       break
+//     case ResponseErrorReason.NotFound:
+//       toast.error(t('toast.error.vrcapi_api_not_found'))
+//       break
+//     case ResponseErrorReason.UnknownError:
+//       toast.error(t('toast.error.vrcapi_api_unknown_error'))
+//       break
+//   }
+// }
 </script>
 
 <template>
