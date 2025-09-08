@@ -73,7 +73,14 @@ export class VRChatLogWatcher extends Module<{
       return
     }
 
-    this.tail = new Tail(this.currentLogFile, { fromBeginning: false })
+    this.logger.info('Watching log file:', this.currentLogFile)
+    this.tail = new Tail(this.currentLogFile, {
+      useWatchFile: true,
+      fromBeginning: false,
+      fsWatchOptions: {
+        interval: 1000
+      }
+    })
     this.tail.on('line', (data) => this.handleParseLine(data))
     this.tail.on('error', (error) => {
       this.logger.error('Tail error:', error)
