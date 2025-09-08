@@ -23,7 +23,6 @@ export class VRChatLogWatcher extends Module<{
   private tail: null | Tail = null
 
   protected onInit(): void {
-    this.currentLogFile = getLatestLogfile(this.currentLogDir)
     this.startWatchFile()
     this.bindEvents()
   }
@@ -43,7 +42,9 @@ export class VRChatLogWatcher extends Module<{
       return
     }
 
+    this.currentLogFile = getLatestLogfile(this.currentLogDir)
     this.watchFile()
+
     watch(this.currentLogDir, (event, filename) => {
       if (!filename || event !== 'rename') {
         return
