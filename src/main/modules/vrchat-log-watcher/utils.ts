@@ -4,21 +4,29 @@
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 import { readdirSync, statSync } from 'node:fs'
+import { attempt } from '@shared/utils/async'
 
 export function isLogFile(filename: string) {
   return filename.startsWith('output_log_')
 }
 
 export function getLatestLogfile(logDir: string) {
-  const logFiles = readdirSync(logDir)
-    .filter((x) => isLogFile(x))
-    .map((x) => ({
-      filename: x,
-      createdAt: statSync(join(logDir, x)).ctime.getTime()
-    }))
-    .sort((a, b) => b.createdAt - a.createdAt)
+  const getStats = (path: string) => {
+    const stats = statSync(join(logDir, path))
+    return {
+      filename: path,
+      createdAt: stats.ctime.getTime()
+    }
+  }
 
-  if (logFiles.length === 0) {
+  const { success, value: logFiles } = attempt(() =>
+    readdirSync(logDir)
+      .filter((x) => isLogFile(x))
+      .map((x) => getStats(x))
+      .sort((a, b) => b.createdAt - a.createdAt)
+  )
+
+  if (!success || logFiles.length === 0) {
     return null
   }
 
