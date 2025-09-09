@@ -48,7 +48,7 @@ const isSupporter = computed(() => {
   >
     <div>
       <Popover v-model:open="notificationVisible">
-        <PopoverTrigger>
+        <PopoverTrigger as-child>
           <SidebarFriendsIconButton
             :icon="MessageIcon"
             :hotspot="isUnread"

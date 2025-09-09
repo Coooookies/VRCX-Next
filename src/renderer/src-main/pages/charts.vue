@@ -32,6 +32,7 @@ const activitiesJson = computed(() => {
   <AppRoute>
     <div class="px-10 py-10 space-y-6">
       <div class="bg-white/5 p-4 rounded-md">
+        <p>{{ instance.state.currentInstance.joined }}</p>
         <p class="whitespace-pre-wrap text-xs">{{ intanceJson }}</p>
         <Spinner v-if="instance.state.currentInstance.loading" class="size-5" />
       </div>
