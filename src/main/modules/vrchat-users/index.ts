@@ -75,4 +75,8 @@ export class VRChatUsers extends Module<{}> {
   public get state() {
     return this.repository.State
   }
+
+  public get currentUser() {
+    return this.repository.State.user
+  }
 }
