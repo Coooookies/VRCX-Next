@@ -17,12 +17,27 @@ import type {
   LogEventSummary
 } from '../vrchat-log-watcher/types'
 
+interface InstanceData {
+  location: LocationInstance
+  joinedAt: Date | null
+  leftAt: Date | null
+  isLeft: boolean
+  isCurrentUserInInstance: boolean
+  users: InstanceUser[]
+  userActivities: InstanceUserActivity[]
+}
+
 export class CurrentInstance {
   private isListening = false
   private isInitialBatchMode = false
   private isPending = false
-  private pendingInitialUsers = new Map<string, InstanceUser>()
-  private pendingInitialEvents: LogEventSummary[] = []
+  private isCurrentUserInInstance = false
+
+  private initialEvents: LogEventSummary[] = []
+  private pendingCacheEvents: LogEventSummary[] = []
+  private resetInitialBatchTimer = debounce(() => {
+    this.processInitialBatchEvents()
+  }, INSTANCE_USERS_INITIAL_BATCH_DELAY)
 
   constructor(
     private readonly logger: LoggerFactory,
@@ -32,10 +47,6 @@ export class CurrentInstance {
     private readonly world: VRChatWorlds
   ) {}
 
-  private resetInitialBatchTimer = debounce(() => {
-    this.processInitialBatchEvents()
-  }, INSTANCE_USERS_INITIAL_BATCH_DELAY)
-
   public bindEvents() {
     this.logWatcher.on('message', (data, context) => {
       if (!this.isListening) {
@@ -43,7 +54,7 @@ export class CurrentInstance {
       }
 
       if (this.isPending) {
-        this.pendingInitialEvents.push({ data, context })
+        this.pendingCacheEvents.push({ data, context })
         return
       }
 
@@ -51,117 +62,37 @@ export class CurrentInstance {
     })
   }
 
-  public async listen() {
+  public async start() {
     if (this.isListening && this.isPending) {
       return
     }
 
-    return this.start()
-  }
-
-  public async start() {
-    this.isPending = true
-    this.isListening = true
-
-    const latestInstance = await this.getLatestInstance()
-    if (latestInstance) {
-      const worldId = latestInstance.location.worldId
-      const location = latestInstance.location
-      const pendingUsers = latestInstance.users
-      const activities = latestInstance.userActivities
-
-      this.repository.setCurrentInstanceLoading(true)
-      this.repository.setCurrentInstanceLocation(location, latestInstance.joinedAt)
-      this.repository.appendCurrentInstanceUserActivity(activities)
-
-      const summary = await this.world.Fetcher.fetchWorldEntities(worldId)
-      await this.initialUsers(pendingUsers)
-
-      this.repository.setCurrentInstanceWorldSummary(summary)
-      this.repository.setCurrentInstanceLoading(false)
-      this.logger.info(
-        'Users in instance:',
-        pendingUsers.map((user) => `${user.userName}(${user.userId})`).join(',')
-      )
-    }
-
-    this.isPending = false
-    this.processPendingInitialEvents()
+    return this.listen()
   }
 
   public async stop() {
     this.isListening = false
-    this.clear()
+    this.clearState()
     this.repository.clearCurrentInstance()
     await this.resetInitialBatchTimer.cancel()
   }
 
-  private async getLatestInstance() {
-    const events = await this.resolveLatestInstanceEvents()
-    const reverseEvents = events.reverse()
-    const users = new Map<string, InstanceUser>()
-    const userActivities: InstanceUserActivity[] = []
+  private async listen() {
+    this.isPending = true
+    this.isListening = true
 
-    let location: LocationInstance | null = null
-    let joinedAt: Date | null = null
-    let leftAt: Date | null = null
-    let isLeft = false
-
-    for (const event of reverseEvents) {
-      switch (event.data.type) {
-        case LogEvents.SelfJoin: {
-          location = parseLocation(event.data.content.location)
-          joinedAt = event.context.date
-          break
-        }
-        case LogEvents.SelfLeave: {
-          isLeft = true
-          leftAt = event.context.date
-          break
-        }
-        case LogEvents.PlayerJoined: {
-          if (event.data.content.userId) {
-            users.set(event.data.content.userId, {
-              userId: event.data.content.userId,
-              userName: event.data.content.userName,
-              joinedAt: event.context.date
-            })
-
-            userActivities.push({
-              userId: event.data.content.userId,
-              userName: event.data.content.userName,
-              type: 'join',
-              at: event.context.date
-            })
-          }
-          break
-        }
-        case LogEvents.PlayerLeft: {
-          if (event.data.content.userId) {
-            users.delete(event.data.content.userId)
-
-            userActivities.push({
-              userId: event.data.content.userId,
-              userName: event.data.content.userName,
-              type: 'leave',
-              at: event.context.date
-            })
-          }
-          break
-        }
-      }
+    const latestInstance = await this.getLatestInstance()
+    if (latestInstance && !latestInstance.isLeft) {
+      await this.initializeInstance(latestInstance)
     }
 
-    return location
-      ? {
-          location,
-          joinedAt,
-          leftAt,
-          isLeft,
-          users: [...users.values()],
-          userActivities
-        }
-      : null
+    this.isPending = false
+    return this.processCacheEvents()
+  }
+
+  private async getLatestInstance(): Promise<InstanceData | null> {
+    const events = await this.resolveLatestInstanceEvents()
+    return this.parseInstanceFromEvents(events.reverse())
   }
 
   private async resolveLatestInstanceEvents() {
@@ -182,50 +113,163 @@ export class CurrentInstance {
     })
   }
 
-  private async initialUsers(users: InstanceUser[]) {
-    const userIds = users.map((u) => u.userId)
-    const fetchedUsers = await this.users.Fetcher.fetchUserEntities(userIds)
-    this.repository.appendCurrentInstanceUser(
-      users.map((currentUser) => {
-        const user = fetchedUsers.get(currentUser.userId)
-        return {
-          ...currentUser,
-          userSummary: user || null
+  private parseInstanceFromEvents(events: LogEventSummary[]): InstanceData | null {
+    let location: LocationInstance | null = null
+    let joinedAt: Date | null = null
+    let leftAt: Date | null = null
+    let isLeft = false
+
+    for (const event of events) {
+      switch (event.data.type) {
+        case LogEvents.SelfJoin: {
+          location = parseLocation(event.data.content.location)
+          joinedAt = event.context.date
+          break
         }
-      })
+        case LogEvents.SelfLeave: {
+          isLeft = true
+          leftAt = event.context.date
+          break
+        }
+      }
+    }
+
+    return location
+      ? {
+          location,
+          joinedAt,
+          leftAt,
+          isLeft,
+          ...this.parseUsersEvents(events)
+        }
+      : null
+  }
+
+  private parseUsersEvents(events: LogEventSummary[]) {
+    const users = new Map<string, InstanceUser>()
+    const userActivities: InstanceUserActivity[] = []
+    let isCurrentUserInInstance = false
+
+    for (const event of events) {
+      switch (event.data.type) {
+        case LogEvents.PlayerJoined: {
+          if (event.data.content.userId) {
+            if (
+              this.users.currentUser &&
+              this.users.currentUser.userId === event.data.content.userId
+            ) {
+              isCurrentUserInInstance = true
+            }
+
+            users.set(event.data.content.userId, {
+              userId: event.data.content.userId,
+              userName: event.data.content.userName,
+              joinedAt: event.context.date
+            })
+
+            userActivities.push({
+              userId: event.data.content.userId,
+              userName: event.data.content.userName,
+              type: isCurrentUserInInstance ? 'join' : 'present',
+              recordedAt: event.context.date
+            })
+          }
+          break
+        }
+        case LogEvents.PlayerLeft: {
+          if (event.data.content.userId) {
+            users.delete(event.data.content.userId)
+            userActivities.push({
+              userId: event.data.content.userId,
+              userName: event.data.content.userName,
+              type: 'leave',
+              recordedAt: event.context.date
+            })
+          }
+          break
+        }
+      }
+    }
+
+    return {
+      users: [...users.values()],
+      userActivities,
+      isCurrentUserInInstance
+    }
+  }
+
+  private async initializeInstance(instance: InstanceData): Promise<void> {
+    const { location, users, userActivities, joinedAt } = instance
+
+    this.repository.setCurrentInstanceLoading(true)
+    this.repository.setCurrentInstanceLocation(location, joinedAt)
+
+    await this.processWorldSummary(location.worldId)
+    await this.processInitialUsers(users, userActivities)
+
+    this.isCurrentUserInInstance = instance.isCurrentUserInInstance
+    this.repository.setCurrentInstanceLoading(false)
+
+    this.logger.info(
+      'Users in instance:',
+      users.map((user) => `${user.userName}(${user.userId})`).join(',')
     )
   }
 
-  private async processPendingInitialEvents() {
-    for (const event of this.pendingInitialEvents) {
+  private async processWorldSummary(worldId: string) {
+    const summary = await this.world.Fetcher.fetchWorldEntities(worldId)
+    await this.repository.setCurrentInstanceWorldSummary(summary)
+  }
+
+  private async processInitialUsers(
+    users: InstanceUser[],
+    activities: InstanceUserActivity[]
+  ): Promise<void> {
+    const userIds = activities.map((activity) => activity.userId)
+    const fetchedUsers = await this.users.Fetcher.fetchUserEntities(userIds)
+
+    this.repository.appendCurrentInstanceUser(
+      users.map((user) => ({
+        ...user,
+        userSummary: fetchedUsers.get(user.userId) || null
+      }))
+    )
+
+    this.repository.appendCurrentInstanceUserActivity(
+      activities.map((activity) => ({
+        ...activity,
+        userSummary: fetchedUsers.get(activity.userId) || null
+      }))
+    )
+  }
+
+  private async processCacheEvents() {
+    for (const event of this.pendingCacheEvents) {
       await this.handleMessage(event.data, event.context)
     }
 
-    this.pendingInitialEvents = []
+    this.pendingCacheEvents = []
   }
 
   private async processInitialBatchEvents() {
     this.isInitialBatchMode = false
     this.isPending = true
 
-    const pendingUsers = [...this.pendingInitialUsers.values()]
-    const userIds = pendingUsers.map((u) => u.userId)
-    const users = await this.users.Fetcher.fetchUserEntities([...userIds])
-    await this.initialUsers(
-      pendingUsers.map((user) => ({
-        ...user,
-        userSummary: users.get(user.userId) || null
-      }))
+    const { users, userActivities, isCurrentUserInInstance } = this.parseUsersEvents(
+      this.initialEvents
     )
 
-    this.isPending = false
-    this.processPendingInitialEvents()
+    await this.processInitialUsers(users, userActivities)
 
-    this.pendingInitialUsers.clear()
+    this.isPending = false
+    this.initialEvents = []
+    this.isCurrentUserInInstance = isCurrentUserInInstance
+    this.processCacheEvents()
+
     this.repository.setCurrentInstanceLoading(false)
     this.logger.info(
       'Users in instance:',
-      pendingUsers.map((user) => `${user.userName}(${user.userId})`).join(',')
+      users.map((user) => `${user.userName}(${user.userId})`).join(',')
     )
   }
 
@@ -252,25 +296,28 @@ export class CurrentInstance {
 
   private async handleSelfJoin(data: LogEventSelfJoin, context: LogEventContext) {
     const location = parseLocation(data.location)
-
-    if (location) {
-      this.isInitialBatchMode = true
-      this.repository.setCurrentInstanceLoading(true)
-      this.repository.setCurrentInstanceLocation(location, context.date)
-
-      const summary = await this.world.Fetcher.fetchWorldEntities(location.worldId)
-
-      this.repository.setCurrentInstanceWorldSummary(summary)
-      this.logger.info(`Joined instance:`, `${summary?.worldName || 'Unknown'}(${data.location})`)
+    if (!location) {
+      return
     }
+
+    this.isInitialBatchMode = true
+    this.isCurrentUserInInstance = false
+    this.repository.setCurrentInstanceLoading(true)
+    this.repository.setCurrentInstanceLocation(location, context.date)
+
+    await this.processWorldSummary(location.worldId)
+
+    this.logger.info(
+      `Joined instance:`,
+      `${this.repository.State.currentInstance.worldSummary?.worldName || 'Unknown'}(${data.location})`
+    )
   }
 
-  private handleSelfLeave() {
-    this.clear()
+  private async handleSelfLeave() {
+    this.clearState()
     this.repository.clearCurrentInstance()
     this.logger.info('Left current instance')
-
-    return this.resetInitialBatchTimer.cancel()
+    await this.resetInitialBatchTimer.cancel()
   }
 
   private async handlePlayerJoined(data: LogEventPlayerActivity, context: LogEventContext) {
@@ -280,29 +327,51 @@ export class CurrentInstance {
 
     const user = {
       userId: data.userId,
-      userName: data.userName,
-      joinedAt: context.date
+      userName: data.userName
     }
 
     if (this.isInitialBatchMode) {
-      this.resetInitialBatchTimer()
-      this.pendingInitialUsers.set(data.userId, user)
+      await this.handlePlayerJoinedInBatchMode(user, context)
     } else {
-      const summary = await this.users.Fetcher.fetchUserEntities(data.userId)
+      await this.handlePlayerJoinedNormal(user, context)
+    }
+  }
 
-      this.logger.info(`User joined:`, `${data.userName}(${data.userId})`)
-      this.repository.appendCurrentInstanceUser({
-        ...user,
-        userSummary: summary
-      })
+  private async handlePlayerJoinedInBatchMode(
+    user: Pick<InstanceUser, 'userId' | 'userName'>,
+    context: LogEventContext
+  ): Promise<void> {
+    this.resetInitialBatchTimer()
+    this.initialEvents.push({
+      data: { type: LogEvents.PlayerJoined, content: user },
+      context
+    })
+  }
+
+  private async handlePlayerJoinedNormal(
+    user: Pick<InstanceUser, 'userId' | 'userName'>,
+    context: LogEventContext
+  ): Promise<void> {
+    const summary = await this.users.Fetcher.fetchUserEntities(user.userId)
+
+    if (this.isCurrentUser(user.userId)) {
+      this.isCurrentUserInInstance = true
     }
 
-    this.repository.appendCurrentInstanceUserActivity({
-      userId: data.userId,
-      userName: data.userName,
-      type: 'join',
-      at: context.date
+    this.repository.appendCurrentInstanceUser({
+      ...user,
+      joinedAt: context.date,
+      userSummary: summary
     })
+
+    this.repository.appendCurrentInstanceUserActivity({
+      ...user,
+      userSummary: summary,
+      type: this.isCurrentUserInInstance ? 'join' : 'present',
+      recordedAt: context.date
+    })
+
+    this.logger.info('User joined:', `${user.userName}(${user.userId})`)
   }
 
   private async handlePlayerLeft(data: LogEventPlayerActivity, context: LogEventContext) {
@@ -310,23 +379,50 @@ export class CurrentInstance {
       return
     }
 
-    if (this.isInitialBatchMode) {
-      this.pendingInitialUsers.delete(data.userId)
-    } else {
-      this.repository.removeCurrentInstanceUser(data.userId)
+    const user = {
+      userId: data.userId,
+      userName: data.userName
     }
 
-    this.repository.appendCurrentInstanceUserActivity({
-      userId: data.userId,
-      userName: data.userName,
-      type: 'leave',
-      at: context.date
+    if (this.isInitialBatchMode) {
+      await this.handlePlayerLeftInBatchMode(user, context)
+    } else {
+      await this.handlePlayerLeftNormal(user, context)
+    }
+  }
+
+  private async handlePlayerLeftInBatchMode(
+    user: Pick<InstanceUser, 'userId' | 'userName'>,
+    context: LogEventContext
+  ): Promise<void> {
+    this.initialEvents.push({
+      data: { type: LogEvents.PlayerLeft, content: user },
+      context
     })
   }
 
-  private clear() {
+  private async handlePlayerLeftNormal(
+    user: Pick<InstanceUser, 'userId' | 'userName'>,
+    context: LogEventContext
+  ): Promise<void> {
+    const summary = await this.users.Fetcher.fetchUserEntities(user.userId)
+
+    this.repository.removeCurrentInstanceUser(user.userId)
+    this.repository.appendCurrentInstanceUserActivity({
+      ...user,
+      userSummary: summary || null,
+      type: 'leave',
+      recordedAt: context.date
+    })
+  }
+
+  private clearState() {
     this.isInitialBatchMode = false
-    this.pendingInitialUsers.clear()
-    this.pendingInitialEvents = []
+    this.isPending = false
+    this.isCurrentUserInInstance = false
+  }
+
+  private isCurrentUser(userId: string): boolean {
+    return this.users.currentUser?.userId === userId
   }
 }

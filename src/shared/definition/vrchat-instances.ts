@@ -93,10 +93,14 @@ export interface InstanceUser {
 export interface InstanceUserActivity {
   userName: string
   userId: string
-  type: 'leave' | 'join'
-  at: Date
+  type: 'leave' | 'join' | 'present'
+  recordedAt: Date
 }
 
 export interface InstanceUserSummary extends InstanceUser {
+  userSummary: UserSummary | null
+}
+
+export interface InstanceUserActivitySummary extends InstanceUserActivity {
   userSummary: UserSummary | null
 }

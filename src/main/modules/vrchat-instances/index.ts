@@ -43,7 +43,7 @@ export class VRChatInstances extends Module {
 
   private bindEvents(): void {
     this.workflow.registerPostLoginTask('instance-listener-mount', 60, async () => {
-      await this.instance.listen()
+      await this.instance.start()
     })
 
     this.workflow.registerPostLogoutTask('instance-listener-unmount', 60, async () => {

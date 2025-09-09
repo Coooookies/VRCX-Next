@@ -2,6 +2,7 @@ import Nanobus from 'nanobus'
 import type { MobxState } from '../mobx-state'
 import type {
   InstanceUserActivity,
+  InstanceUserActivitySummary,
   InstanceUserSummary,
   LocationInstance
 } from '@shared/definition/vrchat-instances'
@@ -17,7 +18,7 @@ export class InstanceRepository extends Nanobus<{
 }> {
   private $!: InstanceSharedState
   private currentInstanceUsers = new Map<string, InstanceUserSummary>()
-  private currentInstanceUserActivities: InstanceUserActivity[] = []
+  private currentInstanceUserActivities: InstanceUserActivitySummary[] = []
 
   constructor(
     moduleId: string,
@@ -63,7 +64,7 @@ export class InstanceRepository extends Nanobus<{
   }
 
   public appendCurrentInstanceUserActivity(
-    activity: InstanceUserActivity | InstanceUserActivity[]
+    activity: InstanceUserActivitySummary | InstanceUserActivitySummary[]
   ) {
     const activities = Array.isArray(activity) ? activity : [activity]
     this.currentInstanceUserActivities.push(...activities)
