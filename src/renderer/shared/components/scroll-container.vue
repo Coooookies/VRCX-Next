@@ -16,6 +16,7 @@ export interface ScrollContainerProps {
   scrollbarWidth?: number
   fadeOutAtTop?: boolean
   fadeOutAtBottom?: boolean
+  disableScrollBar?: boolean
 }
 
 const props = withDefaults(defineProps<ScrollContainerProps>(), {
@@ -24,7 +25,8 @@ const props = withDefaults(defineProps<ScrollContainerProps>(), {
   scrollbarOffsetRight: 4,
   scrollbarWidth: 4,
   fadeOutAtTop: false,
-  fadeOutAtBottom: false
+  fadeOutAtBottom: false,
+  disableScrollBar: false
 })
 
 const content = useTemplateRef('content')
@@ -46,6 +48,10 @@ const scrollThumbProportion = computed(() => containerHeight.value / scrollHeigh
 const scrollThumbRate = computed(() => scrollTop.value / scrollHeight.value)
 
 const ThumbMouseDown = (event: MouseEvent): void => {
+  if (props.disableScrollBar) {
+    return
+  }
+
   scrollBarMouseDown.value = true
   scrollBarContainerHeight.value = scrollbar.value!.clientHeight
   scrollStartOffset.value = event.clientY - scrollbar.value!.offsetTop
@@ -65,7 +71,9 @@ const ThumbMouseUp = (): void => {
 }
 
 const updateScrollbar = (): void => {
-  if (!container.value) return
+  if (!container.value || props.disableScrollBar) {
+    return
+  }
 
   scrollTop.value = container.value.scrollTop
   scrollHeight.value = container.value!.scrollHeight
@@ -93,7 +101,7 @@ const updateScrollbar = (): void => {
   }
 }
 
-const resizeObserver = new ResizeObserver(updateScrollbar)
+const resizeObserver = new ResizeObserver(() => updateScrollbar())
 
 onMounted(() => {
   resizeObserver.observe(container.value!, {
@@ -136,6 +144,9 @@ defineExpose({
         'hide-top': scrollState === 'top',
         'hide-bottom': scrollState === 'bottom',
         'hide-all': scrollState === 'all'
+      }"
+      :style="{
+        overflow: props.disableScrollBar ? 'hidden' : 'auto'
       }"
       @scroll="updateScrollbar"
     >
