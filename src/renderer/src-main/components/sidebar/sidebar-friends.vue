@@ -3,11 +3,14 @@ import ScrollContainer from '@renderer/shared/components/scroll-container.vue'
 import SidebarFriendsHeader from './sidebar-friends-header.vue'
 import SidebarFriendsOverview from './sidebar-friends-overview.vue'
 import SidebarProfileOverviewSkeleton from './sidebar-profile-overview-skeleton.vue'
+import { ref } from 'vue'
 import { useI18n } from '@renderer/shared/locale'
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import type { VirtualFriend } from '@renderer/src-main/composables/sidebar-friends'
 
 const { t } = useI18n()
+
+const contextMenuOpenedCount = ref(0)
 
 const props = defineProps<{
   friends: VirtualFriend[]
@@ -16,7 +19,13 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   (e: 'toggleCollapse', groupId: string): void
+  (e: 'itemContextMenuOpenChange', open: boolean): void
 }>()
+
+const handleContextMenuOpenChage = (open: boolean) => {
+  contextMenuOpenedCount.value += open ? 1 : -1
+  emits('itemContextMenuOpenChange', contextMenuOpenedCount.value > 0)
+}
 </script>
 
 <template>
@@ -27,7 +36,13 @@ const emits = defineEmits<{
     >
       <SidebarProfileOverviewSkeleton v-for="(_, i) in Array.from({ length: 20 })" :key="i" />
     </div>
-    <ScrollContainer v-else class="w-full h-full" fade-out-at-top fade-out-at-bottom>
+    <ScrollContainer
+      v-else
+      class="w-full h-full"
+      fade-out-at-top
+      fade-out-at-bottom
+      :disable-scroll-bar="contextMenuOpenedCount > 0"
+    >
       <DynamicScroller key-field="id" page-mode :items="props.friends" :min-item-size="40">
         <template #default="{ item, index, active }">
           <DynamicScrollerItem
@@ -48,6 +63,7 @@ const emits = defineEmits<{
               v-else
               :user="item.item"
               :show-elapsed-timer="item.mode === 'timer'"
+              @context-menu-open-change="handleContextMenuOpenChage"
             />
           </DynamicScrollerItem>
         </template>

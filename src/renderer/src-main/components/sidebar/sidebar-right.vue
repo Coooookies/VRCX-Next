@@ -23,14 +23,30 @@ const emits = defineEmits<SidebarStateEmits>()
 
 const { virtualFriends, searchModelValue, isLoading, toggleCollapse } = useSidebarFriends()
 const notificationPopoverVisible = ref(false)
+const overviewMenuOpened = ref(false)
+const friendsMenuOpened = ref(false)
+
 const statusMask = `url("${ProfileAvatarImageStatusMask}")`
 const phoneMask = `url("${ProfileAvatarImagePhoneMask}")`
 
-console.log(emits)
-
 const focus = computed(() => {
-  return searchModelValue.value.length > 0 || notificationPopoverVisible.value
+  return (
+    searchModelValue.value.length > 0 ||
+    notificationPopoverVisible.value ||
+    overviewMenuOpened.value ||
+    friendsMenuOpened.value
+  )
 })
+
+const handleOverviewMenuOpenChange = (open: boolean) => {
+  overviewMenuOpened.value = open
+}
+
+const handleFriendsMenuOpenChange = (open: boolean) => {
+  friendsMenuOpened.value = open
+}
+
+console.log(emits)
 </script>
 
 <template>
@@ -71,6 +87,7 @@ const focus = computed(() => {
           class="w-full"
           :user="users.state.user"
           :location="users.state.location"
+          @context-menu-open-change="handleOverviewMenuOpenChange"
         />
       </div>
       <div class="flex flex-row gap-2 px-4 pt-2 pb-1.5">
@@ -83,6 +100,7 @@ const focus = computed(() => {
           :friends="virtualFriends"
           :is-loading="isLoading"
           @toggle-collapse="toggleCollapse"
+          @item-context-menu-open-change="handleFriendsMenuOpenChange"
         />
       </div>
       <div

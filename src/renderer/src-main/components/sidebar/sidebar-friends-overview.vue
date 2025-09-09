@@ -5,16 +5,18 @@ import SidebarProfileStatusLocation from './sidebar-profile-status-location.vue'
 import SidebarProfileStatusText from './sidebar-profile-status-text.vue'
 import SidebarProfileStatusTimer from './sidebar-profile-status-timer.vue'
 import SidebarProfileHoverCard from './sidebar-profile-hover-card.vue'
-import { computed } from 'vue'
+import SidebarFriendsContextMenu from './sidebar-friends-context-menu.vue'
+import { ref, computed } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
 import { useI18n } from '@renderer/shared/locale'
 import { Button } from '@renderer/shared/components/ui/button'
 import { Platform, UserStatus } from '@shared/definition/vrchat-api-response'
 import { HoverCard, HoverCardTrigger } from '@renderer/shared/components/ui/hover-card'
+import { ContextMenu, ContextMenuTrigger } from '@renderer/shared/components/ui/context-menu'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
 
 const { t } = useI18n()
-
+const openMenu = ref(false)
 const props = defineProps<{
   user: FriendInformation
   showElapsedTimer?: boolean
@@ -23,72 +25,86 @@ const props = defineProps<{
 const showBadge = computed(() => {
   return props.user.platform !== Platform.Web && props.user.status !== UserStatus.Offline
 })
+
+const emits = defineEmits<{
+  (e: 'contextMenuOpenChange', open: boolean): void
+}>()
 </script>
 
 <template>
-  <HoverCard :open-delay="500" :close-delay="100">
-    <HoverCardTrigger>
-      <Button
-        variant="ghost"
-        class="w-full h-14 items-center justify-start px-4.5 pr-6.5 gap-2.5 rounded-none duration-0"
-      >
-        <SidebarProfileAvatar
-          :file-id="props.user.profileIconFileId"
-          :version="props.user.profileIconFileVersion"
-          :platform="props.user.platform"
-          :status="props.user.status"
-          :show-badge="showBadge"
+  <ContextMenu v-model:open="openMenu" @update:open="emits('contextMenuOpenChange', $event)">
+    <ContextMenuTrigger>
+      <HoverCard :open-delay="500" :close-delay="100">
+        <HoverCardTrigger as-child>
+          <Button
+            variant="ghost"
+            :class="
+              cn(
+                'w-full h-14 items-center justify-start pl-4.5 pr-6.5 gap-2.5 rounded-none duration-0',
+                openMenu && 'bg-accent/50 dark:bg-accent/30'
+              )
+            "
+          >
+            <SidebarProfileAvatar
+              :file-id="props.user.profileIconFileId"
+              :version="props.user.profileIconFileVersion"
+              :platform="props.user.platform"
+              :status="props.user.status"
+              :show-badge="showBadge"
+            />
+            <div
+              :class="
+                cn(
+                  'grid flex-1 text-left text-sm leading-tight gap-y-px',
+                  'opacity-0 transition-opacity duration-200 ease-[cubic-bezier(.16,1,.3,1)]',
+                  'group-has-[*]/sidebar-expanded:opacity-100 group-hover/sidebar-collapsed:opacity-100'
+                )
+              "
+            >
+              <SidebarProfileName
+                :user-name="props.user.displayName"
+                :trust-rank="props.user.trustRank"
+              />
+              <template v-if="props.showElapsedTimer">
+                <SidebarProfileStatusText
+                  v-if="props.user.isTraveling"
+                  :text="t('profile.loaction.traveling')"
+                  shiny
+                />
+                <SidebarProfileStatusTimer v-else :arrived-at="props.user.locationArrivedAt" />
+              </template>
+              <template v-else-if="props.user.status !== UserStatus.Offline">
+                <SidebarProfileStatusLocation
+                  v-if="props.user.platform !== Platform.Web"
+                  :location="props.user.location"
+                  :is-traveling="props.user.isTraveling"
+                />
+                <SidebarProfileStatusText v-else :text="props.user.statusDescription" />
+              </template>
+            </div>
+          </Button>
+        </HoverCardTrigger>
+        <SidebarProfileHoverCard
+          v-bind="{
+            displayName: props.user.displayName,
+            profileIconFileId: props.user.profileIconFileId,
+            profileIconFileVersion: props.user.profileIconFileVersion,
+            profileBackgroundFileId: props.user.profileBackgroundFileId,
+            profileBackgroundFileVersion: props.user.profileBackgroundFileVersion,
+            bio: props.user.bio,
+            isSupporter: props.user.isSupporter,
+            status: props.user.status,
+            statusDescription: props.user.statusDescription,
+            trustRank: props.user.trustRank,
+            languages: props.user.languages,
+            location: props.user.location,
+            locationArrivedAt: props.user.locationArrivedAt,
+            isTraveling: props.user.isTraveling
+          }"
+          display-align="start"
         />
-        <div
-          :class="
-            cn(
-              'grid flex-1 text-left text-sm leading-tight gap-y-px',
-              'opacity-0 transition-opacity duration-200 ease-[cubic-bezier(.16,1,.3,1)]',
-              'group-has-[*]/sidebar-expanded:opacity-100 group-hover/sidebar-collapsed:opacity-100'
-            )
-          "
-        >
-          <SidebarProfileName
-            :user-name="props.user.displayName"
-            :trust-rank="props.user.trustRank"
-          />
-          <template v-if="props.showElapsedTimer">
-            <SidebarProfileStatusText
-              v-if="props.user.isTraveling"
-              :text="t('profile.loaction.traveling')"
-              shiny
-            />
-            <SidebarProfileStatusTimer v-else :arrived-at="props.user.locationArrivedAt" />
-          </template>
-          <template v-else-if="props.user.status !== UserStatus.Offline">
-            <SidebarProfileStatusLocation
-              v-if="props.user.platform !== Platform.Web"
-              :location="props.user.location"
-              :is-traveling="props.user.isTraveling"
-            />
-            <SidebarProfileStatusText v-else :text="props.user.statusDescription" />
-          </template>
-        </div>
-      </Button>
-    </HoverCardTrigger>
-    <SidebarProfileHoverCard
-      v-bind="{
-        displayName: props.user.displayName,
-        profileIconFileId: props.user.profileIconFileId,
-        profileIconFileVersion: props.user.profileIconFileVersion,
-        profileBackgroundFileId: props.user.profileBackgroundFileId,
-        profileBackgroundFileVersion: props.user.profileBackgroundFileVersion,
-        bio: props.user.bio,
-        isSupporter: props.user.isSupporter,
-        status: props.user.status,
-        statusDescription: props.user.statusDescription,
-        trustRank: props.user.trustRank,
-        languages: props.user.languages,
-        location: props.user.location,
-        locationArrivedAt: props.user.locationArrivedAt,
-        isTraveling: props.user.isTraveling
-      }"
-      display-align="start"
-    />
-  </HoverCard>
+      </HoverCard>
+    </ContextMenuTrigger>
+    <SidebarFriendsContextMenu />
+  </ContextMenu>
 </template>
