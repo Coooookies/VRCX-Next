@@ -8,7 +8,7 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div class="flex flex-row items-center text-xs text-muted-foreground">
+  <div class="flex flex-row items-center text-xs text-muted-foreground overflow-hidden">
     <ShinyText v-if="props.shiny" class="truncate" :text="props.text" :speed="2" />
     <span v-else class="truncate">{{ props.text }}</span>
   </div>

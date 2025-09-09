@@ -24,7 +24,7 @@ const UserStatusTextColors: Record<UserStatus, string> = {
   [UserStatus.Offline]: 'text-gray-600',
   [UserStatus.Active]: 'text-emerald-500',
   [UserStatus.AskMe]: 'text-amber-600',
-  [UserStatus.Busy]: 'text-rose-700',
+  [UserStatus.Busy]: 'text-rose-800',
   [UserStatus.JoinMe]: 'text-sky-400'
 }
 
@@ -32,7 +32,7 @@ const UserStatusBackgroundColors: Record<UserStatus, string> = {
   [UserStatus.Offline]: 'bg-gray-600',
   [UserStatus.Active]: 'bg-emerald-500',
   [UserStatus.AskMe]: 'bg-amber-600',
-  [UserStatus.Busy]: 'bg-rose-700',
+  [UserStatus.Busy]: 'bg-rose-800',
   [UserStatus.JoinMe]: 'bg-sky-400'
 }
 </script>
