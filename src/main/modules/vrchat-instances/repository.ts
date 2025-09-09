@@ -30,6 +30,7 @@ export class InstanceRepository extends Nanobus<{
       {
         currentInstance: {
           worldSummary: null,
+          joined: false,
           locationJoinedAt: null,
           location: null,
           loading: false
@@ -37,6 +38,7 @@ export class InstanceRepository extends Nanobus<{
       },
       [
         'currentInstance.worldSummary',
+        'currentInstance.joined',
         'currentInstance.locationJoinedAt',
         'currentInstance.location',
         'currentInstance.loading'
@@ -103,6 +105,12 @@ export class InstanceRepository extends Nanobus<{
   public setCurrentInstanceWorldSummary(summary: WorldSummary | null) {
     this.mobx.action(() => {
       this.$.currentInstance.worldSummary = summary
+    })
+  }
+
+  public setCurrentInstanceJoined(joined: boolean) {
+    this.mobx.action(() => {
+      this.$.currentInstance.joined = joined
     })
   }
 

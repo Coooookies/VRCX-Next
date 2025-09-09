@@ -27,6 +27,7 @@ export interface FriendSharedState {
 export interface InstanceSharedState {
   currentInstance: {
     worldSummary: WorldSummary | null
+    joined: boolean
     location: LocationInstance | null
     locationJoinedAt: Date | null
     loading: boolean

@@ -1,12 +1,19 @@
+import Nanobus from 'nanobus'
 import { debounce } from 'lodash'
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { LogEvents } from '../vrchat-log-watcher/types'
+import { InstanceUserActivityType } from '@shared/definition/vrchat-instances'
 import { INSTANCE_USERS_INITIAL_BATCH_DELAY } from './constants'
-import type { LocationInstance } from '@shared/definition/vrchat-instances'
+import type {
+  InstanceUserActivitySummary,
+  InstanceUserSummary,
+  LocationInstance
+} from '@shared/definition/vrchat-instances'
 import type { VRChatLogWatcher } from '../vrchat-log-watcher'
 import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatWorlds } from '../vrchat-worlds'
 import type { LoggerFactory } from '@main/logger'
+import type { WorldSummary } from '@shared/definition/vrchat-worlds'
 import type { InstanceRepository } from './repository'
 import type { InstanceUser, InstanceUserActivity } from '@shared/definition/vrchat-instances'
 import type {
@@ -27,7 +34,18 @@ interface InstanceData {
   userActivities: InstanceUserActivity[]
 }
 
-export class CurrentInstance {
+export class CurrentInstance extends Nanobus<{
+  'instance:left': () => void
+  'instance:joined': (location: LocationInstance) => void
+  'instance:world-summary-initialized': (summary: WorldSummary) => void
+  'instance:present-initialized': (
+    users: InstanceUserSummary[],
+    activities: InstanceUserActivitySummary[]
+  ) => void
+  'user:joined': (user: InstanceUserSummary) => void
+  'user:left': (userId: string) => void
+  'user:activity': (activity: InstanceUserActivitySummary) => void
+}> {
   private isListening = false
   private isInitialBatchMode = false
   private isPending = false
@@ -45,7 +63,9 @@ export class CurrentInstance {
     private readonly logWatcher: VRChatLogWatcher,
     private readonly users: VRChatUsers,
     private readonly world: VRChatWorlds
-  ) {}
+  ) {
+    super('VRChatInstances:CurrentInstance')
+  }
 
   public bindEvents() {
     this.logWatcher.on('message', (data, context) => {
@@ -59,6 +79,43 @@ export class CurrentInstance {
       }
 
       this.handleMessage(data, context)
+    })
+
+    this.on('instance:joined', (location) => {
+      this.logger.info(`Joined instance:`, location.location)
+    })
+
+    this.on('instance:left', () => {
+      this.logger.info('Left instance')
+    })
+
+    this.on('instance:world-summary-initialized', (summary) => {
+      this.logger.info(
+        `World summary initialized:`,
+        `${summary.worldName || 'Unknown'}(${this.repository.State.currentInstance.location?.location})`
+      )
+    })
+
+    this.on('instance:present-initialized', (users) => {
+      this.logger.info(
+        'Users in instance:',
+        users.map((user) => `${user.userName}(${user.userId})`).join(',')
+      )
+    })
+
+    this.on('user:joined', (user) => {
+      this.logger.info('User joined:', `${user.userName}(${user.userId})`)
+    })
+
+    this.on('user:left', (userId) => {
+      this.logger.info('User left:', userId)
+    })
+
+    this.on('user:activity', (activity) => {
+      this.logger.info(
+        'User activity:',
+        `${activity.userName}(${activity.userId}) - ${activity.type}`
+      )
     })
   }
 
@@ -170,7 +227,9 @@ export class CurrentInstance {
             userActivities.push({
               userId: event.data.content.userId,
               userName: event.data.content.userName,
-              type: isCurrentUserInInstance ? 'join' : 'present',
+              type: isCurrentUserInInstance
+                ? InstanceUserActivityType.Join
+                : InstanceUserActivityType.Present,
               recordedAt: event.context.date
             })
           }
@@ -182,7 +241,7 @@ export class CurrentInstance {
             userActivities.push({
               userId: event.data.content.userId,
               userName: event.data.content.userName,
-              type: 'leave',
+              type: InstanceUserActivityType.Leave,
               recordedAt: event.context.date
             })
           }
@@ -203,22 +262,23 @@ export class CurrentInstance {
 
     this.repository.setCurrentInstanceLoading(true)
     this.repository.setCurrentInstanceLocation(location, joinedAt)
+    this.repository.setCurrentInstanceJoined(true)
 
     await this.processWorldSummary(location.worldId)
     await this.processInitialUsers(users, userActivities)
 
     this.isCurrentUserInInstance = instance.isCurrentUserInInstance
     this.repository.setCurrentInstanceLoading(false)
-
-    this.logger.info(
-      'Users in instance:',
-      users.map((user) => `${user.userName}(${user.userId})`).join(',')
-    )
   }
 
   private async processWorldSummary(worldId: string) {
     const summary = await this.world.Fetcher.fetchWorldEntities(worldId)
-    await this.repository.setCurrentInstanceWorldSummary(summary)
+    if (!summary) {
+      return
+    }
+
+    this.repository.setCurrentInstanceWorldSummary(summary)
+    this.emit('instance:world-summary-initialized', summary)
   }
 
   private async processInitialUsers(
@@ -226,21 +286,21 @@ export class CurrentInstance {
     activities: InstanceUserActivity[]
   ): Promise<void> {
     const userIds = activities.map((activity) => activity.userId)
-    const fetchedUsers = await this.users.Fetcher.fetchUserEntities(userIds)
+    const result = await this.users.Fetcher.fetchUserEntities(userIds)
 
-    this.repository.appendCurrentInstanceUser(
-      users.map((user) => ({
-        ...user,
-        userSummary: fetchedUsers.get(user.userId) || null
-      }))
-    )
+    const usersSummaries = users.map((user) => ({
+      ...user,
+      userSummary: result.get(user.userId) || null
+    }))
 
-    this.repository.appendCurrentInstanceUserActivity(
-      activities.map((activity) => ({
-        ...activity,
-        userSummary: fetchedUsers.get(activity.userId) || null
-      }))
-    )
+    const activitiesSummaries = activities.map((activity) => ({
+      ...activity,
+      userSummary: result.get(activity.userId) || null
+    }))
+
+    this.repository.appendCurrentInstanceUser(usersSummaries)
+    this.repository.appendCurrentInstanceUserActivity(activitiesSummaries)
+    this.emit('instance:present-initialized', usersSummaries, activitiesSummaries)
   }
 
   private async processCacheEvents() {
@@ -264,13 +324,9 @@ export class CurrentInstance {
     this.isPending = false
     this.initialEvents = []
     this.isCurrentUserInInstance = isCurrentUserInInstance
-    this.processCacheEvents()
 
+    this.processCacheEvents()
     this.repository.setCurrentInstanceLoading(false)
-    this.logger.info(
-      'Users in instance:',
-      users.map((user) => `${user.userName}(${user.userId})`).join(',')
-    )
   }
 
   private async handleMessage(data: LogEventMessage, context: LogEventContext) {
@@ -302,21 +358,20 @@ export class CurrentInstance {
 
     this.isInitialBatchMode = true
     this.isCurrentUserInInstance = false
+    this.isPending = false
+
+    this.repository.clearCurrentInstance()
     this.repository.setCurrentInstanceLoading(true)
     this.repository.setCurrentInstanceLocation(location, context.date)
+    this.repository.setCurrentInstanceJoined(true)
+    this.emit('instance:joined', location)
 
     await this.processWorldSummary(location.worldId)
-
-    this.logger.info(
-      `Joined instance:`,
-      `${this.repository.State.currentInstance.worldSummary?.worldName || 'Unknown'}(${data.location})`
-    )
   }
 
   private async handleSelfLeave() {
-    this.clearState()
-    this.repository.clearCurrentInstance()
-    this.logger.info('Left current instance')
+    this.repository.setCurrentInstanceJoined(false)
+    this.emit('instance:left')
     await this.resetInitialBatchTimer.cancel()
   }
 
@@ -358,20 +413,25 @@ export class CurrentInstance {
       this.isCurrentUserInInstance = true
     }
 
-    this.repository.appendCurrentInstanceUser({
+    const userSummary = {
       ...user,
       joinedAt: context.date,
       userSummary: summary
-    })
+    }
 
-    this.repository.appendCurrentInstanceUserActivity({
+    const activitySummary = {
       ...user,
       userSummary: summary,
-      type: this.isCurrentUserInInstance ? 'join' : 'present',
-      recordedAt: context.date
-    })
+      recordedAt: context.date,
+      type: this.isCurrentUserInInstance
+        ? InstanceUserActivityType.Join
+        : InstanceUserActivityType.Present
+    }
 
-    this.logger.info('User joined:', `${user.userName}(${user.userId})`)
+    this.repository.appendCurrentInstanceUser(userSummary)
+    this.repository.appendCurrentInstanceUserActivity(activitySummary)
+    this.emit('user:joined', userSummary)
+    this.emit('user:activity', activitySummary)
   }
 
   private async handlePlayerLeft(data: LogEventPlayerActivity, context: LogEventContext) {
@@ -406,14 +466,20 @@ export class CurrentInstance {
     context: LogEventContext
   ): Promise<void> {
     const summary = await this.users.Fetcher.fetchUserEntities(user.userId)
-
-    this.repository.removeCurrentInstanceUser(user.userId)
-    this.repository.appendCurrentInstanceUserActivity({
+    const activitySummary = {
       ...user,
       userSummary: summary || null,
-      type: 'leave',
-      recordedAt: context.date
-    })
+      recordedAt: context.date,
+      type:
+        this.isJoined || this.isCurrentUser(user.userId)
+          ? InstanceUserActivityType.Leave
+          : InstanceUserActivityType.Remain
+    }
+
+    this.repository.removeCurrentInstanceUser(user.userId)
+    this.repository.appendCurrentInstanceUserActivity(activitySummary)
+    this.emit('user:left', user.userId)
+    this.emit('user:activity', activitySummary)
   }
 
   private clearState() {
@@ -424,5 +490,13 @@ export class CurrentInstance {
 
   private isCurrentUser(userId: string): boolean {
     return this.users.currentUser?.userId === userId
+  }
+
+  public get isJoined(): boolean {
+    return this.repository.State.currentInstance.joined
+  }
+
+  public get location(): LocationInstance | null {
+    return this.repository.State.currentInstance.location
   }
 }

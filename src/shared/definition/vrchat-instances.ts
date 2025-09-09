@@ -84,6 +84,16 @@ export type LocationInstanceSummary =
   | LocationInstanceUserSummary
   | LocationInstanceGroupSummary
 
+export const InstanceUserActivityType = {
+  Leave: 'leave',
+  Join: 'join',
+  Present: 'present',
+  Remain: 'remain'
+} as const
+
+export type InstanceUserActivityType =
+  (typeof InstanceUserActivityType)[keyof typeof InstanceUserActivityType]
+
 export interface InstanceUser {
   userName: string
   userId: string
@@ -93,7 +103,7 @@ export interface InstanceUser {
 export interface InstanceUserActivity {
   userName: string
   userId: string
-  type: 'leave' | 'join' | 'present'
+  type: 'leave' | 'join' | 'present' | 'remain'
   recordedAt: Date
 }
 
