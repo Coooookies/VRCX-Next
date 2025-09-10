@@ -34,6 +34,7 @@ const props = defineProps<{
           :key="`${props.location.worldImageFileId}-${props.location.worldImageFileVersion}`"
           :file-id="props.location.worldImageFileId"
           :version="props.location.worldImageFileVersion"
+          :size="128"
           class="size-full object-cover"
         />
         <ImageFallback class="size-full flex items-center justify-center">

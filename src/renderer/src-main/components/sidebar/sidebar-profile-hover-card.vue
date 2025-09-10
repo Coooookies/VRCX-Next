@@ -62,7 +62,7 @@ const isSameThumbnail = computed(() => {
         :key="`${props.profileBackgroundFileId}-${props.profileBackgroundFileVersion}`"
         :file-id="props.profileBackgroundFileId"
         :version="props.profileBackgroundFileVersion"
-        :size="360"
+        :size="512"
         :class="cn('size-full object-cover', isSameThumbnail ? 'opacity-40' : 'opacity-100')"
       />
       <ImageFallback class="size-full flex items-center justify-center">
