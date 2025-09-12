@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import AppRoute from '../layouts/app-route.vue'
-import CurrentInstancePageTabs from '../components/current-instance/current-instance-page-tabs.vue'
+import CurrentInstanceInfoTabs from '../components/current-instance/current-instance-info-tabs.vue'
 </script>
 
 <template>
   <AppRoute>
     <div class="mx-auto py-10 w-[1038px]">
-      <CurrentInstancePageTabs />
+      <CurrentInstanceInfoTabs />
     </div>
   </AppRoute>
 </template>
