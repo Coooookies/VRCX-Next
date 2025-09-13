@@ -28,6 +28,7 @@ export interface WorldDetail {
   instanceContentSettings: InstanceContentSettings
   instances: WorldInstance[]
   packages: WorldPackage[]
+  capacity: WorldCapacity
   stats: WorldStats
   labsPublicizedAt: Date
   publicizedAt: Date
@@ -43,6 +44,11 @@ export interface WorldStats {
   totalOccupants: number
   publicOccupants: number
   privateOccupants: number
+}
+
+export interface WorldCapacity {
+  maxCapacity: number
+  recommendedCapacity: number
 }
 
 export type WorldFavoriteState =

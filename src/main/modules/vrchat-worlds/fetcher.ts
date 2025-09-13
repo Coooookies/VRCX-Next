@@ -18,7 +18,7 @@ import { limitedAllSettled } from '@shared/utils/async'
 import { SAVED_WORLD_ENTITY_EXPIRE_DELAY, WORLD_ENTITIES_QUERY_THREAD_SIZE } from './constants'
 import { parseInstance } from './location-parser'
 import { parseFileUrl } from '@shared/utils/vrchat-url-parser'
-import { isGroupInstance } from './utils'
+import { isGroupInstance, isSecurityAssetUrl } from './utils'
 
 export class WorldFetcher {
   constructor(
@@ -93,11 +93,10 @@ export class WorldFetcher {
     const entity = toWorldEntity(world.value.body)
     await this.repository.saveEntities(entity)
 
-    const { groupIds, assetUrls } = toWorldDetailDependencys(world.value.body)
+    const { groupIds, assetFiles } = toWorldDetailDependencys(world.value.body)
     const groups = !ignoreInstances ? await this.groups.Fetcher.fetchGroupEntities(groupIds) : null
-    const fileParseResults = assetUrls.map((url) => parseFileUrl(url))
     const fileAssets = !ignorePackages
-      ? await this.files.Fetcher.fetchFileAnalysis(fileParseResults)
+      ? await this.files.Fetcher.fetchFileAnalysis(assetFiles)
       : null
 
     return this.processWorldDetail(world.value.body, groups, fileAssets, {
@@ -164,6 +163,10 @@ export class WorldFetcher {
 
     if (!ignorePackages && world.unityPackages) {
       for (const unityPackage of world.unityPackages) {
+        if (!unityPackage.assetUrl || !isSecurityAssetUrl(unityPackage.assetUrl)) {
+          continue
+        }
+
         const fileInfo = parseFileUrl(unityPackage.assetUrl || '')
         const asset = fileAssets?.get(`${fileInfo.fileId}-${fileInfo.version}`) ?? null
 

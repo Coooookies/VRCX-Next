@@ -20,3 +20,7 @@ export function isGroupInstance(location: LocationInstance | LocationInstanceSum
     location.type === LocationInstanceGroupType.Group
   )
 }
+
+export function isSecurityAssetUrl(url: string) {
+  return url.includes('security')
+}

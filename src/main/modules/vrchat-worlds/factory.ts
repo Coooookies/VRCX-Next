@@ -2,8 +2,14 @@ import { parseInstance } from './location-parser'
 import { parseFileUrl } from '../vrchat-files/factory'
 import { WorldEntity } from '../database/entities/world'
 import type { FavoritedWorld, World } from '@shared/definition/vrchat-api-response'
-import type { WorldDetail, WorldFavoriteState, WorldStats } from '@shared/definition/vrchat-worlds'
-import { isGroupInstance } from './utils'
+import type { FileUrlParseResult } from '../vrchat-files/types'
+import type {
+  WorldCapacity,
+  WorldDetail,
+  WorldFavoriteState,
+  WorldStats
+} from '@shared/definition/vrchat-worlds'
+import { isGroupInstance, isSecurityAssetUrl } from './utils'
 import { LocationInstanceGroup } from '@shared/definition/vrchat-instances'
 
 export function toWorldEntity(world: World | FavoritedWorld): WorldEntity {
@@ -35,6 +41,11 @@ export function toWorldDetail(world: World | FavoritedWorld): WorldDetail {
     privateOccupants: ('privateOccupants' in world && world.privateOccupants) || 0
   }
 
+  const capacity: WorldCapacity = {
+    maxCapacity: world.capacity || 0,
+    recommendedCapacity: world.recommendedCapacity || 0
+  }
+
   const favoriteState: WorldFavoriteState =
     'favoriteId' in world
       ? {
@@ -61,6 +72,7 @@ export function toWorldDetail(world: World | FavoritedWorld): WorldDetail {
     instanceContentSettings: world.defaultContentSettings || {},
     instances: [], // manually fetch instances via fetcher
     packages: [], // manually fetch packages via fetcher
+    capacity,
     stats: worldStats,
     labsPublicizedAt: new Date(world.labsPublicationDate),
     publicizedAt: new Date(world.publicationDate),
@@ -71,7 +83,7 @@ export function toWorldDetail(world: World | FavoritedWorld): WorldDetail {
 
 export function toWorldDetailDependencys(world: World | FavoritedWorld) {
   const groupIds = new Set<string>()
-  const assetUrls = new Set<string>()
+  const assetFiles: FileUrlParseResult[] = []
 
   if ('instances' in world && world.instances) {
     for (const instance of world.instances) {
@@ -85,14 +97,14 @@ export function toWorldDetailDependencys(world: World | FavoritedWorld) {
 
   if (world.unityPackages) {
     for (const unityPackage of world.unityPackages) {
-      if (unityPackage.assetUrl) {
-        assetUrls.add(unityPackage.assetUrl)
+      if (unityPackage.assetUrl && isSecurityAssetUrl(unityPackage.assetUrl)) {
+        assetFiles.push(parseFileUrl(unityPackage.assetUrl))
       }
     }
   }
 
   return {
     groupIds: [...groupIds],
-    assetUrls: [...assetUrls]
+    assetFiles
   }
 }
