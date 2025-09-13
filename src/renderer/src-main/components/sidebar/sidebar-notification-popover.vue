@@ -112,10 +112,7 @@ const tabs = computed(() => {
     <Tabs v-model="tabIndex" class="w-full h-146.5 items-center gap-0">
       <TabsList
         :class="
-          cn(
-            'w-full h-auto rounded-none border-b bg-transparent justify-start gap-4.5',
-            'px-5 py-0'
-          )
+          cn('w-full h-auto rounded-none border-b bg-transparent justify-start', 'pl-2.5 pr-5 py-0')
         "
       >
         <TabsTrigger
@@ -124,8 +121,8 @@ const tabs = computed(() => {
           :value="tab.key"
           :class="
             cn(
-              'h-10 gap-1.5 relative rounded-none px-0 py-2 after:absolute data-[state=active]:bg-transparent data-[state=active]:shadow-none',
-              'after:bg-primary after:inset-x-0 after:bottom-0 after:h-0.5',
+              'h-10 gap-1.5 relative rounded-none px-2.5 py-2 after:absolute data-[state=active]:bg-transparent data-[state=active]:shadow-none',
+              'after:bg-primary after:inset-x-2.5 after:bottom-0 after:h-0.5',
               'after:scale-x-50 data-[state=active]:after:scale-x-100 after:opacity-0 data-[state=active]:after:opacity-100',
               'after:transition-[scale,opacity] after:duration-150 after:ease-in-out'
             )
