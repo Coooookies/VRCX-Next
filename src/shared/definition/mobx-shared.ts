@@ -1,8 +1,8 @@
 import type { AuthenticationState } from './vrchat-authentication'
-import { LocationInstance } from './vrchat-instances'
+import type { LocationInstance } from './vrchat-instances'
 import type { CurrentUserInformation, UserLocation } from './vrchat-users'
+import type { WorldDetail } from './vrchat-worlds'
 import type { WorkflowType } from './vrchat-workflow-coordinator'
-import { WorldSummary } from './vrchat-worlds'
 
 export interface AuthenticationSharedState {
   state: AuthenticationState
@@ -26,7 +26,7 @@ export interface FriendSharedState {
 
 export interface InstanceSharedState {
   currentInstance: {
-    worldSummary: WorldSummary | null
+    world: WorldDetail | null
     joined: boolean
     location: LocationInstance | null
     locationJoinedAt: Date | null

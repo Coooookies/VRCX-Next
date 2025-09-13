@@ -13,9 +13,9 @@ const intanceJson = computed(() => {
     : 'null'
 })
 
-const worldSummaryJson = computed(() => {
-  return instance.state.currentInstance.worldSummary
-    ? JSON.stringify(instance.state.currentInstance.worldSummary, null, 2)
+const worldJson = computed(() => {
+  return instance.state.currentInstance.world
+    ? JSON.stringify(instance.state.currentInstance.world, null, 2)
     : 'null'
 })
 
@@ -37,7 +37,7 @@ const activitiesJson = computed(() => {
         <Spinner v-if="instance.state.currentInstance.loading" class="size-5" />
       </div>
       <div class="bg-white/5 p-4 rounded-md">
-        <p class="whitespace-pre-wrap text-xs">{{ worldSummaryJson }}</p>
+        <p class="whitespace-pre-wrap text-xs">{{ worldJson }}</p>
         <p class="whitespace-pre-wrap text-xs">
           {{ instance.state.currentInstance.locationJoinedAt }}
         </p>
