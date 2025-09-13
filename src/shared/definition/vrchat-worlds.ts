@@ -45,11 +45,15 @@ export interface WorldStats {
   privateOccupants: number
 }
 
-export interface WorldFavoriteState {
-  favorited: boolean
-  favoriteId?: string
-  favoriteGroupName?: string
-}
+export type WorldFavoriteState =
+  | {
+      favorited: false
+    }
+  | {
+      favorited: true
+      favoriteId: string
+      favoriteGroupName: string
+    }
 
 export type WorldInstance = LocationInstanceSummary & {
   occupants: number
@@ -58,9 +62,10 @@ export type WorldInstance = LocationInstanceSummary & {
 export interface WorldPackage {
   unityPackageId: string
   unityVersion: string
+  fileId: string
+  fileVersion: number
   platform: Platform
   fileSize: number
   uncompressedFileSize: number
   assetVersion: number
-  createdAt: Date
 }

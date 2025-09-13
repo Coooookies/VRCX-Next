@@ -1,22 +1,37 @@
 import type { LoggerFactory } from '@main/logger'
-import { toWorldEntity } from './factory'
+import type { VRChatAPI } from '../vrchat-api'
+import type { VRChatGroups } from '../vrchat-groups'
+import type { VRChatFiles } from '../vrchat-files'
+import type { WorldRepository } from './repository'
+import type { WorldEntity } from '../database/entities/world'
+import type { GroupEntity } from '../database/entities/group'
+import type { WorldDetail } from '@shared/definition/vrchat-worlds'
+import type { Platform, World } from '@shared/definition/vrchat-api-response'
+import type { FileAnalysisResult } from '../vrchat-files/types'
+import type {
+  LocationInstance,
+  LocationInstanceGroupSummary,
+  LocationInstanceSummary
+} from '@shared/definition/vrchat-instances'
+import { toWorldDetail, toWorldDetailDependencys, toWorldEntity } from './factory'
 import { limitedAllSettled } from '@shared/utils/async'
-import { WorldEntity } from '../database/entities/world'
-import { WorldRepository } from './repository'
-import { VRChatAPI } from '../vrchat-api'
 import { SAVED_WORLD_ENTITY_EXPIRE_DELAY, WORLD_ENTITIES_QUERY_THREAD_SIZE } from './constants'
-import type { LocationInstance, LocationInstanceSummary } from '@shared/definition/vrchat-instances'
+import { parseInstance } from './location-parser'
+import { parseFileUrl } from '@shared/utils/vrchat-url-parser'
+import { isGroupInstance } from './utils'
 
 export class WorldFetcher {
   constructor(
     private readonly logger: LoggerFactory,
     private readonly repository: WorldRepository,
-    private readonly api: VRChatAPI
+    private readonly api: VRChatAPI,
+    private readonly groups: VRChatGroups,
+    private readonly files: VRChatFiles
   ) {}
 
-  public async fetchWorldEntities(worldId: string): Promise<WorldEntity | null>
-  public async fetchWorldEntities(worldIds: string[]): Promise<Map<string, WorldEntity>>
-  public async fetchWorldEntities(
+  public async fetchWorldSummary(worldId: string): Promise<WorldEntity | null>
+  public async fetchWorldSummary(worldIds: string[]): Promise<Map<string, WorldEntity>>
+  public async fetchWorldSummary(
     worldIds: string | string[]
   ): Promise<WorldEntity | Map<string, WorldEntity> | null> {
     if (Array.isArray(worldIds) && worldIds.length === 0) {
@@ -64,19 +79,35 @@ export class WorldFetcher {
     return Array.isArray(worldIds) ? entities : (entities.get(worldIds) ?? null)
   }
 
-  public async fetchWorld(worldId: string) {
+  public async fetchWorld(
+    worldId: string,
+    options?: { ignoreInstances?: boolean; ignorePackages?: boolean }
+  ): Promise<WorldDetail | null> {
     const world = await this.api.ref.sessionAPI.worlds.getWorld(worldId)
+    const { ignoreInstances = false, ignorePackages = false } = options ?? {}
 
-    if (world.success) {
-      const entity = await toWorldEntity(world.value.body)
-      await this.repository.saveEntities(entity)
+    if (!world.success) {
+      return null
     }
 
-    return world
+    const entity = toWorldEntity(world.value.body)
+    await this.repository.saveEntities(entity)
+
+    const { groupIds, assetUrls } = toWorldDetailDependencys(world.value.body)
+    const groups = !ignoreInstances ? await this.groups.Fetcher.fetchGroupEntities(groupIds) : null
+    const fileParseResults = assetUrls.map((url) => parseFileUrl(url))
+    const fileAssets = !ignorePackages
+      ? await this.files.Fetcher.fetchFileAnalysis(fileParseResults)
+      : null
+
+    return this.processWorldDetail(world.value.body, groups, fileAssets, {
+      ignoreInstances,
+      ignorePackages
+    })
   }
 
   public async enrichLocationWithWorldInfo(location: LocationInstance) {
-    const world = await this.fetchWorldEntities(location.worldId)
+    const world = await this.fetchWorldSummary(location.worldId)
     const summary = <LocationInstanceSummary>{
       ...location,
       worldName: 'Unknown World',
@@ -91,5 +122,64 @@ export class WorldFetcher {
     }
 
     return summary
+  }
+
+  public async processWorldDetail(
+    world: World,
+    groups: Map<string, GroupEntity> | null,
+    fileAssets: Map<string, FileAnalysisResult> | null,
+    options?: { ignoreInstances?: boolean; ignorePackages?: boolean }
+  ): Promise<WorldDetail> {
+    const detail = toWorldDetail(world)
+    const { ignoreInstances = false, ignorePackages = false } = options ?? {}
+
+    if (!ignoreInstances && world.instances) {
+      for (const instance of world.instances) {
+        const location = <LocationInstanceSummary>parseInstance(world.id, instance[0])
+
+        if (location) {
+          location.worldName = detail.worldName
+          location.worldImageFileId = detail.imageFileId
+          location.worldImageFileVersion = detail.imageFileVersion
+        }
+
+        if (location && isGroupInstance(location)) {
+          const groupLocation = location as LocationInstanceGroupSummary
+          const group = groups?.get(groupLocation.groupId) ?? null
+          if (group) {
+            groupLocation.groupName = group.groupName
+            groupLocation.groupImageFileId = group.iconFileId
+            groupLocation.groupImageFileVersion = group.iconFileVersion
+          } else {
+            groupLocation.groupName = 'Unknown Group'
+          }
+        }
+
+        detail.instances.push({
+          ...location,
+          occupants: +instance[1]
+        })
+      }
+    }
+
+    if (!ignorePackages && world.unityPackages) {
+      for (const unityPackage of world.unityPackages) {
+        const fileInfo = parseFileUrl(unityPackage.assetUrl || '')
+        const asset = fileAssets?.get(`${fileInfo.fileId}-${fileInfo.version}`) ?? null
+
+        detail.packages.push({
+          unityPackageId: unityPackage.id,
+          unityVersion: unityPackage.unityVersion,
+          fileId: fileInfo.fileId,
+          fileVersion: fileInfo.version,
+          platform: <Platform>unityPackage.platform,
+          fileSize: asset?.fileSize ?? 0,
+          uncompressedFileSize: asset?.fileUncompressedSize ?? 0,
+          assetVersion: unityPackage.assetVersion
+        })
+      }
+    }
+
+    return detail
   }
 }
