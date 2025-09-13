@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import ScrollContainer from '@renderer/shared/components/scroll-container.vue'
 import { inject } from 'vue'
-import type { Ref } from 'vue'
+import { cn } from '@renderer/shared/utils/style'
+import type { HTMLAttributes, Ref } from 'vue'
 import type { ScrollContainerProps } from '@renderer/shared/components/scroll-container.vue'
 
-const props = defineProps<ScrollContainerProps>()
+const props = defineProps<
+  ScrollContainerProps & {
+    class?: HTMLAttributes['class']
+  }
+>()
 const { leftRoutePadding, rightRoutePadding } = inject<{
   leftRoutePadding: Ref<number>
   rightRoutePadding: Ref<number>
@@ -14,7 +19,7 @@ const { leftRoutePadding, rightRoutePadding } = inject<{
 <template>
   <ScrollContainer
     v-bind="props"
-    class="w-full h-full"
+    :class="cn('w-full h-full', props.class)"
     :scrollbar-offset-top="44"
     :scrollbar-offset-right="4 + rightRoutePadding"
   >
