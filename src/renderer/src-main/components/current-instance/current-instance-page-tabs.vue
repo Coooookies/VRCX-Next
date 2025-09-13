@@ -1,22 +1,39 @@
 <script setup lang="ts">
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/shared/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@renderer/shared/components/ui/tabs'
+import { cn } from '@renderer/shared/utils/style'
+
+const value = defineModel<string>('modelValue', {
+  default: ''
+})
+
+const props = defineProps<{
+  tabs: CurrentInstancePageTab[]
+}>()
+
+export interface CurrentInstancePageTab {
+  value: string
+  label: string
+}
 </script>
 
 <template>
-  <Tabs default-value="tab-1" class="items-center">
-    <TabsList>
-      <TabsTrigger value="tab-1">Tab 1</TabsTrigger>
-      <TabsTrigger value="tab-2">Tab 2</TabsTrigger>
-      <TabsTrigger value="tab-3">Tab 3</TabsTrigger>
+  <Tabs v-model="value" class="w-fit h-9 items-center">
+    <TabsList class="h-auto rounded-none bg-transparent p-0">
+      <TabsTrigger
+        v-for="tab in props.tabs"
+        :key="tab.value"
+        :value="tab.value"
+        :class="
+          cn(
+            'h-full gap-1.5 relative rounded-none px-2.5 py-2 after:absolute data-[state=active]:bg-transparent data-[state=active]:shadow-none',
+            'after:bg-primary after:w-4.5 after:bottom-0 after:h-[3px] after:rounded-t-md',
+            'after:scale-x-50 data-[state=active]:after:scale-x-100 after:opacity-0 data-[state=active]:after:opacity-100',
+            'after:transition-[scale,opacity] after:duration-150 after:ease-in-out'
+          )
+        "
+      >
+        {{ tab.label }}
+      </TabsTrigger>
     </TabsList>
-    <TabsContent value="tab-1">
-      <p class="text-muted-foreground p-4 text-center text-xs">Content for Tab 1</p>
-    </TabsContent>
-    <TabsContent value="tab-2">
-      <p class="text-muted-foreground p-4 text-center text-xs">Content for Tab 2</p>
-    </TabsContent>
-    <TabsContent value="tab-3">
-      <p class="text-muted-foreground p-4 text-center text-xs">Content for Tab 3</p>
-    </TabsContent>
   </Tabs>
 </template>

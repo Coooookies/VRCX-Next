@@ -1,37 +1,25 @@
 <script setup lang="ts">
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/shared/components/ui/tabs'
+import { TabsList, TabsTrigger } from '@renderer/shared/components/ui/tabs'
+
+const props = defineProps<{
+  tabs: CurrentInstanceInfoTab[]
+}>()
+
+export interface CurrentInstanceInfoTab {
+  value: string
+  label: string
+}
 </script>
 
 <template>
-  <Tabs default-value="tab-1" class="items-center">
-    <TabsList class="h-9 bg-transparent p-[3px] ring ring-border rounded-[9px]">
-      <TabsTrigger
-        value="tab-1"
-        class="h-7.5 rounded-[6px] data-[state=active]:bg-muted data-[state=active]:shadow-none"
-      >
-        Tab 1
-      </TabsTrigger>
-      <TabsTrigger
-        value="tab-2"
-        class="h-7.5 rounded-[6px] data-[state=active]:bg-muted data-[state=active]:shadow-none"
-      >
-        Tab 2
-      </TabsTrigger>
-      <TabsTrigger
-        value="tab-3"
-        class="h-7.5 rounded-[6px] data-[state=active]:bg-muted data-[state=active]:shadow-none"
-      >
-        Tab 3
-      </TabsTrigger>
-    </TabsList>
-    <TabsContent value="tab-1">
-      <p class="text-muted-foreground p-4 text-center text-xs">Content for Tab 1</p>
-    </TabsContent>
-    <TabsContent value="tab-2">
-      <p class="text-muted-foreground p-4 text-center text-xs">Content for Tab 2</p>
-    </TabsContent>
-    <TabsContent value="tab-3">
-      <p class="text-muted-foreground p-4 text-center text-xs">Content for Tab 3</p>
-    </TabsContent>
-  </Tabs>
+  <TabsList class="h-9 bg-transparent p-1 inset-ring inset-ring-border rounded-[11px]">
+    <TabsTrigger
+      v-for="tab in props.tabs"
+      :key="tab.value"
+      :value="tab.value"
+      class="h-7 flex-1 rounded-[7px] data-[state=active]:bg-muted data-[state=active]:shadow-none"
+    >
+      {{ tab.label }}
+    </TabsTrigger>
+  </TabsList>
 </template>
