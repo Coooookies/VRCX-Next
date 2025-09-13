@@ -13,7 +13,7 @@ import type { VRChatLogWatcher } from '../vrchat-log-watcher'
 import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatWorlds } from '../vrchat-worlds'
 import type { LoggerFactory } from '@main/logger'
-import type { WorldSummary } from '@shared/definition/vrchat-worlds'
+import type { WorldDetail } from '@shared/definition/vrchat-worlds'
 import type { InstanceRepository } from './repository'
 import type { InstanceUser, InstanceUserActivity } from '@shared/definition/vrchat-instances'
 import type {
@@ -37,7 +37,7 @@ interface InstanceData {
 export class CurrentInstance extends Nanobus<{
   'instance:left': () => void
   'instance:joined': (location: LocationInstance) => void
-  'instance:world-summary-initialized': (summary: WorldSummary) => void
+  'instance:world-summary-initialized': (detail: WorldDetail) => void
   'instance:present-initialized': (
     users: InstanceUserSummary[],
     activities: InstanceUserActivitySummary[]
@@ -272,13 +272,16 @@ export class CurrentInstance extends Nanobus<{
   }
 
   private async processWorldSummary(worldId: string) {
-    const summary = await this.world.Fetcher.fetchWorldEntities(worldId)
-    if (!summary) {
+    const detail = await this.world.Fetcher.fetchWorld(worldId, {
+      ignoreInstances: true
+    })
+
+    if (!detail) {
       return
     }
 
-    this.repository.setCurrentInstanceWorldSummary(summary)
-    this.emit('instance:world-summary-initialized', summary)
+    this.repository.setCurrentInstanceWorldDetail(detail)
+    this.emit('instance:world-summary-initialized', detail)
   }
 
   private async processInitialUsers(

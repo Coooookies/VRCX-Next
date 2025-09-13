@@ -7,7 +7,7 @@ import type {
   LocationInstance
 } from '@shared/definition/vrchat-instances'
 import type { InstanceSharedState } from '@shared/definition/mobx-shared'
-import type { WorldSummary } from '@shared/definition/vrchat-worlds'
+import type { WorldDetail } from '@shared/definition/vrchat-worlds'
 
 export class InstanceRepository extends Nanobus<{
   'current-instance:append-users': (users: InstanceUserSummary[]) => void
@@ -29,7 +29,7 @@ export class InstanceRepository extends Nanobus<{
       moduleId,
       {
         currentInstance: {
-          worldSummary: null,
+          world: null,
           joined: false,
           locationJoinedAt: null,
           location: null,
@@ -37,7 +37,7 @@ export class InstanceRepository extends Nanobus<{
         }
       },
       [
-        'currentInstance.worldSummary',
+        'currentInstance.world',
         'currentInstance.joined',
         'currentInstance.locationJoinedAt',
         'currentInstance.location',
@@ -82,7 +82,7 @@ export class InstanceRepository extends Nanobus<{
     this.clearCurrentInstanceUsers()
     this.clearCurrentInstanceUserActivities()
     this.mobx.action(() => {
-      this.$.currentInstance.worldSummary = null
+      this.$.currentInstance.world = null
       this.$.currentInstance.location = null
       this.$.currentInstance.locationJoinedAt = null
       this.$.currentInstance.loading = false
@@ -102,9 +102,9 @@ export class InstanceRepository extends Nanobus<{
     })
   }
 
-  public setCurrentInstanceWorldSummary(summary: WorldSummary | null) {
+  public setCurrentInstanceWorldDetail(detail: WorldDetail | null) {
     this.mobx.action(() => {
-      this.$.currentInstance.worldSummary = summary
+      this.$.currentInstance.world = detail
     })
   }
 

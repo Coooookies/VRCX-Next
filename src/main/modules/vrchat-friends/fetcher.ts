@@ -78,7 +78,7 @@ export class FriendsFetcher {
       }
 
       const { groupIds, worldIds } = toFriendInstanceDependency(friendsBatch)
-      const worlds = await this.worlds.Fetcher.fetchWorldEntities(worldIds)
+      const worlds = await this.worlds.Fetcher.fetchWorldSummary(worldIds)
       const groups = await this.groups.Fetcher.fetchGroupEntities(groupIds)
       const currentFriends: FriendInformation[] = []
 
