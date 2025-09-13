@@ -7,7 +7,7 @@ import type { MainWindow } from '../main-window'
 import type { LoggerFactory } from '@main/logger'
 import type { ImageSelectionRepository } from './repository'
 import type { ImageSelectionDialogReturnValue } from './types'
-import type { ImageSelectionEntity } from '../database/entities/image-selection'
+import type { ImageSelectionEntity } from '../database/entities/selection-images'
 import type { ImageSelectionInstance } from '@shared/definition/image-selection'
 
 export class ImageSelectionOperation {

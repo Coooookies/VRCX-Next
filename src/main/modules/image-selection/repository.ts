@@ -8,7 +8,7 @@ import { createReadStream, createWriteStream, existsSync, mkdirSync } from 'node
 import { resizeToMinEdge } from './factory'
 import { PassThrough } from 'node:stream'
 import { Database } from '../database'
-import { ImageSelectionEntity } from '../database/entities/image-selection'
+import { ImageSelectionEntity } from '../database/entities/selection-images'
 import { APP_CACHE_DIR } from '@main/constants'
 import { CACHE_THUMBNAIL_FORMAT, CACHE_THUMBNAIL_MIMETYPE } from './constants'
 import type { LoggerFactory } from '@main/logger'
