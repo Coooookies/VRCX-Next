@@ -28,8 +28,8 @@ export function toBaseFriendInformation(
   const trustRank = toUserTrustRank(friend.tags)
   const supporter = isSupporter(friend.tags)
   const referenceAvatar: ReferenceAvatar = {
-    imageFileId: avatarFileInfo.fileId,
-    imageFileVersion: avatarFileInfo.version,
+    imageFileId: avatarFileInfo?.fileId || '',
+    imageFileVersion: avatarFileInfo?.version || 0,
     allowCopying: 'allowAvatarCopying' in friend ? friend.allowAvatarCopying : false
   }
 
@@ -38,10 +38,10 @@ export function toBaseFriendInformation(
     displayName: friend.displayName,
     status: friend.status,
     statusDescription: friend.statusDescription,
-    profileIconFileId: profileIconFileInfo.fileId,
-    profileIconFileVersion: profileIconFileInfo.version,
-    profileBackgroundFileId: profileBackgroundFileInfo.fileId,
-    profileBackgroundFileVersion: profileBackgroundFileInfo.version,
+    profileIconFileId: profileIconFileInfo?.fileId || '',
+    profileIconFileVersion: profileIconFileInfo?.version || 0,
+    profileBackgroundFileId: profileBackgroundFileInfo?.fileId || '',
+    profileBackgroundFileVersion: profileBackgroundFileInfo?.version || 0,
     referenceAvatar,
     note: 'note' in friend ? friend.note || null : null,
     bio: friend.bio || '',

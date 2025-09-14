@@ -169,8 +169,8 @@ export class FriendsFetcher {
 
     if (world) {
       summary.worldName = world.name
-      summary.worldImageFileId = worldImageInfo.fileId
-      summary.worldImageFileVersion = worldImageInfo.version
+      summary.worldImageFileId = worldImageInfo?.fileId || ''
+      summary.worldImageFileVersion = worldImageInfo?.version || 0
     }
 
     return summary

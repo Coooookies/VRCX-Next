@@ -13,10 +13,14 @@ import type {
   LocationInstanceGroupSummary,
   LocationInstanceSummary
 } from '@shared/definition/vrchat-instances'
-import { toWorldDetail, toWorldDetailDependencys, toWorldEntity } from './factory'
+import {
+  toWorldDetail,
+  toWorldDetailDependencys,
+  toWorldEntity,
+  toWorldPlatformStats
+} from './factory'
 import { limitedAllSettled } from '@shared/utils/async'
 import { parseInstance } from './location-parser'
-import { parseFileUrl } from '@shared/utils/vrchat-url-parser'
 import { isGroupInstance } from './utils'
 import { SAVED_WORLD_ENTITY_EXPIRE_DELAY, WORLD_ENTITIES_QUERY_THREAD_SIZE } from './constants'
 
@@ -162,24 +166,14 @@ export class WorldFetcher {
     }
 
     if (!ignorePackages && world.unityPackages) {
-      for (const unityPackage of world.unityPackages) {
-        if (!unityPackage.assetUrl || unityPackage.variant !== 'security') {
-          continue
+      const platformPackages = toWorldPlatformStats(world.unityPackages)
+      for (const [key, stats] of Object.entries(platformPackages)) {
+        const assets = fileAssets?.get(`${stats.fileId}-${stats.fileVersion}`)
+        detail.packages[<Platform>key] = {
+          ...stats,
+          fileSize: assets?.fileSize ?? 0,
+          uncompressedFileSize: assets?.fileUncompressedSize ?? 0
         }
-
-        const fileInfo = parseFileUrl(unityPackage.assetUrl || '')
-        const asset = fileAssets?.get(`${fileInfo.fileId}-${fileInfo.version}`) ?? null
-
-        detail.packages.push({
-          unityPackageId: unityPackage.id,
-          unityVersion: unityPackage.unityVersion,
-          fileId: fileInfo.fileId,
-          fileVersion: fileInfo.version,
-          platform: <Platform>unityPackage.platform,
-          fileSize: asset?.fileSize ?? 0,
-          uncompressedFileSize: asset?.fileUncompressedSize ?? 0,
-          assetVersion: unityPackage.assetVersion
-        })
       }
     }
 

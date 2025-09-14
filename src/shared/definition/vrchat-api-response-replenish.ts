@@ -31,6 +31,7 @@ export const Platform = {
   UnknownPlatform: 'unknownplatform',
   Standalonewindows: 'standalonewindows',
   Android: 'android',
+  IOS: 'ios',
   Web: 'web'
 } as const
 

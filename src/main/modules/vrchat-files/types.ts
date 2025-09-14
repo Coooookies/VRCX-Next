@@ -47,8 +47,3 @@ export type FileAnalysisResult = {
     stats: FileAnalysisResultDefinition[K]
   } & FileAnalysisBase
 }[FileType]
-
-export interface FileUrlParseResult {
-  fileId: string
-  version: number
-}

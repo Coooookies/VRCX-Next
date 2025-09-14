@@ -71,8 +71,8 @@ export class VRChatAuthentication extends Module<{
             userId,
             userName: state.overview.username,
             displayName: state.userInfo.displayName,
-            profileIconFileId: thumbnailFile.fileId,
-            profileIconFileVersion: thumbnailFile.version,
+            profileIconFileId: thumbnailFile?.fileId || '',
+            profileIconFileVersion: thumbnailFile?.version || 0,
             token: state.authToken,
             twoFactorToken: state.twoFactorAuthToken,
             updatedAt: new Date()

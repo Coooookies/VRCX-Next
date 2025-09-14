@@ -3,7 +3,8 @@ import type { Request } from 'got'
 import type { VRChatAPI } from '../vrchat-api'
 import type { FilesRepository } from './repository'
 import type { FileAnalysisEntity } from '../database/entities/analysis-files'
-import type { FileAnalysisResult, FileUrlParseResult } from './types'
+import type { FileAnalysisResult } from './types'
+import type { FileUrlParsedResult } from '@shared/definition/vrchat-files'
 import { limitedAllSettled } from '@shared/utils/async'
 import { toFileAnalysisEntity } from './factory'
 import {
@@ -23,12 +24,12 @@ export class FilesFetcher {
     return response
   }
 
-  public async fetchFileAnalysis(file: FileUrlParseResult): Promise<FileAnalysisResult | null>
+  public async fetchFileAnalysis(file: FileUrlParsedResult): Promise<FileAnalysisResult | null>
   public async fetchFileAnalysis(
-    files: FileUrlParseResult[]
+    files: FileUrlParsedResult[]
   ): Promise<Map<string, FileAnalysisResult>>
   public async fetchFileAnalysis(
-    files: FileUrlParseResult | FileUrlParseResult[]
+    files: FileUrlParsedResult | FileUrlParsedResult[]
   ): Promise<FileAnalysisResult | Map<string, FileAnalysisResult> | null> {
     if (Array.isArray(files) && files.length === 0) {
       return new Map()

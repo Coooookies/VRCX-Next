@@ -6,8 +6,9 @@ import { getExtension, getMimeType } from 'hono/utils/mime'
 import { exists, readSubFiles } from '@main/utils/fs'
 import { APP_CACHE_DIR } from '@main/constants'
 import { mkdirSync, existsSync, createWriteStream, createReadStream } from 'node:fs'
-import { DirentResolver, FileUrlParseResult } from './types'
+import { DirentResolver } from './types'
 import { FileAnalysisEntity } from '../database/entities/analysis-files'
+import type { FileUrlParsedResult } from '@shared/definition/vrchat-files'
 import type { Repository } from 'typeorm'
 import type { Database } from '../database'
 
@@ -77,12 +78,12 @@ export class FilesRepository {
     return pipeline(stream, fileStream)
   }
 
-  public async getSavedEntities(file: FileUrlParseResult): Promise<FileAnalysisEntity | null>
+  public async getSavedEntities(file: FileUrlParsedResult): Promise<FileAnalysisEntity | null>
   public async getSavedEntities(
-    files: FileUrlParseResult[]
+    files: FileUrlParsedResult[]
   ): Promise<Map<string, FileAnalysisEntity>>
   public async getSavedEntities(
-    files: FileUrlParseResult | FileUrlParseResult[]
+    files: FileUrlParsedResult | FileUrlParsedResult[]
   ): Promise<FileAnalysisEntity | Map<string, FileAnalysisEntity> | null> {
     const pendingFiles = Array.isArray(files) ? files : [files]
     const savedEntities = await this.repository.find({

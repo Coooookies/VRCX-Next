@@ -44,8 +44,8 @@ export function toCurrentUserInformation(user: CurrentUser): CurrentUserInformat
   const avatar: UserAvatar = {
     avatarId,
     allowCopying: user.allowAvatarCopying,
-    imageFileId: avatarFileInfo.fileId,
-    imageFileVersion: avatarFileInfo.version
+    imageFileId: avatarFileInfo?.fileId || '',
+    imageFileVersion: avatarFileInfo?.version || 0
   }
 
   return {
@@ -55,10 +55,10 @@ export function toCurrentUserInformation(user: CurrentUser): CurrentUserInformat
     status: user.status,
     statusDescription: user.statusDescription,
     statusHistory: user.statusHistory,
-    profileIconFileId: profileIconFileInfo.fileId,
-    profileIconFileVersion: profileIconFileInfo.version,
-    profileBackgroundFileId: profileBackgroundFileInfo.fileId,
-    profileBackgroundFileVersion: profileBackgroundFileInfo.version,
+    profileIconFileId: profileIconFileInfo?.fileId || '',
+    profileIconFileVersion: profileIconFileInfo?.version || 0,
+    profileBackgroundFileId: profileBackgroundFileInfo?.fileId || '',
+    profileBackgroundFileVersion: profileBackgroundFileInfo?.version || 0,
     pronouns: user.pronouns,
     avatar,
     bio: user.bio || '',
@@ -99,8 +99,8 @@ export function toUserInformation(user: User): UserInformation {
   const joinDate = user.date_joined ? new Date(user.date_joined) : null
   const avatarFileInfo = parseFileUrl(user.currentAvatarImageUrl)
   const referenceAvatar: ReferenceAvatar = {
-    imageFileId: avatarFileInfo.fileId,
-    imageFileVersion: avatarFileInfo.version,
+    imageFileId: avatarFileInfo?.fileId || '',
+    imageFileVersion: avatarFileInfo?.version || 0,
     allowCopying: user.allowAvatarCopying
   }
 
@@ -110,10 +110,10 @@ export function toUserInformation(user: User): UserInformation {
     developerType: user.developerType,
     status: user.status,
     statusDescription: user.statusDescription,
-    profileIconFileId: profileIconFileInfo.fileId,
-    profileIconFileVersion: profileIconFileInfo.version,
-    profileBackgroundFileId: profileBackgroundFileInfo.fileId,
-    profileBackgroundFileVersion: profileBackgroundFileInfo.version,
+    profileIconFileId: profileIconFileInfo?.fileId || '',
+    profileIconFileVersion: profileIconFileInfo?.version || 0,
+    profileBackgroundFileId: profileBackgroundFileInfo?.fileId || '',
+    profileBackgroundFileVersion: profileBackgroundFileInfo?.version || 0,
     pronouns: user.pronouns,
     referenceAvatar,
     bio: user.bio || '',
@@ -141,8 +141,8 @@ export function toUserEntity(user: User | CurrentUser | LimitedUserFriend): User
   return {
     userId: user.id,
     displayName: user.displayName,
-    profileIconFileId: profileIconFileInfo.fileId,
-    profileIconFileVersion: profileIconFileInfo.version,
+    profileIconFileId: profileIconFileInfo?.fileId || '',
+    profileIconFileVersion: profileIconFileInfo?.version || 0,
     trustRank,
     languages,
     isSupporter: supporter,

@@ -63,10 +63,10 @@ export class AuthenticationStateLogic {
     }
 
     const profileIcon = getProfileIconUrl(value.body)
-    const { fileId, version } = parseFileUrl(profileIcon)
+    const profileIconFile = parseFileUrl(profileIcon)
 
-    overview.profileThumbnailImageFileId = fileId
-    overview.profileThumbnailImageFileVersion = version
+    overview.profileThumbnailImageFileId = profileIconFile?.fileId || ''
+    overview.profileThumbnailImageFileVersion = profileIconFile?.version || 0
 
     return {
       success: true,
@@ -110,11 +110,11 @@ export class AuthenticationStateLogic {
     }
 
     const profileIcon = getProfileIconUrl(value.body)
-    const { fileId, version } = parseFileUrl(profileIcon)
+    const profileIconFile = parseFileUrl(profileIcon)
 
     overview.displayName = value.body.displayName
-    overview.profileThumbnailImageFileId = fileId
-    overview.profileThumbnailImageFileVersion = version
+    overview.profileThumbnailImageFileId = profileIconFile?.fileId || ''
+    overview.profileThumbnailImageFileVersion = profileIconFile?.version || 0
 
     return {
       success: true,
