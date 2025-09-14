@@ -3,7 +3,11 @@ import { UserTrustRank, UserLanguage } from '@shared/definition/vrchat-users'
 import { UserEntity } from '../database/entities/users'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
 import type { ReferenceAvatar, UserAvatar } from '@shared/definition/vrchat-avatars'
-import type { CurrentUserInformation, UserInformation } from '@shared/definition/vrchat-users'
+import type {
+  CurrentUserInformation,
+  UserInformation,
+  UserSummary
+} from '@shared/definition/vrchat-users'
 import type {
   CurrentUser,
   LimitedUserFriend,
@@ -147,6 +151,18 @@ export function toUserEntity(user: User | CurrentUser | LimitedUserFriend): User
     languages,
     isSupporter: supporter,
     cacheUpdatedAt: new Date()
+  }
+}
+
+export function toUserInformationSummary(user: UserInformation): UserSummary {
+  return {
+    userId: user.userId,
+    displayName: user.displayName,
+    profileIconFileId: user.profileIconFileId,
+    profileIconFileVersion: user.profileIconFileVersion,
+    trustRank: user.trustRank,
+    languages: user.languages,
+    isSupporter: user.isSupporter
   }
 }
 
