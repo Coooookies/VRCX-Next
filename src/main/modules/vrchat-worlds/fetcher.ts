@@ -15,10 +15,10 @@ import type {
 } from '@shared/definition/vrchat-instances'
 import { toWorldDetail, toWorldDetailDependencys, toWorldEntity } from './factory'
 import { limitedAllSettled } from '@shared/utils/async'
-import { SAVED_WORLD_ENTITY_EXPIRE_DELAY, WORLD_ENTITIES_QUERY_THREAD_SIZE } from './constants'
 import { parseInstance } from './location-parser'
 import { parseFileUrl } from '@shared/utils/vrchat-url-parser'
-import { isGroupInstance, isSecurityAssetUrl } from './utils'
+import { isGroupInstance } from './utils'
+import { SAVED_WORLD_ENTITY_EXPIRE_DELAY, WORLD_ENTITIES_QUERY_THREAD_SIZE } from './constants'
 
 export class WorldFetcher {
   constructor(
@@ -123,12 +123,12 @@ export class WorldFetcher {
     return summary
   }
 
-  public async processWorldDetail(
+  public processWorldDetail(
     world: World,
     groups: Map<string, GroupEntity> | null,
     fileAssets: Map<string, FileAnalysisResult> | null,
     options?: { ignoreInstances?: boolean; ignorePackages?: boolean }
-  ): Promise<WorldDetail> {
+  ): WorldDetail {
     const detail = toWorldDetail(world)
     const { ignoreInstances = false, ignorePackages = false } = options ?? {}
 
@@ -163,7 +163,7 @@ export class WorldFetcher {
 
     if (!ignorePackages && world.unityPackages) {
       for (const unityPackage of world.unityPackages) {
-        if (!unityPackage.assetUrl || !isSecurityAssetUrl(unityPackage.assetUrl)) {
+        if (!unityPackage.assetUrl || unityPackage.variant !== 'security') {
           continue
         }
 

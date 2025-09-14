@@ -9,7 +9,7 @@ import type {
   WorldFavoriteState,
   WorldStats
 } from '@shared/definition/vrchat-worlds'
-import { isGroupInstance, isSecurityAssetUrl } from './utils'
+import { isGroupInstance } from './utils'
 import { LocationInstanceGroup } from '@shared/definition/vrchat-instances'
 
 export function toWorldEntity(world: World | FavoritedWorld): WorldEntity {
@@ -97,7 +97,7 @@ export function toWorldDetailDependencys(world: World | FavoritedWorld) {
 
   if (world.unityPackages) {
     for (const unityPackage of world.unityPackages) {
-      if (unityPackage.assetUrl && isSecurityAssetUrl(unityPackage.assetUrl)) {
+      if (unityPackage.assetUrl && unityPackage.variant === 'security') {
         assetFiles.push(parseFileUrl(unityPackage.assetUrl))
       }
     }
