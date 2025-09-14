@@ -100,7 +100,7 @@ export interface UserInformation extends UserInformationBase {
   referenceAvatar: ReferenceAvatar
   ageVerified: boolean
   ageVerificationStatus: AgeVerificationStatus
-  joinDate: Date | null
+  registeredAt: Date | null
 }
 
 export interface CurrentUserInformation extends UserInformationBase {
@@ -111,7 +111,7 @@ export interface CurrentUserInformation extends UserInformationBase {
   ageVerified: boolean
   ageVerificationStatus: AgeVerificationStatus
   statusHistory: string[]
-  joinDate: Date | null
+  registeredAt: Date | null
 }
 
 export interface UserLocation {

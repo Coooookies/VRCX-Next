@@ -42,7 +42,7 @@ export function toCurrentUserInformation(user: CurrentUser): CurrentUserInformat
     assignedAt: badge.assignedAt ? new Date(badge.assignedAt) : null
   }))
 
-  const joinDate = user.date_joined ? new Date(user.date_joined) : null
+  const registeredAt = user.date_joined ? new Date(user.date_joined) : null
   const avatarFileInfo = parseFileUrl(user.currentAvatarImageUrl)
   const avatarId = user.currentAvatar
   const avatar: UserAvatar = {
@@ -74,7 +74,7 @@ export function toCurrentUserInformation(user: CurrentUser): CurrentUserInformat
     languages,
     ageVerified: user.ageVerified,
     ageVerificationStatus: user.ageVerificationStatus,
-    joinDate,
+    registeredAt,
     isSupporter: supporter
   }
 }
@@ -100,7 +100,7 @@ export function toUserInformation(user: User): UserInformation {
     assignedAt: badge.assignedAt ? new Date(badge.assignedAt) : null
   }))
 
-  const joinDate = user.date_joined ? new Date(user.date_joined) : null
+  const registeredAt = user.date_joined ? new Date(user.date_joined) : null
   const avatarFileInfo = parseFileUrl(user.currentAvatarImageUrl)
   const referenceAvatar: ReferenceAvatar = {
     imageFileId: avatarFileInfo?.fileId || '',
@@ -129,7 +129,7 @@ export function toUserInformation(user: User): UserInformation {
     languages,
     ageVerified: user.ageVerified,
     ageVerificationStatus: user.ageVerificationStatus,
-    joinDate,
+    registeredAt,
     isSupporter: supporter,
     isFriend: user.isFriend
   }
