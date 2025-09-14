@@ -72,7 +72,7 @@ export const LANGUAGE_ZH_CN: LocaleStructure = {
         active: '在线',
         join_me: '随时欢迎',
         ask_me: '需要许可',
-        busy: '忙碌',
+        busy: '请勿打扰',
         offline: '离线'
       },
       trust_rank: {

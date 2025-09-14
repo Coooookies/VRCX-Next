@@ -72,7 +72,7 @@ export const LANGUAGE_EN_US: LocaleStructure = {
         active: 'Online',
         join_me: 'Join Me',
         ask_me: 'Ask Me',
-        busy: 'Busy',
+        busy: 'Do Not Disturb',
         offline: 'Offline'
       },
       trust_rank: {
