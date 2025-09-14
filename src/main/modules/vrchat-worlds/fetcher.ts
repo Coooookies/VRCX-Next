@@ -94,14 +94,17 @@ export class WorldFetcher {
       return null
     }
 
+    const { groupIds, assetFiles } = toWorldDetailDependencys(world.value.body)
     const entity = toWorldEntity(world.value.body)
     await this.repository.saveEntities(entity)
 
-    const { groupIds, assetFiles } = toWorldDetailDependencys(world.value.body)
-    const groups = !ignoreInstances ? await this.groups.Fetcher.fetchGroupEntities(groupIds) : null
+    const groups = !ignoreInstances
+      ? await this.groups.Fetcher.fetchGroupEntities(groupIds)
+      : undefined
+
     const fileAssets = !ignorePackages
       ? await this.files.Fetcher.fetchFileAnalysis(assetFiles)
-      : null
+      : undefined
 
     return this.processWorldDetail(world.value.body, groups, fileAssets, {
       ignoreInstances,
@@ -129,16 +132,16 @@ export class WorldFetcher {
 
   public processWorldDetail(
     world: World,
-    groups: Map<string, GroupEntity> | null,
-    fileAssets: Map<string, FileAnalysisResult> | null,
+    groups?: Map<string, GroupEntity>,
+    fileAssets?: Map<string, FileAnalysisResult>,
     options?: { ignoreInstances?: boolean; ignorePackages?: boolean }
   ): WorldDetail {
     const detail = toWorldDetail(world)
     const { ignoreInstances = false, ignorePackages = false } = options ?? {}
 
     if (!ignoreInstances && world.instances) {
-      for (const instance of world.instances) {
-        const location = <LocationInstanceSummary>parseInstance(world.id, instance[0])
+      for (const [instanceId, occupant] of world.instances) {
+        const location = <LocationInstanceSummary>parseInstance(world.id, instanceId)
 
         if (location) {
           location.worldName = detail.worldName
@@ -160,7 +163,7 @@ export class WorldFetcher {
 
         detail.instances.push({
           ...location,
-          occupants: +instance[1]
+          occupants: +occupant
         })
       }
     }
