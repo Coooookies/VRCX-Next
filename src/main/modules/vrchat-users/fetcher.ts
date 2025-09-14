@@ -8,12 +8,13 @@ import type { UserEntity } from '../database/entities/users'
 import type { LocationInstance } from '@shared/definition/vrchat-instances'
 import { limitedAllSettled } from '@shared/utils/async'
 import { isGroupInstance } from '../vrchat-worlds/utils'
-import { toUserEntity } from './factory'
+import { toUserEntity, toUserInformation } from './factory'
 import {
   SAVED_USER_ENTITY_EXPIRE_DELAY,
   USER_ENTITIES_QUERY_THREAD_SIZE,
   USERNOTES_QUERY_SIZE
 } from './constants'
+import { UserInformation } from '@shared/definition/vrchat-users'
 
 export class UsersFetcher {
   constructor(
@@ -62,15 +63,15 @@ export class UsersFetcher {
     )
   }
 
-  public async fetchUserEntities(
+  public async fetchUserSummary(
     userId: string,
     ignoreExpiration?: boolean
   ): Promise<UserEntity | null>
-  public async fetchUserEntities(
+  public async fetchUserSummary(
     userIds: string[],
     ignoreExpiration?: boolean
   ): Promise<Map<string, UserEntity>>
-  public async fetchUserEntities(
+  public async fetchUserSummary(
     userIds: string | string[],
     ignoreExpiration?: boolean
   ): Promise<UserEntity | Map<string, UserEntity> | null> {
@@ -126,6 +127,39 @@ export class UsersFetcher {
     }
 
     return Array.isArray(userIds) ? entities : (entities.get(userIds) ?? null)
+  }
+
+  public async fetchUser(userId: string): Promise<UserInformation | null>
+  public async fetchUser(userIds: string[]): Promise<Map<string, UserInformation>>
+  public async fetchUser(
+    userIds: string | string[]
+  ): Promise<UserInformation | Map<string, UserInformation> | null> {
+    if (Array.isArray(userIds) && userIds.length === 0) {
+      return new Map()
+    }
+
+    const _userIds = Array.isArray(userIds) ? userIds : [userIds]
+    const users = new Map<string, UserInformation>()
+    const entities = new Map<string, UserEntity>()
+
+    const result = await limitedAllSettled(
+      _userIds.map((userId) => {
+        return async () => this.api.ref.sessionAPI.users.getUser(userId)
+      }),
+      USER_ENTITIES_QUERY_THREAD_SIZE
+    )
+
+    for (const res of result) {
+      if (res.status === 'fulfilled' && res.value.success) {
+        const detail = toUserInformation(res.value.value.body)
+        const entity = toUserEntity(res.value.value.body)
+        users.set(detail.userId, detail)
+        entities.set(entity.userId, entity)
+      }
+    }
+
+    await this.repository.saveUserEntities([...entities.values()])
+    return Array.isArray(userIds) ? users : (users.get(userIds) ?? null)
   }
 
   public async enrichLocation(location: LocationInstance) {

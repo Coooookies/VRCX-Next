@@ -17,9 +17,9 @@ export class GroupFetcher {
     private readonly api: VRChatAPI
   ) {}
 
-  public async fetchGroupEntities(groupId: string): Promise<GroupEntity | null>
-  public async fetchGroupEntities(groupIds: string[]): Promise<Map<string, GroupEntity>>
-  public async fetchGroupEntities(
+  public async fetchGroupSummary(groupId: string): Promise<GroupEntity | null>
+  public async fetchGroupSummary(groupIds: string[]): Promise<Map<string, GroupEntity>>
+  public async fetchGroupSummary(
     groupIds: string | string[]
   ): Promise<GroupEntity | Map<string, GroupEntity> | null> {
     if (Array.isArray(groupIds) && groupIds.length === 0) {
@@ -76,7 +76,7 @@ export class GroupFetcher {
     }
 
     if ('groupId' in location) {
-      const group = await this.fetchGroupEntities(location.groupId)
+      const group = await this.fetchGroupSummary(location.groupId)
 
       if (group) {
         summary.groupName = group.groupName

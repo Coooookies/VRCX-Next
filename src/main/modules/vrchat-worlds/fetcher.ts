@@ -99,7 +99,7 @@ export class WorldFetcher {
     await this.repository.saveEntities(entity)
 
     const groups = !ignoreInstances
-      ? await this.groups.Fetcher.fetchGroupEntities(groupIds)
+      ? await this.groups.Fetcher.fetchGroupSummary(groupIds)
       : undefined
 
     const fileAssets = !ignorePackages
