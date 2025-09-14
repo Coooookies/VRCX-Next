@@ -27,7 +27,7 @@ export interface WorldDetail {
   favorite: WorldFavoriteState
   instanceContentSettings: InstanceContentSettings
   instances: WorldInstance[]
-  packages: WorldPackage[]
+  packages: WorldPlatformPackages
   capacity: WorldCapacity
   stats: WorldStats
   labsPublicizedAt: Date
@@ -74,4 +74,8 @@ export interface WorldPackage {
   fileSize: number
   uncompressedFileSize: number
   assetVersion: number
+}
+
+export type WorldPlatformPackages = {
+  [key in Platform]?: WorldPackage
 }
