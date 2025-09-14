@@ -16,7 +16,7 @@ import type { User, CurrentUser, LimitedUserFriend } from '@shared/definition/vr
 export function toBaseFriendInformation(
   friend: User | CurrentUser | LimitedUserFriend
 ): BaseFriendInformation {
-  const platform = ('platform' in friend && (friend.platform as Platform)) || Platform.Unknown
+  const platform = ('platform' in friend && <Platform>friend.platform) || Platform.Unknown
   const profileIconUrl = getProfileIconUrl(friend)
   const profileIconFileInfo = parseFileUrl(profileIconUrl)
   const profileBackgroundFileInfo = parseFileUrl(
