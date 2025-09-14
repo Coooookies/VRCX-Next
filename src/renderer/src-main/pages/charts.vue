@@ -13,6 +13,12 @@ const intanceJson = computed(() => {
     : 'null'
 })
 
+const ownerJson = computed(() => {
+  return instance.state.currentInstance.locationOwner
+    ? JSON.stringify(instance.state.currentInstance.locationOwner, null, 2)
+    : 'null'
+})
+
 const worldJson = computed(() => {
   return instance.state.currentInstance.world
     ? JSON.stringify(instance.state.currentInstance.world, null, 2)
@@ -35,6 +41,9 @@ const activitiesJson = computed(() => {
         <p>{{ instance.state.currentInstance.joined }}</p>
         <p class="whitespace-pre-wrap text-xs">{{ intanceJson }}</p>
         <Spinner v-if="instance.state.currentInstance.loading" class="size-5" />
+      </div>
+      <div class="bg-white/5 p-4 rounded-md">
+        <p class="whitespace-pre-wrap text-xs">{{ ownerJson }}</p>
       </div>
       <div class="bg-white/5 p-4 rounded-md">
         <p class="whitespace-pre-wrap text-xs">{{ worldJson }}</p>

@@ -67,7 +67,7 @@ const currentPageTab = ref(pageTabs[0].value)
                     )
                   "
                 >
-                  <CurrentInstanceArrowButton label="Creator" value="RootGentle" />
+                  <CurrentInstanceArrowButton label="Owner" value="RootGentle" />
                 </div>
                 <div
                   :class="
