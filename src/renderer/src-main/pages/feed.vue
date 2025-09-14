@@ -11,6 +11,11 @@ import { Tabs, TabsContent } from '@renderer/shared/components/ui/tabs'
 import type { CurrentInstanceInfoTab } from '../components/current-instance/current-instance-info-tabs.vue'
 import type { CurrentInstancePageTab } from '../components/current-instance/current-instance-page-tabs.vue'
 import CurrentInstanceSearchInput from '../components/current-instance/current-instance-search-input.vue'
+import CurrentInstancePlayerTable from '../components/current-instance/current-instance-player-table.vue'
+import { useModule } from '@renderer/shared/hooks/use-module'
+import type { VRChatInstances } from '@renderer/shared/modules/vrchat-instances'
+
+const instance = useModule<VRChatInstances>('VRChatInstances')
 
 const infoTabs: CurrentInstanceInfoTab[] = [
   { value: 'info-room', label: 'Room' },
@@ -39,7 +44,7 @@ const currentPageTab = ref(pageTabs[0].value)
       >
         <div
           :class="
-            cn('relative w-full pt-21 h-fit z-1', '@5xl:sticky @5xl:top-0 @5xl:w-64', '@7xl:w-70')
+            cn('relative w-full pt-21 h-fit z-2', '@5xl:sticky @5xl:top-0 @5xl:w-64', '@7xl:w-70')
           "
         >
           <div :class="cn('h-12 flex flex-row items-center', '@5xl:h-9')">
@@ -90,79 +95,14 @@ const currentPageTab = ref(pageTabs[0].value)
           </div>
         </div>
         <div :class="cn('relative w-full pb-10 -mt-21', '@5xl:mt-0 @5xl:w-[unset] @5xl:flex-1')">
-          <div class="sticky top-0 pt-21 pb-4 bg-background">
+          <div class="sticky top-0 z-1 pt-21 pb-4 bg-background">
             <div class="flex flex-row justify-between h-9 pl-1">
               <CurrentInstancePageTabs v-model="currentPageTab" :tabs="pageTabs" />
               <CurrentInstanceSearchInput class="w-46 h-full" />
             </div>
           </div>
           <div>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
-            <p>1</p>
+            <CurrentInstancePlayerTable :players="instance.currentInstanceUsers.value" />
           </div>
         </div>
       </div>
