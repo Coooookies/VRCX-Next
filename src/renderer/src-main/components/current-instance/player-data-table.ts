@@ -9,6 +9,7 @@ import { ImageRoot, ImageFallback } from '@renderer/shared/components/ui/image'
 import { RelativeTimerText } from '@renderer/shared/components/timer'
 import type { InstanceUserSummary } from '@shared/definition/vrchat-instances'
 import type { Column, ColumnDef } from '@tanstack/vue-table'
+import { cn } from '@renderer/shared/utils/style'
 
 function createSortHeader(column: Column<InstanceUserSummary>, label: string) {
   const isSorted = column.getIsSorted()
@@ -16,7 +17,7 @@ function createSortHeader(column: Column<InstanceUserSummary>, label: string) {
   return h(
     Button,
     {
-      class: '!pl-2 !pr-1.5 rounded-sm h-7 gap-1',
+      class: cn('!pl-2 rounded-sm h-7 gap-1 duration-0', isSorted ? '!pr-1.5' : '!pr-2'),
       variant: 'ghost',
       size: 'sm',
       onClick: () => {
