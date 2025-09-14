@@ -4,7 +4,8 @@ import type {
   InstanceUserActivity,
   InstanceUserActivitySummary,
   InstanceUserSummary,
-  LocationInstance
+  LocationInstance,
+  LocationOwner
 } from '@shared/definition/vrchat-instances'
 import type { InstanceSharedState } from '@shared/definition/mobx-shared'
 import type { WorldDetail } from '@shared/definition/vrchat-worlds'
@@ -29,19 +30,21 @@ export class InstanceRepository extends Nanobus<{
       moduleId,
       {
         currentInstance: {
-          world: null,
+          loading: false,
           joined: false,
-          locationJoinedAt: null,
+          world: null,
           location: null,
-          loading: false
+          locationOwner: null,
+          locationJoinedAt: null
         }
       },
       [
-        'currentInstance.world',
+        'currentInstance.loading',
         'currentInstance.joined',
-        'currentInstance.locationJoinedAt',
+        'currentInstance.world',
         'currentInstance.location',
-        'currentInstance.loading'
+        'currentInstance.locationOwner',
+        'currentInstance.locationJoinedAt'
       ]
     )
   }
@@ -99,6 +102,12 @@ export class InstanceRepository extends Nanobus<{
     this.mobx.action(() => {
       this.$.currentInstance.location = location
       this.$.currentInstance.locationJoinedAt = joinedAt
+    })
+  }
+
+  public setCurrentInstanceLocationOwner(owner: LocationOwner | null) {
+    this.mobx.action(() => {
+      this.$.currentInstance.locationOwner = owner
     })
   }
 

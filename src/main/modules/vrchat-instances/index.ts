@@ -7,6 +7,7 @@ import type { IPCModule } from '../ipc'
 import type { VRChatLogWatcher } from '../vrchat-log-watcher'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { VRChatWorlds } from '../vrchat-worlds'
+import type { VRChatGroups } from '../vrchat-groups'
 import type { VRChatUsers } from '../vrchat-users'
 import type { MobxState } from '../mobx-state'
 import type { VRChatWorkflowCoordinator } from '../vrchat-workflow-coordinator'
@@ -18,6 +19,7 @@ export class VRChatInstances extends Module {
   @Dependency('VRChatPipeline') declare private pipeline: VRChatPipeline
   @Dependency('VRChatUsers') declare private users: VRChatUsers
   @Dependency('VRChatWorlds') declare private worlds: VRChatWorlds
+  @Dependency('VRChatGroups') declare private groups: VRChatGroups
   @Dependency('VRChatWorkflowCoordinator') declare private workflow: VRChatWorkflowCoordinator
 
   private readonly logger = createLogger(this.moduleId)
@@ -32,7 +34,8 @@ export class VRChatInstances extends Module {
       this.repository,
       this.logWatcher,
       this.users,
-      this.worlds
+      this.worlds,
+      this.groups
     )
     this.ipcBinding = new InstanceIPCBinding(this.ipc, this.repository)
     this.ipcBinding.bindInvokes()
