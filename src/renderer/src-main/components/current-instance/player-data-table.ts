@@ -2,6 +2,7 @@ import ImageVRChatContext from '@renderer/shared/components/image-vrchat-context
 import CurrentInstancePlayerActions from './current-instance-player-actions.vue'
 import CurrentInstancePlayerLanguages from './current-instance-player-languages.vue'
 import { h } from 'vue'
+import { cn } from '@renderer/shared/utils/style'
 import { ChevronDownIcon, ChevronUpIcon, CircleUserRoundIcon } from 'lucide-vue-next'
 import { Button } from '@renderer/shared/components/ui/button'
 import { Skeleton } from '@renderer/shared/components/ui/skeleton'
@@ -9,7 +10,6 @@ import { ImageRoot, ImageFallback } from '@renderer/shared/components/ui/image'
 import { RelativeTimerText } from '@renderer/shared/components/timer'
 import type { InstanceUserSummary } from '@shared/definition/vrchat-instances'
 import type { Column, ColumnDef } from '@tanstack/vue-table'
-import { cn } from '@renderer/shared/utils/style'
 
 function createSortHeader(column: Column<InstanceUserSummary>, label: string) {
   const isSorted = column.getIsSorted()
