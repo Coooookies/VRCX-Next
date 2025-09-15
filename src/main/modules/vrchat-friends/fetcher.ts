@@ -3,7 +3,7 @@ import type { VRChatGroups } from '../vrchat-groups'
 import type { VRChatWorlds } from '../vrchat-worlds'
 import type { VRChatUsers } from '../vrchat-users'
 import type { FriendsRepository } from './repository'
-import type { FriendLoaderProcessHandler } from './types'
+import type { FriendProcessHandler } from './types'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
 import type {
   LocationInstance,
@@ -56,7 +56,7 @@ export class FriendsFetcher {
   private async loadFriends(
     offline: boolean,
     querySize: number,
-    processHandler?: FriendLoaderProcessHandler
+    processHandler?: FriendProcessHandler
   ): Promise<FriendInformation[]> {
     const friends: FriendInformation[] = []
     let startOffset = 0
