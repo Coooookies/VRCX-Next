@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SidebarProfileName from './sidebar-profile-name.vue'
+import ProfileNameParagraph from '@renderer/shared/components/paragraph/profile-name-paragraph.vue'
 import SidebarProfileAvatar from './sidebar-profile-avatar.vue'
 import SidebarProfileStatusLocation from './sidebar-profile-status-location.vue'
 import SidebarProfileStatusText from './sidebar-profile-status-text.vue'
@@ -61,7 +61,8 @@ const emits = defineEmits<{
                 )
               "
             >
-              <SidebarProfileName
+              <ProfileNameParagraph
+                class="font-semibold"
                 :user-name="props.user.displayName"
                 :trust-rank="props.user.trustRank"
               />
