@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { shallowRef } from 'vue'
 import { Dependency, Module } from '@shared/module-constructor'
 import type { IPCRenderer } from './ipc'
 import type { MobxRenderer } from './mobx-renderer'
@@ -9,8 +9,8 @@ export class VRChatInstances extends Module {
   @Dependency('IPCRenderer') declare private ipc: IPCRenderer
   @Dependency('MobxRenderer') declare private mobx: MobxRenderer
 
-  public readonly currentInstanceUsers = ref<InstanceUserSummary[]>([])
-  public readonly currentInstanceUserActivities = ref<InstanceUserActivity[]>([])
+  public readonly currentInstanceUsers = shallowRef<InstanceUserSummary[]>([])
+  public readonly currentInstanceUserActivities = shallowRef<InstanceUserActivity[]>([])
   private $!: InstanceSharedState
 
   protected async onInit() {
@@ -24,12 +24,24 @@ export class VRChatInstances extends Module {
     this.ipc.listener.on(
       'vrchat-instances:current-instance:append-user-activities',
       (_, notifications) => {
-        this.currentInstanceUserActivities.value.push(...notifications)
+        this.currentInstanceUserActivities.value = [
+          ...this.currentInstanceUserActivities.value,
+          ...notifications
+        ]
       }
     )
 
-    this.ipc.listener.on('vrchat-instances:current-instance:append-users', (_, users) => {
-      this.currentInstanceUsers.value.push(...users)
+    this.ipc.listener.on('vrchat-instances:current-instance:insert-users', (_, users) => {
+      this.currentInstanceUsers.value = [...this.currentInstanceUsers.value, ...users]
+    })
+
+    this.ipc.listener.on('vrchat-instances:current-instance:update-users', (_, users) => {
+      const userMap = new Map(users.map((user) => [user.userId, user]))
+
+      // = =
+      this.currentInstanceUsers.value = this.currentInstanceUsers.value.map((user) =>
+        userMap.has(user.userId) ? userMap.get(user.userId)! : user
+      )
     })
 
     this.ipc.listener.on('vrchat-instances:current-instance:remove-users', (_, userId) => {

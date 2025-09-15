@@ -3,6 +3,8 @@ import type { UsersRepository } from './repository'
 import type { VRChatAPI } from '../vrchat-api'
 import type { VRChatWorlds } from '../vrchat-worlds'
 import type { VRChatGroups } from '../vrchat-groups'
+import type { UserEntityProcessHandler, UserProcessHandler } from './types'
+import type { UserInformation } from '@shared/definition/vrchat-users'
 import type { UserNote } from '@shared/definition/vrchat-api-response'
 import type { UserEntity } from '../database/entities/users'
 import type { LocationInstance } from '@shared/definition/vrchat-instances'
@@ -14,7 +16,6 @@ import {
   USER_ENTITIES_QUERY_THREAD_SIZE,
   USERNOTES_QUERY_SIZE
 } from './constants'
-import { UserInformation } from '@shared/definition/vrchat-users'
 
 export class UsersFetcher {
   constructor(
@@ -66,31 +67,45 @@ export class UsersFetcher {
   public async fetchUserSummary(
     userId: string,
     ignoreExpiration?: boolean
-  ): Promise<UserEntity | null>
-  public async fetchUserSummary(
-    userIds: string[],
-    ignoreExpiration?: boolean
-  ): Promise<Map<string, UserEntity>>
-  public async fetchUserSummary(
-    userIds: string | string[],
-    ignoreExpiration?: boolean
-  ): Promise<UserEntity | Map<string, UserEntity> | null> {
-    if (Array.isArray(userIds) && userIds.length === 0) {
-      return new Map()
+  ): Promise<UserEntity | null> {
+    const date = new Date()
+    const entity = await this.repository.getSavedUserEntities(userId)
+
+    if (entity) {
+      const expired =
+        date.getTime() - entity.cacheUpdatedAt!.getTime() > SAVED_USER_ENTITY_EXPIRE_DELAY
+
+      if (ignoreExpiration || !expired) {
+        return entity
+      }
     }
 
-    const _date = new Date()
-    const _userIds = Array.isArray(userIds) ? userIds : [userIds]
+    const { success, value } = await this.api.ref.sessionAPI.users.getUser(userId)
+    this.logger.info(`Fetching ${userId} users entities`)
 
-    // Get entity from cache
-    const entities = await this.repository.getSavedUserEntities(_userIds)
-    const invalidIds = _userIds.filter((id) => {
+    if (success) {
+      const entity = toUserEntity(value.body)
+      await this.repository.saveUserEntities(entity)
+      return entity
+    }
+
+    return null
+  }
+
+  public async fetchUserSummaries(
+    userIds: string[],
+    ignoreExpiration?: boolean,
+    processHandler?: UserEntityProcessHandler
+  ): Promise<Map<string, UserEntity>> {
+    const date = new Date()
+    const entities = await this.repository.getSavedUserEntities(userIds)
+    const invalidIds = userIds.filter((id) => {
       if (!entities.has(id)) {
         return true
       }
 
       const expired =
-        _date.getTime() - entities.get(id)!.cacheUpdatedAt!.getTime() >
+        date.getTime() - entities.get(id)!.cacheUpdatedAt!.getTime() >
         SAVED_USER_ENTITY_EXPIRE_DELAY
 
       if (!ignoreExpiration && expired) {
@@ -100,12 +115,23 @@ export class UsersFetcher {
       return false
     })
 
+    if (entities.size > 0) {
+      processHandler?.([...entities.values()])
+    }
+
     if (invalidIds.length > 0) {
       this.logger.info(`Fetching users entities for IDs: ${invalidIds.join(',')}`)
 
       const result = await limitedAllSettled(
         invalidIds.map((userId) => {
-          return async () => this.api.ref.sessionAPI.users.getUser(userId)
+          return async () => {
+            const result = await this.api.ref.sessionAPI.users.getUser(userId)
+            if (result.success) {
+              processHandler?.([toUserEntity(result.value.body)])
+            }
+
+            return result
+          }
         }),
         USER_ENTITIES_QUERY_THREAD_SIZE
       )
@@ -126,25 +152,39 @@ export class UsersFetcher {
       this.logger.info(`Fetched ${users.length} users entities`)
     }
 
-    return Array.isArray(userIds) ? entities : (entities.get(userIds) ?? null)
+    return entities
   }
 
-  public async fetchUser(userId: string): Promise<UserInformation | null>
-  public async fetchUser(userIds: string[]): Promise<Map<string, UserInformation>>
-  public async fetchUser(
-    userIds: string | string[]
-  ): Promise<UserInformation | Map<string, UserInformation> | null> {
-    if (Array.isArray(userIds) && userIds.length === 0) {
-      return new Map()
+  public async fetchUser(userId: string): Promise<UserInformation | null> {
+    const { success, value } = await this.api.ref.sessionAPI.users.getUser(userId)
+    this.logger.info(`Fetching user information for ID: ${userId}`)
+
+    if (success) {
+      const entity = toUserEntity(value.body)
+      await this.repository.saveUserEntities(entity)
+      return toUserInformation(value.body)
     }
 
-    const _userIds = Array.isArray(userIds) ? userIds : [userIds]
+    return null
+  }
+
+  public async fetchUsers(
+    userIds: string[],
+    processHandler?: UserProcessHandler
+  ): Promise<Map<string, UserInformation>> {
     const users = new Map<string, UserInformation>()
     const entities = new Map<string, UserEntity>()
 
     const result = await limitedAllSettled(
-      _userIds.map((userId) => {
-        return async () => this.api.ref.sessionAPI.users.getUser(userId)
+      userIds.map((userId) => {
+        return async () => {
+          const result = await this.api.ref.sessionAPI.users.getUser(userId)
+          if (result.success) {
+            processHandler?.(toUserInformation(result.value.body))
+          }
+
+          return result
+        }
       }),
       USER_ENTITIES_QUERY_THREAD_SIZE
     )
@@ -159,7 +199,7 @@ export class UsersFetcher {
     }
 
     await this.repository.saveUserEntities([...entities.values()])
-    return Array.isArray(userIds) ? users : (users.get(userIds) ?? null)
+    return users
   }
 
   public async enrichLocation(location: LocationInstance) {
