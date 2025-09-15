@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { columns } from './player-data-table'
 import { cn } from '@renderer/shared/utils/style'
 import { valueUpdater } from '@renderer/shared/components/ui/table/utils'
@@ -57,7 +57,7 @@ const table = useVueTable({
     }
   },
   get data() {
-    return props.players
+    return computed(() => props.players ?? [])
   }
 })
 
