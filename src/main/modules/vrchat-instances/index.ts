@@ -1,6 +1,7 @@
 import { createLogger } from '@main/logger'
 import { Dependency, Module } from '@shared/module-constructor'
 import { CurrentInstance } from './state-current-instance'
+import { InstanceFetcher } from './fetcher'
 import { InstanceRepository } from './repository'
 import { InstanceIPCBinding } from './ipc-binding'
 import type { IPCModule } from '../ipc'
@@ -24,14 +25,17 @@ export class VRChatInstances extends Module {
 
   private readonly logger = createLogger(this.moduleId)
   private repository!: InstanceRepository
+  private fetcher!: InstanceFetcher
   private instance!: CurrentInstance
   private ipcBinding!: InstanceIPCBinding
 
   protected onInit(): void {
     this.repository = new InstanceRepository(this.moduleId, this.mobx)
+    this.fetcher = new InstanceFetcher(this.logger, this.users)
     this.instance = new CurrentInstance(
       this.logger,
       this.repository,
+      this.fetcher,
       this.logWatcher,
       this.users,
       this.worlds,

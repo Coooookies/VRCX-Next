@@ -12,8 +12,12 @@ export class InstanceIPCBinding {
       this.ipc.send('vrchat-instances:current-instance:append-user-activities', activities)
     })
 
-    this.repository.on('current-instance:append-users', (users) => {
-      this.ipc.send('vrchat-instances:current-instance:append-users', users)
+    this.repository.on('current-instance:insert-users', (users) => {
+      this.ipc.send('vrchat-instances:current-instance:insert-users', users)
+    })
+
+    this.repository.on('current-instance:update-users', (users) => {
+      this.ipc.send('vrchat-instances:current-instance:update-users', users)
     })
 
     this.repository.on('current-instance:remove-users', (userId) => {

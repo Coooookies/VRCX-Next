@@ -11,7 +11,8 @@ import type { InstanceSharedState } from '@shared/definition/mobx-shared'
 import type { WorldDetail } from '@shared/definition/vrchat-worlds'
 
 export class InstanceRepository extends Nanobus<{
-  'current-instance:append-users': (users: InstanceUserSummary[]) => void
+  'current-instance:insert-users': (users: InstanceUserSummary[]) => void
+  'current-instance:update-users': (users: InstanceUserSummary[]) => void
   'current-instance:append-user-activities': (activities: InstanceUserActivity[]) => void
   'current-instance:remove-users': (userId: string) => void
   'current-instance:clear-users': () => void
@@ -49,13 +50,29 @@ export class InstanceRepository extends Nanobus<{
     )
   }
 
-  public appendCurrentInstanceUser(user: InstanceUserSummary | InstanceUserSummary[]) {
+  public upsertCurrentInstanceUser(user: InstanceUserSummary | InstanceUserSummary[]) {
     const users = Array.isArray(user) ? user : [user]
+    const pendingInsertUsers: InstanceUserSummary[] = []
+    const pendingUpdateUsers: InstanceUserSummary[] = []
+
     for (const currentUser of users) {
+      if (this.currentInstanceUsers.has(currentUser.userId)) {
+        pendingUpdateUsers.push(currentUser)
+      } else {
+        pendingInsertUsers.push(currentUser)
+      }
+
+      // Upsert the user in the repository
       this.currentInstanceUsers.set(currentUser.userId, currentUser)
     }
 
-    this.emit('current-instance:append-users', users)
+    if (pendingInsertUsers.length > 0) {
+      this.emit('current-instance:insert-users', pendingInsertUsers)
+    }
+
+    if (pendingUpdateUsers.length > 0) {
+      this.emit('current-instance:update-users', pendingUpdateUsers)
+    }
   }
 
   public removeCurrentInstanceUser(userId: string) {

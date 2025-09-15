@@ -1,6 +1,7 @@
 import Nanobus from 'nanobus'
 import { debounce } from 'lodash'
 import { parseLocation } from '../vrchat-worlds/location-parser'
+import { toUserInformationSummary } from '../vrchat-users/factory'
 import { LogEvents } from '../vrchat-log-watcher/types'
 import {
   InstanceUserActivityType,
@@ -18,8 +19,10 @@ import type {
 import type { VRChatLogWatcher } from '../vrchat-log-watcher'
 import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatWorlds } from '../vrchat-worlds'
+import type { VRChatGroups } from '../vrchat-groups'
 import type { LoggerFactory } from '@main/logger'
 import type { WorldDetail } from '@shared/definition/vrchat-worlds'
+import type { InstanceFetcher } from './fetcher'
 import type { InstanceRepository } from './repository'
 import type { InstanceUser, InstanceUserActivity } from '@shared/definition/vrchat-instances'
 import type {
@@ -29,8 +32,6 @@ import type {
   LogEventSelfJoin,
   LogEventSummary
 } from '../vrchat-log-watcher/types'
-import { toUserInformationSummary } from '../vrchat-users/factory'
-import { VRChatGroups } from '../vrchat-groups'
 
 interface InstanceData {
   location: LocationInstance
@@ -47,7 +48,7 @@ export class CurrentInstance extends Nanobus<{
   'instance:joined': (location: LocationInstance) => void
   'instance:world-summary-initialized': (detail: WorldDetail | null) => void
   'instance:owner-summary-initialized': (detail: LocationOwner | null) => void
-  'instance:present-initialized': (
+  'instance:present-progress': (
     users: InstanceUserSummary[],
     activities: InstanceUserActivitySummary[]
   ) => void
@@ -69,6 +70,7 @@ export class CurrentInstance extends Nanobus<{
   constructor(
     private readonly logger: LoggerFactory,
     private readonly repository: InstanceRepository,
+    private readonly fetcher: InstanceFetcher,
     private readonly logWatcher: VRChatLogWatcher,
     private readonly users: VRChatUsers,
     private readonly world: VRChatWorlds,
@@ -106,7 +108,7 @@ export class CurrentInstance extends Nanobus<{
       )
     })
 
-    this.on('instance:present-initialized', (users) => {
+    this.on('instance:present-progress', (users) => {
       this.logger.info(
         'Users in instance:',
         users.map((user) => `${user.userName}(${user.userId})`).join(',')
@@ -282,26 +284,6 @@ export class CurrentInstance extends Nanobus<{
     this.repository.setCurrentInstanceLoading(false)
   }
 
-  private async resolveUserSummaries(roomUserIds: string[], activitiesUserIds: string[]) {
-    const roomUsers = await this.users.Fetcher.fetchUser(roomUserIds)
-
-    const activitiesIds = activitiesUserIds.filter((id) => !roomUsers.has(id))
-    const activitiesUsers = await this.users.Fetcher.fetchUserSummary(activitiesIds)
-
-    for (const userId of activitiesUserIds) {
-      if (!activitiesUsers.has(userId) && roomUsers.has(userId)) {
-        const user = roomUsers.get(userId)!
-        const entity = toUserInformationSummary(user)
-        activitiesUsers.set(userId, entity)
-      }
-    }
-
-    return {
-      roomUsers,
-      activitiesUsers
-    }
-  }
-
   private async processWorldSummary(worldId: string) {
     const detail = await this.world.Fetcher.fetchWorld(worldId, {
       ignoreInstances: true
@@ -346,27 +328,22 @@ export class CurrentInstance extends Nanobus<{
     this.emit('instance:owner-summary-initialized', owner)
   }
 
-  private async processInitialUsers(
-    users: InstanceUser[],
-    activities: InstanceUserActivity[]
-  ): Promise<void> {
-    const roomIds = users.map((user) => user.userId)
-    const activitiesIds = activities.map((activity) => activity.userId)
-    const { roomUsers, activitiesUsers } = await this.resolveUserSummaries(roomIds, activitiesIds)
+  private async processInitialUsers(users: InstanceUser[], activities: InstanceUserActivity[]) {
+    // preset null user to avoid flickering
+    this.repository.upsertCurrentInstanceUser(users.map((u) => ({ ...u, user: null })))
 
-    const usersSummaries = users.map((user) => ({
-      ...user,
-      user: roomUsers.get(user.userId) || null
-    }))
+    // fetch users and activities
+    const { usersSummaries, activitiesSummaries } = await this.fetcher.fetchInstancePresent(
+      users,
+      activities,
+      (users, activities) => {
+        this.repository.upsertCurrentInstanceUser(users)
+        this.emit('instance:present-progress', users, activities)
+      }
+    )
 
-    const activitiesSummaries = activities.map((activity) => ({
-      ...activity,
-      userSummary: activitiesUsers.get(activity.userId) || null
-    }))
-
-    this.repository.appendCurrentInstanceUser(usersSummaries)
+    this.repository.upsertCurrentInstanceUser(usersSummaries)
     this.repository.appendCurrentInstanceUserActivity(activitiesSummaries)
-    this.emit('instance:present-initialized', usersSummaries, activitiesSummaries)
   }
 
   private async processCacheEvents() {
@@ -474,6 +451,13 @@ export class CurrentInstance extends Nanobus<{
     user: Pick<InstanceUser, 'userId' | 'userName'>,
     context: LogEventContext
   ): Promise<void> {
+    // preset null user to avoid flickering
+    this.repository.upsertCurrentInstanceUser({
+      ...user,
+      joinedAt: context.date,
+      user: null
+    })
+
     const userInformation = await this.users.Fetcher.fetchUser(user.userId)
     const userSummary = userInformation ? toUserInformationSummary(userInformation) : null
 
@@ -496,7 +480,7 @@ export class CurrentInstance extends Nanobus<{
         : InstanceUserActivityType.Present
     }
 
-    this.repository.appendCurrentInstanceUser(roomUserSummary)
+    this.repository.upsertCurrentInstanceUser(roomUserSummary)
     this.repository.appendCurrentInstanceUserActivity(activityUserSummary)
     this.emit('user:joined', roomUserSummary)
     this.emit('user:activity', activityUserSummary)
