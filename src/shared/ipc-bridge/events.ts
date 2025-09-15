@@ -32,7 +32,8 @@ export type IpcRendererEvent = {
 
   // VRChatInstances
   'vrchat-instances:current-instance:append-user-activities': [activities: InstanceUserActivity[]]
-  'vrchat-instances:current-instance:append-users': [users: InstanceUserSummary[]]
+  'vrchat-instances:current-instance:insert-users': [users: InstanceUserSummary[]]
+  'vrchat-instances:current-instance:update-users': [users: InstanceUserSummary[]]
   'vrchat-instances:current-instance:remove-users': [userId: string]
   'vrchat-instances:current-instance:clear-users': []
   'vrchat-instances:current-instance:clear-user-activities': []
