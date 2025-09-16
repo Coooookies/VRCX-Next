@@ -17,7 +17,7 @@ const props = defineProps<{
 }>()
 
 const isPhone = computed(() => {
-  return props.platform === Platform.Android
+  return props.platform === Platform.Android || props.platform === Platform.IOS
 })
 
 const UserStatusTextColors: Record<UserStatus, string> = {
