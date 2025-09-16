@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import InstanceFriendAvatarMask from '@shared/assets/vector/instance-friend-avatar-mask.svg?url'
+import InstanceOwnerAvatarMask from '@shared/assets/vector/instance-owner-avatar-mask.svg?url'
 import { computed, ref } from 'vue'
-import { columns } from './player-data-table'
 import { cn } from '@renderer/shared/utils/style'
+import { baseSortingState, columns } from './player-data-table'
 import { valueUpdater } from '@renderer/shared/components/ui/table/utils'
 import {
   FlexRender,
@@ -20,21 +22,32 @@ import {
   TableRow
 } from '@renderer/shared/components/ui/table'
 import type { ColumnFiltersState, SortingState, VisibilityState } from '@tanstack/vue-table'
-import type { InstanceUserSummary } from '@shared/definition/vrchat-instances'
+import type { InstancePlayer } from '@renderer/src-main/composables/current-instance'
 import type { TableColumnMeta } from './types'
 
+const friendAvatarMask = `url("${InstanceFriendAvatarMask}")`
+const ownerAvatarMask = `url("${InstanceOwnerAvatarMask}")`
+
 const props = defineProps<{
-  players: InstanceUserSummary[]
+  players: InstancePlayer[]
 }>()
 
 const columnFilters = ref<ColumnFiltersState>([])
-const columnVisibility = ref<VisibilityState>({})
+const columnVisibility = ref<VisibilityState>({
+  isFriend: false,
+  isOwner: false
+})
+
 const rowSorting = ref<SortingState>([
   {
     id: 'joinedAt',
     desc: true
   }
 ])
+
+const rowComputedSorting = computed(() => {
+  return [...baseSortingState, ...rowSorting.value]
+})
 
 const table = useVueTable({
   getCoreRowModel: getCoreRowModel(),
@@ -47,7 +60,7 @@ const table = useVueTable({
   columns,
   state: {
     get sorting() {
-      return rowSorting.value
+      return rowComputedSorting.value
     },
     get columnFilters() {
       return columnFilters.value
@@ -67,7 +80,14 @@ const metaWrapper = (meta: unknown) => {
 </script>
 
 <template>
-  <Table class="table-fixed" container-class="h-fit">
+  <Table
+    class="table-fixed"
+    container-class="h-fit"
+    :style="{
+      '--mask-instance-friend-avatar': friendAvatarMask,
+      '--mask-instance-owner-avatar': ownerAvatarMask
+    }"
+  >
     <TableHeader class="sticky top-34 z-1">
       <TableRow
         v-for="headerGroup in table.getHeaderGroups()"

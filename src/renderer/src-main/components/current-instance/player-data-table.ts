@@ -1,20 +1,20 @@
-import ImageVRChatContext from '@renderer/shared/components/image-vrchat-context.vue'
+import PhoneIcon from '@shared/assets/vector/profile-icon-phone.svg?component'
 import ProfileNameParagraph from '@renderer/shared/components/paragraph/profile-name-paragraph.vue'
 import CurrentInstancePlayerActions from './current-instance-player-actions.vue'
+import CurrentInstancePlayerAvatar from './current-instance-player-avatar.vue'
 import CurrentInstancePlayerLanguages from './current-instance-player-languages.vue'
+import CurrentInstancePlayerSocialLinks from './current-instance-player-social-links.vue'
 import { h } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
-import { ChevronDownIcon, ChevronUpIcon, CircleUserRoundIcon } from 'lucide-vue-next'
+import { ChevronDownIcon, ChevronUpIcon } from 'lucide-vue-next'
 import { Button } from '@renderer/shared/components/ui/button'
-import { Skeleton } from '@renderer/shared/components/ui/skeleton'
-import { ImageRoot, ImageFallback } from '@renderer/shared/components/ui/image'
 import { RelativeTimerText } from '@renderer/shared/components/timer'
 import { UserTrustRank } from '@shared/definition/vrchat-users'
-import type { InstanceUserSummary } from '@shared/definition/vrchat-instances'
-import type { Column, ColumnDef } from '@tanstack/vue-table'
-import CurrentInstancePlayerSocialLinks from './current-instance-player-social-links.vue'
+import type { Column, ColumnDef, SortingState } from '@tanstack/vue-table'
+import type { InstancePlayer } from '@renderer/src-main/composables/current-instance'
+import { Platform } from '@shared/definition/vrchat-api-response-replenish'
 
-function createSortHeader(column: Column<InstanceUserSummary>, label: string) {
+function createSortHeader(column: Column<InstancePlayer>, label: string) {
   const isSorted = column.getIsSorted()
 
   return h(
@@ -36,7 +36,7 @@ function createSortHeader(column: Column<InstanceUserSummary>, label: string) {
   )
 }
 
-export const columns: ColumnDef<InstanceUserSummary>[] = [
+export const columns: ColumnDef<InstancePlayer>[] = [
   {
     id: 'profileIcon',
     meta: {
@@ -46,48 +46,38 @@ export const columns: ColumnDef<InstanceUserSummary>[] = [
     },
     cell: ({ row }) =>
       h('div', { class: 'flex items-center justify-center' }, [
-        h(
-          ImageRoot,
-          {
-            class: 'block size-6 rounded-full overflow-hidden',
-            key: `${row.original.user?.profileIconFileId}-${row.original.user?.profileIconFileVersion}
-            
-            
-            `
-          },
-          () => [
-            row.original.user?.profileIconFileId && row.original.user?.profileIconFileVersion
-              ? h(ImageVRChatContext, {
-                  class: 'size-full object-cover',
-                  fileId: row.original.user.profileIconFileId,
-                  version: row.original.user.profileIconFileVersion
-                })
-              : null,
-            h(
-              ImageFallback,
-              { class: 'size-full bg-muted/50 flex items-center justify-center' },
-              {
-                default: () => h(CircleUserRoundIcon, { class: 'size-4 text-muted-foreground' }),
-                loading: () => h(Skeleton, { class: 'size-full' })
-              }
-            )
-          ]
-        )
+        h(CurrentInstancePlayerAvatar, {
+          fileId: row.original.user?.profileIconFileId,
+          version: row.original.user?.profileIconFileVersion,
+          isFriend: row.original.isFriend,
+          isOwner: row.original.isOwner
+        })
       ])
+  },
+  {
+    accessorKey: 'isOwner'
+  },
+  {
+    accessorKey: 'isFriend'
   },
   {
     accessorKey: 'userName',
     header: ({ column }) => createSortHeader(column, 'Player Name'),
-    cell: ({ row }) =>
-      h('div', { class: 'px-2 flex flex-row items-center' }, [
+    cell: ({ row }) => {
+      const isPhone =
+        row.original.user?.platform === Platform.Android ||
+        row.original.user?.platform === Platform.IOS
+
+      return h('div', { class: 'px-2 flex flex-row items-center gap-1.5 overflow-hidden' }, [
         h(ProfileNameParagraph, {
-          class: 'text-[13px] font-semibold',
+          class: 'text-[13px] font-semibold truncate',
           userName: row.original.userName,
           trustRank: row.original.user?.trustRank || UserTrustRank.Visitor,
           as: 'span'
-        })
-        // h('span', { class: 'text-xs' }, 'Email')
+        }),
+        isPhone && h(PhoneIcon, { class: 'text-muted-foreground/50 size-3 shrink-0' })
       ])
+    }
   },
   {
     id: 'links',
@@ -163,5 +153,16 @@ export const columns: ColumnDef<InstanceUserSummary>[] = [
         h(CurrentInstancePlayerActions)
       )
     }
+  }
+]
+
+export const baseSortingState: SortingState = [
+  {
+    id: 'isOwner',
+    desc: true
+  },
+  {
+    id: 'isFriend',
+    desc: true
   }
 ]

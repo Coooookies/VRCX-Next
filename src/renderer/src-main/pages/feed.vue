@@ -12,10 +12,12 @@ import type { CurrentInstanceInfoTab } from '../components/current-instance/curr
 import type { CurrentInstancePageTab } from '../components/current-instance/current-instance-page-tabs.vue'
 import CurrentInstanceSearchInput from '../components/current-instance/current-instance-search-input.vue'
 import CurrentInstancePlayerTable from '../components/current-instance/current-instance-player-table.vue'
-import { useModule } from '@renderer/shared/hooks/use-module'
-import type { VRChatInstances } from '@renderer/shared/modules/vrchat-instances'
+// import { useModule } from '@renderer/shared/hooks/use-module'
+// import type { VRChatInstances } from '@renderer/shared/modules/vrchat-instances'
+import { useCurrentInstance } from '../composables/current-instance'
 
-const instance = useModule<VRChatInstances>('VRChatInstances')
+// const instance = useModule<VRChatInstances>('VRChatInstances')
+const { instancePlayers } = useCurrentInstance()
 
 const infoTabs: CurrentInstanceInfoTab[] = [
   { value: 'info-room', label: 'Room' },
@@ -102,7 +104,7 @@ const currentPageTab = ref(pageTabs[0].value)
             </div>
           </div>
           <div>
-            <CurrentInstancePlayerTable :players="instance.currentInstanceUsers.value" />
+            <CurrentInstancePlayerTable :players="instancePlayers" />
           </div>
         </div>
       </div>
