@@ -26,6 +26,7 @@ export interface FriendSharedState {
 
 export interface InstanceSharedState {
   currentInstance: {
+    recordId: string | null
     loading: boolean
     joined: boolean
     world: WorldDetail | null
