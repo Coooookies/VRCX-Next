@@ -84,7 +84,7 @@ export class UsersRepository extends Nanobus<{
       }
     })
 
-    if (Array.isArray(pendingUserId)) {
+    if (Array.isArray(userIds)) {
       const entityMap = new Map<string, UserEntity>()
       for (const entity of savedEntities) {
         entityMap.set(entity.userId, entity)

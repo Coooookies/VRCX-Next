@@ -307,10 +307,16 @@ export class CurrentInstance extends Nanobus<{
       case LocationInstanceUserType.FriendsPlus:
       case LocationInstanceUserType.Invite:
       case LocationInstanceUserType.InvitePlus: {
+        console.log(location.userId)
+        console.log(location.userId)
+        console.log(location.userId)
         owner = {
           type: 'user',
           summary: await this.users.Fetcher.fetchUserSummary(location.userId)
         }
+        console.log(location.userId)
+        console.log(location.userId)
+        console.log(location.userId)
         break
       }
       case LocationInstanceGroupType.Group:
