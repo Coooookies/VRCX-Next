@@ -40,7 +40,20 @@ export default defineConfig({
     },
     plugins: [
       vue(),
-      svgLoader(),
+      svgLoader({
+        svgo: true,
+        svgoConfig: {
+          plugins: [
+            {
+              name: 'prefixIds',
+              params: {
+                delim: '',
+                prefix: () => `svg-`
+              }
+            }
+          ]
+        }
+      }),
       tailwindcss(),
       visualizer({
         open: true,
