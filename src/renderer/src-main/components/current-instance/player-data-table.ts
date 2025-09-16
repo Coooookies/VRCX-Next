@@ -62,6 +62,11 @@ export const columns: ColumnDef<InstancePlayer>[] = [
   },
   {
     accessorKey: 'userName',
+    meta: {
+      class: {
+        th: 'w-full'
+      }
+    },
     header: ({ column }) => createSortHeader(column, 'Player Name'),
     cell: ({ row }) => {
       const isPhone =
@@ -90,7 +95,7 @@ export const columns: ColumnDef<InstancePlayer>[] = [
       h(
         'div',
         {
-          class: 'px-2'
+          class: 'px-2 flex flex-row items-center'
         },
         h('span', { class: 'text-xs' }, 'Links')
       ),
@@ -112,7 +117,7 @@ export const columns: ColumnDef<InstancePlayer>[] = [
       h(
         'div',
         {
-          class: 'px-2'
+          class: 'px-2 flex flex-row items-center'
         },
         h('span', { class: 'text-xs' }, 'Locale')
       ),

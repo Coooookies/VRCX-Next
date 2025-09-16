@@ -81,8 +81,8 @@ const metaWrapper = (meta: unknown) => {
 
 <template>
   <Table
-    class="table-fixed"
-    container-class="h-fit"
+    class="table-fixed w-full"
+    container-class="w-full h-fit"
     :style="{
       '--mask-instance-friend-avatar': friendAvatarMask,
       '--mask-instance-owner-avatar': ownerAvatarMask
