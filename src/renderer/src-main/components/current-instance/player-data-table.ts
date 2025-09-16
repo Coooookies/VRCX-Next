@@ -12,6 +12,7 @@ import { RelativeTimerText } from '@renderer/shared/components/timer'
 import { UserTrustRank } from '@shared/definition/vrchat-users'
 import type { InstanceUserSummary } from '@shared/definition/vrchat-instances'
 import type { Column, ColumnDef } from '@tanstack/vue-table'
+import CurrentInstancePlayerSocialLinks from './current-instance-player-social-links.vue'
 
 function createSortHeader(column: Column<InstanceUserSummary>, label: string) {
   const isSorted = column.getIsSorted()
@@ -86,6 +87,28 @@ export const columns: ColumnDef<InstanceUserSummary>[] = [
           as: 'span'
         })
         // h('span', { class: 'text-xs' }, 'Email')
+      ])
+  },
+  {
+    id: 'links',
+    meta: {
+      class: {
+        th: 'w-30'
+      }
+    },
+    header: () =>
+      h(
+        'div',
+        {
+          class: 'px-2'
+        },
+        h('span', { class: 'text-xs' }, 'Links')
+      ),
+    cell: ({ row }) =>
+      h('div', { class: 'px-2' }, [
+        h(CurrentInstancePlayerSocialLinks, {
+          links: row.original.user?.bioLinks || []
+        })
       ])
   },
   {

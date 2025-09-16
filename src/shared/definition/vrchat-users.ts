@@ -64,6 +64,32 @@ export const UserLanguage = {
 
 export type UserLanguage = (typeof UserLanguage)[keyof typeof UserLanguage]
 
+export const UserSocial = {
+  Pixiv: 'pixiv',
+  Bilibili: 'bilibili',
+  Booth: 'booth',
+  Youtube: 'youtube',
+  Discord: 'discord',
+  QQ: 'qq',
+  Telegram: 'telegram',
+  Steam: 'steam',
+  X: 'x',
+  Github: 'github',
+  Tiktok: 'tiktok',
+  Facebook: 'facebook',
+  Reddit: 'reddit',
+  Instagram: 'instagram',
+  Twitch: 'twitch',
+  Vimeo: 'vimeo',
+  Weibo: 'weibo',
+  Line: 'line',
+  Niconico: 'niconico',
+  Patreon: 'patreon',
+  Other: 'other'
+} as const
+
+export type UserSocial = (typeof UserSocial)[keyof typeof UserSocial]
+
 export interface UserSummary {
   userId: string
   profileIconFileId: string
