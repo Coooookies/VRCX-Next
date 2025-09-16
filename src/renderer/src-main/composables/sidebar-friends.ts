@@ -10,7 +10,7 @@ import {
 import {
   LOCATION_TYPE_TRANSLATE_KEY,
   STATUS_PRIORITY
-} from '@renderer/shared/constants/locate-mapping'
+} from '@renderer/shared/constants/locale-mapping'
 import type { VRChatFriends } from '@renderer/shared/modules/vrchat-friends'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
 import type { FunctionalComponent } from 'vue'

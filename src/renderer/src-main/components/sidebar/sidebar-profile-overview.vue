@@ -12,7 +12,7 @@ import { useI18n } from '@renderer/shared/locale'
 import { Button } from '@renderer/shared/components/ui/button'
 import { HoverCard, HoverCardTrigger } from '@renderer/shared/components/ui/hover-card'
 import { ContextMenu, ContextMenuTrigger } from '@renderer/shared/components/ui/context-menu'
-import { STATUS_TRANSLATE_KEY } from '@renderer/shared/constants/locate-mapping'
+import { STATUS_TRANSLATE_KEY } from '@renderer/shared/constants/locale-mapping'
 import type { CurrentUserInformation, UserLocation } from '@shared/definition/vrchat-users'
 
 const { t } = useI18n()

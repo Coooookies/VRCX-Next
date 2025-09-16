@@ -14,7 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@renderer/shared/components/ui/tooltip'
-import { NOTIFICATION_V2_RESPONSE_TEXTKEY } from '@renderer/shared/constants/locate-mapping'
+import { NOTIFICATION_V2_RESPONSE_TEXTKEY } from '@renderer/shared/constants/locale-mapping'
 import type { NotificationBaseProps } from './types'
 import type { NotificationGlobalRawInformation } from '@shared/definition/vrchat-notifications'
 import type { NotificationV2ResponseType } from '@shared/definition/vrchat-api-response'
