@@ -31,6 +31,7 @@ export class InstanceRepository extends Nanobus<{
       moduleId,
       {
         currentInstance: {
+          recordId: null,
           loading: false,
           joined: false,
           world: null,
@@ -40,6 +41,7 @@ export class InstanceRepository extends Nanobus<{
         }
       },
       [
+        'currentInstance.recordId',
         'currentInstance.loading',
         'currentInstance.joined',
         'currentInstance.world',
@@ -62,7 +64,6 @@ export class InstanceRepository extends Nanobus<{
         pendingInsertUsers.push(currentUser)
       }
 
-      // Upsert the user in the repository
       this.currentInstanceUsers.set(currentUser.userId, currentUser)
     }
 
@@ -102,8 +103,11 @@ export class InstanceRepository extends Nanobus<{
     this.clearCurrentInstanceUsers()
     this.clearCurrentInstanceUserActivities()
     this.mobx.action(() => {
+      this.$.currentInstance.recordId = null
+      this.$.currentInstance.joined = false
       this.$.currentInstance.world = null
       this.$.currentInstance.location = null
+      this.$.currentInstance.locationOwner = null
       this.$.currentInstance.locationJoinedAt = null
       this.$.currentInstance.loading = false
     })
@@ -137,6 +141,12 @@ export class InstanceRepository extends Nanobus<{
   public setCurrentInstanceJoined(joined: boolean) {
     this.mobx.action(() => {
       this.$.currentInstance.joined = joined
+    })
+  }
+
+  public setCurrentInstanceRecordId(recordId: string | null) {
+    this.mobx.action(() => {
+      this.$.currentInstance.recordId = recordId
     })
   }
 

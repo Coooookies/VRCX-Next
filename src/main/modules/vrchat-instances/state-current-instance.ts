@@ -1,7 +1,8 @@
 import Nanobus from 'nanobus'
 import { debounce } from 'lodash'
-import { parseLocation } from '../vrchat-worlds/location-parser'
 import { toUserInformationSummary } from '../vrchat-users/factory'
+import { parseLocation } from '../vrchat-worlds/location-parser'
+import { generateInstanceRecordId } from './utils'
 import { LogEvents } from '../vrchat-log-watcher/types'
 import {
   InstanceUserActivityType,
@@ -20,7 +21,6 @@ import type { VRChatLogWatcher } from '../vrchat-log-watcher'
 import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatWorlds } from '../vrchat-worlds'
 import type { VRChatGroups } from '../vrchat-groups'
-import type { LoggerFactory } from '@main/logger'
 import type { WorldDetail } from '@shared/definition/vrchat-worlds'
 import type { InstanceFetcher } from './fetcher'
 import type { InstanceRepository } from './repository'
@@ -35,7 +35,7 @@ import type {
 
 interface InstanceData {
   location: LocationInstance
-  joinedAt: Date | null
+  joinedAt: Date
   leftAt: Date | null
   isLeft: boolean
   isCurrentUserInInstance: boolean
@@ -49,6 +49,10 @@ export class CurrentInstance extends Nanobus<{
   'instance:world-summary-initialized': (detail: WorldDetail | null) => void
   'instance:owner-summary-initialized': (detail: LocationOwner | null) => void
   'instance:present-progress': (
+    users: InstanceUserSummary[],
+    activities: InstanceUserActivitySummary[]
+  ) => void
+  'instance:present-loaded': (
     users: InstanceUserSummary[],
     activities: InstanceUserActivitySummary[]
   ) => void
@@ -68,7 +72,6 @@ export class CurrentInstance extends Nanobus<{
   }, INSTANCE_USERS_INITIAL_BATCH_DELAY)
 
   constructor(
-    private readonly logger: LoggerFactory,
     private readonly repository: InstanceRepository,
     private readonly fetcher: InstanceFetcher,
     private readonly logWatcher: VRChatLogWatcher,
@@ -91,43 +94,6 @@ export class CurrentInstance extends Nanobus<{
       }
 
       this.handleMessage(data, context)
-    })
-
-    this.on('instance:joined', (location) => {
-      this.logger.info(`Joined instance:`, location.location)
-    })
-
-    this.on('instance:left', () => {
-      this.logger.info('Left instance')
-    })
-
-    this.on('instance:world-summary-initialized', (summary) => {
-      this.logger.info(
-        `World summary initialized:`,
-        `${summary?.worldName || 'Unknown'}(${this.repository.State.currentInstance.location?.location})`
-      )
-    })
-
-    this.on('instance:present-progress', (users) => {
-      this.logger.info(
-        'Users in instance:',
-        users.map((user) => `${user.userName}(${user.userId})`).join(',')
-      )
-    })
-
-    this.on('user:joined', (user) => {
-      this.logger.info('User joined:', `${user.userName}(${user.userId})`)
-    })
-
-    this.on('user:left', (userId) => {
-      this.logger.info('User left:', userId)
-    })
-
-    this.on('user:activity', (activity) => {
-      this.logger.info(
-        'User activity:',
-        `${activity.userName}(${activity.userId}) - ${activity.type}`
-      )
     })
   }
 
@@ -203,7 +169,7 @@ export class CurrentInstance extends Nanobus<{
       }
     }
 
-    return location
+    return location && joinedAt
       ? {
           location,
           joinedAt,
@@ -271,7 +237,9 @@ export class CurrentInstance extends Nanobus<{
 
   private async initializeInstance(instance: InstanceData): Promise<void> {
     const { location, users, userActivities, joinedAt } = instance
+    const recordId = generateInstanceRecordId(location.worldId, location.name, joinedAt)
 
+    this.repository.setCurrentInstanceRecordId(recordId)
     this.repository.setCurrentInstanceLoading(true)
     this.repository.setCurrentInstanceLocation(location, joinedAt)
     this.repository.setCurrentInstanceJoined(true)
@@ -307,16 +275,10 @@ export class CurrentInstance extends Nanobus<{
       case LocationInstanceUserType.FriendsPlus:
       case LocationInstanceUserType.Invite:
       case LocationInstanceUserType.InvitePlus: {
-        console.log(location.userId)
-        console.log(location.userId)
-        console.log(location.userId)
         owner = {
           type: 'user',
           summary: await this.users.Fetcher.fetchUserSummary(location.userId)
         }
-        console.log(location.userId)
-        console.log(location.userId)
-        console.log(location.userId)
         break
       }
       case LocationInstanceGroupType.Group:
@@ -350,6 +312,7 @@ export class CurrentInstance extends Nanobus<{
 
     this.repository.upsertCurrentInstanceUser(usersSummaries)
     this.repository.appendCurrentInstanceUserActivity(activitiesSummaries)
+    this.emit('instance:present-loaded', usersSummaries, activitiesSummaries)
   }
 
   private async processCacheEvents() {
@@ -405,11 +368,14 @@ export class CurrentInstance extends Nanobus<{
       return
     }
 
+    const recordId = generateInstanceRecordId(location.worldId, location.name, context.date)
+
     this.isInitialBatchMode = true
     this.isCurrentUserInInstance = false
     this.isPending = false
 
     this.repository.clearCurrentInstance()
+    this.repository.setCurrentInstanceRecordId(recordId)
     this.repository.setCurrentInstanceLoading(true)
     this.repository.setCurrentInstanceLocation(location, context.date)
     this.repository.setCurrentInstanceJoined(true)
@@ -556,5 +522,9 @@ export class CurrentInstance extends Nanobus<{
 
   public get location(): LocationInstance | null {
     return this.repository.State.currentInstance.location
+  }
+
+  public get recordId(): string | null {
+    return this.repository.State.currentInstance.recordId
   }
 }

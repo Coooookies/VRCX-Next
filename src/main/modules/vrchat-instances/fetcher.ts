@@ -5,14 +5,10 @@ import type {
   InstanceUserActivity,
   InstanceUserActivitySummary
 } from '@shared/definition/vrchat-instances'
-import type { LoggerFactory } from '@main/logger'
 import { toUserInformationSummary } from '../vrchat-users/factory'
 
 export class InstanceFetcher {
-  constructor(
-    private readonly logger: LoggerFactory,
-    private readonly users: VRChatUsers
-  ) {}
+  constructor(private readonly users: VRChatUsers) {}
 
   public async fetchInstancePresent(
     users: InstanceUser[],
@@ -40,7 +36,6 @@ export class InstanceFetcher {
             user
           }
 
-          this.logger.debug('Instance User Fetched:', user.displayName, user.userId)
           processHandler([summary], [])
         }
       }
@@ -64,10 +59,6 @@ export class InstanceFetcher {
         }
 
         if (summaries.length > 0 && processHandler) {
-          this.logger.debug(
-            'Instance Activities Users Fetched:',
-            summaries.map((s) => s.userSummary?.displayName).join(', ')
-          )
           processHandler([], summaries)
         }
       }

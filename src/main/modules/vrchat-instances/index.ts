@@ -31,9 +31,8 @@ export class VRChatInstances extends Module {
 
   protected onInit(): void {
     this.repository = new InstanceRepository(this.moduleId, this.mobx)
-    this.fetcher = new InstanceFetcher(this.logger, this.users)
+    this.fetcher = new InstanceFetcher(this.users)
     this.instance = new CurrentInstance(
-      this.logger,
       this.repository,
       this.fetcher,
       this.logWatcher,
@@ -55,6 +54,43 @@ export class VRChatInstances extends Module {
 
     this.workflow.registerPostLogoutTask('instance-listener-unmount', 60, async () => {
       await this.instance.stop()
+    })
+
+    this.instance.on('instance:joined', (location) => {
+      this.logger.info(`Current-Instance Joined instance:`, location.location)
+    })
+
+    this.instance.on('instance:left', () => {
+      this.logger.info('Current-Instance Left instance')
+    })
+
+    this.instance.on('instance:world-summary-initialized', (summary) => {
+      this.logger.info(
+        `Current-Instance World summary initialized:`,
+        `${summary?.worldName || 'Unknown'}(${this.repository.State.currentInstance.location?.location})`
+      )
+    })
+
+    this.instance.on('instance:present-loaded', (users) => {
+      this.logger.info(
+        'Current-Instance Users in instance:',
+        users.map((user) => `${user.userName}(${user.userId})`).join(',')
+      )
+    })
+
+    this.instance.on('user:joined', (user) => {
+      this.logger.info('Current-Instance User joined:', `${user.userName}(${user.userId})`)
+    })
+
+    this.instance.on('user:left', (userId) => {
+      this.logger.info('Current-Instance User left:', userId)
+    })
+
+    this.instance.on('user:activity', (activity) => {
+      this.logger.info(
+        'Current-Instance User activity:',
+        `${activity.userName}(${activity.userId}) - ${activity.type}`
+      )
     })
   }
 }
