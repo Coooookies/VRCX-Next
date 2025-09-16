@@ -98,7 +98,7 @@ export const LANGUAGE_JA_JP: LocaleStructure = {
       loaction: {
         traveling: '進入中'
       },
-      locate: {
+      locale: {
         [UserLanguage.ENG]: '英語',
         [UserLanguage.KOR]: '韓国語',
         [UserLanguage.RUS]: 'ロシア語',
@@ -139,6 +139,29 @@ export const LANGUAGE_JA_JP: LocaleStructure = {
         [UserLanguage.FSL]: 'フランス手話',
         [UserLanguage.JSL]: '日本手話',
         [UserLanguage.KVK]: '韓国手話'
+      },
+      social: {
+        pixiv: 'Pixiv',
+        bilibili: 'Bilibili',
+        booth: 'Booth',
+        youtube: 'YouTube',
+        discord: 'Discord',
+        qq: 'QQ',
+        telegram: 'Telegram',
+        steam: 'Steam',
+        x: 'X',
+        github: 'GitHub',
+        tiktok: 'TikTok',
+        facebook: 'Facebook',
+        reddit: 'Reddit',
+        instagram: 'Instagram',
+        twitch: 'Twitch',
+        vimeo: 'Vimeo',
+        weibo: 'Weibo',
+        line: 'LINE',
+        niconico: 'ニコニコ',
+        patreon: 'Patreon',
+        other: 'その他'
       }
     },
     notification: {

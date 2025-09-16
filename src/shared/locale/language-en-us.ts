@@ -98,7 +98,7 @@ export const LANGUAGE_EN_US: LocaleStructure = {
       loaction: {
         traveling: 'Taveling'
       },
-      locate: {
+      locale: {
         [UserLanguage.ENG]: 'English',
         [UserLanguage.KOR]: 'Korean',
         [UserLanguage.RUS]: 'Russian',
@@ -139,6 +139,29 @@ export const LANGUAGE_EN_US: LocaleStructure = {
         [UserLanguage.FSL]: 'French Sign Language',
         [UserLanguage.JSL]: 'Japanese Sign Language',
         [UserLanguage.KVK]: 'Korean Sign Language'
+      },
+      social: {
+        pixiv: 'Pixiv',
+        bilibili: 'Bilibili',
+        booth: 'Booth',
+        youtube: 'YouTube',
+        discord: 'Discord',
+        qq: 'QQ',
+        telegram: 'Telegram',
+        steam: 'Steam',
+        x: 'X',
+        github: 'GitHub',
+        tiktok: 'TikTok',
+        facebook: 'Facebook',
+        reddit: 'Reddit',
+        instagram: 'Instagram',
+        twitch: 'Twitch',
+        vimeo: 'Vimeo',
+        weibo: 'Weibo',
+        line: 'Line',
+        niconico: 'Niconico',
+        patreon: 'Patreon',
+        other: 'Other'
       }
     },
     notification: {

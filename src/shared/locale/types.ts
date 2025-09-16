@@ -1,7 +1,7 @@
 import { LANGUAGES } from '.'
 import { LCID_DEFINITIONS } from './lcid'
 import type { NotificationGlobalCategory } from '@shared/definition/vrchat-notifications'
-import type { UserLanguage } from '@shared/definition/vrchat-users'
+import type { UserLanguage, UserSocial } from '@shared/definition/vrchat-users'
 
 export type LocaleDefinition = {
   authentication: {
@@ -97,7 +97,8 @@ export type LocaleDefinition = {
     loaction: {
       traveling: string
     }
-    locate: Record<UserLanguage, string>
+    locale: Record<UserLanguage, string>
+    social: Record<UserSocial, string>
   }
   notification: {
     empty_title: string

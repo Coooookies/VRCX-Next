@@ -1,4 +1,4 @@
-import { UserLanguage } from '@shared/definition/vrchat-users'
+import { UserLanguage, UserSocial } from '@shared/definition/vrchat-users'
 import type { LocaleStructure } from './types'
 
 export const LANGUAGE_ZH_CN: LocaleStructure = {
@@ -98,7 +98,7 @@ export const LANGUAGE_ZH_CN: LocaleStructure = {
       loaction: {
         traveling: '正在前往'
       },
-      locate: {
+      locale: {
         [UserLanguage.ENG]: '英语',
         [UserLanguage.KOR]: '韩语',
         [UserLanguage.RUS]: '俄语',
@@ -139,6 +139,29 @@ export const LANGUAGE_ZH_CN: LocaleStructure = {
         [UserLanguage.FSL]: '法国手语',
         [UserLanguage.JSL]: '日本手语',
         [UserLanguage.KVK]: '韩国手语'
+      },
+      social: {
+        [UserSocial.Pixiv]: 'Pixiv(P站)',
+        [UserSocial.Bilibili]: '哔哩哔哩',
+        [UserSocial.Booth]: 'Booth',
+        [UserSocial.Youtube]: 'YouTube(油管)',
+        [UserSocial.Discord]: 'Discord',
+        [UserSocial.QQ]: 'QQ',
+        [UserSocial.Telegram]: 'Telegram',
+        [UserSocial.Steam]: 'Steam(蒸汽平台)',
+        [UserSocial.X]: 'X/推特',
+        [UserSocial.Github]: 'GitHub',
+        [UserSocial.Tiktok]: '抖音',
+        [UserSocial.Facebook]: 'Facebook(脸书)',
+        [UserSocial.Reddit]: 'Reddit(红迪)',
+        [UserSocial.Instagram]: 'Instagram',
+        [UserSocial.Twitch]: 'Twitch(老鼠台)',
+        [UserSocial.Vimeo]: 'Vimeo',
+        [UserSocial.Weibo]: '微博',
+        [UserSocial.Line]: 'Line',
+        [UserSocial.Niconico]: 'Niconico动画(N站)',
+        [UserSocial.Patreon]: 'Patreon',
+        [UserSocial.Other]: '其他'
       }
     },
     notification: {
