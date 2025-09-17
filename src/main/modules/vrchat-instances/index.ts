@@ -5,6 +5,8 @@ import { InstanceFetcher } from './fetcher'
 import { InstanceRepository } from './repository'
 import { InstanceIPCBinding } from './ipc-binding'
 import type { IPCModule } from '../ipc'
+import type { ServiceMonitor } from '../service-monitor'
+import type { VRChatAuthentication } from '../vrchat-authentication'
 import type { VRChatLogWatcher } from '../vrchat-log-watcher'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { VRChatWorlds } from '../vrchat-worlds'
@@ -16,6 +18,8 @@ import type { VRChatWorkflowCoordinator } from '../vrchat-workflow-coordinator'
 export class VRChatInstances extends Module {
   @Dependency('MobxState') declare private mobx: MobxState
   @Dependency('IPCModule') declare private ipc: IPCModule
+  @Dependency('ServiceMonitor') declare private monitor: ServiceMonitor
+  @Dependency('VRChatAuthentication') declare private auth: VRChatAuthentication
   @Dependency('VRChatLogWatcher') declare private logWatcher: VRChatLogWatcher
   @Dependency('VRChatPipeline') declare private pipeline: VRChatPipeline
   @Dependency('VRChatUsers') declare private users: VRChatUsers
@@ -49,11 +53,26 @@ export class VRChatInstances extends Module {
 
   private bindEvents(): void {
     this.workflow.registerPostLoginTask('instance-listener-mount', 60, async () => {
-      await this.instance.start()
+      // manually refresh
+      if (!this.monitor.vrchatState.running) {
+        await this.monitor.refresh()
+      }
+
+      if (this.monitor.vrchatState.running) {
+        await this.instance.start()
+      }
     })
 
     this.workflow.registerPostLogoutTask('instance-listener-unmount', 60, async () => {
       await this.instance.stop()
+    })
+
+    this.monitor.on('process:vrchat:state-change', (state) => {
+      if (this.auth.isLoggedIn && state.running) {
+        this.instance.start(true)
+      } else {
+        this.instance.stop()
+      }
     })
 
     this.instance.on('instance:joined', (location) => {

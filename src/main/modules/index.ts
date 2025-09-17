@@ -6,6 +6,7 @@ import { MainWindow } from './main-window'
 import { SettingModule } from './setting'
 import { ImageSelection } from './image-selection'
 import { Database } from './database'
+import { ServiceMonitor } from './service-monitor'
 import { VRChatAPI } from './vrchat-api'
 import { VRChatAuthentication } from './vrchat-authentication'
 import { VRChatLogWatcher } from './vrchat-log-watcher'
@@ -31,6 +32,7 @@ export const APP_MODULES: Record<string, ModuleConstructor> = {
   ProtocolServer,
   IPCModule,
   ImageSelection,
+  ServiceMonitor,
   VRChatLogWatcher,
   VRChatAPI,
   VRChatMiscellaneous,
