@@ -20,7 +20,10 @@ function createSortHeader(column: Column<InstancePlayer>, label: string) {
   return h(
     Button,
     {
-      class: cn('!pl-2 rounded-sm h-7 gap-1 duration-0', isSorted ? '!pr-1.5' : '!pr-2'),
+      class: cn(
+        '!pl-2 rounded-sm h-7 items-center gap-1 duration-0',
+        isSorted ? '!pr-1.5' : '!pr-2'
+      ),
       variant: 'ghost',
       size: 'sm',
       onClick: () => {
@@ -107,7 +110,7 @@ export const columns: ColumnDef<InstancePlayer>[] = [
       ])
   },
   {
-    id: 'locale',
+    id: 'languages',
     meta: {
       class: {
         th: 'w-30'
@@ -119,7 +122,7 @@ export const columns: ColumnDef<InstancePlayer>[] = [
         {
           class: 'px-2 flex flex-row items-center'
         },
-        h('span', { class: 'text-xs' }, 'Locale')
+        h('span', { class: 'text-xs' }, 'Languages')
       ),
     cell: ({ row }) =>
       h('div', { class: 'px-2' }, [
