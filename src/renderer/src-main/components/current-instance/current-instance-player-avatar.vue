@@ -36,7 +36,9 @@ const maskImage = computed(() => {
         <ImageVRChatContext
           :file-id="props.fileId"
           :version="props.version"
+          :size="32"
           class="size-full object-cover"
+          lazy
         />
         <ImageFallback class="size-full bg-muted/50 flex items-center justify-center">
           <template #default>

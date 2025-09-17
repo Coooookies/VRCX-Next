@@ -151,7 +151,7 @@ const tabs = computed(() => {
         :value="tab.key"
         class="relative w-full flex-1 h-0"
       >
-        <ScrollContainer v-if="tab.notifications.length > 0" class="w-full h-full">
+        <ScrollContainer v-if="tab.notifications.length > 0" class="size-full">
           <template v-for="notification in tab.notifications" :key="notification.notificationId">
             <component
               :is="getNotificationComponent(notification.type)"
@@ -182,8 +182,8 @@ const tabs = computed(() => {
             />
           </template>
         </ScrollContainer>
-        <NotificationPopoverLoading v-else-if="props.isLoading" class="w-full h-full" />
-        <NotificationPopoverEmpty v-else class="w-full h-full" />
+        <NotificationPopoverLoading v-else-if="props.isLoading" class="size-full" />
+        <NotificationPopoverEmpty v-else class="size-full" />
       </TabsContent>
     </Tabs>
   </PopoverContent>

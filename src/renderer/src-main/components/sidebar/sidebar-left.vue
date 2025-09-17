@@ -22,28 +22,32 @@ const isActiveRoute = (name: string) => {
   return name.startsWith(props.activeRouteName)
 }
 
-const sidebarCommonItems = computed(() => [
-  {
-    icon: DashboardIcon,
-    label: 'Dashboard',
-    routeName: 'page-app-dashboard'
-  },
-  {
-    icon: FavoriteIcon,
-    label: 'Favorites',
-    routeName: 'page-app-favorites'
-  },
-  {
-    icon: FeedIcon,
-    label: 'Feed',
-    routeName: 'page-app-feed'
-  },
-  {
-    icon: ChartIcon,
-    label: 'Charts',
-    routeName: 'page-app-charts'
-  }
-])
+const sidebarCommonItems = computed(() => {
+  const base = [
+    {
+      icon: DashboardIcon,
+      label: 'Dashboard',
+      routeName: 'page-app-dashboard'
+    },
+    {
+      icon: FavoriteIcon,
+      label: 'Favorites',
+      routeName: 'page-app-favorites'
+    },
+    {
+      icon: FeedIcon,
+      label: 'Feed',
+      routeName: 'page-app-feed'
+    },
+    {
+      icon: ChartIcon,
+      label: 'Charts',
+      routeName: 'page-app-charts'
+    }
+  ]
+
+  return base
+})
 
 const sidebarFooterItems = computed(() => [
   {

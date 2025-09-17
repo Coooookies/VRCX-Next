@@ -29,7 +29,7 @@ const emits = defineEmits<{
     >
       <Button
         variant="ghost"
-        :class="cn('flex flex-row items-center w-full h-full px-4.5 rounded-none', 'duration-0')"
+        :class="cn('flex flex-row items-center size-full px-4.5 rounded-none', 'duration-0')"
         @click="emits('click', $event)"
       >
         <span class="flex-1 truncate text-xs text-left">

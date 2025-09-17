@@ -129,7 +129,7 @@ function clearInput() {
         <AuthProxyButton />
         <LocaleCombobox :align="'end'" :side-offset="8" content-class="w-51" />
       </div>
-      <div v-if="!isInitializing" class="relative w-full h-full flex items-center justify-center">
+      <div v-if="!isInitializing" class="relative size-full flex items-center justify-center">
         <AnimatePresence mode="wait" :initial="false">
           <AuthFormCredentials
             v-if="currentFormType === 'credentials'"

@@ -60,7 +60,7 @@ const currentPageTab = ref(pageTabs[0].value)
               :world-name="'Japan Shrine[early autumn]Japan Shrine[early autumn]'"
               :class="cn('w-[unset] h-full', '@5xl:w-full @5xl:h-[unset]')"
             />
-            <Tabs :default-value="infoTabs[0].value" class="w-full h-full gap-0">
+            <Tabs :default-value="infoTabs[0].value" class="size-full gap-0">
               <CurrentInstanceInfoTabs :class="cn('w-1/2', '@5xl:w-full')" :tabs="infoTabs" />
               <TabsContent
                 :value="infoTabs[0].value"

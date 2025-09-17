@@ -33,7 +33,7 @@ const emits = defineEmits<{
       @click="emits('select')"
     >
       <div className="size-8">
-        <div v-if="props.checked" class="w-full h-full flex items-center justify-center">
+        <div v-if="props.checked" class="size-full flex items-center justify-center">
           <CheckIcon class="size-5" />
         </div>
         <ImageRoot v-else class="block size-8 rounded-full overflow-hidden">

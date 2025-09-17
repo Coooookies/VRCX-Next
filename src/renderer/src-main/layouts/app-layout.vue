@@ -25,7 +25,7 @@ provide('routePadding', {
 
 <template>
   <div
-    class="relative flex flex-row w-full h-full"
+    class="relative flex flex-row size-full"
     :style="{
       '--left-expand-width': `${props.leftExpandWidth}px`,
       '--right-expand-width': `${props.rightExpandWidth}px`,
@@ -42,7 +42,7 @@ provide('routePadding', {
     >
       <slot name="left-sidebar" />
     </div>
-    <div :class="cn('relative w-full h-full')">
+    <div :class="cn('relative size-full')">
       <slot name="content" />
     </div>
     <div
@@ -69,7 +69,7 @@ provide('routePadding', {
       "
     >
       <div class="title-bar w-full h-10">
-        <div class="w-full h-full electron-drag" />
+        <div class="size-full electron-drag" />
       </div>
       <div
         :class="

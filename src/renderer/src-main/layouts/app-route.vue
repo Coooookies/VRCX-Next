@@ -19,7 +19,7 @@ const { leftRoutePadding, rightRoutePadding } = inject<{
 <template>
   <ScrollContainer
     v-bind="props"
-    :class="cn('w-full h-full', props.class)"
+    :class="cn('size-full', props.class)"
     :scrollbar-offset-top="44"
     :scrollbar-offset-right="4 + rightRoutePadding"
   >

@@ -23,7 +23,7 @@ const props = withDefaults(
       :variant="props.variant"
       :class="
         cn(
-          'relative w-full h-full pr-0 pl-3 py-2 overflow-hidden justify-start gap-0',
+          'relative size-full pr-0 pl-3 py-2 overflow-hidden justify-start gap-0',
           'group/sidebar-button',
           props.variant === 'secondary'
             ? props.active

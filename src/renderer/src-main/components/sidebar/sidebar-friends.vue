@@ -32,13 +32,13 @@ const handleContextMenuOpenChage = (open: boolean) => {
   <div class="relative">
     <div
       v-if="props.isLoading && props.friends.length === 0"
-      class="w-full h-full overflow-hidden pt-1"
+      class="size-full overflow-hidden pt-1"
     >
       <SidebarProfileOverviewSkeleton v-for="(_, i) in Array.from({ length: 20 })" :key="i" />
     </div>
     <ScrollContainer
       v-else
-      class="w-full h-full"
+      class="size-full"
       fade-out-at-top
       fade-out-at-bottom
       :disable-scroll-bar="contextMenuOpenedCount > 0"

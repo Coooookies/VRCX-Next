@@ -35,7 +35,7 @@ const emits = defineEmits<{
     <ImageRoot
       :class="
         cn(
-          'w-full h-full after:inset-0 after:absolute',
+          'size-full after:inset-0 after:absolute',
           'after:bg-gradient-to-t after:from-background/75 after:from-20% after:via-transparent after:to-transparent'
         )
       "
@@ -46,7 +46,7 @@ const emits = defineEmits<{
         :size="420"
         class="w-full"
       />
-      <ImageFallback class="w-full h-full bg-muted/50 flex items-center justify-center">
+      <ImageFallback class="size-full bg-muted/50 flex items-center justify-center">
         <template #default>
           <ImageIcon class="size-8 text-muted-foreground" />
         </template>
@@ -55,7 +55,7 @@ const emits = defineEmits<{
         </template>
       </ImageFallback>
     </ImageRoot>
-    <div class="absolute left-0 top-0 w-full h-full flex flex-col justify-end">
+    <div class="absolute left-0 top-0 size-full flex flex-col justify-end">
       <div class="w-full px-5 pb-5 space-y-0.5">
         <p class="text-base font-semibold text-white leading-tight line-clamp-1 truncate">
           {{ props.worldName }}

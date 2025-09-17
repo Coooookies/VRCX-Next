@@ -6,7 +6,7 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center w-full h-full">
+  <div class="flex flex-col items-center justify-center size-full">
     <NotificationEmptyIllustration class="text-primary -mb-4" />
     <div class="w-2/3 space-y-0.5 pb-12">
       <p class="font-semibold text-center">{{ t('notification.empty_title') }}</p>

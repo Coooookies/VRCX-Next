@@ -13,7 +13,7 @@ const value = defineModel<string>('modelValue', {
   <div class="relative h-full">
     <Input
       v-model="value"
-      class="relative w-full h-full !bg-transparent pr-9 placeholder:text-sidebar-foreground/35 !text-[13px]"
+      class="relative size-full !bg-transparent pr-9 placeholder:text-sidebar-foreground/35 !text-[13px]"
       placeholder="Search"
     />
     <div

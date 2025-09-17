@@ -65,7 +65,7 @@ const icon = computed(() => {
     <div
       :class="
         cn(
-          'absolute top-0 left-0 w-full h-full border-1 border-accented rounded-[inherit]',
+          'absolute top-0 left-0 size-full border-1 border-accented rounded-[inherit]',
           'mask-linear-135 mask-linear-from-20% mask-linear-to-100%'
         )
       "
