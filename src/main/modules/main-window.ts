@@ -23,7 +23,7 @@ export class MainWindow extends Module {
   private readonly logger = createLogger(this.moduleId)
   private mainWindow: BrowserWindow | null = null
 
-  protected onInit(): void {
+  protected onLoad(): void {
     const win = this.createWindow()
     this.mainWindow = win
     this.protocol.bindProtocolHandler(this.session!)

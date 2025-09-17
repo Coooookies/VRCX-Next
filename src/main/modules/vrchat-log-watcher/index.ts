@@ -23,8 +23,11 @@ export class VRChatLogWatcher extends Module<{
   private tail: null | Tail = null
 
   protected onInit(): void {
-    this.startWatchFile()
     this.bindEvents()
+  }
+
+  protected onLoad(): void {
+    this.startWatchFile()
   }
 
   private bindEvents() {
