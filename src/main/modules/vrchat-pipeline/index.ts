@@ -22,13 +22,13 @@ export class VRChatPipeline extends Module<{
 
   private ws: WebSocket | null = null
   private reconnectAttempts = 0
-  private maxReconnectAttempts = MAX_RECONNECT_ATTEMPTS
   private reconnectPending = false
   private reconnectTimeout: NodeJS.Timeout | null = null
   private isConnecting = false
   private shouldReconnect = false
   private cachedPipelineEvents: PipelineEventMessage[] = []
   private cacheEnabled = false
+  private readonly MAX_RETRIES = MAX_RECONNECT_ATTEMPTS
 
   protected onInit(): void {
     this.bindEvents()
@@ -169,7 +169,7 @@ export class VRChatPipeline extends Module<{
   }
 
   private scheduleReconnect() {
-    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+    if (this.reconnectAttempts >= this.MAX_RETRIES) {
       this.logger.error(`Reached maximum reconnect attempts. Giving up.`)
       this.auth.signout()
       return

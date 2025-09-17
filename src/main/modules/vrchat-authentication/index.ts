@@ -198,4 +198,8 @@ export class VRChatAuthentication extends Module<{
   public get snapshot(): SnapshotFrom<typeof createAuthenticationMachine> {
     return this.state.getSnapshot()
   }
+
+  public get isLoggedIn(): boolean {
+    return this.currentState.type === 'authenticated'
+  }
 }
