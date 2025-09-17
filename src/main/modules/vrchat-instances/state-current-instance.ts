@@ -22,6 +22,7 @@ import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatWorlds } from '../vrchat-worlds'
 import type { VRChatGroups } from '../vrchat-groups'
 import type { WorldDetail } from '@shared/definition/vrchat-worlds'
+import type { InstanceData } from './types'
 import type { InstanceFetcher } from './fetcher'
 import type { InstanceRepository } from './repository'
 import type { InstanceUser, InstanceUserActivity } from '@shared/definition/vrchat-instances'
@@ -32,16 +33,6 @@ import type {
   LogEventSelfJoin,
   LogEventSummary
 } from '../vrchat-log-watcher/types'
-
-interface InstanceData {
-  location: LocationInstance
-  joinedAt: Date
-  leftAt: Date | null
-  isLeft: boolean
-  isCurrentUserInInstance: boolean
-  users: InstanceUser[]
-  userActivities: InstanceUserActivity[]
-}
 
 export class CurrentInstance extends Nanobus<{
   'instance:left': () => void
@@ -97,12 +88,12 @@ export class CurrentInstance extends Nanobus<{
     })
   }
 
-  public async start() {
+  public async start(ignoreHistoryLog?: boolean) {
     if (this.isListening && this.isPending) {
       return
     }
 
-    return this.listen()
+    return this.listen(ignoreHistoryLog)
   }
 
   public async stop() {
@@ -112,16 +103,20 @@ export class CurrentInstance extends Nanobus<{
     await this.resetInitialBatchTimer.cancel()
   }
 
-  private async listen() {
-    this.isPending = true
+  private async listen(ignoreHistoryLog?: boolean) {
     this.isListening = true
 
-    const latestInstance = await this.getLatestInstance()
-    if (latestInstance && !latestInstance.isLeft) {
-      await this.initializeInstance(latestInstance)
+    if (!ignoreHistoryLog) {
+      this.isPending = true
+
+      const latestInstance = await this.getLatestInstance()
+      if (latestInstance && !latestInstance.isLeft) {
+        await this.initializeInstance(latestInstance)
+      }
+
+      this.isPending = false
     }
 
-    this.isPending = false
     return this.processCacheEvents()
   }
 
