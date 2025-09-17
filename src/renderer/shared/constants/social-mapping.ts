@@ -46,7 +46,7 @@ export const SOCIAL_PATTERN_MAPPING: Record<UserSocial, SocialPatternItem> = {
   [UserSocial.Booth]: {
     label: 'profile.social.booth',
     icon: SocialBoothIcon,
-    pattern: (href) => /^https?:\/\/(www\.)?booth\.pm\/.*$/.test(href)
+    pattern: (href) => /^https?:\/\/(?:[a-z0-9-]+\.)?booth\.pm\/.*$/.test(href)
   },
   [UserSocial.Youtube]: {
     label: 'profile.social.youtube',
