@@ -149,7 +149,7 @@ export const LANGUAGE_ZH_CN: LocaleStructure = {
         [UserSocial.QQ]: 'QQ',
         [UserSocial.Telegram]: 'Telegram',
         [UserSocial.Steam]: 'Steam(蒸汽平台)',
-        [UserSocial.X]: 'X/推特',
+        [UserSocial.X]: 'X(推特)',
         [UserSocial.Github]: 'GitHub',
         [UserSocial.Tiktok]: '抖音',
         [UserSocial.Facebook]: 'Facebook(脸书)',

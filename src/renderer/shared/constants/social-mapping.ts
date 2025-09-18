@@ -57,7 +57,7 @@ export const SOCIAL_PATTERN_MAPPING: Record<UserSocial, SocialPatternItem> = {
   [UserSocial.Discord]: {
     label: 'profile.social.discord',
     icon: SocialDiscordIcon,
-    pattern: (href) => /^https?:\/\/discord\.gg\/.*$/.test(href)
+    pattern: (href) => /^https?:\/\/discord\.gg\/.*$|^https?:\/\/discord\.com\/.*$/i.test(href)
   },
   [UserSocial.QQ]: {
     label: 'profile.social.qq',
