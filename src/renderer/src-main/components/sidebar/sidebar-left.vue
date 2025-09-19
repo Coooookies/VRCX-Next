@@ -8,6 +8,7 @@ import ChartIcon from '@shared/assets/vector/navigator-icon-chart.svg?component'
 import SettingIcon from '@shared/assets/vector/navigator-icon-setting.svg?component'
 
 import SidebarContainer from './sidebar-container.vue'
+import SidebarCurrentInstance from './sidebar-current-instance.vue'
 import SidebarIconButton from './sidebar-icon-button.vue'
 import SidebarTitle from './sidebar-title.vue'
 import { computed } from 'vue'
@@ -79,8 +80,8 @@ const sidebarFooterItems = computed(() => [
         />
       </div>
     </div>
-    <div class="pb-2.5">
-      <div class="pt-4 flex flex-col gap-1.5">
+    <div class="pt-4 pb-3.5 flex flex-col gap-1.5">
+      <div class="flex flex-col gap-1.5">
         <SidebarIconButton
           v-for="item in sidebarFooterItems"
           :key="item.routeName"
@@ -90,6 +91,7 @@ const sidebarFooterItems = computed(() => [
           @click="emits('update:activeRouteName', item.routeName)"
         />
       </div>
+      <SidebarCurrentInstance />
     </div>
     <div class="py-2.5 border-t border-sidebar-border dark:border-sidebar-border/40">
       <SidebarIconButton
