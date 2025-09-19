@@ -23,7 +23,7 @@ const props = withDefaults(
       :variant="props.variant"
       :class="
         cn(
-          'relative size-full pr-0 pl-3 py-2 overflow-hidden justify-start gap-0',
+          'relative size-full pr-0 pl-3 overflow-hidden justify-start gap-0',
           'group/sidebar-button',
           props.variant === 'secondary'
             ? props.active
@@ -58,7 +58,7 @@ const props = withDefaults(
         <span
           :class="
             cn(
-              'absolute font-medium whitespace-nowrap',
+              'absolute font-medium whitespace-nowrap max-w-full pr-5',
               'text-sidebar-foreground/55 group-hover/sidebar-button:text-sidebar-foreground/70',
               'dark:text-sidebar-foreground/45 group-hover/sidebar-button:dark:text-sidebar-foreground/65',
               'transition-[color,font-weight] duration-200 ease-in-out',
