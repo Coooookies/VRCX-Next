@@ -161,6 +161,7 @@ export const LANGUAGE_ZH_CN: LocaleStructure = {
         [UserSocial.Line]: 'Line',
         [UserSocial.Niconico]: 'Niconico动画(N站)',
         [UserSocial.Patreon]: 'Patreon',
+        [UserSocial.Kofi]: 'Ko-fi',
         [UserSocial.Other]: '其他'
       }
     },

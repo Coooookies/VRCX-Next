@@ -85,6 +85,7 @@ export const UserSocial = {
   Line: 'line',
   Niconico: 'niconico',
   Patreon: 'patreon',
+  Kofi: 'ko-fi',
   Other: 'other'
 } as const
 

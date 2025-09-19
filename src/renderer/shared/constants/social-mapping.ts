@@ -18,6 +18,7 @@ import SocialWeiboIcon from '@shared/assets/vector/social-weibo.svg?component'
 import SocialLineIcon from '@shared/assets/vector/social-line.svg?component'
 import SocialNiconicoIcon from '@shared/assets/vector/social-niconico.svg?component'
 import SocialPatreonIcon from '@shared/assets/vector/social-patreon.svg?component'
+import SocialKofiIcon from '@shared/assets/vector/social-kofi.svg?component'
 import SocialOtherIcon from '@shared/assets/vector/social-other.svg?component'
 import { UserSocial } from '@shared/definition/vrchat-users'
 import type { LocaleI18NKeys } from '../locale/types'
@@ -39,9 +40,7 @@ export const SOCIAL_PATTERN_MAPPING: Record<UserSocial, SocialPatternItem> = {
     label: 'profile.social.bilibili',
     icon: SocialBilibiliIcon,
     pattern: (href) =>
-      /^https?:\/\/(?:www\.|live\.|space\.)?bilibili\.com(?:\/|$)|^https?:\/\/b23\.tv(?:\/|$)/i.test(
-        href
-      )
+      /^https?:\/\/(?:www\.|live\.|space\.)?bilibili\.com\/.*$|^https?:\/\/b23\.tv\/.*$/i.test(href)
   },
   [UserSocial.Booth]: {
     label: 'profile.social.booth',
@@ -57,7 +56,10 @@ export const SOCIAL_PATTERN_MAPPING: Record<UserSocial, SocialPatternItem> = {
   [UserSocial.Discord]: {
     label: 'profile.social.discord',
     icon: SocialDiscordIcon,
-    pattern: (href) => /^https?:\/\/discord\.gg\/.*$|^https?:\/\/discord\.com\/.*$/i.test(href)
+    pattern: (href) =>
+      /^https?:\/\/discord\.gg\/.*$|^https?:\/\/discord\.com\/.*$|^https?:\/\/discordapp\.com\/.*$/i.test(
+        href
+      )
   },
   [UserSocial.QQ]: {
     label: 'profile.social.qq',
@@ -136,6 +138,11 @@ export const SOCIAL_PATTERN_MAPPING: Record<UserSocial, SocialPatternItem> = {
     label: 'profile.social.patreon',
     icon: SocialPatreonIcon,
     pattern: (href) => /^https?:\/\/(www\.)?patreon\.com\/.*$/.test(href)
+  },
+  [UserSocial.Kofi]: {
+    label: 'profile.social.ko-fi',
+    icon: SocialKofiIcon,
+    pattern: (href) => /^https?:\/\/(www\.)?ko-fi\.com\/.*$/.test(href)
   },
   [UserSocial.Other]: {
     label: 'profile.social.other',

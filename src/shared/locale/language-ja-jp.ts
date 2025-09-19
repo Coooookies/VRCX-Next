@@ -1,4 +1,4 @@
-import { UserLanguage } from '@shared/definition/vrchat-users'
+import { UserLanguage, UserSocial } from '@shared/definition/vrchat-users'
 import type { LocaleStructure } from './types'
 
 export const LANGUAGE_JA_JP: LocaleStructure = {
@@ -141,27 +141,28 @@ export const LANGUAGE_JA_JP: LocaleStructure = {
         [UserLanguage.KVK]: '韓国手話'
       },
       social: {
-        pixiv: 'Pixiv',
-        bilibili: 'Bilibili',
-        booth: 'Booth',
-        youtube: 'YouTube',
-        discord: 'Discord',
-        qq: 'QQ',
-        telegram: 'Telegram',
-        steam: 'Steam',
-        x: 'X',
-        github: 'GitHub',
-        tiktok: 'TikTok',
-        facebook: 'Facebook',
-        reddit: 'Reddit',
-        instagram: 'Instagram',
-        twitch: 'Twitch',
-        vimeo: 'Vimeo',
-        weibo: 'Weibo',
-        line: 'LINE',
-        niconico: 'ニコニコ',
-        patreon: 'Patreon',
-        other: 'その他'
+        [UserSocial.Pixiv]: 'Pixiv',
+        [UserSocial.Bilibili]: 'Bilibili',
+        [UserSocial.Booth]: 'Booth',
+        [UserSocial.Youtube]: 'YouTube',
+        [UserSocial.Discord]: 'Discord',
+        [UserSocial.QQ]: 'QQ',
+        [UserSocial.Telegram]: 'Telegram',
+        [UserSocial.Steam]: 'Steam',
+        [UserSocial.X]: 'X',
+        [UserSocial.Github]: 'GitHub',
+        [UserSocial.Tiktok]: 'TikTok',
+        [UserSocial.Facebook]: 'Facebook',
+        [UserSocial.Reddit]: 'Reddit',
+        [UserSocial.Instagram]: 'Instagram',
+        [UserSocial.Twitch]: 'Twitch',
+        [UserSocial.Vimeo]: 'Vimeo',
+        [UserSocial.Weibo]: 'Weibo',
+        [UserSocial.Line]: 'LINE',
+        [UserSocial.Niconico]: 'ニコニコ',
+        [UserSocial.Patreon]: 'Patreon',
+        [UserSocial.Kofi]: 'Ko-fi',
+        [UserSocial.Other]: 'その他'
       }
     },
     notification: {
