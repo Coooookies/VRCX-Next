@@ -243,6 +243,7 @@ export class CurrentInstance extends Nanobus<{
     await this.processWorldOwner(location)
     await this.processInitialUsers(users, userActivities)
 
+    this.isInitialBatchMode = users.length === 0
     this.isCurrentUserInInstance = instance.isCurrentUserInInstance
     this.repository.setCurrentInstanceLoading(false)
   }
