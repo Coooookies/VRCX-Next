@@ -1,41 +1,20 @@
 import si from 'systeminformation'
 import { attempt } from '@shared/utils/async'
 import { createLogger } from '@main/logger'
-import { Module } from '@shared/module-constructor'
-import {
-  PROCESS_MONITOR_TIMER_INTERVAL,
-  PROCESS_VRCHAT_PATTERN,
-  PROCESS_STEAMVR_PATTERN
-} from './constants'
-import type { ProcessTracker, ProcessState } from './types'
+import { Dependency, Module } from '@shared/module-constructor'
+import { MobxState } from '../mobx-state'
+import { ServiceMonitorRepository } from './repository'
+import { PROCESS_MONITOR_TIMER_INTERVAL, PROCESS_PATTERNS } from './constants'
+import type { ProcessKeys } from './types'
 
 export class ServiceMonitor extends Module<{
-  'process:vrchat:state-change': (state: ProcessState) => void
-  'process:steamvr:state-change': (state: ProcessState) => void
+  'process:vrchat:state-change': (isRunning: boolean) => void
+  'process:steamvr:state-change': (isRunning: boolean) => void
 }> {
+  @Dependency('MobxState') declare private mobx: MobxState
+
   private readonly logger = createLogger(this.moduleId)
-  private readonly processTrackers: Map<string, ProcessTracker> = new Map([
-    [
-      'vrchat',
-      {
-        running: false,
-        processInfo: null,
-        pattern: PROCESS_VRCHAT_PATTERN,
-        eventName: 'process:vrchat:state-change',
-        displayName: 'VRChat'
-      }
-    ],
-    [
-      'steamvr',
-      {
-        running: false,
-        processInfo: null,
-        pattern: PROCESS_STEAMVR_PATTERN,
-        eventName: 'process:steamvr:state-change',
-        displayName: 'SteamVR'
-      }
-    ]
-  ])
+  private repository!: ServiceMonitorRepository
 
   private listening = false
   private eventLoopTimer: NodeJS.Timeout | null = null
@@ -52,6 +31,7 @@ export class ServiceMonitor extends Module<{
   }
 
   protected onInit(): void {
+    this.repository = new ServiceMonitorRepository(this.moduleId, this.mobx)
     this.bindEvents()
   }
 
@@ -64,20 +44,12 @@ export class ServiceMonitor extends Module<{
   }
 
   private bindEvents() {
-    this.on('process:vrchat:state-change', (state) => {
-      this.logger.info(
-        'VRChat process state changed',
-        `isRunning: ${state.running}`,
-        JSON.stringify(state)
-      )
+    this.on('process:vrchat:state-change', (isRunning) => {
+      this.logger.info('VRChat process state changed', `isRunning: ${isRunning}`)
     })
 
-    this.on('process:steamvr:state-change', (state) => {
-      this.logger.debug(
-        'SteamVR process state changed',
-        `isRunning: ${state.running}`,
-        JSON.stringify(state)
-      )
+    this.on('process:steamvr:state-change', (isRunning) => {
+      this.logger.debug('SteamVR process state changed', `isRunning: ${isRunning}`)
     })
   }
 
@@ -86,66 +58,91 @@ export class ServiceMonitor extends Module<{
 
     // Process each tracker
     if (success) {
-      for (const [, tracker] of this.processTrackers) {
-        const matchingProcesses = processes.list.filter((p) => tracker.pattern.test(p.name))
-        this.updateProcessState(tracker, matchingProcesses)
+      for (const [key, pattern] of Object.entries(PROCESS_PATTERNS)) {
+        const matchingProcesses = processes.list.filter((p) => pattern.test(p.name))
+        this.updateProcessState(key as ProcessKeys, matchingProcesses)
       }
     } else {
       this.logger.error('Failed to get processes', error)
     }
   }
 
-  private handleProcessStart(
-    tracker: ProcessTracker,
-    process: si.Systeminformation.ProcessesProcessData
-  ) {
-    tracker.running = true
-    tracker.processInfo = {
-      pid: process.pid,
-      cmd: process.command
-    }
-    this.emit(tracker.eventName, this.getProcessState(tracker))
-  }
-
-  private handleProcessExit(tracker: ProcessTracker) {
-    tracker.running = false
-    tracker.processInfo = null
-    this.emit(tracker.eventName, this.getProcessState(tracker))
-  }
-
   private updateProcessState(
-    tracker: ProcessTracker,
+    key: ProcessKeys,
     matchingProcesses: si.Systeminformation.ProcessesProcessData[]
   ) {
-    if (matchingProcesses.length > 0) {
-      if (tracker.running) {
-        // Check if current process is still running
-        const currentProcess = matchingProcesses.find((p) => p.pid === tracker.processInfo?.pid)
-        if (!currentProcess) {
-          // Current process exited, update to new process or mark as stopped
-          this.handleProcessExit(tracker)
-          this.handleProcessStart(tracker, matchingProcesses[0])
-        }
-      } else {
-        // Process started
-        this.handleProcessStart(tracker, matchingProcesses[0])
-      }
-    } else {
-      if (tracker.running) {
-        // Process exited
-        this.handleProcessExit(tracker)
-      }
-    }
-  }
+    switch (key) {
+      case 'vrchat': {
+        const state = this.repository.vrchatState
 
-  private getProcessState(tracker: ProcessTracker): ProcessState {
-    if (tracker.running && tracker.processInfo) {
-      return {
-        running: true,
-        processInfo: tracker.processInfo
+        if (matchingProcesses.length > 0) {
+          const firstProcess = matchingProcesses[0]
+
+          if (this.repository.vrchatState.isRunning) {
+            const currentProcess = matchingProcesses.find((p) => p.pid === state.pid)
+            if (!currentProcess) {
+              // Current process exited, update to new process or mark as stopped
+
+              this.repository.setVRChatRuning(false)
+              this.emit('process:vrchat:state-change', false)
+
+              this.repository.setVRChatRuning(true)
+              this.repository.setVRChatProcessInfo(firstProcess.pid, firstProcess.command)
+              this.emit('process:vrchat:state-change', true)
+            }
+          } else {
+            // Process started
+            this.repository.setVRChatRuning(true)
+            this.repository.setVRChatProcessInfo(firstProcess.pid, firstProcess.command)
+            this.emit('process:vrchat:state-change', true)
+          }
+        } else {
+          if (this.repository.vrchatState.isRunning) {
+            // Process exited
+            this.repository.setVRChatRuning(false)
+            this.repository.setVRChatProcessInfo(null, null)
+            this.emit('process:vrchat:state-change', false)
+          }
+        }
+
+        break
+      }
+      case 'steamvr': {
+        const state = this.repository.steamvrState
+
+        if (matchingProcesses.length > 0) {
+          const firstProcess = matchingProcesses[0]
+
+          if (this.repository.steamvrState.isRunning) {
+            const currentProcess = matchingProcesses.find((p) => p.pid === state.pid)
+            if (!currentProcess) {
+              // Current process exited, update to new process or mark as stopped
+
+              this.repository.setSteamVRRuning(false)
+              this.emit('process:steamvr:state-change', false)
+
+              this.repository.setSteamVRRuning(true)
+              this.repository.setSteamVRProcessInfo(firstProcess.pid, firstProcess.command)
+              this.emit('process:steamvr:state-change', true)
+            }
+          } else {
+            // Process started
+            this.repository.setSteamVRRuning(true)
+            this.repository.setSteamVRProcessInfo(firstProcess.pid, firstProcess.command)
+            this.emit('process:steamvr:state-change', true)
+          }
+        } else {
+          if (this.repository.steamvrState.isRunning) {
+            // Process exited
+            this.repository.setSteamVRRuning(false)
+            this.repository.setSteamVRProcessInfo(null, null)
+            this.emit('process:steamvr:state-change', false)
+          }
+        }
+
+        break
       }
     }
-    return { running: false }
   }
 
   private async start() {
@@ -166,11 +163,7 @@ export class ServiceMonitor extends Module<{
     }
   }
 
-  public get vrchatState(): ProcessState {
-    return this.getProcessState(this.processTrackers.get('vrchat')!)
-  }
-
-  public get steamvrState(): ProcessState {
-    return this.getProcessState(this.processTrackers.get('steamvr')!)
+  public get Repository() {
+    return this.repository
   }
 }

@@ -1,21 +1,3 @@
-export interface ProcessInfo {
-  pid: number
-  cmd: string
-}
+import { PROCESS_PATTERNS } from './constants'
 
-export type ProcessState =
-  | {
-      running: true
-      processInfo: ProcessInfo
-    }
-  | {
-      running: false
-    }
-
-export interface ProcessTracker {
-  running: boolean
-  processInfo: ProcessInfo | null
-  pattern: RegExp
-  eventName: 'process:vrchat:state-change' | 'process:steamvr:state-change'
-  displayName: string
-}
+export type ProcessKeys = keyof typeof PROCESS_PATTERNS
