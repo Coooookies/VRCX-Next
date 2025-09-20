@@ -63,19 +63,19 @@ export function createRouter() {
             }
           },
           {
-            path: 'current-instance',
-            name: 'page-app-current-instance',
-            component: () => import('./pages/current-instance.vue'),
+            path: 'settings',
+            name: 'page-app-settings',
+            component: () => import('./pages/settings.vue'),
             meta: {
               index: 6
             }
           },
           {
-            path: 'settings',
-            name: 'page-app-settings',
-            component: () => import('./pages/settings.vue'),
+            path: 'current-instance',
+            name: 'page-app-current-instance',
+            component: () => import('./pages/current-instance.vue'),
             meta: {
-              index: 999
+              index: 7
             }
           }
         ]
