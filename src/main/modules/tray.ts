@@ -1,3 +1,4 @@
+import TrayIcon from '../../../resources/icon.png?asset'
 import { app, Menu, Tray } from 'electron'
 import { Dependency, Module } from '@shared/module-constructor'
 import type { MainWindow } from './main-window'
@@ -8,7 +9,7 @@ export class TrayModule extends Module {
   private tray!: Tray
 
   protected onInit(): void {
-    const tray = new Tray('./resources/icon.png')
+    const tray = new Tray(TrayIcon)
     const menu = Menu.buildFromTemplate([
       {
         label: 'Exit',
