@@ -5,12 +5,10 @@ import { Skeleton } from '@renderer/shared/components/ui/skeleton'
 import { ImageFallback, ImageRoot } from '@renderer/shared/components/ui/image'
 import { ImageIcon } from 'lucide-vue-next'
 import { Button } from '@renderer/shared/components/ui/button'
+import type { WorldDetail } from '@shared/definition/vrchat-worlds'
 
 const props = defineProps<{
-  worldName: string
-  authorName: string
-  thumbnailFileId: string
-  thumbnailFileVersion: number
+  detail: WorldDetail | null
 }>()
 
 const emits = defineEmits<{
@@ -32,48 +30,51 @@ const emits = defineEmits<{
     variant="ghost"
     @click="emits('click', $event)"
   >
-    <ImageRoot
-      :class="
-        cn(
-          'size-full after:inset-0 after:absolute',
-          'after:bg-gradient-to-t after:from-background/75 after:from-20% after:via-transparent after:to-transparent'
-        )
-      "
-    >
-      <ImageVRChatContext
-        :file-id="props.thumbnailFileId"
-        :version="props.thumbnailFileVersion"
-        :size="420"
-        class="w-full"
-      />
-      <ImageFallback class="size-full bg-muted/50 flex items-center justify-center">
-        <template #default>
-          <ImageIcon class="size-8 text-muted-foreground" />
-        </template>
-        <template #loading>
-          <Skeleton class="size-full" />
-        </template>
-      </ImageFallback>
-    </ImageRoot>
-    <div class="absolute left-0 top-0 size-full flex flex-col justify-end">
-      <div class="w-full px-5 pb-5 space-y-0.5">
-        <p class="text-base font-semibold text-white leading-tight line-clamp-1 truncate">
-          {{ props.worldName }}
-        </p>
-        <Button
-          as="a"
-          variant="link"
-          :class="
-            cn(
-              'w-fit max-w-full text-xs text-primary mt-0.5 p-0 h-auto',
-              'underline-offset-2 line-clamp-1 truncate rounded-none'
-            )
-          "
-          @click.stop="emits('showAuthor', $event)"
-        >
-          {{ props.authorName }}
-        </Button>
+    <template v-if="props.detail">
+      <ImageRoot
+        :class="
+          cn(
+            'size-full after:inset-0 after:absolute',
+            'after:bg-gradient-to-t after:from-background/75 after:from-20% after:via-transparent after:to-transparent'
+          )
+        "
+      >
+        <ImageVRChatContext
+          :file-id="props.detail.imageFileId"
+          :version="props.detail.imageFileVersion"
+          :size="420"
+          class="w-full"
+        />
+        <ImageFallback class="size-full bg-muted/50 flex items-center justify-center">
+          <template #default>
+            <ImageIcon class="size-8 text-muted-foreground" />
+          </template>
+          <template #loading>
+            <Skeleton class="size-full" />
+          </template>
+        </ImageFallback>
+      </ImageRoot>
+      <div class="absolute left-0 top-0 size-full flex flex-col justify-end">
+        <div class="w-full px-5 pb-5 space-y-0.5">
+          <p class="text-base font-semibold text-white leading-tight line-clamp-1 truncate">
+            {{ props.detail.worldName }}
+          </p>
+          <Button
+            as="a"
+            variant="link"
+            :class="
+              cn(
+                'w-fit max-w-full text-xs text-primary mt-0.5 p-0 h-auto',
+                'underline-offset-2 line-clamp-1 truncate rounded-none'
+              )
+            "
+            @click.stop="emits('showAuthor', $event)"
+          >
+            {{ props.detail.authorUserName }}
+          </Button>
+        </div>
       </div>
-    </div>
+    </template>
+    <Skeleton v-else class="size-full" />
   </Button>
 </template>
