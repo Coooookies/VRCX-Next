@@ -49,7 +49,7 @@ const props = withDefaults(
       <div
         :class="
           cn(
-            'w-60 h-full flex items-center pl-4 transition-[opacity,translate] duration-300 ease-[cubic-bezier(.16,1,.3,1)]',
+            'relative h-full flex items-center transition-[opacity,translate] duration-300 ease-[cubic-bezier(.16,1,.3,1)]',
             'group-has-[*]/sidebar-expanded:translate-x-0 group-has-[*]/sidebar-expanded:opacity-100',
             'group-hover/sidebar-collapsed:translate-x-0 group-hover/sidebar-collapsed:opacity-100 -translate-x-1 opacity-0'
           )
@@ -58,7 +58,7 @@ const props = withDefaults(
         <span
           :class="
             cn(
-              'absolute font-medium whitespace-nowrap max-w-full pr-5',
+              'absolute font-medium whitespace-nowrap text-left w-50 pl-4 pr-2.5 truncate',
               'text-sidebar-foreground/55 group-hover/sidebar-button:text-sidebar-foreground/70',
               'dark:text-sidebar-foreground/45 group-hover/sidebar-button:dark:text-sidebar-foreground/65',
               'transition-[color,font-weight] duration-200 ease-in-out',

@@ -11,10 +11,13 @@ import SidebarFriendsSearchInput from './sidebar-friends-search-input.vue'
 import SidebarFriendsAction from './sidebar-friends-action.vue'
 import { cn } from '@renderer/shared/utils/style'
 import { computed, ref } from 'vue'
+import { useI18n } from '@renderer/shared/locale'
 import { useModule } from '@renderer/shared/hooks/use-module'
 import { useSidebarFriends } from '@renderer/src-main/composables/sidebar-friends'
 import type { SidebarContainerProps, SidebarStateEmits, SidebarStateProps } from './types'
 import type { VRChatUsers } from '@renderer/shared/modules/vrchat-users'
+
+const { t } = useI18n()
 
 const expanded = defineModel<boolean>('expanded')
 const users = useModule<VRChatUsers>('VRChatUsers')
@@ -113,7 +116,7 @@ console.log(emits)
       >
         <SidebarIconButton
           :icon="expanded ? CollapseRightIcon : ExpandRightIcon"
-          :label="expanded ? 'Collapse' : 'Expand'"
+          :label="t(expanded ? 'sidebar.collapse' : 'sidebar.expand')"
           @click="expanded = !expanded"
         />
       </div>

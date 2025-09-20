@@ -12,8 +12,11 @@ import SidebarCurrentInstance from './sidebar-current-instance.vue'
 import SidebarIconButton from './sidebar-icon-button.vue'
 import SidebarTitle from './sidebar-title.vue'
 import { computed } from 'vue'
+import { useI18n } from '@renderer/shared/locale'
 import { cn } from '@renderer/shared/utils/style'
 import type { SidebarContainerProps, SidebarStateEmits, SidebarStateProps } from './types'
+
+const { t } = useI18n()
 
 const expanded = defineModel<boolean>('expanded')
 const props = defineProps<SidebarContainerProps & SidebarStateProps>()
@@ -27,22 +30,22 @@ const sidebarCommonItems = computed(() => {
   const base = [
     {
       icon: DashboardIcon,
-      label: 'Dashboard',
+      label: t('sidebar.dashboard'),
       routeName: 'page-app-dashboard'
     },
     {
       icon: FavoriteIcon,
-      label: 'Favorites',
+      label: t('sidebar.favorites'),
       routeName: 'page-app-favorites'
     },
     {
       icon: FeedIcon,
-      label: 'Feed',
+      label: t('sidebar.feed'),
       routeName: 'page-app-feed'
     },
     {
       icon: ChartIcon,
-      label: 'Charts',
+      label: t('sidebar.charts'),
       routeName: 'page-app-charts'
     }
   ]
@@ -53,7 +56,7 @@ const sidebarCommonItems = computed(() => {
 const sidebarFooterItems = computed(() => [
   {
     icon: SettingIcon,
-    label: 'Settings',
+    label: t('sidebar.settings'),
     routeName: 'page-app-settings'
   }
 ])
@@ -91,12 +94,15 @@ const sidebarFooterItems = computed(() => [
           @click="emits('update:activeRouteName', item.routeName)"
         />
       </div>
-      <SidebarCurrentInstance />
+      <SidebarCurrentInstance
+        :active="isActiveRoute('page-app-current-instance')"
+        @click="emits('update:activeRouteName', 'page-app-current-instance')"
+      />
     </div>
     <div class="py-2.5 border-t border-sidebar-border dark:border-sidebar-border/40">
       <SidebarIconButton
         :icon="expanded ? CollapseLeftIcon : ExpandLeftIcon"
-        :label="expanded ? 'Collapse' : 'Expand'"
+        :label="t(expanded ? 'sidebar.collapse' : 'sidebar.expand')"
         @click="expanded = !expanded"
       />
     </div>
