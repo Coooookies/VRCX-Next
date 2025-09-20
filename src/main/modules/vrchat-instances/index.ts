@@ -54,11 +54,11 @@ export class VRChatInstances extends Module {
   private bindEvents(): void {
     this.workflow.registerPostLoginTask('instance-listener-mount', 60, async () => {
       // manually refresh
-      if (!this.monitor.vrchatState.running) {
+      if (!this.monitor.Repository.vrchatState.isRunning) {
         await this.monitor.refresh()
       }
 
-      if (this.monitor.vrchatState.running) {
+      if (this.monitor.Repository.vrchatState.isRunning) {
         await this.instance.start()
       }
     })
@@ -67,8 +67,8 @@ export class VRChatInstances extends Module {
       await this.instance.stop()
     })
 
-    this.monitor.on('process:vrchat:state-change', (state) => {
-      if (this.auth.isLoggedIn && state.running) {
+    this.monitor.on('process:vrchat:state-change', (isRunning) => {
+      if (this.auth.isLoggedIn && isRunning) {
         this.instance.start(true)
       } else {
         this.instance.stop()
