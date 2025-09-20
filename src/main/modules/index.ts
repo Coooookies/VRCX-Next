@@ -3,6 +3,7 @@ import { ProtocolServer } from './protocol-server'
 import { IPCModule } from './ipc'
 import { MobxState } from './mobx-state'
 import { MainWindow } from './main-window'
+import { TrayModule } from './tray'
 import { SettingModule } from './setting'
 import { ImageSelection } from './image-selection'
 import { Database } from './database'
@@ -29,6 +30,7 @@ export const APP_MODULES: Record<string, ModuleConstructor> = {
   MobxState,
   SettingModule,
   MainWindow,
+  TrayModule,
   ProtocolServer,
   IPCModule,
   ImageSelection,

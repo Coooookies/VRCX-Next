@@ -42,11 +42,11 @@ export class MainWindow extends Module {
     this.mainWindow?.hide()
   }
 
-  private beforeDestroy(): void {
-    this.ipc.unregisterWebContents(MainWindow.MAIN_WINDOW_PARTITION)
-    this.protocol.unbindProtocolHandler(this.session!)
-    this.mainWindow = null
-  }
+  // private beforeDestroy(): void {
+  //   this.ipc.unregisterWebContents(MainWindow.MAIN_WINDOW_PARTITION)
+  //   this.protocol.unbindProtocolHandler(this.session!)
+  //   this.mainWindow = null
+  // }
 
   private createWindow(): BrowserWindow {
     const width = MainWindow.MAIN_WINDOW_WIDTH
@@ -80,8 +80,13 @@ export class MainWindow extends Module {
       win.show()
     })
 
-    win.on('close', () => {
-      this.beforeDestroy()
+    // win.on('close', () => {
+    //   this.beforeDestroy()
+    // })
+
+    win.on('close', (event) => {
+      event.preventDefault()
+      win.hide()
     })
 
     registerWebviewEssential(win)
