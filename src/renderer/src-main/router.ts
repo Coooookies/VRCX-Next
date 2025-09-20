@@ -63,6 +63,14 @@ export function createRouter() {
             }
           },
           {
+            path: 'current-instance',
+            name: 'page-app-current-instance',
+            component: () => import('./pages/current-instance.vue'),
+            meta: {
+              index: 6
+            }
+          },
+          {
             path: 'settings',
             name: 'page-app-settings',
             component: () => import('./pages/settings.vue'),

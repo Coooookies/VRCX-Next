@@ -2,9 +2,11 @@
 import AppRoute from '../layouts/app-route.vue'
 import { computed } from 'vue'
 import { useModule } from '@renderer/shared/hooks/use-module'
-import type { VRChatInstances } from '@renderer/shared/modules/vrchat-instances'
 import { Spinner } from '@renderer/shared/components/ui/spinner'
+import type { VRChatInstances } from '@renderer/shared/modules/vrchat-instances'
+import type { ServiceMonitor } from '@renderer/shared/modules/service-monitor'
 
+const service = useModule<ServiceMonitor>('ServiceMonitor')
 const instance = useModule<VRChatInstances>('VRChatInstances')
 
 const intanceJson = computed(() => {
@@ -37,6 +39,16 @@ const activitiesJson = computed(() => {
 <template>
   <AppRoute>
     <div class="px-10 py-10 space-y-6">
+      <div class="bg-white/5 p-4 rounded-md">
+        <p>{{ service.state.vrchat.isRunning }}</p>
+        <p>{{ service.state.vrchat.pid }}</p>
+        <p>{{ service.state.vrchat.cmd }}</p>
+      </div>
+      <div class="bg-white/5 p-4 rounded-md">
+        <p>{{ service.state.steamvr.isRunning }}</p>
+        <p>{{ service.state.steamvr.pid }}</p>
+        <p>{{ service.state.steamvr.cmd }}</p>
+      </div>
       <div class="bg-white/5 p-4 rounded-md">
         <p>{{ instance.state.currentInstance.recordId }}</p>
         <p>{{ instance.state.currentInstance.joined }}</p>
