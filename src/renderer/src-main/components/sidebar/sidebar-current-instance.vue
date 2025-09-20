@@ -41,13 +41,14 @@ const isLoading = computed(() => {
         <div
           :class="
             cn(
-              'relative size-full rounded-full p-1 transition-colors duration-150',
-              'after:inset-0 after:absolute after:rounded-full after:border-2',
+              'relative size-full rounded-full p-1 before:transition-colors before:duration-150',
+              'before:inset-0 before:absolute before:rounded-full before:border-2',
+              'after:inset-0 after:absolute after:rounded-full after:border-2 after:border-transparent',
               isGameRunning
                 ? active
-                  ? 'after:border-muted-foreground/50'
-                  : 'after:border-muted-foreground/15'
-                : 'after:border-transparent',
+                  ? 'before:border-muted-foreground/50'
+                  : 'before:border-muted-foreground/15'
+                : 'before:border-transparent',
               isLoading && 'after:border-white',
               isLoading && 'after:mask-x-from-50% after:mask-x-to-75% after:mask-size-[200%_100%]',
               isLoading && 'after:animate-[animation-mask-shimmer_1.5s_infinite_linear]'

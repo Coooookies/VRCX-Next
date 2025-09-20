@@ -6,30 +6,30 @@ import { cn } from '@renderer/shared/utils/style'
 import { useI18n } from '@renderer/shared/locale'
 import { ElapsedTimerText } from '@renderer/shared/components/timer'
 import { TabsContent } from '@renderer/shared/components/ui/tabs'
-import { LocationInstancePublicType } from '@shared/definition/vrchat-instances'
 import { LOCATION_TYPE_TRANSLATE_KEY } from '@renderer/shared/constants/locale-mapping'
-import type { LocationInstance } from '@shared/definition/vrchat-instances'
+import type { LocationInstance, LocationOwner } from '@shared/definition/vrchat-instances'
 
 const { t } = useI18n()
 
 const props = defineProps<{
   value: string
-  ownerName: string
-  playerCount: number
-  playerCapacity?: number
-  instanceType?: LocationInstance['type']
-  joinedAt?: Date | null
-  require18yo?: boolean
+  playerCount: number | null
+  playerCapacity: number | null
+  instanceOwner: LocationOwner | null
+  instanceType: LocationInstance['type']
+  joinedAt: Date | null
+  require18yo: boolean
 }>()
 
 const currentInstanceType = computed(() => {
-  return t(LOCATION_TYPE_TRANSLATE_KEY[props.instanceType || LocationInstancePublicType.Public])
+  return t(LOCATION_TYPE_TRANSLATE_KEY[props.instanceType])
 })
 </script>
 
 <template>
   <TabsContent :value="props.value" :class="cn('px-0.5 flex flex-1 flex-col', '@5xl:flex-[unset]')">
     <div
+      v-if="props.instanceOwner && props.instanceOwner?.type !== 'public'"
       :class="
         cn(
           'flex flex-row border-b border-border border-dashed py-0 flex-1 items-center',
@@ -37,7 +37,16 @@ const currentInstanceType = computed(() => {
         )
       "
     >
-      <CurrentInstanceArrowButton label="Owner" :value="props.ownerName" />
+      <CurrentInstanceArrowButton
+        v-if="props.instanceOwner.type === 'group'"
+        label="Group"
+        :value="props.instanceOwner.summary?.groupName || '-'"
+      />
+      <CurrentInstanceArrowButton
+        v-if="props.instanceOwner.type === 'user'"
+        label="Owner"
+        :value="props.instanceOwner.summary?.displayName || '-'"
+      />
     </div>
     <div
       :class="
@@ -48,7 +57,7 @@ const currentInstanceType = computed(() => {
       "
     >
       <CurrentInstanceStats label="In Room">
-        <span>{{ props.playerCount }}</span>
+        <span>{{ props.playerCount || '-' }}</span>
         <span>/</span>
         <span>{{ props.playerCapacity || '-' }}</span>
       </CurrentInstanceStats>

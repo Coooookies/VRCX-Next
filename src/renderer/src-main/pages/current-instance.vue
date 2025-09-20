@@ -10,11 +10,15 @@ import { computed, ref } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
 import { useCurrentInstance } from '../composables/current-instance'
 import { Tabs, TabsContent } from '@renderer/shared/components/ui/tabs'
-import { LocationInstanceGroupType } from '@shared/definition/vrchat-instances'
+import {
+  LocationInstanceGroupType,
+  LocationInstancePublicType
+} from '@shared/definition/vrchat-instances'
 import type { CurrentInstanceInfoTab } from '../components/current-instance/current-instance-info-tabs.vue'
 import type { CurrentInstancePageTab } from '../components/current-instance/current-instance-page-tabs.vue'
 
-const { instancePlayers, instance, isGameRunning, isJoined } = useCurrentInstance()
+const { instancePlayers, instance, isGameRunning, isInstanceLoading, isJoined } =
+  useCurrentInstance()
 
 const infoTabs: CurrentInstanceInfoTab[] = [
   { value: 'info-room', label: 'Room' },
@@ -39,6 +43,10 @@ const require18yo = computed(() => {
   }
 
   return false
+})
+
+const isInstancePreloading = computed(() => {
+  return isInstanceLoading.value && instancePlayers.value.length === 0
 })
 </script>
 
@@ -73,10 +81,10 @@ const require18yo = computed(() => {
                 <CurrentInstanceInfoTabs :class="cn('w-1/2', '@5xl:w-full')" :tabs="infoTabs" />
                 <CurrentInstanceTabInstance
                   :value="infoTabs[0].value"
-                  :instance-type="currentLocation?.type"
-                  :owner-name="currentWorld?.authorUserName || '-'"
-                  :player-count="instancePlayers.length"
-                  :player-capacity="currentWorld?.capacity.maxCapacity"
+                  :instance-type="currentLocation?.type || LocationInstancePublicType.Public"
+                  :instance-owner="instance.currentInstance.locationOwner"
+                  :player-count="!isInstancePreloading ? instancePlayers.length : null"
+                  :player-capacity="currentWorld?.capacity.maxCapacity || null"
                   :joined-at="instance.currentInstance.locationJoinedAt"
                   :require18yo="require18yo"
                 />
@@ -94,7 +102,7 @@ const require18yo = computed(() => {
               </div>
             </div>
             <div>
-              <CurrentInstancePlayerTable :players="instancePlayers" />
+              <CurrentInstancePlayerTable v-if="!isInstancePreloading" :players="instancePlayers" />
             </div>
           </div>
         </div>
