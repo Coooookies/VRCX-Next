@@ -43,3 +43,16 @@ export interface NotificationSharedState {
 export interface MiscellaneousSharedState {
   serverTimeOffset: number
 }
+
+export interface ServiceMonitorSharedState {
+  vrchat: {
+    isRunning: boolean
+    pid: number | null
+    cmd: string | null
+  }
+  steamvr: {
+    isRunning: boolean
+    pid: number | null
+    cmd: string | null
+  }
+}
