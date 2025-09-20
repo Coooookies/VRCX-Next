@@ -8,6 +8,7 @@ import type { InstanceUserActivity, InstanceUserSummary } from '@shared/definiti
 export class VRChatInstances extends Module {
   @Dependency('IPCRenderer') declare private ipc: IPCRenderer
   @Dependency('MobxRenderer') declare private mobx: MobxRenderer
+
   public readonly currentInstanceUsers = ref<InstanceUserSummary[]>([])
   public readonly currentInstanceUserActivities = ref<InstanceUserActivity[]>([])
   private $!: InstanceSharedState
