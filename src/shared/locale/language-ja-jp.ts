@@ -197,6 +197,14 @@ export const LANGUAGE_JA_JP: LocaleStructure = {
       }
     },
     sidebar: {
+      dashboard: 'ダッシュボード',
+      favorites: 'お気に入り',
+      feed: 'フィード',
+      charts: 'チャート',
+      settings: '設定',
+      vrchat_not_joined: '未参加',
+      vrchat_not_running: '未実行',
+      vrchat_world_loading: '読み込み中...',
       notifications: '通知',
       notifications_title: '通知',
       notifications_category: {
@@ -211,7 +219,9 @@ export const LANGUAGE_JA_JP: LocaleStructure = {
         offline: 'オフライン',
         favorite: 'お気に入り',
         web_active: 'Web活動中'
-      }
+      },
+      collapse: '折りたたむ',
+      expand: '展開する'
     },
     setting: {
       network: {

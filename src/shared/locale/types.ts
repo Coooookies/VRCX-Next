@@ -132,6 +132,14 @@ export type LocaleDefinition = {
     }
   }
   sidebar: {
+    dashboard: string
+    favorites: string
+    feed: string
+    charts: string
+    settings: string
+    vrchat_not_joined: string
+    vrchat_not_running: string
+    vrchat_world_loading: string
     notifications: string
     notifications_title: string
     notifications_category: Record<NotificationGlobalCategory, string>
@@ -143,6 +151,8 @@ export type LocaleDefinition = {
       favorite: string
       web_active: string
     }
+    collapse: string
+    expand: string
   }
   setting: {
     network: {

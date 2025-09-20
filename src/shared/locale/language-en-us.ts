@@ -197,6 +197,14 @@ export const LANGUAGE_EN_US: LocaleStructure = {
       }
     },
     sidebar: {
+      dashboard: 'Dashboard',
+      favorites: 'Favorites',
+      feed: 'Feed',
+      charts: 'Charts',
+      settings: 'Settings',
+      vrchat_not_joined: 'Not Joined',
+      vrchat_not_running: 'Not Running',
+      vrchat_world_loading: 'Loading...',
       notifications: 'Notifications',
       notifications_title: 'Notifications',
       notifications_category: {
@@ -211,7 +219,9 @@ export const LANGUAGE_EN_US: LocaleStructure = {
         offline: 'Offline',
         favorite: 'Favorite',
         web_active: 'Web Active'
-      }
+      },
+      collapse: 'Collapse',
+      expand: 'Expand'
     },
     setting: {
       network: {

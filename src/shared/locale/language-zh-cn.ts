@@ -197,6 +197,14 @@ export const LANGUAGE_ZH_CN: LocaleStructure = {
       }
     },
     sidebar: {
+      dashboard: '控制台',
+      favorites: '收藏',
+      feed: '好友动态',
+      charts: '图表',
+      settings: '设置',
+      vrchat_not_joined: '未加入',
+      vrchat_not_running: '未运行',
+      vrchat_world_loading: '加载中...',
       notifications: '通知',
       notifications_title: '通知',
       notifications_category: {
@@ -211,7 +219,9 @@ export const LANGUAGE_ZH_CN: LocaleStructure = {
         offline: '离线',
         favorite: '收藏',
         web_active: '网页活跃'
-      }
+      },
+      collapse: '收起',
+      expand: '展开'
     },
     setting: {
       network: {
