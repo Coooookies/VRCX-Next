@@ -10,8 +10,8 @@ const service = useModule<ServiceMonitor>('ServiceMonitor')
 const instance = useModule<VRChatInstances>('VRChatInstances')
 
 const intanceJson = computed(() => {
-  return instance.state.currentInstance.location
-    ? JSON.stringify(instance.state.currentInstance.location, null, 2)
+  return instance.state.currentInstance.locationInstance
+    ? JSON.stringify(instance.state.currentInstance.locationInstance, null, 2)
     : 'null'
 })
 
@@ -53,7 +53,7 @@ const activitiesJson = computed(() => {
         <p>{{ instance.state.currentInstance.recordId }}</p>
         <p>{{ instance.state.currentInstance.joined }}</p>
         <p class="whitespace-pre-wrap text-xs">{{ intanceJson }}</p>
-        <Spinner v-if="instance.state.currentInstance.loading" class="size-5" />
+        <Spinner v-if="instance.state.currentInstance.locationPlayersInitializing" class="size-5" />
       </div>
       <div class="bg-white/5 p-4 rounded-md">
         <p class="whitespace-pre-wrap text-xs">{{ ownerJson }}</p>

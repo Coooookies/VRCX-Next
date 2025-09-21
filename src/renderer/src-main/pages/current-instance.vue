@@ -3,20 +3,21 @@ import AppRoute from '../layouts/app-route.vue'
 import CurrentInstanceInfoTabs from '../components/current-instance/current-instance-info-tabs.vue'
 import CurrentInstanceLocationThumbnail from '../components/current-instance/current-instance-location-thumbnail.vue'
 import CurrentInstancePageTabs from '../components/current-instance/current-instance-page-tabs.vue'
-import CurrentInstancePlayerTable from '../components/current-instance/current-instance-player-table.vue'
 import CurrentInstanceSearchInput from '../components/current-instance/current-instance-search-input.vue'
 import CurrentInstanceTabInstance from '../components/current-instance/current-instance-tab-instance.vue'
-import { computed, ref } from 'vue'
+import CurrentInstanceTabWorld from '../components/current-instance/current-instance-tab-world.vue'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { cn } from '@renderer/shared/utils/style'
 import { useCurrentInstance } from '../composables/current-instance'
-import { Tabs, TabsContent } from '@renderer/shared/components/ui/tabs'
-import {
-  LocationInstanceGroupType,
-  LocationInstancePublicType
-} from '@shared/definition/vrchat-instances'
+import { RouterView } from 'vue-router'
+import { Tabs } from '@renderer/shared/components/ui/tabs'
+import { LocationInstanceGroupType } from '@shared/definition/vrchat-instances'
 import type { CurrentInstanceInfoTab } from '../components/current-instance/current-instance-info-tabs.vue'
 import type { CurrentInstancePageTab } from '../components/current-instance/current-instance-page-tabs.vue'
 
+const router = useRouter()
+const route = useRoute()
 const { instancePlayers, instance, isGameRunning, isInstanceLoading, isJoined } =
   useCurrentInstance()
 
@@ -26,12 +27,11 @@ const infoTabs: CurrentInstanceInfoTab[] = [
 ]
 
 const pageTabs: CurrentInstancePageTab[] = [
-  { value: 'page-players', label: 'Players' },
-  { value: 'page-event-history', label: 'Event History' }
+  { value: 'page-app-current-instance.players', label: 'Players' },
+  { value: 'page-app-current-instance.events', label: 'Event History' }
 ]
 
-const currentPageTab = ref(pageTabs[0].value)
-const currentLocation = computed(() => instance.currentInstance.location)
+const currentLocation = computed(() => instance.currentInstance.locationInstance)
 const currentWorld = computed(() => instance.currentInstance.world)
 const require18yo = computed(() => {
   if (
@@ -44,6 +44,13 @@ const require18yo = computed(() => {
 
   return false
 })
+
+const routeName = computed(() => route.name?.toString() || '')
+const routeTo = (name: string) => {
+  if (routeName.value !== name) {
+    router.push({ name })
+  }
+}
 
 const isInstancePreloading = computed(() => {
   return isInstanceLoading.value && instancePlayers.value.length === 0
@@ -81,37 +88,42 @@ const isInstancePreloading = computed(() => {
                 <CurrentInstanceInfoTabs :class="cn('w-1/2', '@5xl:w-full')" :tabs="infoTabs" />
                 <CurrentInstanceTabInstance
                   :value="infoTabs[0].value"
-                  :instance-type="currentLocation?.type || LocationInstancePublicType.Public"
-                  :instance-owner="instance.currentInstance.locationOwner"
+                  :instance="currentLocation"
+                  :owner="instance.currentInstance.locationOwner"
                   :player-count="!isInstancePreloading ? instancePlayers.length : null"
                   :player-capacity="currentWorld?.capacity.maxCapacity || null"
                   :joined-at="instance.currentInstance.locationJoinedAt"
                   :require18yo="require18yo"
                 />
-                <TabsContent :value="infoTabs[1].value" class="px-0.5">
-                  <p class="text-muted-foreground p-4 text-center text-xs">Content for Tab 2</p>
-                </TabsContent>
+                <CurrentInstanceTabWorld
+                  :value="infoTabs[1].value"
+                  :detail="instance.currentInstance.world"
+                />
               </Tabs>
             </div>
           </div>
           <div :class="cn('relative w-full pb-10 -mt-21', '@5xl:mt-0 @5xl:w-[unset] @5xl:flex-1')">
             <div class="sticky top-0 z-1 pt-21 pb-4 bg-background">
               <div class="flex flex-row justify-between h-9 pl-1">
-                <CurrentInstancePageTabs v-model="currentPageTab" :tabs="pageTabs" />
+                <CurrentInstancePageTabs
+                  :tabs="pageTabs"
+                  :model-value="routeName"
+                  @update:model-value="routeTo"
+                />
                 <CurrentInstanceSearchInput class="w-46 h-full" />
               </div>
             </div>
             <div>
-              <CurrentInstancePlayerTable v-if="!isInstancePreloading" :players="instancePlayers" />
+              <RouterView />
             </div>
           </div>
         </div>
-        <div v-else>
+        <div v-else class="w-full h-screen flex items-center justify-center">
           <p>1</p>
         </div>
       </template>
       <template v-else>
-        <div>
+        <div class="w-full h-screen flex items-center justify-center">
           <p>2</p>
         </div>
       </template>

@@ -74,9 +74,22 @@ export function createRouter() {
             path: 'current-instance',
             name: 'page-app-current-instance',
             component: () => import('./pages/current-instance.vue'),
+            redirect: { name: 'page-app-current-instance.players' },
             meta: {
               index: 7
-            }
+            },
+            children: [
+              {
+                path: 'players',
+                name: 'page-app-current-instance.players',
+                component: () => import('./pages/current-instance.players.vue')
+              },
+              {
+                path: 'events',
+                name: 'page-app-current-instance.events',
+                component: () => import('./pages/current-instance.events.vue')
+              }
+            ]
           }
         ]
       }
