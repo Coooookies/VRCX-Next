@@ -20,12 +20,14 @@ export function useCurrentInstance() {
   const isJoined = computed(() => instance.state.currentInstance.joined)
   const isGameRunning = computed(() => service.state.vrchat.isRunning)
   const isInstanceLoading = computed(() => {
-    return service.state.vrchat.isRunning ? instance.state.currentInstance.loading : false
+    return service.state.vrchat.isRunning
+      ? instance.state.currentInstance.locationPlayersInitializing
+      : false
   })
 
   watchEffect(() => {
     instancePlayers.value = instance.currentInstanceUsers.value.map((user) => {
-      const location = instance.state.currentInstance.location
+      const location = instance.state.currentInstance.locationInstance
       const isFriend = friends.value.findIndex((f) => f.userId === user.userId) !== -1
       const isOwner =
         (location?.type === LocationInstanceUserType.Friends ||
