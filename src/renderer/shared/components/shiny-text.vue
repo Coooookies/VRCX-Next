@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 
 interface ShinyTextProps {
-  text: string
+  text?: string
   disabled?: boolean
   speed?: number
   className?: string
@@ -28,7 +28,12 @@ const animationDuration = computed(() => `${props.speed}s`)
       animationDuration: animationDuration
     }"
   >
-    {{ props.text }}
+    <template v-if="$slots.default">
+      <slot />
+    </template>
+    <template v-else>
+      {{ props.text }}
+    </template>
   </span>
 </template>
 
