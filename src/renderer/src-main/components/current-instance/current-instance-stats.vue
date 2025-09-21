@@ -7,8 +7,8 @@ const props = defineProps<{
 
 <template>
   <div class="w-full h-10 flex flex-col gap-0.5 justify-center flex-1 text-left overflow-hidden">
-    <p class="text-[13px] text-muted-foreground truncate">{{ props.label }}</p>
-    <p class="text-sm text-foreground truncate">
+    <p class="pl-0.5 text-[13px] text-muted-foreground truncate">{{ props.label }}</p>
+    <p class="pl-0.5 text-sm text-foreground truncate">
       <template v-if="$slots.default">
         <slot />
       </template>
