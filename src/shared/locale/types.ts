@@ -1,3 +1,4 @@
+import { ReleaseStatus } from '@shared/definition/vrchat-api-response'
 import { LANGUAGES } from '.'
 import { LCID_DEFINITIONS } from './lcid'
 import type { NotificationGlobalCategory } from '@shared/definition/vrchat-notifications'
@@ -99,6 +100,9 @@ export type LocaleDefinition = {
     }
     locale: Record<UserLanguage, string>
     social: Record<UserSocial, string>
+  }
+  works: {
+    release_status: Record<ReleaseStatus, string>
   }
   notification: {
     empty_title: string

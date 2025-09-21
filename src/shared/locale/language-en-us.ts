@@ -165,6 +165,14 @@ export const LANGUAGE_EN_US: LocaleStructure = {
         [UserSocial.Other]: 'Other'
       }
     },
+    works: {
+      release_status: {
+        public: 'Public',
+        private: 'Private',
+        hidden: 'Hidden',
+        all: 'All(?)'
+      }
+    },
     notification: {
       empty_title: 'No notifications',
       empty_description: 'It’s very quiet here...',

@@ -45,7 +45,7 @@ import {
   LocationInstancePublicType,
   LocationInstanceUserType
 } from '@shared/definition/vrchat-instances'
-import { UserStatus } from '@shared/definition/vrchat-api-response'
+import { ReleaseStatus, UserStatus } from '@shared/definition/vrchat-api-response'
 import { UserTrustRank } from '@shared/definition/vrchat-users'
 import type { FunctionalComponent } from 'vue'
 import type { LocaleI18NKeys } from '../locale/types'
@@ -140,4 +140,11 @@ export const LANGUAGE_DEFINITION_KEY: Record<
   [UserLanguage.FSL]: { icon: LanguageFslIcon, label: 'profile.locale.language_fsl' },
   [UserLanguage.JSL]: { icon: LanguageJslIcon, label: 'profile.locale.language_jsl' },
   [UserLanguage.KVK]: { icon: LanguageKvkIcon, label: 'profile.locale.language_kvk' }
+}
+
+export const RELEASE_STATUS_TRANSLATE_KEY: Record<ReleaseStatus, LocaleI18NKeys> = {
+  [ReleaseStatus.Public]: 'works.release_status.public',
+  [ReleaseStatus.Private]: 'works.release_status.private',
+  [ReleaseStatus.Hidden]: 'works.release_status.hidden',
+  [ReleaseStatus.All]: 'works.release_status.all'
 }

@@ -165,6 +165,14 @@ export const LANGUAGE_ZH_CN: LocaleStructure = {
         [UserSocial.Other]: '其他'
       }
     },
+    works: {
+      release_status: {
+        public: '公开',
+        private: '私密',
+        hidden: '隐藏',
+        all: '全部(?)'
+      }
+    },
     notification: {
       empty_title: '暂时没有通知',
       empty_description: '这里似乎非常安静...',

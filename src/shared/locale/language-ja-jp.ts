@@ -165,6 +165,14 @@ export const LANGUAGE_JA_JP: LocaleStructure = {
         [UserSocial.Other]: 'その他'
       }
     },
+    works: {
+      release_status: {
+        public: '公開',
+        private: '非公開',
+        hidden: '非表示',
+        all: 'すべて(?)'
+      }
+    },
     notification: {
       empty_title: '通知はありません',
       empty_description: 'ここはとても静かです...',
