@@ -81,8 +81,6 @@ export class ServiceMonitor extends Module<{
           if (this.repository.vrchatState.isRunning) {
             const currentProcess = matchingProcesses.find((p) => p.pid === state.pid)
             if (!currentProcess) {
-              // Current process exited, update to new process or mark as stopped
-
               this.repository.setVRChatRuning(false)
               this.emit('process:vrchat:state-change', false)
 
@@ -116,8 +114,6 @@ export class ServiceMonitor extends Module<{
           if (this.repository.steamvrState.isRunning) {
             const currentProcess = matchingProcesses.find((p) => p.pid === state.pid)
             if (!currentProcess) {
-              // Current process exited, update to new process or mark as stopped
-
               this.repository.setSteamVRRuning(false)
               this.emit('process:steamvr:state-change', false)
 

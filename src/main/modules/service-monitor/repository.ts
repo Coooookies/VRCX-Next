@@ -22,7 +22,14 @@ export class ServiceMonitorRepository {
           cmd: null
         }
       },
-      ['steamvr.isRunning', 'vrchat.isRunning']
+      [
+        'steamvr.isRunning',
+        'vrchat.isRunning',
+        'steamvr.cmd',
+        'steamvr.pid',
+        'vrchat.cmd',
+        'vrchat.pid'
+      ]
     )
   }
 
