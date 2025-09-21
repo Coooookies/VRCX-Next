@@ -19,13 +19,20 @@ export interface LogEventPlayerActivity {
   userName: string
 }
 
+export interface LogEventPrepartion {
+  state: string
+  seconds: number
+  progress: number
+}
+
 export const LogEvents = {
   StringLoad: 'stringLoad',
   ImageLoad: 'imageLoad',
   SelfJoin: 'selfJoin',
   SelfLeave: 'selfLeave',
   PlayerJoined: 'playerJoined',
-  PlayerLeft: 'playerLeft'
+  PlayerLeft: 'playerLeft',
+  Prepartion: 'prepartion'
 } as const
 
 export type LogEvents = (typeof LogEvents)[keyof typeof LogEvents]
@@ -37,6 +44,7 @@ export type LogEventDefinition = {
   [LogEvents.SelfLeave]: null
   [LogEvents.PlayerJoined]: LogEventPlayerActivity
   [LogEvents.PlayerLeft]: LogEventPlayerActivity
+  [LogEvents.Prepartion]: LogEventPrepartion
 }
 
 export type LogEventMessage = {

@@ -7,3 +7,6 @@ export const GAMELOG_IMAGE_OR_STRING_LOAD_REGEXP =
 
 export const GAMELOG_PLAYER_ACTIVITY_REGEXP =
   /OnPlayer(Joined|Left) (?<username>[^(]+) (\((?<userId>[^)]+)\))?/
+
+export const GAMELOG_PREPARATION_REGEXP =
+  /Preparation has taken (?<seconds>\d+) seconds, progress is (?<progress>[\d.]+)%, loader state is (?<state>\w+)/

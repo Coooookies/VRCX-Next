@@ -2,7 +2,8 @@ import {
   GAMELOG_IMAGE_OR_STRING_LOAD_REGEXP,
   GAMELOG_PARSER_DATE_REGEXP,
   GAMELOG_PARSER_REGEXP,
-  GAMELOG_PLAYER_ACTIVITY_REGEXP
+  GAMELOG_PLAYER_ACTIVITY_REGEXP,
+  GAMELOG_PREPARATION_REGEXP
 } from './constants'
 import { LogEvents } from './types'
 import type { LogEventContext, LogEventMessage } from './types'
@@ -39,13 +40,16 @@ export function parseEventLine(line: string): LogEventContext | null {
 
 export function parseSpecialEventLine(data: LogEventContext): LogEventMessage | null {
   // String Download / Image Download
-  if (data.type == 'debug' && (data.topic == 'String Download' || data.topic == 'Image Download')) {
+  if (
+    data.type === 'debug' &&
+    (data.topic === 'String Download' || data.topic === 'Image Download')
+  ) {
     const regexRes = data.content?.match(GAMELOG_IMAGE_OR_STRING_LOAD_REGEXP)
 
     // if url found emit event
     if (regexRes && regexRes.groups && regexRes.groups.url) {
       return {
-        type: data.topic == 'String Download' ? LogEvents.StringLoad : LogEvents.ImageLoad,
+        type: data.topic === 'String Download' ? LogEvents.StringLoad : LogEvents.ImageLoad,
         content: {
           url: regexRes.groups.url
         }
@@ -55,8 +59,8 @@ export function parseSpecialEventLine(data: LogEventContext): LogEventMessage | 
 
   // world join
   if (
-    data.type == 'debug' &&
-    data.topic == 'Behaviour' &&
+    data.type === 'debug' &&
+    data.topic === 'Behaviour' &&
     data.content?.startsWith('Joining wrld_')
   ) {
     return {
@@ -68,7 +72,7 @@ export function parseSpecialEventLine(data: LogEventContext): LogEventMessage | 
   }
 
   // world leave
-  if (data.type == 'debug' && data.topic == 'Behaviour' && data.content == 'Unloading scenes') {
+  if (data.type === 'debug' && data.topic === 'Behaviour' && data.content === 'OnLeftRoom') {
     return {
       type: LogEvents.SelfLeave,
       content: null
@@ -77,8 +81,8 @@ export function parseSpecialEventLine(data: LogEventContext): LogEventMessage | 
 
   // player join / leave
   if (
-    data.type == 'debug' &&
-    data.topic == 'Behaviour' &&
+    data.type === 'debug' &&
+    data.topic === 'Behaviour' &&
     (data.content?.startsWith('OnPlayerJoined ') || data.content?.startsWith('OnPlayerLeft '))
   ) {
     const regexRes = data.content.match(GAMELOG_PLAYER_ACTIVITY_REGEXP)
@@ -91,6 +95,26 @@ export function parseSpecialEventLine(data: LogEventContext): LogEventMessage | 
         content: {
           userName: regexRes.groups.username,
           userId: regexRes.groups.userId || undefined
+        }
+      }
+    }
+  }
+
+  // prepartion
+  if (
+    data.type === 'debug' &&
+    data.topic === 'Behaviour' &&
+    data.content?.startsWith('Preparation has taken ')
+  ) {
+    const regexRes = data.content.match(GAMELOG_PREPARATION_REGEXP)
+
+    if (regexRes?.groups?.seconds && regexRes?.groups?.progress && regexRes?.groups?.state) {
+      return {
+        type: LogEvents.Prepartion,
+        content: {
+          state: regexRes.groups.state,
+          seconds: +regexRes.groups.seconds,
+          progress: +regexRes.groups.progress
         }
       }
     }
