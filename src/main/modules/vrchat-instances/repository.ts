@@ -32,22 +32,22 @@ export class InstanceRepository extends Nanobus<{
       {
         currentInstance: {
           recordId: null,
-          loading: false,
           joined: false,
           world: null,
-          location: null,
+          locationInstance: null,
           locationOwner: null,
-          locationJoinedAt: null
+          locationJoinedAt: null,
+          locationPlayersInitializing: false
         }
       },
       [
         'currentInstance.recordId',
-        'currentInstance.loading',
         'currentInstance.joined',
         'currentInstance.world',
-        'currentInstance.location',
+        'currentInstance.locationInstance',
         'currentInstance.locationOwner',
-        'currentInstance.locationJoinedAt'
+        'currentInstance.locationJoinedAt',
+        'currentInstance.locationPlayersInitializing'
       ]
     )
   }
@@ -106,22 +106,22 @@ export class InstanceRepository extends Nanobus<{
       this.$.currentInstance.recordId = null
       this.$.currentInstance.joined = false
       this.$.currentInstance.world = null
-      this.$.currentInstance.location = null
+      this.$.currentInstance.locationInstance = null
       this.$.currentInstance.locationOwner = null
       this.$.currentInstance.locationJoinedAt = null
-      this.$.currentInstance.loading = false
+      this.$.currentInstance.locationPlayersInitializing = false
     })
   }
 
   public setCurrentInstanceLoading(loading: boolean) {
     this.mobx.action(() => {
-      this.$.currentInstance.loading = loading
+      this.$.currentInstance.locationPlayersInitializing = loading
     })
   }
 
   public setCurrentInstanceLocation(location: LocationInstance | null, joinedAt: Date | null) {
     this.mobx.action(() => {
-      this.$.currentInstance.location = location
+      this.$.currentInstance.locationInstance = location
       this.$.currentInstance.locationJoinedAt = joinedAt
     })
   }

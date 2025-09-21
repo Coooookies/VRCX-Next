@@ -86,7 +86,7 @@ export class VRChatInstances extends Module {
     this.instance.on('instance:world-summary-initialized', (summary) => {
       this.logger.info(
         `Current-Instance World summary initialized:`,
-        `${summary?.worldName || 'Unknown'}(${this.repository.State.currentInstance.location?.location})`
+        `${summary?.worldName || 'Unknown'}(${this.repository.State.currentInstance.locationInstance?.location})`
       )
     })
 

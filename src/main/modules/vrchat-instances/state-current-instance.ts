@@ -516,8 +516,8 @@ export class CurrentInstance extends Nanobus<{
     return this.repository.State.currentInstance.joined
   }
 
-  public get location(): LocationInstance | null {
-    return this.repository.State.currentInstance.location
+  public get locationInstance(): LocationInstance | null {
+    return this.repository.State.currentInstance.locationInstance
   }
 
   public get recordId(): string | null {
