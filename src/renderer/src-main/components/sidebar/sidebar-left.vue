@@ -23,7 +23,7 @@ const props = defineProps<SidebarContainerProps & SidebarStateProps>()
 const emits = defineEmits<SidebarStateEmits>()
 
 const isActiveRoute = (name: string) => {
-  return name.startsWith(props.activeRouteName)
+  return props.activeRouteName.startsWith(name)
 }
 
 const sidebarCommonItems = computed(() => {

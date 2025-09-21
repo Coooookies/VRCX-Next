@@ -19,11 +19,7 @@ const props = defineProps<{
 }>()
 
 const currentWorld = computed(() => instance.currentInstance.world)
-const isLoading = computed(() => {
-  return service.vrchat.isRunning && isJoined.value
-    ? instance.currentInstance.loading || !instance.currentInstance.world
-    : false
-})
+const initializing = computed(() => instance.currentInstance.locationPlayersInitializing)
 </script>
 
 <template>
@@ -49,9 +45,9 @@ const isLoading = computed(() => {
                   ? 'before:border-muted-foreground/50'
                   : 'before:border-muted-foreground/15'
                 : 'before:border-transparent',
-              isLoading && 'after:border-white',
-              isLoading && 'after:mask-x-from-50% after:mask-x-to-75% after:mask-size-[200%_100%]',
-              isLoading && 'after:animate-[animation-mask-shimmer_1.5s_infinite_linear]'
+              initializing && 'after:border-white after:mask-size-[200%_100%]',
+              initializing && 'after:mask-x-from-50% after:mask-x-to-75%',
+              initializing && 'after:animate-[animation-mask-shimmer_1.5s_infinite_linear]'
             )
           "
         >
@@ -117,8 +113,8 @@ const isLoading = computed(() => {
           {{
             isGameRunning
               ? isJoined
-                ? currentWorld && !isLoading
-                  ? currentWorld.worldName
+                ? !initializing
+                  ? currentWorld?.worldName || '-'
                   : t('sidebar.vrchat_world_loading')
                 : t('sidebar.vrchat_not_joined')
               : t('sidebar.vrchat_not_running')
