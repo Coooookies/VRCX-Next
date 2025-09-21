@@ -1,18 +1,18 @@
-import PhoneIcon from '@shared/assets/vector/profile-icon-phone.svg?component'
 import ProfileNameParagraph from '@renderer/shared/components/paragraph/profile-name-paragraph.vue'
 import CurrentInstancePlayerActions from './current-instance-player-actions.vue'
 import CurrentInstancePlayerAvatar from './current-instance-player-avatar.vue'
 import CurrentInstancePlayerLanguages from './current-instance-player-languages.vue'
 import CurrentInstancePlayerSocialLinks from './current-instance-player-social-links.vue'
+import CurrentInstancePlayerPhoneIcon from './current-instance-player-phone-icon.vue'
 import { h } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-vue-next'
 import { Button } from '@renderer/shared/components/ui/button'
 import { RelativeTimerText } from '@renderer/shared/components/timer'
 import { UserTrustRank } from '@shared/definition/vrchat-users'
+import { Platform } from '@shared/definition/vrchat-api-response-replenish'
 import type { Column, ColumnDef, SortingState } from '@tanstack/vue-table'
 import type { InstancePlayer } from '@renderer/src-main/composables/current-instance'
-import { Platform } from '@shared/definition/vrchat-api-response-replenish'
 
 function createSortHeader(column: Column<InstancePlayer>, label: string) {
   const isSorted = column.getIsSorted()
@@ -76,14 +76,17 @@ export const columns: ColumnDef<InstancePlayer>[] = [
         row.original.user?.platform === Platform.Android ||
         row.original.user?.platform === Platform.IOS
 
-      return h('div', { class: 'px-2 flex flex-row items-center gap-1.5 overflow-hidden' }, [
+      return h('div', { class: 'px-2 flex flex-row items-center gap-0.5 overflow-hidden' }, [
         h(ProfileNameParagraph, {
           class: 'text-[13px] font-semibold truncate',
           userName: row.original.userName,
           trustRank: row.original.user?.trustRank || UserTrustRank.Visitor,
           as: 'span'
         }),
-        isPhone && h(PhoneIcon, { class: 'text-muted-foreground/50 size-3 shrink-0' })
+        isPhone &&
+          h(CurrentInstancePlayerPhoneIcon, {
+            platform: row.original.user?.platform
+          })
       ])
     }
   },
