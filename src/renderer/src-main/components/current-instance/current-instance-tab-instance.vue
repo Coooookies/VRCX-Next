@@ -1,11 +1,14 @@
 <script setup lang="ts">
+import ShinyText from '@renderer/shared/components/shiny-text.vue'
 import CurrentInstanceStats from './current-instance-stats.vue'
+import CurrentInstanceStatsSkeleton from './current-instance-stats-skeleton.vue'
 import CurrentInstanceArrowButton from './current-instance-arrow-button.vue'
 import { computed } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
 import { useI18n } from '@renderer/shared/locale'
 import { ElapsedTimerText } from '@renderer/shared/components/timer'
 import { TabsContent } from '@renderer/shared/components/ui/tabs'
+import { LocationInstancePublicType } from '@shared/definition/vrchat-instances'
 import { LOCATION_TYPE_TRANSLATE_KEY } from '@renderer/shared/constants/locale-mapping'
 import type { LocationInstance, LocationOwner } from '@shared/definition/vrchat-instances'
 
@@ -15,37 +18,42 @@ const props = defineProps<{
   value: string
   playerCount: number | null
   playerCapacity: number | null
-  instanceOwner: LocationOwner | null
-  instanceType: LocationInstance['type']
+  owner: LocationOwner | null
+  instance: LocationInstance | null
   joinedAt: Date | null
   require18yo: boolean
 }>()
 
 const currentInstanceType = computed(() => {
-  return t(LOCATION_TYPE_TRANSLATE_KEY[props.instanceType])
+  return t(LOCATION_TYPE_TRANSLATE_KEY[props.instance?.type || LocationInstancePublicType.Public])
+})
+
+const currentPlayerCount = computed(() => {
+  return `${props.playerCount || '-'}/${props.playerCapacity || '-'}`
 })
 </script>
 
 <template>
-  <TabsContent :value="props.value" :class="cn('px-0.5 flex flex-1 flex-col', '@5xl:flex-[unset]')">
+  <TabsContent :value="props.value" :class="cn('flex flex-1 flex-col', '@5xl:flex-[unset]')">
     <div
-      v-if="props.instanceOwner && props.instanceOwner?.type !== 'public'"
+      v-if="props.instance?.type !== LocationInstancePublicType.Public"
       :class="
         cn(
-          'flex flex-row border-b border-border border-dashed py-0 flex-1 items-center',
-          '@5xl:py-5 @5xl:flex-[unset]'
+          'flex flex-row border-b border-border border-dashed flex-1 items-center',
+          '@5xl:py-5 @5xl:h-20 @5xl:flex-[unset]'
         )
       "
     >
+      <CurrentInstanceStatsSkeleton v-if="!props.owner" />
       <CurrentInstanceArrowButton
-        v-if="props.instanceOwner.type === 'group'"
+        v-else-if="props.owner.type === 'group'"
         label="Group"
-        :value="props.instanceOwner.summary?.groupName || '-'"
+        :value="props.owner.summary?.groupName || '-'"
       />
       <CurrentInstanceArrowButton
-        v-if="props.instanceOwner.type === 'user'"
+        v-else-if="props.owner.type === 'user'"
         label="Owner"
-        :value="props.instanceOwner.summary?.displayName || '-'"
+        :value="props.owner.summary?.displayName || '-'"
       />
     </div>
     <div
@@ -57,9 +65,12 @@ const currentInstanceType = computed(() => {
       "
     >
       <CurrentInstanceStats label="In Room">
-        <span>{{ props.playerCount || '-' }}</span>
-        <span>/</span>
-        <span>{{ props.playerCapacity || '-' }}</span>
+        <ShinyText
+          v-if="props.playerCount === null || props.playerCapacity === null"
+          :speed="2"
+          :text="currentPlayerCount"
+        />
+        <span v-else>{{ currentPlayerCount }}</span>
       </CurrentInstanceStats>
       <CurrentInstanceStats label="Access Type" :value="currentInstanceType" />
       <CurrentInstanceStats label="Join Time">
