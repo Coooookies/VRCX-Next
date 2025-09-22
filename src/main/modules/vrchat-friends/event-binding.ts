@@ -276,28 +276,24 @@ export class FriendsEventBinding extends Nanobus<{
       return
     }
 
-    const newFriend = {
-      ...friend
-    }
-
     const isTraveling = location === 'traveling'
     const travelingTarget = parseLocation(travelingToLocation)
     const originalTarget = parseLocation(location)
-    const prevLocation = newFriend.location
+    const prevLocation = friend.location
     const nextLocation = isTraveling ? travelingTarget : originalTarget
     const nextLocationArrivedAt = nextLocation ? new Date() : null
 
     if (!isSameLocation(prevLocation, nextLocation)) {
-      newFriend.locationArrivedAt = nextLocationArrivedAt
-      newFriend.location = nextLocation
+      friend.locationArrivedAt = nextLocationArrivedAt
+      friend.location = nextLocation
         ? await this.fetcher.enrichLocation(nextLocation, world!)
         : null
     }
 
-    newFriend.isTraveling = isTraveling
+    friend.isTraveling = isTraveling
 
-    this.repository.set(newFriend)
-    this.emit('friend:location', newFriend)
+    // this.repository.set(newFriend)
+    this.emit('friend:location', friend)
   }
 
   private async handleFriendActive({
@@ -311,19 +307,14 @@ export class FriendsEventBinding extends Nanobus<{
       return
     }
 
-    const newFriend = {
-      ...friend
-    }
+    friend.status = user.status
+    friend.statusDescription = user.statusDescription
+    friend.platform = platform
+    friend.location = null
+    friend.locationArrivedAt = null
+    friend.isTraveling = false
 
-    newFriend.status = user.status
-    newFriend.statusDescription = user.statusDescription
-    newFriend.platform = platform
-    newFriend.location = null
-    newFriend.locationArrivedAt = null
-    newFriend.isTraveling = false
-
-    this.repository.set(newFriend)
-    this.emit('friend:active', newFriend)
+    this.emit('friend:active', friend)
   }
 
   private async handleFriendUpdate({ user, userId }: PipelineEventFriendUpdate): Promise<void> {
@@ -343,7 +334,7 @@ export class FriendsEventBinding extends Nanobus<{
     const diff = diffSurface<BaseFriendInformation>(friend, result)
 
     if ('status' in diff) {
-      if (diff.status === UserStatus.Busy || diff.status === UserStatus.AskMe) {
+      if (updatedFriend.status === UserStatus.Busy || updatedFriend.status === UserStatus.AskMe) {
         result.location = null
         result.locationArrivedAt = null
         result.isTraveling = false
