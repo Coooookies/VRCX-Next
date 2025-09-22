@@ -79,10 +79,10 @@ const isInstancePreloading = computed(() => {
             <div :class="cn('h-12 flex flex-row items-center', '@5xl:h-9')">
               <p :class="cn('font-semibold text-2xl', '@5xl:text-lg')">Location</p>
             </div>
-            <div :class="cn('flex h-48 mt-4 flex-row gap-8', '@5xl:flex-col @5xl:gap-4')">
+            <div :class="cn('flex mt-4 flex-row gap-8', '@5xl:flex-col @5xl:gap-4')">
               <CurrentInstanceLocationThumbnail
                 :detail="currentWorld"
-                :class="cn('w-[unset] h-full', '@5xl:w-full @5xl:h-[unset]')"
+                :class="cn('w-[unset] h-49.5', '@5xl:w-full @5xl:h-[unset]')"
               />
               <Tabs :default-value="infoTabs[0].value" class="size-full gap-0">
                 <CurrentInstanceInfoTabs :class="cn('w-1/2', '@5xl:w-full')" :tabs="infoTabs" />
