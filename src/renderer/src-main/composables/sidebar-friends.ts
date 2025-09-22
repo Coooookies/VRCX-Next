@@ -7,10 +7,8 @@ import {
   LocationInstancePublicType,
   LocationInstanceUserType
 } from '@shared/definition/vrchat-instances'
-import {
-  LOCATION_TYPE_TRANSLATE_KEY,
-  STATUS_PRIORITY
-} from '@renderer/shared/constants/locale-mapping'
+import { STATUS_PRIORITY } from '@renderer/shared/constants/profile-mapping'
+import { LOCATION_TYPE_TRANSLATE_KEY } from '@renderer/shared/constants/instance-mapping'
 import type { VRChatFriends } from '@renderer/shared/modules/vrchat-friends'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
 import type { FunctionalComponent } from 'vue'
