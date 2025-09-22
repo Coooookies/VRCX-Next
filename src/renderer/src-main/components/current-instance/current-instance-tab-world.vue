@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import CurrentInstanceArrowButton from './current-instance-arrow-button.vue'
 import CurrentInstanceStats from './current-instance-stats.vue'
 import CurrentInstanceStatsSkeleton from './current-instance-stats-skeleton.vue'
-import CurrentInstanceArrowButton from './current-instance-arrow-button.vue'
-import CurrentInstancePlatforms from './current-instance-platforms.vue'
+import CurrentInstancePlatform from './current-instance-platform.vue'
+import CurrentInstancePlatformSkelete from './current-instance-platform-skelete.vue'
 import { computed } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
 import { useI18n } from '@renderer/shared/locale'
@@ -60,7 +61,7 @@ const worldCapacity = computed(() => {
           label="Release Status"
           :value="t(RELEASE_STATUS_TRANSLATE_KEY[props.detail.releaseStatus])"
         />
-        <CurrentInstancePlatforms
+        <CurrentInstancePlatform
           class="order-3 @5xl:order-4 w-full col-span-2 row-span-3 @5xl:row-span-[unset]"
           label="Platform"
           :platform="props.detail.packages"
@@ -82,12 +83,16 @@ const worldCapacity = computed(() => {
         :class="
           cn(
             'grid grid-cols-4 gap-5 py-5 items-center',
-            '@5xl:gap-5 @5xl:grid-cols-2 @5xl:flex-[unset]'
+            '@5xl:gap-5 @5xl:grid-cols-2 @5xl:h-fit @5xl:flex-[unset]'
           )
         "
       >
-        <CurrentInstanceStatsSkeleton />
-        <CurrentInstanceStatsSkeleton />
+        <CurrentInstanceStatsSkeleton class="order-1 @5xl:order-1" />
+        <CurrentInstanceStatsSkeleton class="order-2 @5xl:order-2" />
+        <CurrentInstanceStatsSkeleton class="order-4 @5xl:order-3" />
+        <CurrentInstancePlatformSkelete
+          class="order-3 @5xl:order-4 w-full col-span-2 row-span-3 @5xl:row-span-[unset]"
+        />
       </div>
     </template>
   </TabsContent>
