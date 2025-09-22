@@ -69,7 +69,7 @@ const emits = defineEmits<{
               <template v-if="props.showElapsedTimer">
                 <SidebarProfileStatusText
                   v-if="props.user.isTraveling"
-                  :text="t('profile.loaction.traveling')"
+                  :text="t('instance.traveling')"
                   shiny
                 />
                 <SidebarProfileStatusTimer v-else :arrived-at="props.user.locationArrivedAt" />

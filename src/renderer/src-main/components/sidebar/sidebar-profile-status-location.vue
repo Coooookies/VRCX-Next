@@ -29,7 +29,7 @@ const locationText = computed(() => {
     "
   >
     <template v-if="!props.location">
-      <span>{{ t('profile.instance_type.private') }}</span>
+      <span>{{ t('instance.type.private') }}</span>
     </template>
     <template v-else-if="props.isTraveling">
       <div class="size-4 shrink-0 flex flex-row items-center">

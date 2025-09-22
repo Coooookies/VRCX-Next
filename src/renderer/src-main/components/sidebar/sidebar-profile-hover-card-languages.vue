@@ -5,7 +5,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@renderer/shared/components/ui/tooltip'
-import { LANGUAGE_DEFINITION_KEY } from '@renderer/shared/constants/locale-mapping'
+import { LANGUAGE_DEFINITION_KEY } from '@renderer/shared/constants/profile-mapping'
 import { useI18n } from '@renderer/shared/locale'
 import { UserLanguage } from '@shared/definition/vrchat-users'
 

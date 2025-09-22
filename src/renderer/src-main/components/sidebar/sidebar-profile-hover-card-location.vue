@@ -56,7 +56,7 @@ const props = defineProps<{
         {{ getLocationLabel(props.location, false)(t) }}
       </p>
       <p class="leading-4 text-xs text-muted-foreground">
-        <span v-if="props.isTraveling">{{ t('profile.loaction.traveling') }} - </span>
+        <span v-if="props.isTraveling">{{ t('instance.traveling') }} - </span>
         <ElapsedTimerText v-if="props.arrivedAt" :start-time="props.arrivedAt" />
         <span v-else>{{ `--:--:--` }}</span>
       </p>

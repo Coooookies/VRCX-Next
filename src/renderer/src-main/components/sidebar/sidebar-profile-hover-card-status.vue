@@ -2,7 +2,7 @@
 import { cn } from '@renderer/shared/utils/style'
 import { useI18n } from '@renderer/shared/locale'
 import { UserStatus } from '@shared/definition/vrchat-api-response'
-import { STATUS_TRANSLATE_KEY } from '@renderer/shared/constants/locale-mapping'
+import { STATUS_TRANSLATE_KEY } from '@renderer/shared/constants/profile-mapping'
 
 const { t } = useI18n()
 
