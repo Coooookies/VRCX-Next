@@ -1,4 +1,5 @@
 import { UserLanguage, UserSocial } from '@shared/definition/vrchat-users'
+import { Platform } from '@shared/definition/vrchat-api-response'
 import type { LocaleStructure } from './types'
 
 export const LANGUAGE_EN_US: LocaleStructure = {
@@ -84,20 +85,6 @@ export const LANGUAGE_EN_US: LocaleStructure = {
         trusted: 'Trusted User',
         moderator: 'Administrator'
       },
-      instance_type: {
-        friends_plus: 'Friends+',
-        friends: 'Friends',
-        invite_plus: 'Invite+',
-        invite: 'Invite',
-        group_public: 'Group Public',
-        group_plus: 'Group+',
-        group: 'Group',
-        public: 'Public',
-        private: 'Private'
-      },
-      loaction: {
-        traveling: 'Taveling'
-      },
       locale: {
         [UserLanguage.ENG]: 'English',
         [UserLanguage.KOR]: 'Korean',
@@ -172,6 +159,27 @@ export const LANGUAGE_EN_US: LocaleStructure = {
         hidden: 'Hidden',
         all: 'All(?)'
       }
+    },
+    instance: {
+      traveling: 'Taveling',
+      type: {
+        friends_plus: 'Friends+',
+        friends: 'Friends',
+        invite_plus: 'Invite+',
+        invite: 'Invite',
+        group_public: 'Group Public',
+        group_plus: 'Group+',
+        group: 'Group',
+        public: 'Public',
+        private: 'Private'
+      }
+    },
+    platform: {
+      [Platform.Android]: 'Android',
+      [Platform.Standalonewindows]: 'Windows',
+      [Platform.IOS]: 'iOS',
+      [Platform.Web]: 'Web',
+      [Platform.UnknownPlatform]: 'Unknown'
     },
     notification: {
       empty_title: 'No notifications',

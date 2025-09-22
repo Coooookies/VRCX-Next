@@ -1,4 +1,5 @@
 import { UserLanguage, UserSocial } from '@shared/definition/vrchat-users'
+import { Platform } from '@shared/definition/vrchat-api-response'
 import type { LocaleStructure } from './types'
 
 export const LANGUAGE_ZH_CN: LocaleStructure = {
@@ -84,20 +85,6 @@ export const LANGUAGE_ZH_CN: LocaleStructure = {
         trusted: '资深玩家',
         moderator: 'VRChat 团队'
       },
-      instance_type: {
-        friends_plus: '好友+',
-        friends: '仅限好友',
-        invite_plus: '邀请+',
-        invite: '仅限邀请',
-        group_public: '群组公开',
-        group_plus: '群组+',
-        group: '仅限群组',
-        public: '公开',
-        private: '位于私人房间'
-      },
-      loaction: {
-        traveling: '正在前往'
-      },
       locale: {
         [UserLanguage.ENG]: '英语',
         [UserLanguage.KOR]: '韩语',
@@ -172,6 +159,27 @@ export const LANGUAGE_ZH_CN: LocaleStructure = {
         hidden: '隐藏',
         all: '全部(?)'
       }
+    },
+    instance: {
+      traveling: '正在前往',
+      type: {
+        friends_plus: '好友+',
+        friends: '仅限好友',
+        invite_plus: '邀请+',
+        invite: '仅限邀请',
+        group_public: '群组公开',
+        group_plus: '群组+',
+        group: '仅限群组',
+        public: '公开',
+        private: '位于私人房间'
+      }
+    },
+    platform: {
+      [Platform.Android]: '安卓',
+      [Platform.Standalonewindows]: 'Windows',
+      [Platform.IOS]: 'iOS',
+      [Platform.Web]: '网页',
+      [Platform.UnknownPlatform]: '未知平台'
     },
     notification: {
       empty_title: '暂时没有通知',

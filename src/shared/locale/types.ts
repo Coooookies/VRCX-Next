@@ -1,4 +1,4 @@
-import { ReleaseStatus } from '@shared/definition/vrchat-api-response'
+import { Platform, ReleaseStatus } from '@shared/definition/vrchat-api-response'
 import { LANGUAGES } from '.'
 import { LCID_DEFINITIONS } from './lcid'
 import type { NotificationGlobalCategory } from '@shared/definition/vrchat-notifications'
@@ -84,7 +84,15 @@ export type LocaleDefinition = {
       trusted: string
       moderator: string
     }
-    instance_type: {
+    locale: Record<UserLanguage, string>
+    social: Record<UserSocial, string>
+  }
+  works: {
+    release_status: Record<ReleaseStatus, string>
+  }
+  instance: {
+    traveling: string
+    type: {
       friends_plus: string
       friends: string
       invite_plus: string
@@ -95,15 +103,8 @@ export type LocaleDefinition = {
       public: string
       private: string
     }
-    loaction: {
-      traveling: string
-    }
-    locale: Record<UserLanguage, string>
-    social: Record<UserSocial, string>
   }
-  works: {
-    release_status: Record<ReleaseStatus, string>
-  }
+  platform: Omit<Record<Platform, string>, typeof Platform.Unknown>
   notification: {
     empty_title: string
     empty_description: string

@@ -1,4 +1,5 @@
 import { UserLanguage, UserSocial } from '@shared/definition/vrchat-users'
+import { Platform } from '@shared/definition/vrchat-api-response'
 import type { LocaleStructure } from './types'
 
 export const LANGUAGE_JA_JP: LocaleStructure = {
@@ -84,20 +85,6 @@ export const LANGUAGE_JA_JP: LocaleStructure = {
         trusted: 'Trusted User',
         moderator: 'Administrator'
       },
-      instance_type: {
-        friends_plus: 'フレンド+',
-        friends: 'フレンドのみ',
-        invite_plus: '招待+',
-        invite: '招待のみ',
-        group_public: 'グループ公開',
-        group_plus: 'グループ+',
-        group: 'グループのみ',
-        public: '公開',
-        private: 'プライベート'
-      },
-      loaction: {
-        traveling: '進入中'
-      },
       locale: {
         [UserLanguage.ENG]: '英語',
         [UserLanguage.KOR]: '韓国語',
@@ -172,6 +159,27 @@ export const LANGUAGE_JA_JP: LocaleStructure = {
         hidden: '非表示',
         all: 'すべて(?)'
       }
+    },
+    instance: {
+      traveling: '進入中',
+      type: {
+        friends_plus: 'フレンド+',
+        friends: 'フレンドのみ',
+        invite_plus: '招待+',
+        invite: '招待のみ',
+        group_public: 'グループ公開',
+        group_plus: 'グループ+',
+        group: 'グループのみ',
+        public: '公開',
+        private: 'プライベート'
+      }
+    },
+    platform: {
+      [Platform.Android]: 'Android',
+      [Platform.Standalonewindows]: 'Windows',
+      [Platform.IOS]: 'iOS',
+      [Platform.Web]: 'Web',
+      [Platform.UnknownPlatform]: '不明'
     },
     notification: {
       empty_title: '通知はありません',
