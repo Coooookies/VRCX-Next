@@ -38,17 +38,32 @@ import LanguageDseIcon from '@shared/assets/vector/language-dse.svg?component'
 import LanguageFslIcon from '@shared/assets/vector/language-fsl.svg?component'
 import LanguageJslIcon from '@shared/assets/vector/language-jsl.svg?component'
 import LanguageKvkIcon from '@shared/assets/vector/language-kvk.svg?component'
-import { UserLanguage } from '@shared/definition/vrchat-users'
-import {
-  LocationInstance,
-  LocationInstanceGroupType,
-  LocationInstancePublicType,
-  LocationInstanceUserType
-} from '@shared/definition/vrchat-instances'
-import { ReleaseStatus, UserStatus } from '@shared/definition/vrchat-api-response'
-import { UserTrustRank } from '@shared/definition/vrchat-users'
-import type { FunctionalComponent } from 'vue'
+import SocialPixivIcon from '@shared/assets/vector/social-pixiv.svg?component'
+import SocialBilibiliIcon from '@shared/assets/vector/social-bilibili.svg?component'
+import SocialBoothIcon from '@shared/assets/vector/social-booth.svg?component'
+import SocialYoutubeIcon from '@shared/assets/vector/social-youtube.svg?component'
+import SocialDiscordIcon from '@shared/assets/vector/social-discord.svg?component'
+import SocialQQIcon from '@shared/assets/vector/social-qq.svg?component'
+import SocialTelegramIcon from '@shared/assets/vector/social-telegram.svg?component'
+import SocialSteamIcon from '@shared/assets/vector/social-steam.svg?component'
+import SocialXIcon from '@shared/assets/vector/social-x.svg?component'
+import SocialGithubIcon from '@shared/assets/vector/social-github.svg?component'
+import SocialTiktokIcon from '@shared/assets/vector/social-tiktok.svg?component'
+import SocialFacebookIcon from '@shared/assets/vector/social-facebook.svg?component'
+import SocialRedditIcon from '@shared/assets/vector/social-reddit.svg?component'
+import SocialInstagramIcon from '@shared/assets/vector/social-instagram.svg?component'
+import SocialTwitchIcon from '@shared/assets/vector/social-twitch.svg?component'
+import SocialVimeoIcon from '@shared/assets/vector/social-vimeo.svg?component'
+import SocialWeiboIcon from '@shared/assets/vector/social-weibo.svg?component'
+import SocialLineIcon from '@shared/assets/vector/social-line.svg?component'
+import SocialNiconicoIcon from '@shared/assets/vector/social-niconico.svg?component'
+import SocialPatreonIcon from '@shared/assets/vector/social-patreon.svg?component'
+import SocialKofiIcon from '@shared/assets/vector/social-kofi.svg?component'
+import SocialOtherIcon from '@shared/assets/vector/social-other.svg?component'
+import { UserLanguage, UserSocial, UserTrustRank } from '@shared/definition/vrchat-users'
+import { UserStatus } from '@shared/definition/vrchat-api-response'
 import type { LocaleI18NKeys } from '../locale/types'
+import type { LanguageDefinitionItem, SocialPatternItem } from './types'
 
 export const STATUS_PRIORITY: Record<UserStatus, number> = {
   [UserStatus.JoinMe]: 0,
@@ -66,17 +81,6 @@ export const STATUS_TRANSLATE_KEY: Record<UserStatus, LocaleI18NKeys> = {
   [UserStatus.JoinMe]: 'profile.status.join_me'
 }
 
-export const LOCATION_TYPE_TRANSLATE_KEY: Record<LocationInstance['type'], LocaleI18NKeys> = {
-  [LocationInstanceUserType.Friends]: 'profile.instance_type.friends',
-  [LocationInstanceUserType.FriendsPlus]: 'profile.instance_type.friends_plus',
-  [LocationInstanceUserType.Invite]: 'profile.instance_type.invite',
-  [LocationInstanceUserType.InvitePlus]: 'profile.instance_type.invite_plus',
-  [LocationInstanceGroupType.Group]: 'profile.instance_type.group',
-  [LocationInstanceGroupType.GroupPlus]: 'profile.instance_type.group_plus',
-  [LocationInstanceGroupType.GroupPublic]: 'profile.instance_type.group_public',
-  [LocationInstancePublicType.Public]: 'profile.instance_type.public'
-}
-
 export const TRUST_RANK_TRANSLATE_KEY: Record<UserTrustRank, LocaleI18NKeys> = {
   [UserTrustRank.Visitor]: 'profile.trust_rank.visitor',
   [UserTrustRank.Troll]: 'profile.trust_rank.troll',
@@ -87,19 +91,128 @@ export const TRUST_RANK_TRANSLATE_KEY: Record<UserTrustRank, LocaleI18NKeys> = {
   [UserTrustRank.Moderator]: 'profile.trust_rank.moderator'
 }
 
-export const NOTIFICATION_V2_RESPONSE_TEXTKEY: Record<string, LocaleI18NKeys> = {
-  'notifications.default.response.acknowledge': 'notification.response.acknowledge',
-  'notifications.event.responses.unsubscribe': 'notification.response.unsubscribe',
-  'notifications.group.announcement.responses.unsubscribe': 'notification.response.unsubscribe',
-  'notifications.group.invite.response.accept': 'notification.response.group_invite_accept',
-  'notifications.group.invite.response.decline': 'notification.response.group_invite_decline',
-  'notifications.group.invite.response.block': 'notification.response.group_invite_block'
+export const SOCIAL_PATTERN_MAPPING: Record<UserSocial, SocialPatternItem> = {
+  [UserSocial.Pixiv]: {
+    label: 'profile.social.pixiv',
+    icon: SocialPixivIcon,
+    pattern: (href) => /^https?:\/\/(www\.)?pixiv\.net\/.*$/.test(href)
+  },
+  [UserSocial.Bilibili]: {
+    label: 'profile.social.bilibili',
+    icon: SocialBilibiliIcon,
+    pattern: (href) =>
+      /^https?:\/\/(?:www\.|live\.|space\.)?bilibili\.com\/.*$|^https?:\/\/b23\.tv\/.*$/i.test(href)
+  },
+  [UserSocial.Booth]: {
+    label: 'profile.social.booth',
+    icon: SocialBoothIcon,
+    pattern: (href) => /^https?:\/\/(?:[a-z0-9-]+\.)?booth\.pm\/.*$/.test(href)
+  },
+  [UserSocial.Youtube]: {
+    label: 'profile.social.youtube',
+    icon: SocialYoutubeIcon,
+    pattern: (href) =>
+      /^https?:\/\/(?:www\.|m\.)?youtube\.com\/.*$|^https?:\/\/youtu\.be\/.*$/i.test(href)
+  },
+  [UserSocial.Discord]: {
+    label: 'profile.social.discord',
+    icon: SocialDiscordIcon,
+    pattern: (href) =>
+      /^https?:\/\/(www\.)?discord\.gg\/.*$|^https?:\/\/(www\.)?discord\.com\/.*$|^https?:\/\/discordapp\.com\/.*$/i.test(
+        href
+      )
+  },
+  [UserSocial.QQ]: {
+    label: 'profile.social.qq',
+    icon: SocialQQIcon,
+    pattern: (href) => /^https?:\/\/(?:qm\.|qun\.|jq\.)?qq\.com\/.*$/.test(href)
+  },
+  [UserSocial.Telegram]: {
+    label: 'profile.social.telegram',
+    icon: SocialTelegramIcon,
+    pattern: (href) => /^https?:\/\/t\.me\/.*$/.test(href)
+  },
+  [UserSocial.Steam]: {
+    label: 'profile.social.steam',
+    icon: SocialSteamIcon,
+    pattern: (href) =>
+      /^https?:\/\/(www\.)?steamcommunity\.com\/.*$|^https?:\/\/s\.team\/.*$/i.test(href)
+  },
+  [UserSocial.X]: {
+    label: 'profile.social.x',
+    icon: SocialXIcon,
+    pattern: (href) => /^https?:\/\/(www\.)?x\.com\/.*$|^https?:\/\/twitter\.com\/.*$/i.test(href)
+  },
+  [UserSocial.Github]: {
+    label: 'profile.social.github',
+    icon: SocialGithubIcon,
+    pattern: (href) => /^https?:\/\/(www\.)?github\.com\/.*$/.test(href)
+  },
+  [UserSocial.Tiktok]: {
+    label: 'profile.social.tiktok',
+    icon: SocialTiktokIcon,
+    pattern: (href) =>
+      /^https?:\/\/(www\.)?tiktok\.com\/.*$|^https?:\/\/(www\.)?douyin\.com\/.*$/i.test(href)
+  },
+  [UserSocial.Facebook]: {
+    label: 'profile.social.facebook',
+    icon: SocialFacebookIcon,
+    pattern: (href) => /^https?:\/\/(www\.)?facebook\.com\/.*$/.test(href)
+  },
+  [UserSocial.Reddit]: {
+    label: 'profile.social.reddit',
+    icon: SocialRedditIcon,
+    pattern: (href) => /^https?:\/\/(www\.)?reddit\.com\/.*$/.test(href)
+  },
+  [UserSocial.Instagram]: {
+    label: 'profile.social.instagram',
+    icon: SocialInstagramIcon,
+    pattern: (href) => /^https?:\/\/(www\.)?instagram\.com\/.*$/.test(href)
+  },
+  [UserSocial.Twitch]: {
+    label: 'profile.social.twitch',
+    icon: SocialTwitchIcon,
+    pattern: (href) => /^https?:\/\/(www\.)?twitch\.tv\/.*$/.test(href)
+  },
+  [UserSocial.Vimeo]: {
+    label: 'profile.social.vimeo',
+    icon: SocialVimeoIcon,
+    pattern: (href) => /^https?:\/\/(www\.)?vimeo\.com\/.*$/.test(href)
+  },
+  [UserSocial.Weibo]: {
+    label: 'profile.social.weibo',
+    icon: SocialWeiboIcon,
+    pattern: (href) =>
+      /^https?:\/\/(www\.)?weibo\.com\/.*$|^https?:\/\/(www\.)?weibo\.cn\/.*$/i.test(href)
+  },
+  [UserSocial.Line]: {
+    label: 'profile.social.line',
+    icon: SocialLineIcon,
+    pattern: (href) => /^https?:\/\/line\.me\/.*$/.test(href)
+  },
+  [UserSocial.Niconico]: {
+    label: 'profile.social.niconico',
+    icon: SocialNiconicoIcon,
+    pattern: (href) => /^https?:\/\/(www\.)?nicovideo\.jp\/.*$/.test(href)
+  },
+  [UserSocial.Patreon]: {
+    label: 'profile.social.patreon',
+    icon: SocialPatreonIcon,
+    pattern: (href) => /^https?:\/\/(www\.)?patreon\.com\/.*$/.test(href)
+  },
+  [UserSocial.Kofi]: {
+    label: 'profile.social.ko-fi',
+    icon: SocialKofiIcon,
+    pattern: (href) => /^https?:\/\/(www\.)?ko-fi\.com\/.*$/.test(href)
+  },
+  [UserSocial.Other]: {
+    label: 'profile.social.other',
+    icon: SocialOtherIcon,
+    pattern: () => true
+  }
 }
 
-export const LANGUAGE_DEFINITION_KEY: Record<
-  UserLanguage,
-  { icon: FunctionalComponent; label: LocaleI18NKeys }
-> = {
+export const LANGUAGE_DEFINITION_KEY: Record<UserLanguage, LanguageDefinitionItem> = {
   [UserLanguage.ENG]: { icon: LanguageEngIcon, label: 'profile.locale.language_eng' },
   [UserLanguage.KOR]: { icon: LanguageKorIcon, label: 'profile.locale.language_kor' },
   [UserLanguage.RUS]: { icon: LanguageRusIcon, label: 'profile.locale.language_rus' },
@@ -140,11 +253,4 @@ export const LANGUAGE_DEFINITION_KEY: Record<
   [UserLanguage.FSL]: { icon: LanguageFslIcon, label: 'profile.locale.language_fsl' },
   [UserLanguage.JSL]: { icon: LanguageJslIcon, label: 'profile.locale.language_jsl' },
   [UserLanguage.KVK]: { icon: LanguageKvkIcon, label: 'profile.locale.language_kvk' }
-}
-
-export const RELEASE_STATUS_TRANSLATE_KEY: Record<ReleaseStatus, LocaleI18NKeys> = {
-  [ReleaseStatus.Public]: 'works.release_status.public',
-  [ReleaseStatus.Private]: 'works.release_status.private',
-  [ReleaseStatus.Hidden]: 'works.release_status.hidden',
-  [ReleaseStatus.All]: 'works.release_status.all'
 }
