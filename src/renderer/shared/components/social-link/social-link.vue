@@ -7,9 +7,9 @@ import {
 } from '@renderer/shared/components/ui/tooltip'
 import { computed } from 'vue'
 import { useI18n } from '@renderer/shared/locale'
-import { SOCIAL_PATTERN_MAPPING } from '@renderer/shared/constants/social-mapping'
-import type { SocialPatternItem } from '@renderer/shared/constants/social-mapping'
 import { Button } from '../ui/button'
+import { SOCIAL_PATTERN_MAPPING } from '@renderer/shared/constants/profile-mapping'
+import type { SocialPatternItem } from '@renderer/shared/constants/types'
 
 const { t } = useI18n()
 
