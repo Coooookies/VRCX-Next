@@ -32,7 +32,7 @@ const worldCapacity = computed(() => {
         :class="
           cn(
             'flex flex-row border-b border-border border-dashed py-5 items-center',
-            '@5xl:flex-[unset]'
+            '@5xl:flex-[unset] @5xl:py-5.5'
           )
         "
       >
@@ -42,7 +42,7 @@ const worldCapacity = computed(() => {
         :class="
           cn(
             'grid grid-cols-4 gap-5 py-5 items-center',
-            '@5xl:gap-5 @5xl:grid-cols-2 @5xl:h-fit @5xl:flex-[unset]'
+            '@5xl:grid-cols-2 @5xl:h-fit @5xl:flex-[unset] @5xl:gap-5.5 @5xl:py-5.5'
           )
         "
       >
@@ -82,7 +82,7 @@ const worldCapacity = computed(() => {
       <div
         :class="
           cn(
-            'grid grid-cols-4 gap-5 py-5 items-center',
+            'grid grid-cols-4 gap-5.5 py-5.5 items-center',
             '@5xl:gap-5 @5xl:grid-cols-2 @5xl:h-fit @5xl:flex-[unset]'
           )
         "
