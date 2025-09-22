@@ -2,7 +2,7 @@
 import { useI18n } from '@renderer/shared/locale'
 import { cn } from '@renderer/shared/utils/style'
 import { UserTrustRank } from '@shared/definition/vrchat-users'
-import { TRUST_RANK_TRANSLATE_KEY } from '@renderer/shared/constants/locale-mapping'
+import { TRUST_RANK_TRANSLATE_KEY } from '@renderer/shared/constants/profile-mapping'
 
 const { t } = useI18n()
 
