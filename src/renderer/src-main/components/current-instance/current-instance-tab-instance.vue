@@ -9,7 +9,7 @@ import { useI18n } from '@renderer/shared/locale'
 import { ElapsedTimerText } from '@renderer/shared/components/timer'
 import { TabsContent } from '@renderer/shared/components/ui/tabs'
 import { LocationInstancePublicType } from '@shared/definition/vrchat-instances'
-import { LOCATION_TYPE_TRANSLATE_KEY } from '@renderer/shared/constants/locale-mapping'
+import { LOCATION_TYPE_TRANSLATE_KEY } from '@renderer/shared/constants/instance-mapping'
 import type { LocationInstance, LocationOwner } from '@shared/definition/vrchat-instances'
 
 const { t } = useI18n()
@@ -39,8 +39,8 @@ const currentPlayerCount = computed(() => {
       v-if="props.instance?.type !== LocationInstancePublicType.Public"
       :class="
         cn(
-          'flex flex-row border-b border-border border-dashed flex-1 items-center',
-          '@5xl:py-5 @5xl:h-20 @5xl:flex-[unset]'
+          'flex flex-row border-b border-border border-dashed py-5 items-center',
+          '@5xl:flex-[unset]'
         )
       "
     >
@@ -59,8 +59,8 @@ const currentPlayerCount = computed(() => {
     <div
       :class="
         cn(
-          'grid grid-cols-4 gap-5 py-0 flex-1 items-center',
-          '@5xl:grid-cols-2 @5xl:py-5 @5xl:flex-[unset]'
+          'grid grid-cols-4 gap-5 py-5 items-center',
+          '@5xl:gap-5 @5xl:grid-cols-2 @5xl:flex-[unset]'
         )
       "
     >
