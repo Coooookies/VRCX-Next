@@ -292,8 +292,10 @@ export class FriendsEventBinding extends Nanobus<{
 
     friend.isTraveling = isTraveling
 
-    // this.repository.set(newFriend)
     this.emit('friend:location', friend)
+    this.repository.set({
+      ...friend
+    })
   }
 
   private async handleFriendActive({
@@ -307,6 +309,10 @@ export class FriendsEventBinding extends Nanobus<{
       return
     }
 
+    const newFriend = {
+      ...friend
+    }
+
     friend.status = user.status
     friend.statusDescription = user.statusDescription
     friend.platform = platform
@@ -315,6 +321,7 @@ export class FriendsEventBinding extends Nanobus<{
     friend.isTraveling = false
 
     this.emit('friend:active', friend)
+    this.repository.set(newFriend)
   }
 
   private async handleFriendUpdate({ user, userId }: PipelineEventFriendUpdate): Promise<void> {
@@ -343,7 +350,7 @@ export class FriendsEventBinding extends Nanobus<{
 
     await this.users.Repository.saveUserEntities(toUserEntity(user))
 
-    this.repository.set(result)
     this.emit('friend:update', result, diff)
+    this.repository.set(result)
   }
 }

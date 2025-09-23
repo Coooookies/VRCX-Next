@@ -53,7 +53,6 @@ const routeTo = (name: string) => {
 }
 
 const searchValue = ref('')
-
 const isInstancePreloading = computed(() => {
   return isInstanceLoading.value && instancePlayers.value.length === 0
 })
