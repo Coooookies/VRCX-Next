@@ -71,7 +71,7 @@ export const LANGUAGE_ZH_CN: LocaleStructure = {
     profile: {
       status: {
         active: '在线',
-        join_me: '随时欢迎',
+        join_me: '欢迎加入',
         ask_me: '需要许可',
         busy: '请勿打扰',
         offline: '离线'
