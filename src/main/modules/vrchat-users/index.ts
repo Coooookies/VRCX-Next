@@ -54,7 +54,7 @@ export class VRChatUsers extends Module<{}> {
           ? toCurrentUserInformation(this.auth.currentState.userInfo)
           : null
       )
-      await this.fetcher.initNotes()
+      await this.fetcher.fetchNotes()
     })
 
     this.workflow.registerPostLogoutTask('user-notes-clear', 40, () => {
