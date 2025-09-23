@@ -59,6 +59,25 @@ export class FriendsRepository extends Nanobus<{
     }
   }
 
+  public async update(
+    userId: string,
+    callback: () => Promise<Partial<FriendInformation>> | Partial<FriendInformation>
+  ) {
+    if (!this.has(userId)) {
+      return
+    }
+
+    const diff = await callback()
+    const friend = this.get(userId)!
+    const newFriend = {
+      ...friend,
+      ...diff
+    }
+
+    this.set(newFriend)
+    this.emit('friends:update', [newFriend])
+  }
+
   public delete(userId: string) {
     const deleted = this.friends.delete(userId)
     if (deleted) {

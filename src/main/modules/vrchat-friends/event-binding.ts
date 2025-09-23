@@ -187,10 +187,10 @@ export class FriendsEventBinding extends Nanobus<{
       locationArrivedAt: null
     }
 
-    await this.users.Repository.saveUserEntities(toUserEntity(user))
-
     this.repository.set(friend)
     this.emit('friend:add', friend)
+
+    await this.users.Repository.saveUserEntities(toUserEntity(user))
   }
 
   private async handleFriendDelete({ userId }: PipelineEventFriendDelete): Promise<void> {
@@ -198,9 +198,8 @@ export class FriendsEventBinding extends Nanobus<{
 
     if (friend) {
       this.emit('friend:delete', friend)
+      this.repository.delete(userId)
     }
-
-    this.repository.delete(userId)
   }
 
   private async handleFriendOnline({
@@ -217,11 +216,6 @@ export class FriendsEventBinding extends Nanobus<{
       return
     }
 
-    const newFriend = {
-      ...friend,
-      ...toBaseFriendInformation(user)
-    }
-
     const isTraveling = location === 'traveling'
     const travelingTarget = parseLocation(travelingToLocation)
     const originalTarget = parseLocation(location)
@@ -230,13 +224,16 @@ export class FriendsEventBinding extends Nanobus<{
       ? await this.fetcher.enrichLocation(nextLocation, world!)
       : null
 
-    newFriend.isTraveling = false
-    newFriend.platform = platform
-    newFriend.location = nextLocationSummary
-    newFriend.locationArrivedAt = nextLocation ? new Date() : null
+    const updatedFriend: FriendInformation = {
+      ...toBaseFriendInformation(user),
+      location: nextLocationSummary,
+      locationArrivedAt: nextLocation ? new Date() : null,
+      platform,
+      isTraveling
+    }
 
-    this.repository.set(newFriend)
-    this.emit('friend:online', newFriend)
+    this.repository.set(updatedFriend)
+    this.emit('friend:online', updatedFriend)
   }
 
   private async handleFriendOffline({
@@ -282,19 +279,19 @@ export class FriendsEventBinding extends Nanobus<{
     const prevLocation = friend.location
     const nextLocation = isTraveling ? travelingTarget : originalTarget
     const nextLocationArrivedAt = nextLocation ? new Date() : null
-
-    if (!isSameLocation(prevLocation, nextLocation)) {
-      friend.locationArrivedAt = nextLocationArrivedAt
-      friend.location = nextLocation
-        ? await this.fetcher.enrichLocation(nextLocation, world!)
-        : null
+    const diff: Partial<FriendInformation> = {
+      isTraveling
     }
 
-    friend.isTraveling = isTraveling
+    if (!isSameLocation(prevLocation, nextLocation)) {
+      diff.locationArrivedAt = nextLocationArrivedAt
+      diff.location = nextLocation ? await this.fetcher.enrichLocation(nextLocation, world!) : null
+    }
 
-    this.emit('friend:location', friend)
-    this.repository.set({
-      ...friend
+    this.repository.update(userId, () => diff)
+    this.emit('friend:location', {
+      ...friend,
+      ...diff
     })
   }
 
@@ -332,25 +329,20 @@ export class FriendsEventBinding extends Nanobus<{
     }
 
     const updatedFriend = toBaseFriendInformation(user)
-    const result = {
-      ...friend,
-      ...updatedFriend,
-      platform: updatedFriend.platform || friend.platform
-    }
+    const diff = diffSurface<BaseFriendInformation>(friend, updatedFriend)
 
-    const diff = diffSurface<BaseFriendInformation>(friend, result)
+    diff.platform = updatedFriend.platform || friend.platform
 
-    if ('status' in diff) {
-      if (updatedFriend.status === UserStatus.Busy || updatedFriend.status === UserStatus.AskMe) {
-        result.location = null
-        result.locationArrivedAt = null
-        result.isTraveling = false
-      }
-    }
+    this.repository.update(userId, () => diff)
+    this.emit(
+      'friend:update',
+      {
+        ...friend,
+        ...updatedFriend
+      },
+      diff
+    )
 
     await this.users.Repository.saveUserEntities(toUserEntity(user))
-
-    this.emit('friend:update', result, diff)
-    this.repository.set(result)
   }
 }

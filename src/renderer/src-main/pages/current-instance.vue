@@ -53,9 +53,9 @@ const routeTo = (name: string) => {
 }
 
 const searchValue = ref('')
-const isInstancePreloading = computed(() => {
-  return isInstanceLoading.value && instancePlayers.value.length === 0
-})
+const isInstancePreloading = computed(
+  () => isInstanceLoading.value && instancePlayers.value.length === 0
+)
 
 provide('current-instance:search-value', searchValue)
 </script>
