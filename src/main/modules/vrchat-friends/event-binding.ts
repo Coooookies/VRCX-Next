@@ -10,7 +10,6 @@ import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { FriendsRepository } from './repository'
 import type { FriendsFetcher } from './fetcher'
-import type { LocationInstanceSummary } from '@shared/definition/vrchat-instances'
 import type { BaseFriendInformation, FriendInformation } from '@shared/definition/vrchat-friends'
 import type {
   PipelineEventFriendActive,
