@@ -4,7 +4,6 @@ import type { UserInformationBase } from './vrchat-users'
 
 export interface BaseFriendInformation extends UserInformationBase {
   referenceAvatar: ReferenceAvatar
-  note: string | null
   lastPlatform: string
   lastLoginDate: Date | null
   lastActivityDate: Date | null
