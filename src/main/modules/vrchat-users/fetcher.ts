@@ -202,6 +202,15 @@ export class UsersFetcher {
     return users
   }
 
+  public async fetchUserLocation(userId: string): Promise<string | null> {
+    const { success, value } = await this.api.ref.sessionAPI.users.getUser(userId)
+    if (!success) {
+      return null
+    }
+
+    return value.body.location || null
+  }
+
   public async enrichLocation(location: LocationInstance) {
     let nextLocationSummary = await this.worlds.Fetcher.enrichLocationWithWorldInfo(location)
 

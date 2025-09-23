@@ -10,6 +10,7 @@ import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { FriendsRepository } from './repository'
 import type { FriendsFetcher } from './fetcher'
+import type { LocationInstanceSummary } from '@shared/definition/vrchat-instances'
 import type { BaseFriendInformation, FriendInformation } from '@shared/definition/vrchat-friends'
 import type {
   PipelineEventFriendActive,
@@ -178,12 +179,24 @@ export class FriendsEventBinding extends Nanobus<{
     }
   }
 
-  private async handleFriendAdd({ user }: PipelineEventFriendAdd): Promise<void> {
+  private async handleFriendAdd({ user, userId }: PipelineEventFriendAdd): Promise<void> {
+    const baseFriendInfo = toBaseFriendInformation(user)
+    const location = await this.users.Fetcher.fetchUserLocation(userId)
+
+    const isTraveling = location === 'traveling'
+    const nextLocation = location ? parseLocation(location) : null
+    const nextLocationArrivedAt = nextLocation ? new Date() : null
+
+    let nextLocationSummary: LocationInstanceSummary | null = null
+    if (nextLocation) {
+      nextLocationSummary = await this.users.Fetcher.enrichLocation(nextLocation)
+    }
+
     const friend: FriendInformation = {
-      ...toBaseFriendInformation(user),
-      isTraveling: false,
-      location: null,
-      locationArrivedAt: null
+      ...baseFriendInfo,
+      isTraveling,
+      location: nextLocationSummary,
+      locationArrivedAt: nextLocationArrivedAt
     }
 
     this.repository.set(friend)
