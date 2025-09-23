@@ -3,7 +3,7 @@ import CurrentInstanceArrowButton from './current-instance-arrow-button.vue'
 import CurrentInstanceStats from './current-instance-stats.vue'
 import CurrentInstanceStatsSkeleton from './current-instance-stats-skeleton.vue'
 import CurrentInstancePlatform from './current-instance-platform.vue'
-import CurrentInstancePlatformSkelete from './current-instance-platform-skelete.vue'
+import CurrentInstancePlatformSkeleton from './current-instance-platform-skeleton.vue'
 import { computed } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
 import { useI18n } from '@renderer/shared/locale'
@@ -90,7 +90,7 @@ const worldCapacity = computed(() => {
         <CurrentInstanceStatsSkeleton class="order-1 @5xl:order-1" />
         <CurrentInstanceStatsSkeleton class="order-2 @5xl:order-2" />
         <CurrentInstanceStatsSkeleton class="order-4 @5xl:order-3" />
-        <CurrentInstancePlatformSkelete
+        <CurrentInstancePlatformSkeleton
           class="order-3 @5xl:order-4 w-full col-span-2 row-span-3 @5xl:row-span-[unset]"
         />
       </div>
