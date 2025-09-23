@@ -11,6 +11,7 @@ import { Button } from '@renderer/shared/components/ui/button'
 import { RelativeTimerText } from '@renderer/shared/components/timer'
 import { UserTrustRank } from '@shared/definition/vrchat-users'
 import { Platform } from '@shared/definition/vrchat-api-response-replenish'
+import { PLATFORM_MAPPING } from '@renderer/shared/constants/platform-mapping'
 import type { Column, ColumnDef, SortingState } from '@tanstack/vue-table'
 import type { InstancePlayer } from '@renderer/src-main/composables/current-instance'
 
@@ -85,7 +86,7 @@ export const columns: ColumnDef<InstancePlayer>[] = [
         }),
         isPhone &&
           h(CurrentInstancePlayerPhoneIcon, {
-            platform: row.original.user?.platform
+            platform: row.original.user?.platform as keyof typeof PLATFORM_MAPPING
           })
       ])
     }
