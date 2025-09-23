@@ -23,13 +23,13 @@ import type {
 } from '@shared/definition/vrchat-pipeline'
 
 export class FriendsEventBinding extends Nanobus<{
-  'friend:delete': (friend: FriendInformation) => void
-  'friend:add': (friend: FriendInformation) => void
-  'friend:online': (friend: FriendInformation) => void
-  'friend:offline': (friend: FriendInformation) => void
-  'friend:location': (friend: FriendInformation) => void
-  'friend:active': (friend: FriendInformation) => void
-  'friend:update': (friend: FriendInformation, diff: Partial<BaseFriendInformation>) => void
+  'friend:delete': (user: FriendInformation) => void
+  'friend:add': (user: FriendInformation) => void
+  'friend:online': (user: FriendInformation) => void
+  'friend:offline': (user: FriendInformation) => void
+  'friend:location': (user: FriendInformation) => void
+  'friend:active': (user: FriendInformation) => void
+  'friend:update': (user: FriendInformation, diff: Partial<BaseFriendInformation>) => void
 }> {
   constructor(
     private readonly logger: LoggerFactory,
@@ -44,40 +44,12 @@ export class FriendsEventBinding extends Nanobus<{
   private shieldedPipelineEvent = true
 
   public bindEvents() {
-    const updateUserNote = (userId: string, note?: string) => {
-      const friend = this.repository.get(userId)
-      if (friend) {
-        this.repository.set({
-          ...friend,
-          note: note || null
-        })
-      }
-    }
-
     this.pipeline.on('message', (message: PipelineEventMessage) => {
       if (this.shieldedPipelineEvent) {
         return
       }
 
       this.handlePipeMessage(message)
-    })
-
-    this.users.Repository.on('notes:update', (notes) => {
-      if (this.shieldedPipelineEvent) {
-        return
-      }
-
-      for (const note of notes) {
-        updateUserNote(note.userId, note.note)
-      }
-    })
-
-    this.users.Repository.on('notes:delete', (userId) => {
-      if (this.shieldedPipelineEvent) {
-        return
-      }
-
-      updateUserNote(userId)
     })
 
     this.on('friend:active', (friend) => {
@@ -240,8 +212,8 @@ export class FriendsEventBinding extends Nanobus<{
       isTraveling
     }
 
-    this.repository.set(updatedFriend)
     this.emit('friend:online', updatedFriend)
+    this.repository.set(updatedFriend)
   }
 
   private async handleFriendOffline({
@@ -254,19 +226,20 @@ export class FriendsEventBinding extends Nanobus<{
       return
     }
 
-    const newFriend = {
-      ...friend
+    const diff = {
+      status: UserStatus.Offline,
+      statusDescription: '',
+      platform,
+      location: null,
+      locationArrivedAt: null,
+      isTraveling: false
     }
 
-    newFriend.location = null
-    newFriend.locationArrivedAt = null
-    newFriend.isTraveling = false
-    newFriend.status = UserStatus.Offline
-    newFriend.statusDescription = ''
-    newFriend.platform = platform
-
-    this.repository.set(newFriend)
-    this.emit('friend:offline', newFriend)
+    this.repository.update(userId, () => diff)
+    this.emit('friend:offline', {
+      ...friend,
+      ...diff
+    })
   }
 
   private async handleFriendLocation({
@@ -314,19 +287,20 @@ export class FriendsEventBinding extends Nanobus<{
       return
     }
 
-    const newFriend = {
-      ...friend
+    const diff = {
+      status: user.status,
+      statusDescription: user.statusDescription,
+      platform,
+      location: null,
+      locationArrivedAt: null,
+      isTraveling: false
     }
 
-    friend.status = user.status
-    friend.statusDescription = user.statusDescription
-    friend.platform = platform
-    friend.location = null
-    friend.locationArrivedAt = null
-    friend.isTraveling = false
-
-    this.emit('friend:active', friend)
-    this.repository.set(newFriend)
+    this.repository.update(userId, () => diff)
+    this.emit('friend:active', {
+      ...friend,
+      ...diff
+    })
   }
 
   private async handleFriendUpdate({ user, userId }: PipelineEventFriendUpdate): Promise<void> {

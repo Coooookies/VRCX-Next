@@ -57,11 +57,11 @@ export class VRChatFriends extends Module<{}> {
   }
 
   private bindEvents(): void {
-    this.workflow.registerPostLoginTask('friends-resolver', 50, async () => {
+    this.workflow.registerPostLoginTask('friends-resolver', 40, async () => {
       await this.refreshFriends(true)
     })
 
-    this.workflow.registerPostLogoutTask('friends-pipeline-shielde', 50, () => {
+    this.workflow.registerPostLogoutTask('friends-pipeline-shielde', 40, () => {
       this.eventBinding.stopPipeProcessing()
       this.repository.clear()
     })
