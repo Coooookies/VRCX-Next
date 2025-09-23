@@ -1,17 +1,25 @@
 <script setup lang="ts">
 import PhoneIcon from '@shared/assets/vector/profile-icon-phone.svg?component'
+import { computed } from 'vue'
+import { useI18n } from '@renderer/shared/locale'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
 } from '@renderer/shared/components/ui/tooltip'
-import { Platform } from '@shared/definition/vrchat-api-response'
 import { Button } from '@renderer/shared/components/ui/button'
+import { PLATFORM_MAPPING } from '@renderer/shared/constants/platform-mapping'
+
+const { t } = useI18n()
 
 const props = defineProps<{
-  platform?: Platform
+  platform: keyof typeof PLATFORM_MAPPING
 }>()
+
+const platformDefinition = computed(() => {
+  return PLATFORM_MAPPING[props.platform]
+})
 </script>
 
 <template>
@@ -23,7 +31,7 @@ const props = defineProps<{
         </Button>
       </TooltipTrigger>
       <TooltipContent>
-        <p>{{ props.platform }}</p>
+        <p>{{ t(platformDefinition.label) }}</p>
       </TooltipContent>
     </Tooltip>
   </TooltipProvider>

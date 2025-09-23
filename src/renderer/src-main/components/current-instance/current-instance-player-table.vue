@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import InstanceFriendAvatarMask from '@shared/assets/vector/instance-friend-avatar-mask.svg?url'
 import InstanceOwnerAvatarMask from '@shared/assets/vector/instance-owner-avatar-mask.svg?url'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
 import { baseSortingState, columns } from './player-data-table'
 import { valueUpdater } from '@renderer/shared/components/ui/table/utils'
@@ -30,6 +30,7 @@ const ownerAvatarMask = `url("${InstanceOwnerAvatarMask}")`
 
 const props = defineProps<{
   players: InstancePlayer[]
+  searchValue?: string
 }>()
 
 const columnFilters = ref<ColumnFiltersState>([])
@@ -77,6 +78,13 @@ const table = useVueTable({
 const metaWrapper = (meta: unknown) => {
   return meta as TableColumnMeta
 }
+
+watch(
+  () => props.searchValue,
+  () => {
+    table.getColumn('userName')?.setFilterValue(props.searchValue)
+  }
+)
 </script>
 
 <template>

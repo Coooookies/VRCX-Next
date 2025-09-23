@@ -6,12 +6,12 @@ import CurrentInstancePageTabs from '../components/current-instance/current-inst
 import CurrentInstanceSearchInput from '../components/current-instance/current-instance-search-input.vue'
 import CurrentInstanceTabInstance from '../components/current-instance/current-instance-tab-instance.vue'
 import CurrentInstanceTabWorld from '../components/current-instance/current-instance-tab-world.vue'
-import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { computed, provide, ref } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
+import { useRoute, useRouter } from 'vue-router'
 import { useCurrentInstance } from '../composables/current-instance'
-import { RouterView } from 'vue-router'
 import { Tabs } from '@renderer/shared/components/ui/tabs'
+import { RouterView } from 'vue-router'
 import { LocationInstanceGroupType } from '@shared/definition/vrchat-instances'
 import type { CurrentInstanceInfoTab } from '../components/current-instance/current-instance-info-tabs.vue'
 import type { CurrentInstancePageTab } from '../components/current-instance/current-instance-page-tabs.vue'
@@ -52,9 +52,13 @@ const routeTo = (name: string) => {
   }
 }
 
+const searchValue = ref('')
+
 const isInstancePreloading = computed(() => {
   return isInstanceLoading.value && instancePlayers.value.length === 0
 })
+
+provide('current-instance:search-value', searchValue)
 </script>
 
 <template>
@@ -110,7 +114,7 @@ const isInstancePreloading = computed(() => {
                   :model-value="routeName"
                   @update:model-value="routeTo"
                 />
-                <CurrentInstanceSearchInput class="w-46 h-full" />
+                <CurrentInstanceSearchInput v-model="searchValue" class="w-46 h-full" />
               </div>
             </div>
             <div>
