@@ -187,10 +187,9 @@ export class FriendsEventBinding extends Nanobus<{
     const nextLocation = location ? parseLocation(location) : null
     const nextLocationArrivedAt = nextLocation ? new Date() : null
 
-    let nextLocationSummary: LocationInstanceSummary | null = null
-    if (nextLocation) {
-      nextLocationSummary = await this.users.Fetcher.enrichLocation(nextLocation)
-    }
+    const nextLocationSummary = nextLocation
+      ? await this.users.Fetcher.enrichLocation(nextLocation)
+      : null
 
     const friend: FriendInformation = {
       ...baseFriendInfo,
