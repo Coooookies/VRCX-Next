@@ -1,7 +1,7 @@
 import Nanobus from 'nanobus'
 import { toJS } from 'mobx'
 import { isSameLocation } from '../vrchat-worlds/utils'
-import { toCurrentUserInformation } from './factory'
+import { toCurrentUserInformation, toUserEntity } from './factory'
 import { diffSurface } from '@main/utils/object'
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { PipelineEvents } from '@shared/definition/vrchat-pipeline'
@@ -9,6 +9,8 @@ import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { LoggerFactory } from '@main/logger'
 import type { LocationInstanceSummary } from '@shared/definition/vrchat-instances'
 import type {
+  PipelineEventFriendAdd,
+  PipelineEventFriendUpdate,
   PipelineEventMessage,
   PipelineEventUserLocation,
   PipelineEventUserUpdate
@@ -42,9 +44,16 @@ export class UsersEventBinding extends Nanobus<{
         await this.handleUserUpdate(message.content)
         break
       }
-
       case PipelineEvents.UserLocation: {
         await this.handleUserLocation(message.content)
+        break
+      }
+      case PipelineEvents.FriendAdd: {
+        await this.handleFriendAdd(message.content)
+        break
+      }
+      case PipelineEvents.FriendUpdate: {
+        await this.handleFriendUpdate(message.content)
         break
       }
     }
@@ -96,5 +105,17 @@ export class UsersEventBinding extends Nanobus<{
     this.emit('user:update', newUser, diff)
     this.logger.info(`User updated: ${user.id}`, diff)
     this.repository.setUserState(newUser)
+  }
+
+  private async handleFriendAdd({ user }: PipelineEventFriendAdd): Promise<void> {
+    const entity = toUserEntity(user)
+    this.repository.saveUserEntities(entity)
+    this.logger.info('Received user info from pipeline:', `${user.displayName}(${user.id})`)
+  }
+
+  private async handleFriendUpdate({ user }: PipelineEventFriendUpdate): Promise<void> {
+    const entity = toUserEntity(user)
+    this.repository.saveUserEntities(entity)
+    this.logger.info('Received user info from pipeline:', `${user.displayName}(${user.id})`)
   }
 }

@@ -2,7 +2,6 @@ import Nanobus from 'nanobus'
 import { diffSurface } from '@main/utils/object'
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { toBaseFriendInformation } from './factory'
-import { toUserEntity } from '../vrchat-users/factory'
 import { isSameLocation } from '../vrchat-worlds/utils'
 import { UserStatus } from '@shared/definition/vrchat-api-response'
 import { PipelineEvents } from '@shared/definition/vrchat-pipeline'
@@ -189,8 +188,6 @@ export class FriendsEventBinding extends Nanobus<{
 
     this.repository.set(friend)
     this.emit('friend:add', friend)
-
-    await this.users.Repository.saveUserEntities(toUserEntity(user))
   }
 
   private async handleFriendDelete({ userId }: PipelineEventFriendDelete): Promise<void> {
@@ -342,7 +339,5 @@ export class FriendsEventBinding extends Nanobus<{
       },
       diff
     )
-
-    await this.users.Repository.saveUserEntities(toUserEntity(user))
   }
 }
