@@ -61,6 +61,12 @@ export class FilesFetcher {
               file.version
             )
 
+            if (!result.success) {
+              this.logger.error(
+                `Failed to fetch file analysis for ID: ${file.fileId} version: ${file.version}, error: ${result.error.message}`
+              )
+            }
+
             return {
               fileId: file.fileId,
               version: file.version,

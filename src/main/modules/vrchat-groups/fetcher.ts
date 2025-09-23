@@ -43,7 +43,16 @@ export class GroupFetcher {
 
       const result = await limitedAllSettled(
         invalidIds.map((worldId) => {
-          return async () => this.api.ref.sessionAPI.groups.getGroup(worldId)
+          return async () => {
+            const result = await this.api.ref.sessionAPI.groups.getGroup(worldId)
+            if (!result.success) {
+              this.logger.error(
+                `Failed to fetch group information for ID: ${worldId}, error: ${result.error.message}`
+              )
+            }
+
+            return result
+          }
         }),
         GROUP_ENTITIES_QUERY_THREAD_SIZE
       )

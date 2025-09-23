@@ -13,7 +13,7 @@ export class MiscellaneousFetcher {
     const result = await this.api.ref.publicAPI.miscellaneous.getServerTime()
 
     if (!result.success) {
-      this.logger.error('Failed to fetch server time')
+      this.logger.error(`Failed to fetch server time, error: ${result.error.message}`)
       this.repository.setServerTimeOffset(0)
       return
     }

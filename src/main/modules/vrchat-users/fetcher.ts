@@ -26,7 +26,7 @@ export class UsersFetcher {
     private readonly groups: VRChatGroups
   ) {}
 
-  public async initNotes() {
+  public async fetchNotes() {
     let startOffset = 0
     let notes: UserNote[] = []
 
@@ -34,7 +34,7 @@ export class UsersFetcher {
       const result = await this.api.ref.sessionAPI.users.getNotes(startOffset, USERNOTES_QUERY_SIZE)
 
       if (!result.success) {
-        this.logger.warn('Failed to fetch users note')
+        this.logger.error('Failed to fetch users note')
         break
       }
 
@@ -80,13 +80,15 @@ export class UsersFetcher {
       }
     }
 
-    const { success, value } = await this.api.ref.sessionAPI.users.getUser(userId)
+    const { success, value, error } = await this.api.ref.sessionAPI.users.getUser(userId)
     this.logger.info(`Fetching ${userId} users entities`)
 
     if (success) {
       const entity = toUserEntity(value.body)
       await this.repository.saveUserEntities(entity)
       return entity
+    } else {
+      this.logger.error(`Failed to fetch user entity for ID: ${userId}, error: ${error.message}`)
     }
 
     return null
@@ -128,6 +130,10 @@ export class UsersFetcher {
             const result = await this.api.ref.sessionAPI.users.getUser(userId)
             if (result.success) {
               processHandler?.([toUserEntity(result.value.body)])
+            } else {
+              this.logger.error(
+                `Failed to fetch user entity for ID: ${userId}, error: ${result.error.message}`
+              )
             }
 
             return result
@@ -156,13 +162,17 @@ export class UsersFetcher {
   }
 
   public async fetchUser(userId: string): Promise<UserInformation | null> {
-    const { success, value } = await this.api.ref.sessionAPI.users.getUser(userId)
+    const { success, value, error } = await this.api.ref.sessionAPI.users.getUser(userId)
     this.logger.info(`Fetching user information for ID: ${userId}`)
 
     if (success) {
       const entity = toUserEntity(value.body)
       await this.repository.saveUserEntities(entity)
       return toUserInformation(value.body)
+    } else {
+      this.logger.error(
+        `Failed to fetch user information for ID: ${userId}, error: ${error.message}`
+      )
     }
 
     return null
@@ -190,11 +200,17 @@ export class UsersFetcher {
     )
 
     for (const res of result) {
-      if (res.status === 'fulfilled' && res.value.success) {
+      if (res.status !== 'fulfilled') {
+        continue
+      }
+
+      if (res.value.success) {
         const detail = toUserInformation(res.value.value.body)
         const entity = toUserEntity(res.value.value.body)
         users.set(detail.userId, detail)
         entities.set(entity.userId, entity)
+      } else {
+        this.logger.error(`Failed to fetch user information, error: ${res.value.error.message}`)
       }
     }
 
@@ -203,12 +219,16 @@ export class UsersFetcher {
   }
 
   public async fetchUserLocation(userId: string): Promise<string | null> {
-    const { success, value } = await this.api.ref.sessionAPI.users.getUser(userId)
+    const { success, value, error } = await this.api.ref.sessionAPI.users.getUser(userId)
     if (!success) {
+      this.logger.error(`Failed to fetch user location for ID: ${userId} , error: ${error.message}`)
       return null
     }
 
-    return value.body.location || null
+    const user = value.body
+    const entity = toUserEntity(user)
+    await this.repository.saveUserEntities(entity)
+    return user.location || null
   }
 
   public async enrichLocation(location: LocationInstance) {

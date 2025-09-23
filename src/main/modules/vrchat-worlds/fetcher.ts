@@ -59,7 +59,15 @@ export class WorldFetcher {
 
       const result = await limitedAllSettled(
         invalidIds.map((worldId) => {
-          return async () => this.api.ref.sessionAPI.worlds.getWorld(worldId)
+          return async () => {
+            const result = await this.api.ref.sessionAPI.worlds.getWorld(worldId)
+            if (!result.success) {
+              this.logger.error(
+                `Failed to fetch world information for ID: ${worldId}, error: ${result.error.message}`
+              )
+            }
+            return result
+          }
         }),
         WORLD_ENTITIES_QUERY_THREAD_SIZE
       )
@@ -91,6 +99,9 @@ export class WorldFetcher {
     const { ignoreInstances = false, ignorePackages = false } = options ?? {}
 
     if (!world.success) {
+      this.logger.error(
+        `Failed to fetch world detail for ID: ${worldId}, error: ${world.error.message}`
+      )
       return null
     }
 

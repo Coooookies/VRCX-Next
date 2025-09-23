@@ -67,7 +67,7 @@ export class FriendsFetcher {
       })
 
       if (!result.success) {
-        this.logger.warn('Failed to fetch friends')
+        this.logger.error(`Failed to fetch friends, error: ${result.error.message}`)
         break
       }
 
@@ -106,7 +106,6 @@ export class FriendsFetcher {
     worlds: Map<string, WorldEntity>,
     groups: Map<string, GroupEntity>
   ): FriendInformation {
-    const note = this.users.Repository.getNote(friend.id)
     const location = parseLocation(friend.location)
     const locationArrivedAt = location ? new Date() : null
     const locationSummary = <LocationInstanceSummary>location
@@ -136,7 +135,6 @@ export class FriendsFetcher {
 
     return {
       ...toBaseFriendInformation(friend),
-      note: note ? note.note : null,
       isTraveling: false,
       location: locationSummary,
       locationArrivedAt

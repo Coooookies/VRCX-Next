@@ -43,7 +43,6 @@ export function toBaseFriendInformation(
     profileBackgroundFileId: profileBackgroundFileInfo?.fileId || '',
     profileBackgroundFileVersion: profileBackgroundFileInfo?.version || 0,
     referenceAvatar,
-    note: 'note' in friend ? friend.note || null : null,
     bio: friend.bio || '',
     bioLinks: friend.bioLinks || [],
     tags: friend.tags,

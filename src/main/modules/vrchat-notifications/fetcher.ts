@@ -53,7 +53,7 @@ export class NotificationFetcher {
       )
 
       if (!result.success) {
-        this.logger.warn('Failed to fetch Notifications')
+        this.logger.error(`Failed to fetch Notifications, error: ${result.error.message}`)
         break
       }
 
@@ -92,7 +92,7 @@ export class NotificationFetcher {
       )
 
       if (!result.success) {
-        this.logger.warn('Failed to fetch Notifications')
+        this.logger.warn(`Failed to fetch Notifications, error: ${result.error.message}`)
         break
       }
 
@@ -123,7 +123,9 @@ export class NotificationFetcher {
   public async fetchNotification(notificationId: string): Promise<NotificationInformation | null> {
     const result = await this.api.ref.sessionAPI.notifications.getNotification(notificationId)
     if (!result.success) {
-      this.logger.error(`Failed to fetch Notification: ${notificationId}`)
+      this.logger.error(
+        `Failed to fetch Notification: ${notificationId}, error: ${result.error.message}`
+      )
       return null
     }
 
