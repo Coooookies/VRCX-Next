@@ -43,7 +43,10 @@ export class VRChatAPI extends Module<{
     const agent = createProxyAgent(proxyConfig)
     const hooks = createHooks({
       // onRequest: (req) => this.logger.debug('Request:', req.method, req.url),
-      onResponse: (res) => this.logger.trace('Response:', res.url, res.statusCode),
+      onResponse: (res) => {
+        const message = `Response: ${res.request.options.method} ${res.url} - ${res.statusCode} ${res.timings.phases.total || 0}ms`
+        this.logger.trace(message)
+      },
       onRetry: (error, count) => this.logger.warn('Retry:', error.message, 'Count:', count),
       onUnauthorized: (res) => this.emit('response:unauthorized', res),
       onBadRequest: (res) => this.emit('response:bad-request', res),
