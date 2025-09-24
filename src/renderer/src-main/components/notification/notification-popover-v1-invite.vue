@@ -105,8 +105,8 @@ const handleShowSender = () => {
       message-italic
     />
     <div class="flex flex-row items-center justify-start gap-1.5 pl-14 pb-0.5">
-      <div v-if="isLoading" class="h-6 flex items-center justify-center">
-        <Spinner class="size-5" />
+      <div v-if="isLoading" class="w-9 h-6 rounded-sm bg-muted/50 flex items-center justify-center">
+        <Spinner class="size-4" />
       </div>
       <div v-else class="flex flex-row gap-px">
         <NotificationPopoverActionButton
