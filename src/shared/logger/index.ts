@@ -39,16 +39,13 @@ export class Logger extends Nanobus<{
   }
 
   private log(level: LogLevel, args: (unknown | MixedStyle)[]): void {
-    const levelSymbol = level.toUpperCase().slice(0, 1)
+    const levelSymbol = `${level.toUpperCase()}`.padEnd(5, ' ')
     const levelColor = LoglevelColor[level]
 
     const time = this.time
     const timestamp = this.timestamp
 
-    const prefix = [
-      mixed(ConsoleStyle.FG_BRIGHT_BLACK, time),
-      mixed(levelColor, `-${levelSymbol}-`)
-    ]
+    const prefix = [mixed(ConsoleStyle.FG_BRIGHT_BLACK, time), mixed(levelColor, levelSymbol)]
     const suffix = [
       mixed(
         ConsoleStyle.FG_BRIGHT_BLACK,
