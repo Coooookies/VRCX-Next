@@ -27,14 +27,19 @@ export class NotificationOperation {
     return this.api.ref.sessionAPI.notifications.markNotificationAsRead(notificationId)
   }
 
-  public respondNotificationV2(
+  public async respondNotificationV2(
     notificationId: string,
     type: NotificationV2ResponseType,
     data: string
   ) {
-    return this.api.ref.sessionAPI.notifications
-      .respondToNotificationV2(notificationId, type, data)
-      .then(() => this.repository.deleteNotification(notificationId))
+    const result = await this.api.ref.sessionAPI.notifications.respondToNotificationV2(
+      notificationId,
+      type,
+      data
+    )
+
+    this.repository.deleteNotification(notificationId)
+    return result
   }
 
   public deleteNotificationV1(notificationId: string) {
