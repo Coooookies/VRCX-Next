@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ZypherIcon from '@shared/assets/vector/navigator-icon-zypher.svg?component'
 import AppTitle from '@shared/assets/vector/auth-title-zypher.svg?component'
 import AuthLayout from '../layouts/auth-layout.vue'
 import { toast } from 'vue-sonner'
@@ -6,7 +7,6 @@ import { useTemplateRef } from 'vue'
 import { useAuth } from '../composables/auth'
 import { useAuthSubmit } from '../composables/auth-submit'
 import { AnimatePresence } from 'motion-v'
-import { Spinner } from '@renderer/shared/components/ui/spinner'
 import { LocaleCombobox } from '@renderer/shared/components/locale'
 import {
   AuthFormCredentials,
@@ -19,6 +19,7 @@ import {
 } from '../components/auth-form'
 import { ResponseErrorReason } from '@shared/definition/vrchat-api-status'
 import { useI18n } from '@renderer/shared/locale'
+import Beams from '@renderer/shared/components/beams.vue'
 
 const credentialFormRef = useTemplateRef('credentialFormRef')
 const reauthenticateFormRef = useTemplateRef('reauthenticateFormRef')
@@ -118,7 +119,20 @@ function clearInput() {
   <AuthLayout>
     <template #background>
       <div class="absolute top-0 left-0 w-full h-10 z-15 electron-drag" />
-      <Spinner class="size-12" />
+      <div class="relative size-full flex items-center justify-center overflow-hidden">
+        <ZypherIcon class="absolute size-18 z-10" />
+        <Beams
+          class="relative left-0 top-0 size-full"
+          light-color="#B46C2C"
+          :beam-width="2"
+          :beam-height="30"
+          :beam-number="20"
+          :speed="2"
+          :noise-intensity="1.75"
+          :scale="0.2"
+          :rotation="30"
+        />
+      </div>
     </template>
     <template #content>
       <div class="absolute top-0 left-0 w-full h-10 z-15 electron-drag" />
