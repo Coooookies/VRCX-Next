@@ -9,7 +9,7 @@ import { parseFileUrl } from '../vrchat-files/factory'
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { Platform } from '@shared/definition/vrchat-api-response'
 import type { ReferenceAvatar } from '@shared/definition/vrchat-avatars'
-import type { BaseFriendInformation } from '@shared/definition/vrchat-friends'
+import type { BaseFriendInformation, FriendInformation } from '@shared/definition/vrchat-friends'
 import type { LocationInstanceGroup } from '@shared/definition/vrchat-instances'
 import type { User, CurrentUser, LimitedUserFriend } from '@shared/definition/vrchat-api-response'
 
@@ -53,6 +53,30 @@ export function toBaseFriendInformation(
     lastLoginDate: friend.last_login ? new Date(friend.last_login) : null,
     lastActivityDate: friend.last_activity ? new Date(friend.last_activity) : null,
     isSupporter: supporter
+  }
+}
+
+export function toBaseFriendInformationFromFull(friend: FriendInformation): BaseFriendInformation {
+  return {
+    userId: friend.userId,
+    displayName: friend.displayName,
+    status: friend.status,
+    statusDescription: friend.statusDescription,
+    profileIconFileId: friend.profileIconFileId,
+    profileIconFileVersion: friend.profileIconFileVersion,
+    profileBackgroundFileId: friend.profileBackgroundFileId,
+    profileBackgroundFileVersion: friend.profileBackgroundFileVersion,
+    referenceAvatar: friend.referenceAvatar,
+    bio: friend.bio,
+    bioLinks: friend.bioLinks,
+    tags: friend.tags,
+    trustRank: friend.trustRank,
+    platform: friend.platform,
+    languages: friend.languages,
+    lastPlatform: friend.lastPlatform,
+    lastLoginDate: friend.lastLoginDate,
+    lastActivityDate: friend.lastActivityDate,
+    isSupporter: friend.isSupporter
   }
 }
 
