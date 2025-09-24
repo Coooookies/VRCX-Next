@@ -1,15 +1,17 @@
 import Nanobus from 'nanobus'
-import { diffSurface } from '@main/utils/object'
+import { diffObjects } from '@main/utils/object'
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { toBaseFriendInformation } from './factory'
 import { isSameLocation } from '../vrchat-worlds/utils'
-import { UserStatus } from '@shared/definition/vrchat-api-response'
+import { FRIEND_UPDATE_COMPARE_KEYS } from './constants'
+import { Platform, UserStatus } from '@shared/definition/vrchat-api-response'
 import { PipelineEvents } from '@shared/definition/vrchat-pipeline'
 import type { LoggerFactory } from '@main/logger'
 import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { FriendsRepository } from './repository'
 import type { FriendsFetcher } from './fetcher'
+import type { FriendUpdateDiff } from './types'
 import type { BaseFriendInformation, FriendInformation } from '@shared/definition/vrchat-friends'
 import type {
   PipelineEventFriendActive,
@@ -29,7 +31,11 @@ export class FriendsEventBinding extends Nanobus<{
   'friend:offline': (user: FriendInformation) => void
   'friend:location': (user: FriendInformation) => void
   'friend:active': (user: FriendInformation) => void
-  'friend:update': (user: FriendInformation, diff: Partial<BaseFriendInformation>) => void
+  'friend:update': (
+    user: FriendInformation,
+    diff: FriendUpdateDiff,
+    updatedKeys: (keyof BaseFriendInformation)[]
+  ) => void
 }> {
   constructor(
     private readonly logger: LoggerFactory,
@@ -53,7 +59,7 @@ export class FriendsEventBinding extends Nanobus<{
     })
 
     this.on('friend:active', (friend) => {
-      this.logger.debug(
+      this.logger.info(
         'friend-active',
         friend.userId,
         friend.displayName,
@@ -63,43 +69,42 @@ export class FriendsEventBinding extends Nanobus<{
     })
 
     this.on('friend:offline', (friend) => {
-      this.logger.debug('friend-offline', friend.userId, friend.displayName, friend.platform)
+      this.logger.info('friend-offline', `${friend.displayName}(${friend.userId})`, friend.platform)
     })
 
     this.on('friend:online', (friend) => {
-      this.logger.debug(
+      this.logger.info(
         'friend-online',
-        friend.userId,
-        friend.displayName,
+        `${friend.displayName}(${friend.userId})`,
         friend.location ? `${friend.location.worldName}(${friend.location.worldId})` : 'Private',
-        friend.platform,
-        JSON.stringify(friend, null, 2)
+        friend.platform
       )
     })
 
     this.on('friend:location', (friend) => {
-      this.logger.debug(
+      this.logger.info(
         'friend-location',
-        friend.userId,
-        friend.displayName,
+        `${friend.displayName}(${friend.userId})`,
         friend.location ? `${friend.location.worldName}(${friend.location.worldId})` : 'Private',
         friend.isTraveling ? 'Traveling' : 'Not-Traveling'
       )
     })
 
     this.on('friend:add', (friend) => {
-      this.logger.debug('friend-add', `${friend.displayName}(${friend.userId})`)
+      this.logger.info('friend-add', `${friend.displayName}(${friend.userId})`)
     })
 
     this.on('friend:delete', (friend) => {
-      this.logger.debug('friend-delete', `${friend.displayName}(${friend.userId})`)
+      this.logger.info('friend-delete', `${friend.displayName}(${friend.userId})`)
     })
 
-    this.on('friend:update', (friend, diff) => {
-      this.logger.debug(
+    this.on('friend:update', (friend, diff, keys) => {
+      this.logger.info(
         'friend-update',
         `${friend.displayName}(${friend.userId})`,
-        JSON.stringify(diff)
+        `before: ${JSON.stringify(diff.before, null, 2)}`,
+        `after: ${JSON.stringify(diff.after, null, 2)}`,
+        `keys: ${keys.join(',')}`
       )
     })
   }
@@ -191,10 +196,20 @@ export class FriendsEventBinding extends Nanobus<{
     travelingToLocation
   }: PipelineEventFriendOnline): Promise<void> {
     const friend = this.repository.get(userId)
+    const updatedFriend = toBaseFriendInformation(user)
+
+    // ?
+    updatedFriend.platform = platform
 
     if (!friend) {
       return
     }
+
+    const { diff: friendDiff, keys: friendUpdatedKeys } = diffObjects<BaseFriendInformation>(
+      friend,
+      updatedFriend,
+      FRIEND_UPDATE_COMPARE_KEYS
+    )
 
     const isTraveling = location === 'traveling'
     const travelingTarget = parseLocation(travelingToLocation)
@@ -204,16 +219,33 @@ export class FriendsEventBinding extends Nanobus<{
       ? await this.fetcher.enrichLocation(nextLocation, world!)
       : null
 
-    const updatedFriend: FriendInformation = {
-      ...toBaseFriendInformation(user),
+    const newDiff: Partial<FriendInformation> = {
+      ...friendDiff.after,
       location: nextLocationSummary,
       locationArrivedAt: nextLocation ? new Date() : null,
-      platform,
       isTraveling
     }
 
-    this.emit('friend:online', updatedFriend)
-    this.repository.set(updatedFriend)
+    this.repository.update(userId, () => newDiff)
+    this.emit('friend:online', {
+      ...friend,
+      ...newDiff
+    })
+
+    if (friendUpdatedKeys.length > 0) {
+      this.emit(
+        'friend:update',
+        {
+          ...friend,
+          ...updatedFriend
+        },
+        {
+          before: { ...friendDiff.before },
+          after: { ...friendDiff.after }
+        },
+        friendUpdatedKeys
+      )
+    }
   }
 
   private async handleFriendOffline({
@@ -305,24 +337,35 @@ export class FriendsEventBinding extends Nanobus<{
 
   private async handleFriendUpdate({ user, userId }: PipelineEventFriendUpdate): Promise<void> {
     const friend = this.repository.get(userId)
+    const updatedFriend = toBaseFriendInformation(user)
 
     if (!friend) {
       return
     }
 
-    const updatedFriend = toBaseFriendInformation(user)
-    const diff = diffSurface<BaseFriendInformation>(friend, updatedFriend)
+    const { diff: friendDiff, keys: friendUpdatedKeys } = diffObjects<BaseFriendInformation>(
+      friend,
+      updatedFriend,
+      FRIEND_UPDATE_COMPARE_KEYS
+    )
 
-    diff.platform = updatedFriend.platform || friend.platform
+    if (friendUpdatedKeys.includes('platform') && friendDiff.after.platform === Platform.Unknown) {
+      delete friendDiff.before.platform
+      delete friendDiff.after.platform
+    }
 
-    this.repository.update(userId, () => diff)
+    this.repository.update(userId, () => friendDiff.after)
     this.emit(
       'friend:update',
       {
         ...friend,
         ...updatedFriend
       },
-      diff
+      {
+        before: { ...friendDiff.before },
+        after: { ...friendDiff.after }
+      },
+      friendUpdatedKeys
     )
   }
 }

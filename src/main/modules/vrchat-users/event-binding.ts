@@ -2,14 +2,16 @@ import Nanobus from 'nanobus'
 import { toJS } from 'mobx'
 import { isSameLocation } from '../vrchat-worlds/utils'
 import { toCurrentUserInformation, toUserEntity } from './factory'
-import { diffSurface } from '@main/utils/object'
 import { parseLocation } from '../vrchat-worlds/location-parser'
+import { diffObjects } from '@main/utils/object'
+import { USER_UPDATE_COMPARE_KEYS } from './constants'
 import { PipelineEvents } from '@shared/definition/vrchat-pipeline'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { LoggerFactory } from '@main/logger'
 import type { LocationInstanceSummary } from '@shared/definition/vrchat-instances'
 import type {
   PipelineEventFriendAdd,
+  PipelineEventFriendOnline,
   PipelineEventFriendUpdate,
   PipelineEventMessage,
   PipelineEventUserLocation,
@@ -18,9 +20,10 @@ import type {
 import type { CurrentUserInformation, UserLocation } from '@shared/definition/vrchat-users'
 import type { UsersRepository } from './repository'
 import type { UsersFetcher } from './fetcher'
+import type { UserUpdateDiff } from './types'
 
 export class UsersEventBinding extends Nanobus<{
-  'user:update': (user: CurrentUserInformation, diff: Partial<CurrentUserInformation>) => void
+  'user:update': (diff: UserUpdateDiff, updatedKeys: (keyof CurrentUserInformation)[]) => void
   'user:location': (location: UserLocation) => void
 }> {
   constructor(
@@ -36,6 +39,23 @@ export class UsersEventBinding extends Nanobus<{
     this.pipeline.on('message', (message: PipelineEventMessage) => {
       this.handlePipeMessage(message)
     })
+
+    this.on('user:location', ({ location, isTraveling }) => {
+      this.logger.info(
+        'friend-location',
+        location ? `${location.worldName}(${location.worldId})` : 'Private',
+        isTraveling ? 'Traveling' : 'Not-Traveling'
+      )
+    })
+
+    this.on('user:update', (diff, keys) => {
+      this.logger.info(
+        'user-update',
+        `before: ${JSON.stringify(diff.before, null, 2)}`,
+        `after: ${JSON.stringify(diff.after, null, 2)}`,
+        `keys: ${keys.join(',')}`
+      )
+    })
   }
 
   private async handlePipeMessage(message: PipelineEventMessage): Promise<void> {
@@ -50,6 +70,10 @@ export class UsersEventBinding extends Nanobus<{
       }
       case PipelineEvents.FriendAdd: {
         await this.handleFriendAdd(message.content)
+        break
+      }
+      case PipelineEvents.FriendOnline: {
+        await this.handleFriendOnline(message.content)
         break
       }
       case PipelineEvents.FriendUpdate: {
@@ -92,22 +116,42 @@ export class UsersEventBinding extends Nanobus<{
       locationArrivedAt: nextLocationArrivedAt
     }
 
-    this.emit('user:location', newLocation)
-    this.logger.info(`User location updated: from ${location}, toLocation: ${travelingToLocation}`)
     this.repository.setLocationState(newLocation)
+    this.emit('user:location', newLocation)
   }
 
   private async handleUserUpdate({ user }: PipelineEventUserUpdate): Promise<void> {
-    const oldUser = toJS(this.repository.State.user)
-    const newUser = toCurrentUserInformation(user)
-    const diff = oldUser ? diffSurface<CurrentUserInformation>(oldUser, newUser) : newUser
+    if (!this.repository.State.user) {
+      return
+    }
 
-    this.emit('user:update', newUser, diff)
-    this.logger.info(`User updated: ${user.id}`, diff)
-    this.repository.setUserState(newUser)
+    const baseUser = toJS(this.repository.State.user)
+    const updatedUser = toCurrentUserInformation(user)
+
+    const { diff: userDiff, keys: userUpdatedKeys } = diffObjects<CurrentUserInformation>(
+      baseUser,
+      updatedUser,
+      USER_UPDATE_COMPARE_KEYS
+    )
+
+    this.repository.setUserState(updatedUser)
+    this.emit(
+      'user:update',
+      {
+        before: { ...userDiff.before },
+        after: { ...userDiff.after }
+      },
+      userUpdatedKeys
+    )
   }
 
   private async handleFriendAdd({ user }: PipelineEventFriendAdd): Promise<void> {
+    const entity = toUserEntity(user)
+    this.repository.saveUserEntities(entity)
+    this.logger.info('Received user info from pipeline:', `${user.displayName}(${user.id})`)
+  }
+
+  private async handleFriendOnline({ user }: PipelineEventFriendOnline): Promise<void> {
     const entity = toUserEntity(user)
     this.repository.saveUserEntities(entity)
     this.logger.info('Received user info from pipeline:', `${user.displayName}(${user.id})`)
