@@ -70,6 +70,7 @@ export default defineConfig({
         output: {
           manualChunks(id) {
             if (id.includes('node_modules')) {
+              if (id.includes('three')) return 'vendor-three'
               if (id.includes('reka-ui')) return 'vendor-reka-ui'
               if (id.includes('motion-v')) return 'vendor-motion-v'
               if (id.includes('vue-sonner')) return 'vendor-vue-sonner'
