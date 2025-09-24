@@ -2,7 +2,9 @@
 import { Skeleton } from '@renderer/shared/components/ui/skeleton'
 import { cn } from '@renderer/shared/utils/style'
 
-const lineWitdh = 20 + Math.floor(Math.random() * 30)
+const randomWidth = (min: number, max: number) => {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
 </script>
 
 <template>
@@ -17,7 +19,7 @@ const lineWitdh = 20 + Math.floor(Math.random() * 30)
     <Skeleton
       class="h-3.5 rounded-sm"
       :style="{
-        width: `${lineWitdh}%`
+        width: `${randomWidth(20, 50)}%`
       }"
     />
     <div :class="cn('grid grid-cols-2 gap-2 items-center', '@5xl:grid-cols-2')">
