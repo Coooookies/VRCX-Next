@@ -49,7 +49,7 @@ export class ServiceMonitor extends Module<{
     })
 
     this.on('process:steamvr:state-change', (isRunning) => {
-      this.logger.debug('SteamVR process state changed', `isRunning: ${isRunning}`)
+      this.logger.info('SteamVR process state changed', `isRunning: ${isRunning}`)
     })
   }
 
