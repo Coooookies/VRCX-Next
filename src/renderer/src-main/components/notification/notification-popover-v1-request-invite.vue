@@ -24,6 +24,7 @@ const props = defineProps<{
   base: NotificationBaseProps
   raw: NotificationGlobalRawInformation[typeof NotificationGlobalType.RequestInviteV1]
   isSupporter: boolean
+  acceptInvite: (notificationId: string) => Promise<void>
   respondInvite: (notificationId: string) => Promise<void>
   respondInviteWithMessage: (notificationId: string) => Promise<void>
   respondInviteWithPhoto: (notificationId: string) => Promise<void>
@@ -103,27 +104,35 @@ const handleShowSender = () => {
       message-italic
     />
     <div class="flex flex-row items-center justify-start gap-1.5 pl-14 pb-0.5">
-      <div v-if="isLoading" class="h-6 flex items-center justify-center">
-        <Spinner class="size-5" />
+      <div v-if="isLoading" class="w-9 h-6 rounded-sm bg-muted/50 flex items-center justify-center">
+        <Spinner class="size-4" />
       </div>
-      <div v-else class="flex flex-row gap-px">
+      <div v-else class="flex flex-row items-center justify-start gap-1.5">
         <NotificationPopoverActionButton
-          class="rounded-r-none rounded-l-sm"
-          variant="secondary"
-          :description="t('notification.response.instance_invite_decline')"
-          @click.stop="respondInvite(props.base.notificationId)"
+          size="sm"
+          variant="default"
+          :description="t('notification.response.instance_invite_accept')"
+          @click.stop="acceptInvite(props.base.notificationId)"
         />
-        <NotificationPopoverInviteDeclineOption
-          :decline-with-message-title="
-            t('notification.response.instance_request_invite_decline_with_message')
-          "
-          :decline-with-photo-title="
-            t('notification.response.instance_request_invite_decline_with_photo')
-          "
-          :is-supporter="props.isSupporter"
-          @respond-invite-with-message="respondInviteWithMessage(props.base.notificationId)"
-          @respond-invite-with-photo="respondInviteWithPhoto(props.base.notificationId)"
-        />
+        <div class="flex flex-row gap-px">
+          <NotificationPopoverActionButton
+            class="rounded-r-none rounded-l-sm"
+            variant="secondary"
+            :description="t('notification.response.instance_invite_decline')"
+            @click.stop="respondInvite(props.base.notificationId)"
+          />
+          <NotificationPopoverInviteDeclineOption
+            :decline-with-message-title="
+              t('notification.response.instance_request_invite_decline_with_message')
+            "
+            :decline-with-photo-title="
+              t('notification.response.instance_request_invite_decline_with_photo')
+            "
+            :is-supporter="props.isSupporter"
+            @respond-invite-with-message="respondInviteWithMessage(props.base.notificationId)"
+            @respond-invite-with-photo="respondInviteWithPhoto(props.base.notificationId)"
+          />
+        </div>
       </div>
     </div>
   </Button>

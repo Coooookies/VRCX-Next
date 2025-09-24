@@ -8,6 +8,7 @@ import { Popover, PopoverTrigger } from '@renderer/shared/components/ui/popover'
 
 import { computed } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
+import { toast } from 'vue-sonner'
 import { useI18n } from '@renderer/shared/locale'
 import { useSidebarNotifications } from '@renderer/src-main/composables/sidebar-notifications'
 import { useModule } from '@renderer/shared/hooks/use-module'
@@ -21,12 +22,80 @@ const {
   respondNotificationV2,
   deleteNotificationV1,
   deleteNotificationV2,
+  acceptInvite,
   responseInvite,
   responseInviteWithMessage,
   responseInviteWithPhoto,
   acceptFriendRequest,
   declineFriendRequest
-} = useSidebarNotificationsSubmit()
+} = useSidebarNotificationsSubmit({
+  onMarkNotificationAsRead(_, promise) {
+    toast.promise(promise, {
+      loading: t('toast.processing.vrcapi_notification_reponse_processing'),
+      success: t('toast.resolve.vrcapi_notification_v2_respond_success')
+    })
+  },
+  onRespondNotificationV2(_, __, ___, promise) {
+    toast.promise(promise, {
+      loading: t('toast.processing.vrcapi_notification_reponse_processing'),
+      success: t('toast.resolve.vrcapi_notification_v2_respond_success')
+    })
+  },
+  onDeleteNotificationV1(_, promise) {
+    toast.promise(promise, {
+      loading: t('toast.processing.vrcapi_notification_reponse_processing'),
+      success: t('toast.resolve.vrcapi_notification_clear_success')
+    })
+  },
+  onDeleteNotificationV2(_, promise) {
+    toast.promise(promise, {
+      loading: t('toast.processing.vrcapi_notification_reponse_processing'),
+      success: t('toast.resolve.vrcapi_notification_clear_success')
+    })
+  },
+  onClearNotifications(promise) {
+    toast.promise(promise, {
+      loading: t('toast.processing.vrcapi_notification_reponse_processing'),
+      success: t('toast.resolve.vrcapi_notification_clear_success')
+    })
+  },
+  onAcceptInvite(_, promise) {
+    toast.promise(promise, {
+      loading: t('toast.processing.vrcapi_notification_reponse_processing'),
+      success: t('toast.resolve.vrcapi_notification_v1_accept_invite_success')
+    })
+  },
+  onResponseInvite(_, promise) {
+    toast.promise(promise, {
+      loading: t('toast.processing.vrcapi_notification_reponse_processing'),
+      success: t('toast.resolve.vrcapi_notification_v1_decline_invite_success')
+    })
+  },
+  onResponseInviteWithMessage(_, promise) {
+    toast.promise(promise, {
+      loading: t('toast.processing.vrcapi_notification_reponse_processing'),
+      success: t('toast.resolve.vrcapi_notification_v1_decline_invite_with_message_success')
+    })
+  },
+  onResponseInviteWithPhoto(_, promise) {
+    toast.promise(promise, {
+      loading: t('toast.processing.vrcapi_notification_reponse_processing'),
+      success: t('toast.resolve.vrcapi_notification_v1_decline_invite_with_photo_success')
+    })
+  },
+  onAcceptFriendRequest(_, promise) {
+    toast.promise(promise, {
+      loading: t('toast.processing.vrcapi_notification_reponse_processing'),
+      success: t('toast.resolve.vrcapi_notification_v1_accept_friend_request_success')
+    })
+  },
+  onDeclineFriendRequest(_, promise) {
+    toast.promise(promise, {
+      loading: t('toast.processing.vrcapi_notification_reponse_processing'),
+      success: t('toast.resolve.vrcapi_notification_v1_decline_friend_request_success')
+    })
+  }
+})
 
 const users = useModule<VRChatUsers>('VRChatUsers')
 const actionIconMask = `url("${SidebarActionIconMask}")`
@@ -64,6 +133,7 @@ const isSupporter = computed(() => {
           :respond-invite="responseInvite"
           :respond-invite-with-message="responseInviteWithMessage"
           :respond-invite-with-photo="responseInviteWithPhoto"
+          :accept-invite="acceptInvite"
           :accept-friend-request="acceptFriendRequest"
           :decline-friend-request="declineFriendRequest"
           @read-notification-v1="markNotificationAsRead"

@@ -44,6 +44,7 @@ const props = defineProps<{
     type: NotificationV2ResponseType,
     data: string
   ) => Promise<void>
+  acceptInvite: (notificationId: string) => Promise<void>
   respondInvite: (notificationId: string) => Promise<void>
   respondInviteWithMessage: (notificationId: string) => Promise<void>
   respondInviteWithPhoto: (notificationId: string) => Promise<void>
@@ -162,6 +163,7 @@ const tabs = computed(() => {
                 acceptFriendRequest: props.acceptFriendRequest,
                 declineFriendRequest: props.declineFriendRequest,
                 respondNotificationV2: props.respondNotificationV2,
+                acceptInvite: props.acceptInvite,
                 respondInvite: props.respondInvite,
                 respondInviteWithMessage: props.respondInviteWithMessage,
                 respondInviteWithPhoto: props.respondInviteWithPhoto
