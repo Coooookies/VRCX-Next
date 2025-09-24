@@ -203,6 +203,7 @@ export const LANGUAGE_JA_JP: LocaleStructure = {
         group_invite_block: 'ブロック',
         friend_request_accept: '承認',
         friend_request_decline: '辞退',
+        instance_invite_accept: '承認',
         instance_invite_decline: '辞退',
         instance_invite_decline_with_message: '辞退（メッセージ付き）',
         instance_invite_decline_with_photo: '辞退（写真付き）',
@@ -262,6 +263,19 @@ export const LANGUAGE_JA_JP: LocaleStructure = {
       }
     },
     toast: {
+      processing: {
+        vrcapi_notification_reponse_processing: '処理中...'
+      },
+      resolve: {
+        vrcapi_notification_clear_success: 'すべての通知をクリアしました',
+        vrcapi_notification_v1_accept_invite_success: '招待を承認しました',
+        vrcapi_notification_v1_decline_invite_success: '招待を辞退しました',
+        vrcapi_notification_v1_decline_invite_with_message_success: '招待を辞退しました',
+        vrcapi_notification_v1_decline_invite_with_photo_success: '招待を辞退しました',
+        vrcapi_notification_v1_accept_friend_request_success: 'フレンドリクエストを承認しました',
+        vrcapi_notification_v1_decline_friend_request_success: 'フレンドリクエストを辞退しました',
+        vrcapi_notification_v2_respond_success: '操作に成功しました'
+      },
       error: {
         vrcapi_api_not_found: 'インターフェースが見つかりません: {reason}',
         vrcapi_api_forbidden: 'アクセスが禁止されています: {reason}',

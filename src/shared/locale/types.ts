@@ -127,6 +127,7 @@ export type LocaleDefinition = {
       group_invite_block: string
       friend_request_accept: string
       friend_request_decline: string
+      instance_invite_accept: string
       instance_invite_decline: string
       instance_invite_decline_with_message: string
       instance_invite_decline_with_photo: string
@@ -182,6 +183,19 @@ export type LocaleDefinition = {
     }
   }
   toast: {
+    processing: {
+      vrcapi_notification_reponse_processing: string
+    }
+    resolve: {
+      vrcapi_notification_clear_success: string
+      vrcapi_notification_v1_accept_invite_success: string
+      vrcapi_notification_v1_decline_invite_success: string
+      vrcapi_notification_v1_decline_invite_with_message_success: string
+      vrcapi_notification_v1_decline_invite_with_photo_success: string
+      vrcapi_notification_v1_accept_friend_request_success: string
+      vrcapi_notification_v1_decline_friend_request_success: string
+      vrcapi_notification_v2_respond_success: string
+    }
     error: {
       vrcapi_api_not_found: string
       vrcapi_api_forbidden: string

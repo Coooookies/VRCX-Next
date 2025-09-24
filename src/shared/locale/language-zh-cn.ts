@@ -203,6 +203,7 @@ export const LANGUAGE_ZH_CN: LocaleStructure = {
         group_invite_block: '屏蔽',
         friend_request_accept: '接受',
         friend_request_decline: '拒绝',
+        instance_invite_accept: '接受',
         instance_invite_decline: '拒绝',
         instance_invite_decline_with_message: '拒绝并附带留言',
         instance_invite_decline_with_photo: '拒绝并附带照片',
@@ -262,6 +263,19 @@ export const LANGUAGE_ZH_CN: LocaleStructure = {
       }
     },
     toast: {
+      processing: {
+        vrcapi_notification_reponse_processing: '正在回应'
+      },
+      resolve: {
+        vrcapi_notification_clear_success: '已清除所有通知',
+        vrcapi_notification_v1_accept_invite_success: '请求已拒绝',
+        vrcapi_notification_v1_decline_invite_success: '请求已拒绝',
+        vrcapi_notification_v1_decline_invite_with_message_success: '请求已拒绝',
+        vrcapi_notification_v1_decline_invite_with_photo_success: '请求已拒绝',
+        vrcapi_notification_v1_accept_friend_request_success: '已接受好友请求',
+        vrcapi_notification_v1_decline_friend_request_success: '已拒绝好友请求',
+        vrcapi_notification_v2_respond_success: '操作成功'
+      },
       error: {
         vrcapi_api_not_found: '接口未找到: {reason}',
         vrcapi_api_forbidden: '访问被禁止: {reason}',

@@ -203,6 +203,7 @@ export const LANGUAGE_EN_US: LocaleStructure = {
         group_invite_block: 'Block',
         friend_request_accept: 'Accept',
         friend_request_decline: 'Decline',
+        instance_invite_accept: 'Accept',
         instance_invite_decline: 'Decline',
         instance_invite_decline_with_message: 'Decline with message',
         instance_invite_decline_with_photo: 'Decline with photo',
@@ -262,6 +263,19 @@ export const LANGUAGE_EN_US: LocaleStructure = {
       }
     },
     toast: {
+      processing: {
+        vrcapi_notification_reponse_processing: 'Responsing...'
+      },
+      resolve: {
+        vrcapi_notification_clear_success: 'All notifications cleared',
+        vrcapi_notification_v1_accept_invite_success: 'Invitation accepted',
+        vrcapi_notification_v1_decline_invite_success: 'Invitation declined',
+        vrcapi_notification_v1_decline_invite_with_message_success: 'Invitation declined',
+        vrcapi_notification_v1_decline_invite_with_photo_success: 'Invitation declined',
+        vrcapi_notification_v1_accept_friend_request_success: 'Friend request accepted',
+        vrcapi_notification_v1_decline_friend_request_success: 'Friend request declined',
+        vrcapi_notification_v2_respond_success: 'Operation successful'
+      },
       error: {
         vrcapi_api_not_found: 'API not found: {reason}',
         vrcapi_api_forbidden: 'Access forbidden: {reason}',
