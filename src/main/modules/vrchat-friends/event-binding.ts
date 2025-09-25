@@ -198,9 +198,6 @@ export class FriendsEventBinding extends Nanobus<{
     const friend = this.repository.get(userId)
     const updatedFriend = toBaseFriendInformation(user)
 
-    // ?
-    updatedFriend.platform = platform
-
     if (!friend) {
       return
     }
@@ -221,6 +218,9 @@ export class FriendsEventBinding extends Nanobus<{
 
     const newDiff: Partial<FriendInformation> = {
       ...friendDiff.after,
+      platform,
+      status: user.status,
+      statusDescription: user.statusDescription,
       location: nextLocationSummary,
       locationArrivedAt: nextLocation ? new Date() : null,
       isTraveling
