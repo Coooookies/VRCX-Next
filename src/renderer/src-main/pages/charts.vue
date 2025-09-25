@@ -32,7 +32,7 @@ const usersJson = computed(() => {
 })
 
 const activitiesJson = computed(() => {
-  return JSON.stringify(instance.currentInstanceUserActivities.value, null, 2)
+  return JSON.stringify(instance.currentInstanceEvents.value, null, 2)
 })
 </script>
 
