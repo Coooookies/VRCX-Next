@@ -4,3 +4,10 @@ export interface TableColumnMeta {
     td?: string
   }
 }
+
+export interface InstancePresentUser {
+  userId: string
+  userName: string
+  profileIconFileId?: string
+  profileIconFileVersion?: number
+}

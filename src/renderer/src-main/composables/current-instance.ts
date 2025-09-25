@@ -16,6 +16,7 @@ export function useCurrentInstance() {
   const service = useModule<ServiceMonitor>('ServiceMonitor')
   const instance = useModule<VRChatInstances>('VRChatInstances')
   const instancePlayers = shallowRef<InstancePlayer[]>([])
+  const instanceEvents = instance.currentInstanceEvents
 
   const isJoined = computed(() => instance.state.currentInstance.joined)
   const isGameRunning = computed(() => service.state.vrchat.isRunning)
@@ -46,6 +47,7 @@ export function useCurrentInstance() {
 
   return {
     instancePlayers,
+    instanceEvents,
     isGameRunning,
     isInstanceLoading,
     isJoined,
