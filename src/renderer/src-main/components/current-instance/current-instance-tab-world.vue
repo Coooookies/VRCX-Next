@@ -53,8 +53,8 @@ const worldCapacity = computed(() => {
         />
         <CurrentInstanceStats
           class="order-2 @5xl:order-2"
-          label="Release Status"
-          :value="t(RELEASE_STATUS_TRANSLATE_KEY[props.detail.releaseStatus])"
+          label="Version"
+          :value="`${props.detail.version}`"
         />
         <CurrentInstanceStats
           class="order-4 @5xl:order-3"
