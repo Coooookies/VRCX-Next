@@ -3,16 +3,16 @@ import { debounce } from 'lodash'
 import { toUserInformationSummary } from '../vrchat-users/factory'
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { generateInstanceRecordId } from './utils'
+import { INSTANCE_USERS_INITIAL_BATCH_DELAY } from './constants'
 import { LogEvents } from '../vrchat-log-watcher/types'
 import {
-  InstanceUserActivityType,
+  InstanceEvents,
   LocationInstanceGroupType,
   LocationInstancePublicType,
   LocationInstanceUserType
 } from '@shared/definition/vrchat-instances'
-import { INSTANCE_USERS_INITIAL_BATCH_DELAY } from './constants'
 import type {
-  InstanceUserActivitySummary,
+  InstanceEventMessage,
   InstanceUserSummary,
   LocationInstance,
   LocationOwner
@@ -22,10 +22,10 @@ import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatWorlds } from '../vrchat-worlds'
 import type { VRChatGroups } from '../vrchat-groups'
 import type { WorldDetail } from '@shared/definition/vrchat-worlds'
-import type { InstanceData } from './types'
+import type { InstanceData, InstanceUserPresentEvent } from './types'
 import type { InstanceFetcher } from './fetcher'
 import type { InstanceRepository } from './repository'
-import type { InstanceUser, InstanceUserActivity } from '@shared/definition/vrchat-instances'
+import type { InstanceUser } from '@shared/definition/vrchat-instances'
 import type {
   LogEventContext,
   LogEventMessage,
@@ -41,15 +41,12 @@ export class CurrentInstance extends Nanobus<{
   'instance:owner-summary-initialized': (detail: LocationOwner | null) => void
   'instance:present-progress': (
     users: InstanceUserSummary[],
-    activities: InstanceUserActivitySummary[]
+    events: InstanceEventMessage[]
   ) => void
-  'instance:present-loaded': (
-    users: InstanceUserSummary[],
-    activities: InstanceUserActivitySummary[]
-  ) => void
+  'instance:present-loaded': (users: InstanceUserSummary[], events: InstanceEventMessage[]) => void
+  'instance:event': (activity: InstanceEventMessage) => void
   'user:joined': (user: InstanceUserSummary) => void
   'user:left': (userId: string) => void
-  'user:activity': (activity: InstanceUserActivitySummary) => void
 }> {
   private isListening = false
   private isInitialBatchMode = false
@@ -130,7 +127,9 @@ export class CurrentInstance extends Nanobus<{
       switch (data.type) {
         case LogEvents.SelfLeave:
         case LogEvents.PlayerJoined:
-        case LogEvents.PlayerLeft: {
+        case LogEvents.PlayerLeft:
+        case LogEvents.VideoPlaybackLoad:
+        case LogEvents.VideoPlaybackError: {
           return true
         }
         case LogEvents.SelfJoin: {
@@ -170,14 +169,15 @@ export class CurrentInstance extends Nanobus<{
           joinedAt,
           leftAt,
           isLeft,
-          ...this.parseUsersEvents(events)
+          ...this.parseInstanceEvents(events)
         }
       : null
   }
 
-  private parseUsersEvents(events: LogEventSummary[]) {
+  private parseInstanceEvents(events: LogEventSummary[]) {
     const users = new Map<string, InstanceUser>()
-    const userActivities: InstanceUserActivity[] = []
+    const userEvents: InstanceUserPresentEvent[] = []
+    const videoEvents: InstanceEventMessage[] = []
     let isCurrentUserInInstance = false
 
     for (const event of events) {
@@ -197,12 +197,10 @@ export class CurrentInstance extends Nanobus<{
               joinedAt: event.context.date
             })
 
-            userActivities.push({
+            userEvents.push({
               userId: event.data.content.userId,
               userName: event.data.content.userName,
-              type: isCurrentUserInInstance
-                ? InstanceUserActivityType.Join
-                : InstanceUserActivityType.Present,
+              type: isCurrentUserInInstance ? InstanceEvents.UserJoin : InstanceEvents.UserPresent,
               recordedAt: event.context.date
             })
           }
@@ -211,13 +209,33 @@ export class CurrentInstance extends Nanobus<{
         case LogEvents.PlayerLeft: {
           if (event.data.content.userId) {
             users.delete(event.data.content.userId)
-            userActivities.push({
+            userEvents.push({
               userId: event.data.content.userId,
               userName: event.data.content.userName,
-              type: InstanceUserActivityType.Leave,
+              type: InstanceEvents.UserLeave,
               recordedAt: event.context.date
             })
           }
+          break
+        }
+        case LogEvents.VideoPlaybackLoad: {
+          videoEvents.push({
+            type: InstanceEvents.VideoPlaybackLoad,
+            recordedAt: event.context.date,
+            content: {
+              url: event.data.content.url
+            }
+          })
+          break
+        }
+        case LogEvents.VideoPlaybackError: {
+          videoEvents.push({
+            type: InstanceEvents.VideoPlaybackError,
+            recordedAt: event.context.date,
+            content: {
+              reason: event.data.content.reason
+            }
+          })
           break
         }
       }
@@ -225,13 +243,14 @@ export class CurrentInstance extends Nanobus<{
 
     return {
       users: [...users.values()],
-      userActivities,
+      userEvents,
+      videoEvents,
       isCurrentUserInInstance
     }
   }
 
   private async initializeInstance(instance: InstanceData): Promise<void> {
-    const { location, users, userActivities, joinedAt } = instance
+    const { location, users, userEvents, videoEvents, joinedAt } = instance
     const recordId = generateInstanceRecordId(location.worldId, location.name, joinedAt)
 
     this.repository.setCurrentInstanceRecordId(recordId)
@@ -241,7 +260,7 @@ export class CurrentInstance extends Nanobus<{
 
     await this.processWorldSummary(location.worldId)
     await this.processWorldOwner(location)
-    await this.processInitialUsers(users, userActivities)
+    await this.processInitialInstance(users, userEvents, videoEvents)
 
     this.isInitialBatchMode = users.length === 0
     this.isCurrentUserInInstance = instance.isCurrentUserInInstance
@@ -292,23 +311,25 @@ export class CurrentInstance extends Nanobus<{
     this.emit('instance:owner-summary-initialized', owner)
   }
 
-  private async processInitialUsers(users: InstanceUser[], activities: InstanceUserActivity[]) {
+  private async processInitialInstance(
+    users: InstanceUser[],
+    userEvents: InstanceUserPresentEvent[],
+    videoEvents: InstanceEventMessage[]
+  ) {
     // preset null user to avoid flickering
     this.repository.upsertCurrentInstanceUser(users.map((u) => ({ ...u, user: null })))
 
     // fetch users and activities
-    const { usersSummaries, activitiesSummaries } = await this.fetcher.fetchInstancePresent(
-      users,
-      activities,
-      (users, activities) => {
+    const { usersSummaries, presentEvents: userPresentEvents } =
+      await this.fetcher.fetchInstancePresent(users, userEvents, (users, activities) => {
         this.repository.upsertCurrentInstanceUser(users)
         this.emit('instance:present-progress', users, activities)
-      }
-    )
+      })
 
+    const totalEvents = [...userPresentEvents, ...videoEvents]
     this.repository.upsertCurrentInstanceUser(usersSummaries)
-    this.repository.appendCurrentInstanceUserActivity(activitiesSummaries)
-    this.emit('instance:present-loaded', usersSummaries, activitiesSummaries)
+    this.repository.appendCurrentInstanceEvent(totalEvents)
+    this.emit('instance:present-loaded', usersSummaries, totalEvents)
   }
 
   private async processCacheEvents() {
@@ -323,11 +344,11 @@ export class CurrentInstance extends Nanobus<{
     this.isInitialBatchMode = false
     this.isPending = true
 
-    const { users, userActivities, isCurrentUserInInstance } = this.parseUsersEvents(
+    const { users, userEvents, videoEvents, isCurrentUserInInstance } = this.parseInstanceEvents(
       this.initialEvents
     )
 
-    await this.processInitialUsers(users, userActivities)
+    await this.processInitialInstance(users, userEvents, videoEvents)
 
     this.isPending = false
     this.initialEvents = []
@@ -439,19 +460,20 @@ export class CurrentInstance extends Nanobus<{
       user: userInformation
     }
 
-    const activityUserSummary = {
-      ...user,
-      userSummary: userSummary,
+    const presentEvent: InstanceEventMessage = {
+      type: this.isCurrentUserInInstance ? InstanceEvents.UserJoin : InstanceEvents.UserPresent,
       recordedAt: context.date,
-      type: this.isCurrentUserInInstance
-        ? InstanceUserActivityType.Join
-        : InstanceUserActivityType.Present
+      content: {
+        userId: user.userId,
+        userName: user.userName,
+        userSummary: userSummary
+      }
     }
 
     this.repository.upsertCurrentInstanceUser(roomUserSummary)
-    this.repository.appendCurrentInstanceUserActivity(activityUserSummary)
+    this.repository.appendCurrentInstanceEvent(presentEvent)
     this.emit('user:joined', roomUserSummary)
-    this.emit('user:activity', activityUserSummary)
+    this.emit('instance:event', presentEvent)
   }
 
   private async handlePlayerLeft(data: LogEventPlayerActivity, context: LogEventContext) {
@@ -486,20 +508,20 @@ export class CurrentInstance extends Nanobus<{
     context: LogEventContext
   ): Promise<void> {
     const summary = await this.users.Fetcher.fetchUserSummary(user.userId)
-    const activitySummary = {
-      ...user,
-      userSummary: summary || null,
+    const presentEvent: InstanceEventMessage = {
+      type: InstanceEvents.UserLeave,
       recordedAt: context.date,
-      type:
-        this.isJoined || this.isCurrentUser(user.userId)
-          ? InstanceUserActivityType.Leave
-          : InstanceUserActivityType.Remain
+      content: {
+        userId: user.userId,
+        userName: user.userName,
+        userSummary: summary
+      }
     }
 
     this.repository.removeCurrentInstanceUser(user.userId)
-    this.repository.appendCurrentInstanceUserActivity(activitySummary)
+    this.repository.appendCurrentInstanceEvent(presentEvent)
     this.emit('user:left', user.userId)
-    this.emit('user:activity', activitySummary)
+    this.emit('instance:event', presentEvent)
   }
 
   private clearState() {

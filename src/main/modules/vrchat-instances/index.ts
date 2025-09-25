@@ -105,10 +105,10 @@ export class VRChatInstances extends Module {
       this.logger.info('Current-Instance User left:', userId)
     })
 
-    this.instance.on('user:activity', (activity) => {
+    this.instance.on('instance:event', (event) => {
       this.logger.info(
-        'Current-Instance User activity:',
-        `${activity.userName}(${activity.userId}) - ${activity.type}`
+        'Current-Instance Event:',
+        `${event.type} - ${JSON.stringify(event.content)}`
       )
     })
   }

@@ -1,8 +1,7 @@
 import Nanobus from 'nanobus'
 import type { MobxState } from '../mobx-state'
 import type {
-  InstanceUserActivity,
-  InstanceUserActivitySummary,
+  InstanceEventMessage,
   InstanceUserSummary,
   LocationInstance,
   LocationOwner
@@ -13,14 +12,14 @@ import type { WorldDetail } from '@shared/definition/vrchat-worlds'
 export class InstanceRepository extends Nanobus<{
   'current-instance:insert-users': (users: InstanceUserSummary[]) => void
   'current-instance:update-users': (users: InstanceUserSummary[]) => void
-  'current-instance:append-user-activities': (activities: InstanceUserActivity[]) => void
+  'current-instance:append-events': (events: InstanceEventMessage[]) => void
   'current-instance:remove-users': (userId: string) => void
   'current-instance:clear-users': () => void
-  'current-instance:clear-user-activities': () => void
+  'current-instance:clear-events': () => void
 }> {
   private $!: InstanceSharedState
-  private currentInstanceUsers = new Map<string, InstanceUserSummary>()
-  private currentInstanceUserActivities: InstanceUserActivitySummary[] = []
+  private _currentInstanceUsers = new Map<string, InstanceUserSummary>()
+  private _currentInstanceEvents: InstanceEventMessage[] = []
 
   constructor(
     moduleId: string,
@@ -58,13 +57,13 @@ export class InstanceRepository extends Nanobus<{
     const pendingUpdateUsers: InstanceUserSummary[] = []
 
     for (const currentUser of users) {
-      if (this.currentInstanceUsers.has(currentUser.userId)) {
+      if (this._currentInstanceUsers.has(currentUser.userId)) {
         pendingUpdateUsers.push(currentUser)
       } else {
         pendingInsertUsers.push(currentUser)
       }
 
-      this.currentInstanceUsers.set(currentUser.userId, currentUser)
+      this._currentInstanceUsers.set(currentUser.userId, currentUser)
     }
 
     if (pendingInsertUsers.length > 0) {
@@ -77,31 +76,29 @@ export class InstanceRepository extends Nanobus<{
   }
 
   public removeCurrentInstanceUser(userId: string) {
-    this.currentInstanceUsers.delete(userId)
+    this._currentInstanceUsers.delete(userId)
     this.emit('current-instance:remove-users', userId)
   }
 
   public clearCurrentInstanceUsers() {
-    this.currentInstanceUsers.clear()
+    this._currentInstanceUsers.clear()
     this.emit('current-instance:clear-users')
   }
 
-  public appendCurrentInstanceUserActivity(
-    activity: InstanceUserActivitySummary | InstanceUserActivitySummary[]
-  ) {
-    const activities = Array.isArray(activity) ? activity : [activity]
-    this.currentInstanceUserActivities.push(...activities)
-    this.emit('current-instance:append-user-activities', activities)
+  public appendCurrentInstanceEvent(event: InstanceEventMessage | InstanceEventMessage[]) {
+    const events = Array.isArray(event) ? event : [event]
+    this._currentInstanceEvents.push(...events)
+    this.emit('current-instance:append-events', events)
   }
 
-  public clearCurrentInstanceUserActivities() {
-    this.currentInstanceUserActivities = []
-    this.emit('current-instance:clear-user-activities')
+  public clearCurrentInstanceEvents() {
+    this._currentInstanceEvents = []
+    this.emit('current-instance:clear-events')
   }
 
   public clearCurrentInstance() {
     this.clearCurrentInstanceUsers()
-    this.clearCurrentInstanceUserActivities()
+    this.clearCurrentInstanceEvents()
     this.mobx.action(() => {
       this.$.currentInstance.recordId = null
       this.$.currentInstance.joined = false
@@ -150,23 +147,15 @@ export class InstanceRepository extends Nanobus<{
     })
   }
 
-  public getCurrentInstanceUsers(): InstanceUserSummary[] {
-    return [...this.currentInstanceUsers.values()]
-  }
-
-  public getCurrentInstanceUserActivities(): InstanceUserActivity[] {
-    return this.currentInstanceUserActivities
-  }
-
   public get State(): InstanceSharedState {
     return this.$
   }
 
-  public get CurrentInstanceUsers(): InstanceUserSummary[] {
-    return [...this.currentInstanceUsers.values()]
+  public get currentInstanceUsers(): InstanceUserSummary[] {
+    return [...this._currentInstanceUsers.values()]
   }
 
-  public get CurrentInstanceUserActivities(): InstanceUserActivity[] {
-    return this.currentInstanceUserActivities
+  public get currentInstanceEvents(): InstanceEventMessage[] {
+    return this._currentInstanceEvents
   }
 }

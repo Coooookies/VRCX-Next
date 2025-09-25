@@ -1,10 +1,6 @@
 import type { VRChatUsers } from '../vrchat-users'
-import type { InstancePresentProcessHandler } from './types'
-import type {
-  InstanceUser,
-  InstanceUserActivity,
-  InstanceUserActivitySummary
-} from '@shared/definition/vrchat-instances'
+import type { InstancePresentProcessHandler, InstanceUserPresentEvent } from './types'
+import type { InstanceEventMessage, InstanceUser } from '@shared/definition/vrchat-instances'
 import { toUserInformationSummary } from '../vrchat-users/factory'
 
 export class InstanceFetcher {
@@ -12,18 +8,18 @@ export class InstanceFetcher {
 
   public async fetchInstancePresent(
     users: InstanceUser[],
-    activities: InstanceUserActivity[],
+    userEvents: InstanceUserPresentEvent[],
     processHandler?: InstancePresentProcessHandler
   ) {
     const userMap = new Map<string, InstanceUser>()
-    const activityMap = new Map<string, InstanceUserActivity>()
+    const userEventMap = new Map<string, InstanceUserPresentEvent>()
 
     for (const user of users) {
       userMap.set(user.userId, user)
     }
 
-    for (const activity of activities) {
-      activityMap.set(activity.userId, activity)
+    for (const event of userEvents) {
+      userEventMap.set(event.userId, event)
     }
 
     const roomUsers = await this.users.Fetcher.fetchUsers(
@@ -41,34 +37,40 @@ export class InstanceFetcher {
       }
     )
 
-    const activitiesUserIds = activities.map((activity) => activity.userId)
-    const activitiesQueueUserIds = activitiesUserIds.filter((id) => !roomUsers.has(id))
-    const activitiesUsers = await this.users.Fetcher.fetchUserSummaries(
-      activitiesQueueUserIds,
+    const eventUserIds = [...userEventMap.keys()]
+    const eventQueueUserIds = eventUserIds.filter((id) => !roomUsers.has(id))
+    const eventUsers = await this.users.Fetcher.fetchUserSummaries(
+      eventQueueUserIds,
       false,
       (users) => {
-        const summaries: InstanceUserActivitySummary[] = []
+        const events: InstanceEventMessage[] = []
+
         for (const user of users) {
-          const activity = activityMap.get(user.userId)
-          if (activity) {
-            summaries.push({
-              ...activity,
-              userSummary: user
+          const event = userEventMap.get(user.userId)
+          if (event) {
+            events.push({
+              type: event.type,
+              recordedAt: event.recordedAt,
+              content: {
+                userId: event.userId,
+                userName: event.userName,
+                userSummary: user
+              }
             })
           }
         }
 
-        if (summaries.length > 0 && processHandler) {
-          processHandler([], summaries)
+        if (events.length > 0 && processHandler) {
+          processHandler([], events)
         }
       }
     )
 
-    for (const userId of activitiesUserIds) {
-      if (!activitiesUsers.has(userId) && roomUsers.has(userId)) {
+    for (const userId of eventUserIds) {
+      if (roomUsers.has(userId)) {
         const user = roomUsers.get(userId)!
         const entity = toUserInformationSummary(user)
-        activitiesUsers.set(userId, entity)
+        eventUsers.set(userId, entity)
       }
     }
 
@@ -77,14 +79,19 @@ export class InstanceFetcher {
       user: roomUsers.get(user.userId) || null
     }))
 
-    const activitiesSummaries = activities.map((activity) => ({
-      ...activity,
-      userSummary: activitiesUsers.get(activity.userId) || null
+    const presentEvents = userEvents.map<InstanceEventMessage>((event) => ({
+      type: event.type,
+      recordedAt: event.recordedAt,
+      content: {
+        userId: event.userId,
+        userName: event.userName,
+        userSummary: eventUsers.get(event.userId) || null
+      }
     }))
 
     return {
       usersSummaries,
-      activitiesSummaries
+      presentEvents
     }
   }
 }

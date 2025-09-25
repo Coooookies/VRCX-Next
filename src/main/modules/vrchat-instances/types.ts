@@ -1,14 +1,14 @@
 import type {
+  InstanceEventMessage,
+  InstanceEvents,
   InstanceUser,
-  InstanceUserActivity,
-  InstanceUserActivitySummary,
   InstanceUserSummary,
   LocationInstance
 } from '@shared/definition/vrchat-instances'
 
 export type InstancePresentProcessHandler = (
   users: InstanceUserSummary[],
-  activities: InstanceUserActivitySummary[]
+  events: InstanceEventMessage[]
 ) => void
 
 export interface InstanceData {
@@ -18,5 +18,17 @@ export interface InstanceData {
   isLeft: boolean
   isCurrentUserInInstance: boolean
   users: InstanceUser[]
-  userActivities: InstanceUserActivity[]
+  userEvents: InstanceUserPresentEvent[]
+  videoEvents: InstanceEventMessage[]
+}
+
+export interface InstanceUserPresentEvent {
+  userId: string
+  userName: string
+  recordedAt: Date
+  type:
+    | typeof InstanceEvents.UserJoin
+    | typeof InstanceEvents.UserLeave
+    | typeof InstanceEvents.UserPresent
+    | typeof InstanceEvents.UserRemain
 }

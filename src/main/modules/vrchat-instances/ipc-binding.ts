@@ -8,8 +8,8 @@ export class InstanceIPCBinding {
   ) {}
 
   public bindEvents() {
-    this.repository.on('current-instance:append-user-activities', (activities) => {
-      this.ipc.send('vrchat-instances:current-instance:append-user-activities', activities)
+    this.repository.on('current-instance:append-events', (events) => {
+      this.ipc.send('vrchat-instances:current-instance:append-events', events)
     })
 
     this.repository.on('current-instance:insert-users', (users) => {
@@ -28,18 +28,18 @@ export class InstanceIPCBinding {
       this.ipc.send('vrchat-instances:current-instance:clear-users')
     })
 
-    this.repository.on('current-instance:clear-user-activities', () => {
-      this.ipc.send('vrchat-instances:current-instance:clear-user-activities')
+    this.repository.on('current-instance:clear-events', () => {
+      this.ipc.send('vrchat-instances:current-instance:clear-events')
     })
   }
 
   public bindInvokes() {
     this.ipc.listener.handle('vrchat-instances:get-current-instance-users', () => {
-      return this.repository.getCurrentInstanceUsers()
+      return this.repository.currentInstanceUsers
     })
 
-    this.ipc.listener.handle('vrchat-instances:get-current-instance-user-activities', () => {
-      return this.repository.getCurrentInstanceUserActivities()
+    this.ipc.listener.handle('vrchat-instances:get-current-instance-events', () => {
+      return this.repository.currentInstanceEvents
     })
   }
 }
