@@ -30,6 +30,8 @@ export interface WorldDetail {
   packages: WorldPlatformPackages
   capacity: WorldCapacity
   stats: WorldStats
+  version: number
+  allowUrls: string[]
   labsPublicizedAt: Date
   publicizedAt: Date
   updatedAt: Date

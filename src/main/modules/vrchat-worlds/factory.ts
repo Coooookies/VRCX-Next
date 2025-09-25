@@ -74,6 +74,8 @@ export function toWorldDetail(world: World | FavoritedWorld): WorldDetail {
     instances: [], // manually fetch instances via fetcher
     packages: {}, // manually fetch packages via fetcher
     capacity,
+    version: world.version,
+    allowUrls: world.urlList || [],
     stats: worldStats,
     labsPublicizedAt: new Date(world.labsPublicationDate),
     publicizedAt: new Date(world.publicationDate),
