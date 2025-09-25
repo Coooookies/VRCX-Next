@@ -14,7 +14,7 @@ const props = defineProps<{
   <div
     :class="
       cn(
-        'w-full h-full flex flex-col gap-1.5 justify-start flex-1 text-left overflow-hidden',
+        'w-full h-full flex flex-col gap-1 justify-start flex-1 text-left overflow-hidden',
         '@5xl:h-fit'
       )
     "
