@@ -1,7 +1,7 @@
 import type { InstanceProperties, SettingDefinition } from '@shared/definition/setting'
 import type { AuthenticationState } from '@shared/definition/vrchat-authentication'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
-import type { InstanceUserActivity, InstanceUserSummary } from '@shared/definition/vrchat-instances'
+import type { InstanceEventMessage, InstanceUserSummary } from '@shared/definition/vrchat-instances'
 import type {
   NotificationInformation,
   NotificationVersion
@@ -31,12 +31,12 @@ export type IpcRendererEvent = {
   'vrchat-notifications:notification:list-clear': [version: NotificationVersion]
 
   // VRChatInstances
-  'vrchat-instances:current-instance:append-user-activities': [activities: InstanceUserActivity[]]
+  'vrchat-instances:current-instance:append-events': [events: InstanceEventMessage[]]
   'vrchat-instances:current-instance:insert-users': [users: InstanceUserSummary[]]
   'vrchat-instances:current-instance:update-users': [users: InstanceUserSummary[]]
   'vrchat-instances:current-instance:remove-users': [userId: string]
   'vrchat-instances:current-instance:clear-users': []
-  'vrchat-instances:current-instance:clear-user-activities': []
+  'vrchat-instances:current-instance:clear-events': []
 
   // SettingModule
   'setting-module:update': [property: InstanceProperties<SettingDefinition>]
