@@ -10,3 +10,7 @@ export const GAMELOG_PLAYER_ACTIVITY_REGEXP =
 
 export const GAMELOG_PREPARATION_REGEXP =
   /Preparation has taken (?<seconds>\d+) seconds, progress is (?<progress>[\d.]+)%, loader state is (?<state>\w+)/
+
+export const GAMELOG_VIDEO_PLAYBACK_LOAD_REGEXP = /Attempting to resolve URL '(?<url>[^']+)'/
+
+export const GAMELOG_VIDEO_PLAYBACK_ERROR_REGEXP = /ERROR: (?<reason>.+)$/

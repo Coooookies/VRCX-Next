@@ -3,7 +3,9 @@ import {
   GAMELOG_PARSER_DATE_REGEXP,
   GAMELOG_PARSER_REGEXP,
   GAMELOG_PLAYER_ACTIVITY_REGEXP,
-  GAMELOG_PREPARATION_REGEXP
+  GAMELOG_PREPARATION_REGEXP,
+  GAMELOG_VIDEO_PLAYBACK_ERROR_REGEXP,
+  GAMELOG_VIDEO_PLAYBACK_LOAD_REGEXP
 } from './constants'
 import { LogEvents } from './types'
 import type { LogEventContext, LogEventMessage } from './types'
@@ -95,6 +97,42 @@ export function parseSpecialEventLine(data: LogEventContext): LogEventMessage | 
         content: {
           userName: regexRes.groups.username,
           userId: regexRes.groups.userId || undefined
+        }
+      }
+    }
+  }
+
+  // video load
+  if (
+    data.type === 'debug' &&
+    data.topic === 'Video Playback' &&
+    data.content?.startsWith('Attempting to resolve URL ')
+  ) {
+    const regexRes = data.content.match(GAMELOG_VIDEO_PLAYBACK_LOAD_REGEXP)
+
+    if (regexRes?.groups?.url) {
+      return {
+        type: LogEvents.VideoPlaybackLoad,
+        content: {
+          url: regexRes.groups.url
+        }
+      }
+    }
+  }
+
+  // video error
+  if (
+    data.type === 'warning' &&
+    data.topic === 'Video Playback' &&
+    data.content?.startsWith('ERROR: ')
+  ) {
+    const regexRes = data.content.match(GAMELOG_VIDEO_PLAYBACK_ERROR_REGEXP)
+
+    if (regexRes?.groups?.reason) {
+      return {
+        type: LogEvents.VideoPlaybackError,
+        content: {
+          reason: regexRes.groups.reason
         }
       }
     }

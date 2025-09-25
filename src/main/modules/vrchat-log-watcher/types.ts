@@ -10,6 +10,14 @@ export interface LogEventUrlLoad {
   url: string
 }
 
+export interface LogEventVideoLoad {
+  url: string
+}
+
+export interface LogEventVideoError {
+  reason: string
+}
+
 export interface LogEventSelfJoin {
   location: string
 }
@@ -26,25 +34,29 @@ export interface LogEventPrepartion {
 }
 
 export const LogEvents = {
-  StringLoad: 'stringLoad',
-  ImageLoad: 'imageLoad',
   SelfJoin: 'selfJoin',
   SelfLeave: 'selfLeave',
   PlayerJoined: 'playerJoined',
   PlayerLeft: 'playerLeft',
-  Prepartion: 'prepartion'
+  Prepartion: 'prepartion',
+  StringLoad: 'stringLoad',
+  ImageLoad: 'imageLoad',
+  VideoPlaybackLoad: 'VideoPlaybackLoad',
+  VideoPlaybackError: 'VideoPlaybackError'
 } as const
 
 export type LogEvents = (typeof LogEvents)[keyof typeof LogEvents]
 
 export type LogEventDefinition = {
-  [LogEvents.StringLoad]: LogEventUrlLoad
-  [LogEvents.ImageLoad]: LogEventUrlLoad
   [LogEvents.SelfJoin]: LogEventSelfJoin
   [LogEvents.SelfLeave]: null
   [LogEvents.PlayerJoined]: LogEventPlayerActivity
   [LogEvents.PlayerLeft]: LogEventPlayerActivity
   [LogEvents.Prepartion]: LogEventPrepartion
+  [LogEvents.StringLoad]: LogEventUrlLoad
+  [LogEvents.ImageLoad]: LogEventUrlLoad
+  [LogEvents.VideoPlaybackLoad]: LogEventVideoLoad
+  [LogEvents.VideoPlaybackError]: LogEventVideoError
 }
 
 export type LogEventMessage = {
