@@ -85,35 +85,56 @@ export type LocationInstanceSummary =
   | LocationInstanceUserSummary
   | LocationInstanceGroupSummary
 
-export const InstanceUserActivityType = {
-  Leave: 'leave',
-  Join: 'join',
-  Present: 'present',
-  Remain: 'remain'
-} as const
-
-export type InstanceUserActivityType =
-  (typeof InstanceUserActivityType)[keyof typeof InstanceUserActivityType]
-
 export interface InstanceUser {
   userName: string
   userId: string
   joinedAt: Date
 }
 
-export interface InstanceUserActivity {
+export interface InstanceEventUser {
   userName: string
   userId: string
-  type: 'leave' | 'join' | 'present' | 'remain'
-  recordedAt: Date
+  userSummary: UserSummary | null
 }
+
+export interface InstanceEventVideoPlaybackLoad {
+  url: string
+}
+
+export interface InstanceEventVideoPlaybackError {
+  reason: string
+}
+
+export const InstanceEvents = {
+  UserLeave: 'user-leave',
+  UserJoin: 'user-join',
+  UserPresent: 'user-present',
+  UserRemain: 'user-remain',
+  VideoPlaybackLoad: 'video-playback-load',
+  VideoPlaybackError: 'video-playback-error'
+} as const
+
+export type InstanceEvents = (typeof InstanceEvents)[keyof typeof InstanceEvents]
+
+export type InstanceEventDefinition = {
+  [InstanceEvents.UserLeave]: InstanceEventUser
+  [InstanceEvents.UserJoin]: InstanceEventUser
+  [InstanceEvents.UserPresent]: InstanceEventUser
+  [InstanceEvents.UserRemain]: InstanceEventUser
+  [InstanceEvents.VideoPlaybackLoad]: InstanceEventVideoPlaybackLoad
+  [InstanceEvents.VideoPlaybackError]: InstanceEventVideoPlaybackError
+}
+
+export type InstanceEventMessage = {
+  [K in InstanceEvents]: {
+    type: K
+    content: InstanceEventDefinition[K]
+    recordedAt: Date
+  }
+}[InstanceEvents]
 
 export interface InstanceUserSummary extends InstanceUser {
   user: UserInformation | null
-}
-
-export interface InstanceUserActivitySummary extends InstanceUserActivity {
-  userSummary: UserSummary | null
 }
 
 export type LocationOwner =
