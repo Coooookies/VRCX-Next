@@ -143,7 +143,7 @@ export type LocaleDefinition = {
     feed: string
     charts: string
     settings: string
-    vrchat_not_joined: string
+    vrchat_waiting_for_join: string
     vrchat_not_running: string
     vrchat_world_loading: string
     notifications: string

@@ -219,7 +219,7 @@ export const LANGUAGE_ZH_CN: LocaleStructure = {
       feed: '好友动态',
       charts: '图表',
       settings: '设置',
-      vrchat_not_joined: '未加入',
+      vrchat_waiting_for_join: '等待加入',
       vrchat_not_running: '未运行',
       vrchat_world_loading: '加载中...',
       notifications: '通知',

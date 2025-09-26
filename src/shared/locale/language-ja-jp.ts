@@ -219,7 +219,7 @@ export const LANGUAGE_JA_JP: LocaleStructure = {
       feed: 'フィード',
       charts: 'チャート',
       settings: '設定',
-      vrchat_not_joined: '未参加',
+      vrchat_waiting_for_join: '参加待機中',
       vrchat_not_running: '未実行',
       vrchat_world_loading: '読み込み中...',
       notifications: '通知',

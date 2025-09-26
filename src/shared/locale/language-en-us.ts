@@ -219,7 +219,7 @@ export const LANGUAGE_EN_US: LocaleStructure = {
       feed: 'Feed',
       charts: 'Charts',
       settings: 'Settings',
-      vrchat_not_joined: 'Not Joined',
+      vrchat_waiting_for_join: 'Waiting for join...',
       vrchat_not_running: 'Not Running',
       vrchat_world_loading: 'Loading...',
       notifications: 'Notifications',
