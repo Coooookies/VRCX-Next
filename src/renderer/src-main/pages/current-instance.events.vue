@@ -61,7 +61,7 @@ const instancePresentUsersVisible = computed(() => {
 <template>
   <div class="w-full">
     <CurrentInstanceEventHeader
-      class="sticky top-34 z-1"
+      class="sticky top-31 z-1"
       :joined-at="instance.currentInstance.locationJoinedAt"
     />
     <div class="w-full pt-1.5">

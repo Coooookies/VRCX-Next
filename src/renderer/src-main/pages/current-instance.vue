@@ -6,6 +6,7 @@ import CurrentInstancePageTabs from '../components/current-instance/current-inst
 import CurrentInstanceSearchInput from '../components/current-instance/current-instance-search-input.vue'
 import CurrentInstanceTabInstance from '../components/current-instance/current-instance-tab-instance.vue'
 import CurrentInstanceTabWorld from '../components/current-instance/current-instance-tab-world.vue'
+import CurrentInstanceNotRunning from '../components/current-instance/current-instance-not-running.vue'
 import { computed, provide, ref } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
 import { useRoute, useRouter } from 'vue-router'
@@ -76,7 +77,7 @@ provide('current-instance:search-value', searchValue)
         >
           <div
             :class="
-              cn('relative w-full pt-21 h-fit z-2', '@5xl:sticky @5xl:top-0 @5xl:w-64', '@7xl:w-70')
+              cn('relative w-full pt-18 h-fit z-2', '@5xl:sticky @5xl:top-0 @5xl:w-64', '@7xl:w-70')
             "
           >
             <div :class="cn('h-12 flex flex-row items-center', '@5xl:h-9')">
@@ -105,8 +106,8 @@ provide('current-instance:search-value', searchValue)
               </Tabs>
             </div>
           </div>
-          <div :class="cn('relative w-full pb-10 -mt-21', '@5xl:mt-0 @5xl:w-[unset] @5xl:flex-1')">
-            <div class="sticky top-0 z-1 pt-21 pb-4 bg-background">
+          <div :class="cn('relative w-full pb-10 -mt-18', '@5xl:mt-0 @5xl:w-[unset] @5xl:flex-1')">
+            <div class="sticky top-0 z-1 pt-18 pb-4 bg-background">
               <div class="flex flex-row justify-between h-9 pl-1">
                 <CurrentInstancePageTabs
                   :tabs="pageTabs"
@@ -126,9 +127,7 @@ provide('current-instance:search-value', searchValue)
         </div>
       </template>
       <template v-else>
-        <div class="w-full h-screen flex items-center justify-center">
-          <p>2</p>
-        </div>
+        <CurrentInstanceNotRunning />
       </template>
     </div>
   </AppRoute>

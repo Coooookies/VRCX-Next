@@ -54,6 +54,7 @@ const routeTo = (name: string) => {
     <template #content>
       <SlideRouterView />
     </template>
+    <template #overlay> </template>
     <template #right-sidebar>
       <SidebarRight
         v-model:expanded="rightExpanded"

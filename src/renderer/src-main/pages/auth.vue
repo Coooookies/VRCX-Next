@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ZypherIcon from '@shared/assets/vector/navigator-icon-zypher.svg?component'
+import BeamsBackground from '@renderer/shared/components/beams-background.vue'
 import AppTitle from '@shared/assets/vector/auth-title-zypher.svg?component'
 import AuthLayout from '../layouts/auth-layout.vue'
 import { toast } from 'vue-sonner'
@@ -19,7 +20,6 @@ import {
 } from '../components/auth-form'
 import { ResponseErrorReason } from '@shared/definition/vrchat-api-status'
 import { useI18n } from '@renderer/shared/locale'
-import Beams from '@renderer/shared/components/beams.vue'
 
 const credentialFormRef = useTemplateRef('credentialFormRef')
 const reauthenticateFormRef = useTemplateRef('reauthenticateFormRef')
@@ -121,7 +121,7 @@ function clearInput() {
       <div class="absolute top-0 left-0 w-full h-10 z-15 electron-drag" />
       <div class="relative size-full flex items-center justify-center overflow-hidden">
         <ZypherIcon class="absolute size-18 z-10" />
-        <Beams
+        <BeamsBackground
           class="relative left-0 top-0 size-full"
           light-color="#B46C2C"
           :beam-width="2"
