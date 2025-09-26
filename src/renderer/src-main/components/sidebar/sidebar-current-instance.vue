@@ -116,7 +116,7 @@ const initializing = computed(() => instance.currentInstance.locationPlayersInit
                 ? !initializing
                   ? currentWorld?.worldName || '-'
                   : t('sidebar.vrchat_world_loading')
-                : t('sidebar.vrchat_not_joined')
+                : t('sidebar.vrchat_waiting_for_join')
               : t('sidebar.vrchat_not_running')
           }}
         </span>
