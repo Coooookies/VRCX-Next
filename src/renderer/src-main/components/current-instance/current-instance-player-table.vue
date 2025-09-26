@@ -96,7 +96,7 @@ watch(
       '--mask-instance-owner-avatar': ownerAvatarMask
     }"
   >
-    <TableHeader class="sticky top-34 z-1">
+    <TableHeader class="sticky top-31 z-1">
       <TableRow
         v-for="headerGroup in table.getHeaderGroups()"
         :key="headerGroup.id"

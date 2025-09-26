@@ -68,7 +68,7 @@ provide('routePadding', {
         )
       "
     >
-      <div class="title-bar w-full h-10">
+      <div class="title-bar w-full h-9">
         <div class="size-full electron-drag" />
       </div>
       <div

@@ -84,7 +84,7 @@ console.log(emits)
       "
     />
     <div class="absolute top-0 left-0 w-[var(--expand-width)] h-full flex flex-col">
-      <div :class="cn('w-full h-10', expanded ? 'electron-drag' : 'electron-no-drag')" />
+      <div :class="cn('w-full h-9', expanded ? 'electron-drag' : 'electron-no-drag')" />
       <div class="w-full">
         <SidebarProfileOverview
           class="w-full"
