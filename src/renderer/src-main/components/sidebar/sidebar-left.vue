@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import ExpandLeftIcon from '@shared/assets/vector/navigator-icon-expand-left.svg?component'
-import CollapseLeftIcon from '@shared/assets/vector/navigator-icon-collapse-left.svg?component'
+// import ExpandLeftIcon from '@shared/assets/vector/navigator-icon-expand-left.svg?component'
+// import CollapseLeftIcon from '@shared/assets/vector/navigator-icon-collapse-left.svg?component'
 import DashboardIcon from '@shared/assets/vector/navigator-icon-dashboard.svg?component'
 import FavoriteIcon from '@shared/assets/vector/navigator-icon-favorite.svg?component'
 import FeedIcon from '@shared/assets/vector/navigator-icon-feed.svg?component'
@@ -84,27 +84,28 @@ const sidebarFooterItems = computed(() => [
       </div>
     </div>
     <div class="pt-4 pb-3.5 flex flex-col gap-1.5">
-      <div class="flex flex-col gap-1.5">
-        <SidebarIconButton
-          v-for="item in sidebarFooterItems"
-          :key="item.routeName"
-          :icon="item.icon"
-          :label="item.label"
-          :active="isActiveRoute(item.routeName)"
-          @click="emits('update:activeRouteName', item.routeName)"
-        />
-      </div>
       <SidebarCurrentInstance
         :active="isActiveRoute('page-app-current-instance')"
         @click="emits('update:activeRouteName', 'page-app-current-instance')"
       />
+      <!-- <div class="flex flex-col gap-1.5"></div> -->
     </div>
     <div class="py-2.5 border-t border-sidebar-border dark:border-sidebar-border/40">
+      <SidebarIconButton
+        v-for="item in sidebarFooterItems"
+        :key="item.routeName"
+        :icon="item.icon"
+        :label="item.label"
+        :active="isActiveRoute(item.routeName)"
+        @click="emits('update:activeRouteName', item.routeName)"
+      />
+    </div>
+    <!-- <div class="py-2.5 border-t border-sidebar-border dark:border-sidebar-border/40">
       <SidebarIconButton
         :icon="expanded ? CollapseLeftIcon : ExpandLeftIcon"
         :label="t(expanded ? 'sidebar.collapse' : 'sidebar.expand')"
         @click="expanded = !expanded"
       />
-    </div>
+    </div> -->
   </SidebarContainer>
 </template>
