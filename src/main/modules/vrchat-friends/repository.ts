@@ -104,4 +104,8 @@ export class FriendsRepository extends Nanobus<{
   public get State(): FriendSharedState {
     return this.$
   }
+
+  public get friendCount() {
+    return this.friends.size
+  }
 }

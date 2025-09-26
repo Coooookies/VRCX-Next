@@ -14,6 +14,7 @@ export class UsersRepository extends Nanobus<{
   'notes:clear': () => void
 }> {
   private $!: UserSharedState
+  private _friendUserIds: string[] = []
 
   constructor(
     moduleId: string,
@@ -53,6 +54,14 @@ export class UsersRepository extends Nanobus<{
     }
 
     this.emit('notes:update', pendingNotes)
+  }
+
+  public setFriendUserIds(userIds: string[]) {
+    this._friendUserIds = userIds
+  }
+
+  public getFriendUserIndex(userId: string) {
+    return this._friendUserIds.indexOf(userId)
   }
 
   public deleteNote(userId: string) {

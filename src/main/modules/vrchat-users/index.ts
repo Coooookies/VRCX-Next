@@ -49,17 +49,17 @@ export class VRChatUsers extends Module<{}> {
 
   private bindEvents(): void {
     this.workflow.registerPostLoginTask('user-notes-resolver', 40, async () => {
-      this.repository.setUserState(
-        this.auth.currentState.type === 'authenticated'
-          ? toCurrentUserInformation(this.auth.currentState.userInfo)
-          : null
-      )
-      await this.fetcher.fetchNotes()
+      if (this.auth.currentState.type === 'authenticated') {
+        this.repository.setUserState(toCurrentUserInformation(this.auth.currentState.userInfo))
+        this.repository.setFriendUserIds(this.auth.currentState.userInfo.friends)
+        await this.fetcher.fetchNotes()
+      }
     })
 
     this.workflow.registerPostLogoutTask('user-notes-clear', 40, () => {
       this.repository.setUserState(null)
       this.repository.setLocationState(null)
+      this.repository.setFriendUserIds([])
       this.repository.clearNotes()
     })
   }

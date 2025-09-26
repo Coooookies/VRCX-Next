@@ -106,6 +106,7 @@ export class FriendsFetcher {
     worlds: Map<string, WorldEntity>,
     groups: Map<string, GroupEntity>
   ): FriendInformation {
+    const order = this.users.Repository.getFriendUserIndex(friend.id)
     const location = parseLocation(friend.location)
     const locationArrivedAt = location ? new Date() : null
     const locationSummary = <LocationInstanceSummary>location
@@ -135,6 +136,7 @@ export class FriendsFetcher {
 
     return {
       ...toBaseFriendInformation(friend),
+      order,
       isTraveling: false,
       location: locationSummary,
       locationArrivedAt

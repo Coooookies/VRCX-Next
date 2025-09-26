@@ -159,6 +159,7 @@ export class FriendsEventBinding extends Nanobus<{
     const baseFriendInfo = toBaseFriendInformation(user)
     const location = await this.users.Fetcher.fetchUserLocation(userId)
 
+    const order = this.repository.friendCount
     const isTraveling = location === 'traveling'
     const nextLocation = location ? parseLocation(location) : null
     const nextLocationArrivedAt = nextLocation ? new Date() : null
@@ -169,6 +170,7 @@ export class FriendsEventBinding extends Nanobus<{
 
     const friend: FriendInformation = {
       ...baseFriendInfo,
+      order,
       isTraveling,
       location: nextLocationSummary,
       locationArrivedAt: nextLocationArrivedAt
