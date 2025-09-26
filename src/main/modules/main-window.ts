@@ -18,6 +18,8 @@ export class MainWindow extends Module {
   static MAIN_WINDOW_PAGE_NAME = 'main'
   static MAIN_WINDOW_WIDTH = 1500
   static MAIN_WINDOW_HEIGHT = 840
+  static MAIN_WINDOW_MINWIDTH = 1280
+  static MAIN_WINDOW_MINHEIGHT = 740
   static MAIN_WINDOW_PARTITION = `partition:${MainWindow.MAIN_WINDOW_PAGE_NAME}`
 
   private readonly logger = createLogger(this.moduleId)
@@ -49,23 +51,19 @@ export class MainWindow extends Module {
   // }
 
   private createWindow(): BrowserWindow {
-    const width = MainWindow.MAIN_WINDOW_WIDTH
-    const height = MainWindow.MAIN_WINDOW_HEIGHT
-    const pageName = MainWindow.MAIN_WINDOW_PAGE_NAME
-
     const win = new BrowserWindow({
       title: MainWindow.MAIN_WINDOW_NAME,
-      width: width,
-      height: height,
+      width: MainWindow.MAIN_WINDOW_WIDTH,
+      height: MainWindow.MAIN_WINDOW_HEIGHT,
+      minWidth: MainWindow.MAIN_WINDOW_MINWIDTH,
+      minHeight: MainWindow.MAIN_WINDOW_MINHEIGHT,
       show: false,
-      minWidth: width,
-      minHeight: height,
       autoHideMenuBar: true,
       titleBarStyle: 'hidden',
       titleBarOverlay: {
         color: '#00000000',
         symbolColor: '#FFFFFF',
-        height: 40
+        height: 36
       },
       backgroundColor: '#090A0C',
       webPreferences: {
@@ -91,7 +89,7 @@ export class MainWindow extends Module {
 
     registerWebviewEssential(win)
     registerWebviewConsoloLogger(win, this.logger)
-    registerWebviewEntry(win, pageName)
+    registerWebviewEntry(win, MainWindow.MAIN_WINDOW_PAGE_NAME)
 
     return win
   }
