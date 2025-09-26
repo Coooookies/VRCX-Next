@@ -29,12 +29,6 @@ const {
   acceptFriendRequest,
   declineFriendRequest
 } = useSidebarNotificationsSubmit({
-  onMarkNotificationAsRead(_, promise) {
-    toast.promise(promise, {
-      loading: t('toast.processing.vrcapi_notification_reponse_processing'),
-      success: t('toast.resolve.vrcapi_notification_v2_respond_success')
-    })
-  },
   onRespondNotificationV2(_, __, ___, promise) {
     toast.promise(promise, {
       loading: t('toast.processing.vrcapi_notification_reponse_processing'),
