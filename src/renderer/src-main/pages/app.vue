@@ -2,7 +2,7 @@
 import AppLayout from '../layouts/app-layout.vue'
 import SidebarLeft from '../components/sidebar/sidebar-left.vue'
 import SidebarRight from '../components/sidebar/sidebar-right.vue'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { SlideRouterView } from '../components/router-view'
 import { useModule } from '@renderer/shared/hooks/use-module'
@@ -12,10 +12,11 @@ const settings = useModule<SettingModule>('SettingModule')
 
 const router = useRouter()
 const route = useRoute()
-const leftExpanded = computed({
-  get: () => settings.state.appearance.sidebar_left_expand,
-  set: (val: boolean) => settings.update('appearance', 'sidebar_left_expand', val)
-})
+const leftExpanded = ref(false)
+// const leftExpanded = computed({
+//   get: () => settings.state.appearance.sidebar_left_expand,
+//   set: (val: boolean) => settings.update('appearance', 'sidebar_left_expand', val)
+// })
 
 const rightExpanded = computed({
   get: () => settings.state.appearance.sidebar_right_expand,
