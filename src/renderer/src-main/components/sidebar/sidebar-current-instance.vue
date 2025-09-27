@@ -59,7 +59,7 @@ const initializing = computed(() => instance.currentInstance.locationPlayersInit
               <ImageVRChatContext
                 :file-id="currentWorld.imageFileId"
                 :version="currentWorld.imageFileVersion"
-                :size="128"
+                :size="32"
                 class="size-full object-cover"
               />
               <ImageFallback class="size-full flex items-center justify-center">
