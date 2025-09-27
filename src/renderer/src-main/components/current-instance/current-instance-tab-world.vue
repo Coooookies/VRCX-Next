@@ -62,7 +62,7 @@ const worldCapacity = computed(() => {
           :value="t(RELEASE_STATUS_TRANSLATE_KEY[props.detail.releaseStatus])"
         />
         <CurrentInstancePlatform
-          class="order-3 @5xl:order-4 w-full col-span-2 row-span-3 @5xl:row-span-[unset]"
+          class="order-3 @5xl:order-4 w-full col-span-2 row-span-2 @5xl:row-span-[unset]"
           label="Platform"
           :platform="props.detail.packages"
         />
@@ -91,7 +91,7 @@ const worldCapacity = computed(() => {
         <CurrentInstanceStatsSkeleton class="order-2 @5xl:order-2" />
         <CurrentInstanceStatsSkeleton class="order-4 @5xl:order-3" />
         <CurrentInstancePlatformSkeleton
-          class="order-3 @5xl:order-4 w-full col-span-2 row-span-3 @5xl:row-span-[unset]"
+          class="order-3 @5xl:order-4 w-full col-span-2 row-span-2 @5xl:row-span-[unset]"
         />
       </div>
     </template>
