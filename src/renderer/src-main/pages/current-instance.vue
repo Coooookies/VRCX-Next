@@ -17,6 +17,7 @@ import { RouterView } from 'vue-router'
 import { LocationInstanceGroupType } from '@shared/definition/vrchat-instances'
 import type { CurrentInstanceInfoTab } from '../components/current-instance/current-instance-info-tabs.vue'
 import type { CurrentInstancePageTab } from '../components/current-instance/current-instance-page-tabs.vue'
+import CurrentInstanceWaitingForJoin from '../components/current-instance/current-instance-waiting-for-join.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -132,11 +133,11 @@ provide('current-instance:search-value', searchValue)
           </div>
         </div>
         <div v-else class="w-full h-screen flex items-center justify-center">
-          <p>1</p>
+          <CurrentInstanceWaitingForJoin />
         </div>
       </template>
       <template v-else>
-        <CurrentInstanceNotRunning />
+        <CurrentInstanceNotRunning class="z-3" />
       </template>
     </div>
   </AppRoute>

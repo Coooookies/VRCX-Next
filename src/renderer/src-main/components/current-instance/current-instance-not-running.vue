@@ -6,48 +6,42 @@ import InstancePreviewRoomStatusVector from '@shared/assets/vector/instance-prev
 </script>
 
 <template>
-  <div class="relative w-full h-screen">
-    <div class="absolute top-0 w-full h-screen flex flex-col items-center justify-center z-3">
-      <div class="-space-y-1">
-        <p class="text-base text-primary text-center">Current Instance</p>
-        <InstanceTitleNotRunning />
+  <div class="relative w-full h-screen flex flex-col items-center justify-center">
+    <div class="-space-y-1">
+      <p class="text-base text-primary text-center">Current Instance</p>
+      <InstanceTitleNotRunning />
+    </div>
+    <hr
+      :class="
+        cn(
+          'bg-gradient-to-r from-transparent via-border to-transparent',
+          'h-px border-0 w-200',
+          'mt-12 mb-14'
+        )
+      "
+    />
+    <div class="relative flex flex-row gap-6">
+      <div class="space-y-3">
+        <div class="flex flex-col items-center">
+          <InstancePreviewGameLoginVector
+            :class="cn('w-[168px] aspect-[25/16] rounded-lg', 'bg-background ring ring-border/70')"
+          />
+          <div class="-mt-4 size-8 rounded-full bg-border flex items-center justify-center">
+            <span class="text-sm">1</span>
+          </div>
+        </div>
+        <p class="text-sm text-foreground text-center font-semibold">Launch your VRChat</p>
       </div>
-      <hr
-        :class="
-          cn(
-            'bg-gradient-to-r from-transparent via-border to-transparent',
-            'h-px border-0 w-200',
-            'mt-12 mb-14'
-          )
-        "
-      />
-      <div class="relative flex flex-row gap-6">
-        <div class="space-y-3">
-          <div class="flex flex-col items-center">
-            <InstancePreviewGameLoginVector
-              :class="
-                cn('w-[168px] aspect-[25/16] rounded-lg', 'bg-background ring ring-border/70')
-              "
-            />
-            <div class="-mt-4 size-8 rounded-full bg-border flex items-center justify-center">
-              <span class="text-sm">1</span>
-            </div>
+      <div class="space-y-3">
+        <div class="flex flex-col items-center">
+          <InstancePreviewRoomStatusVector
+            :class="cn('w-[168px] aspect-[25/16] rounded-lg', 'bg-background ring ring-border/70')"
+          />
+          <div class="-mt-4 size-8 rounded-full bg-border flex items-center justify-center">
+            <span class="text-sm">2</span>
           </div>
-          <p class="text-sm text-foreground text-center font-semibold">Launch your VRChat</p>
         </div>
-        <div class="space-y-3">
-          <div class="flex flex-col items-center">
-            <InstancePreviewRoomStatusVector
-              :class="
-                cn('w-[168px] aspect-[25/16] rounded-lg', 'bg-background ring ring-border/70')
-              "
-            />
-            <div class="-mt-4 size-8 rounded-full bg-border flex items-center justify-center">
-              <span class="text-sm">2</span>
-            </div>
-          </div>
-          <p class="text-sm text-foreground text-center font-semibold">Check room status</p>
-        </div>
+        <p class="text-sm text-foreground text-center font-semibold">Check room status</p>
       </div>
     </div>
   </div>
