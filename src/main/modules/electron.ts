@@ -3,7 +3,15 @@ import { APP_ID } from '@main/constants'
 import { Module } from '@shared/module-constructor'
 import { app } from 'electron'
 
-export class ElectronModule extends Module {
+const appSingleInstanceLock = app.requestSingleInstanceLock()
+
+if (!appSingleInstanceLock) {
+  app.quit()
+}
+
+export class ElectronModule extends Module<{
+  relaunch: (commandLine: string[], workingDirectory: string) => void
+}> {
   public onInit(): void {
     electronApp.setAppUserModelId(APP_ID)
 
@@ -13,6 +21,10 @@ export class ElectronModule extends Module {
 
     app.on('browser-window-created', (_, window) => {
       optimizer.watchWindowShortcuts(window)
+    })
+
+    app.on('second-instance', (_, commandLine, workingDirectory) => {
+      this.emit('relaunch', commandLine, workingDirectory)
     })
   }
 

@@ -9,9 +9,11 @@ import { ProtocolServer } from './protocol-server'
 import { IPCModule } from './ipc'
 import { Dependency, Module } from '@shared/module-constructor'
 import { RENDERER_ENTRY_PRELOAD } from '@main/constants'
+import { ElectronModule } from './electron'
 
 export class MainWindow extends Module {
   @Dependency('IPCModule') declare private ipc: IPCModule
+  @Dependency('ElectronModule') declare private electron: ElectronModule
   @Dependency('ProtocolServer') declare private protocol: ProtocolServer
 
   static MAIN_WINDOW_NAME = 'Danmacat Desktop'
@@ -30,10 +32,20 @@ export class MainWindow extends Module {
     this.mainWindow = win
     this.protocol.bindProtocolHandler(this.session!)
     this.ipc.registerWebContents(MainWindow.MAIN_WINDOW_PARTITION, win.webContents)
+    this.bindEvents()
   }
 
   protected onDestroy(): void {
     this.mainWindow?.destroy()
+  }
+
+  private bindEvents(): void {
+    this.electron.on('relaunch', () => {
+      if (this.mainWindow) {
+        this.mainWindow.show()
+        this.mainWindow.focus()
+      }
+    })
   }
 
   public show(): void {
