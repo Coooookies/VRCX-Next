@@ -65,8 +65,8 @@ export class NotificationFetcher {
       const informations = notificationsBatch.map((n) => toNotificationV1BaseInformation(n))
       const { userIds, groupIds } = toNotificationDependency(informations)
 
-      const users = await this.users.Fetcher.fetchUserSummaries(userIds)
-      const groups = await this.groups.Fetcher.fetchGroupSummary(groupIds)
+      const users = await this.users.fetchUserSummaries(userIds)
+      const groups = await this.groups.fetchGroupSummaries(groupIds)
       const processedNotifications = this.processNotification(informations, users, groups)
 
       notifications.push(...processedNotifications)
@@ -104,8 +104,8 @@ export class NotificationFetcher {
       const informations = notificationsBatch.map((n) => toNotificationV2BaseInformation(n))
       const { userIds, groupIds } = toNotificationDependency(informations)
 
-      const users = await this.users.Fetcher.fetchUserSummaries(userIds)
-      const groups = await this.groups.Fetcher.fetchGroupSummary(groupIds)
+      const users = await this.users.fetchUserSummaries(userIds)
+      const groups = await this.groups.fetchGroupSummaries(groupIds)
       const processedNotifications = this.processNotification(informations, users, groups)
 
       notifications.push(...processedNotifications)
@@ -180,8 +180,8 @@ export class NotificationFetcher {
     notification: NotificationBaseInformation
   ): Promise<NotificationInformation> {
     const { userIds, groupIds } = toNotificationDependency([notification])
-    const users = await this.users.Fetcher.fetchUserSummaries(userIds)
-    const groups = await this.groups.Fetcher.fetchGroupSummary(groupIds)
+    const users = await this.users.fetchUserSummaries(userIds)
+    const groups = await this.groups.fetchGroupSummaries(groupIds)
     return this.processNotification([notification], users, groups)[0]
   }
 }

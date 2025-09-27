@@ -86,12 +86,4 @@ export class VRChatNotifications extends Module<{}> {
       this.repository.State.loading = false
     })
   }
-
-  public get Repository(): NotificationRepository {
-    return this.repository
-  }
-
-  public get Fetcher(): NotificationFetcher {
-    return this.fetcher
-  }
 }

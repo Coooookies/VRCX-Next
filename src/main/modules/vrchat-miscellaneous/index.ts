@@ -32,8 +32,4 @@ export class VRChatMiscellaneous extends Module<{}> {
       await this.fetcher.fetchServerTime()
     })
   }
-
-  public get Fetcher(): MiscellaneousFetcher {
-    return this.fetcher
-  }
 }

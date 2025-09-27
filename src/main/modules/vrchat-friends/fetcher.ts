@@ -44,7 +44,7 @@ export class FriendsFetcher {
     friends.push(...onlineFriends)
     friends.push(...offlineFriends)
 
-    await this.users.Repository.saveUserEntities(friends.map(toFriendUserEntity))
+    await this.users.saveUserEntities(friends.map(toFriendUserEntity))
     this.repository.set(friends)
     this.logger.info(
       `Fetched ${friends.length} friends in total.`,
@@ -78,8 +78,8 @@ export class FriendsFetcher {
       }
 
       const { groupIds, worldIds } = toFriendInstanceDependency(friendsBatch)
-      const worlds = await this.worlds.Fetcher.fetchWorldSummary(worldIds)
-      const groups = await this.groups.Fetcher.fetchGroupSummary(groupIds)
+      const worlds = await this.worlds.fetchWorldSummaries(worldIds)
+      const groups = await this.groups.fetchGroupSummaries(groupIds)
       const currentFriends: FriendInformation[] = []
 
       for (const friend of friendsBatch) {
@@ -106,7 +106,7 @@ export class FriendsFetcher {
     worlds: Map<string, WorldEntity>,
     groups: Map<string, GroupEntity>
   ): FriendInformation {
-    const order = this.users.Repository.getFriendUserIndex(friend.id)
+    const order = this.users.getFriendUserIndex(friend.id)
     const location = parseLocation(friend.location)
     const locationArrivedAt = location ? new Date() : null
     const locationSummary = <LocationInstanceSummary>location
@@ -151,8 +151,7 @@ export class FriendsFetcher {
     }
 
     if (nextLocationSummary && isGroupInstance(nextLocationSummary)) {
-      nextLocationSummary =
-        await this.groups.Fetcher.enrichLocationWithGroupInfo(nextLocationSummary)
+      nextLocationSummary = await this.groups.enrichLocationWithGroupInfo(nextLocationSummary)
     }
 
     return nextLocationSummary

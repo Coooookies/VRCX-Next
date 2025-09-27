@@ -107,7 +107,9 @@ export class UsersEventBinding extends Nanobus<{
       nextLocationSummary = prevLocation || null
     } else {
       nextLocationArrivedAt = nextLocation ? new Date() : null
-      nextLocationSummary = nextLocation ? await this.fetcher.enrichLocation(nextLocation) : null
+      nextLocationSummary = nextLocation
+        ? await this.fetcher.enrichLocationInstance(nextLocation)
+        : null
     }
 
     const newLocation = {

@@ -268,7 +268,7 @@ export class CurrentInstance extends Nanobus<{
   }
 
   private async processWorldSummary(worldId: string) {
-    const detail = await this.world.Fetcher.fetchWorld(worldId, {
+    const detail = await this.world.fetchWorld(worldId, {
       ignoreInstances: true
     })
 
@@ -292,7 +292,7 @@ export class CurrentInstance extends Nanobus<{
       case LocationInstanceUserType.InvitePlus: {
         owner = {
           type: 'user',
-          summary: await this.users.Fetcher.fetchUserSummary(location.userId)
+          summary: await this.users.fetchUserSummary(location.userId)
         }
         break
       }
@@ -301,7 +301,7 @@ export class CurrentInstance extends Nanobus<{
       case LocationInstanceGroupType.GroupPublic: {
         owner = {
           type: 'group',
-          summary: await this.group.Fetcher.fetchGroupSummary(location.groupId)
+          summary: await this.group.fetchGroupSummary(location.groupId)
         }
         break
       }
@@ -447,7 +447,7 @@ export class CurrentInstance extends Nanobus<{
       user: null
     })
 
-    const userInformation = await this.users.Fetcher.fetchUser(user.userId)
+    const userInformation = await this.users.fetchUser(user.userId)
     const userSummary = userInformation ? toUserInformationSummary(userInformation) : null
 
     if (this.isCurrentUser(user.userId)) {
@@ -507,7 +507,7 @@ export class CurrentInstance extends Nanobus<{
     user: Pick<InstanceUser, 'userId' | 'userName'>,
     context: LogEventContext
   ): Promise<void> {
-    const summary = await this.users.Fetcher.fetchUserSummary(user.userId)
+    const summary = await this.users.fetchUserSummary(user.userId)
     const presentEvent: InstanceEventMessage = {
       type: InstanceEvents.UserLeave,
       recordedAt: context.date,

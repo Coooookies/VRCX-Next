@@ -22,11 +22,17 @@ export class VRChatGroups extends Module<{}> {
     this.fetcher = new GroupFetcher(this.logger, this.repository, this.api)
   }
 
-  public get Repository(): GroupRepository {
-    return this.repository
+  public fetchGroupSummary(...args: Parameters<GroupFetcher['fetchGroupSummary']>) {
+    return this.fetcher.fetchGroupSummary(...args)
   }
 
-  public get Fetcher(): GroupFetcher {
-    return this.fetcher
+  public fetchGroupSummaries(...args: Parameters<GroupFetcher['fetchGroupSummaries']>) {
+    return this.fetcher.fetchGroupSummaries(...args)
+  }
+
+  public enrichLocationWithGroupInfo(
+    ...args: Parameters<GroupFetcher['enrichLocationWithGroupInfo']>
+  ) {
+    return this.fetcher.enrichLocationWithGroupInfo(...args)
   }
 }

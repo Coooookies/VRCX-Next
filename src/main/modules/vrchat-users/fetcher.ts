@@ -68,30 +68,8 @@ export class UsersFetcher {
     userId: string,
     ignoreExpiration?: boolean
   ): Promise<UserEntity | null> {
-    const date = new Date()
-    const entity = await this.repository.getSavedUserEntities(userId)
-
-    if (entity) {
-      const expired =
-        date.getTime() - entity.cacheUpdatedAt!.getTime() > SAVED_USER_ENTITY_EXPIRE_DELAY
-
-      if (ignoreExpiration || !expired) {
-        return entity
-      }
-    }
-
-    const { success, value, error } = await this.api.ref.sessionAPI.users.getUser(userId)
-    this.logger.info(`Fetching ${userId} users entities`)
-
-    if (success) {
-      const entity = toUserEntity(value.body)
-      await this.repository.saveUserEntities(entity)
-      return entity
-    } else {
-      this.logger.error(`Failed to fetch user entity for ID: ${userId}, error: ${error.message}`)
-    }
-
-    return null
+    const entities = await this.fetchUserSummaries([userId], ignoreExpiration)
+    return entities.get(userId) ?? null
   }
 
   public async fetchUserSummaries(
@@ -231,12 +209,11 @@ export class UsersFetcher {
     return user.location || null
   }
 
-  public async enrichLocation(location: LocationInstance) {
-    let nextLocationSummary = await this.worlds.Fetcher.enrichLocationWithWorldInfo(location)
+  public async enrichLocationInstance(location: LocationInstance) {
+    let nextLocationSummary = await this.worlds.enrichLocationWithWorldInfo(location)
 
     if (isGroupInstance(nextLocationSummary)) {
-      nextLocationSummary =
-        await this.groups.Fetcher.enrichLocationWithGroupInfo(nextLocationSummary)
+      nextLocationSummary = await this.groups.enrichLocationWithGroupInfo(nextLocationSummary)
     }
 
     return nextLocationSummary

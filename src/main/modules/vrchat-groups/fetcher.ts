@@ -17,26 +17,29 @@ export class GroupFetcher {
     private readonly api: VRChatAPI
   ) {}
 
-  public async fetchGroupSummary(groupId: string): Promise<GroupEntity | null>
-  public async fetchGroupSummary(groupIds: string[]): Promise<Map<string, GroupEntity>>
-  public async fetchGroupSummary(
-    groupIds: string | string[]
-  ): Promise<GroupEntity | Map<string, GroupEntity> | null> {
-    if (Array.isArray(groupIds) && groupIds.length === 0) {
-      return new Map()
-    }
-
-    const _date = new Date()
-    const _worldIds = Array.isArray(groupIds) ? groupIds : [groupIds]
+  public async fetchGroupSummaries(
+    groupIds: string[],
+    ignoreExpiration?: boolean
+  ): Promise<Map<string, GroupEntity>> {
+    const date = new Date()
 
     // Get entity from cache
-    const entities = await this.repository.getSavedEntities(_worldIds)
-    const invalidIds = _worldIds.filter(
-      (id) =>
-        !entities.has(id) ||
-        _date.getTime() - entities.get(id)!.cacheUpdatedAt!.getTime() >
-          SAVED_GROUP_ENTITY_EXPIRE_DELAY
-    )
+    const entities = await this.repository.getSavedEntities(groupIds)
+    const invalidIds = groupIds.filter((id) => {
+      if (!entities.has(id)) {
+        return true
+      }
+
+      const expired =
+        date.getTime() - entities.get(id)!.cacheUpdatedAt!.getTime() >
+        SAVED_GROUP_ENTITY_EXPIRE_DELAY
+
+      if (!ignoreExpiration && expired) {
+        return true
+      }
+
+      return false
+    })
 
     if (invalidIds.length > 0) {
       this.logger.info(`Fetching group entities for IDs: ${invalidIds.join(',')}`)
@@ -73,7 +76,15 @@ export class GroupFetcher {
       await this.repository.saveEntities(worlds)
     }
 
-    return Array.isArray(groupIds) ? entities : (entities.get(groupIds) ?? null)
+    return entities
+  }
+
+  public async fetchGroupSummary(
+    groupId: string,
+    ignoreExpiration?: boolean
+  ): Promise<GroupEntity | null> {
+    const entities = await this.fetchGroupSummaries([groupId], ignoreExpiration)
+    return entities.get(groupId) ?? null
   }
 
   public async enrichLocationWithGroupInfo(location: LocationInstance) {

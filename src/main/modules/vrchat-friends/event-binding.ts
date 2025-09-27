@@ -157,7 +157,7 @@ export class FriendsEventBinding extends Nanobus<{
 
   private async handleFriendAdd({ user, userId }: PipelineEventFriendAdd): Promise<void> {
     const baseFriendInfo = toBaseFriendInformation(user)
-    const location = await this.users.Fetcher.fetchUserLocation(userId)
+    const location = await this.users.fetchUserLocation(userId)
 
     const order = this.repository.friendCount
     const isTraveling = location === 'traveling'
@@ -165,7 +165,7 @@ export class FriendsEventBinding extends Nanobus<{
     const nextLocationArrivedAt = nextLocation ? new Date() : null
 
     const nextLocationSummary = nextLocation
-      ? await this.users.Fetcher.enrichLocation(nextLocation)
+      ? await this.users.enrichLocationInstance(nextLocation)
       : null
 
     const friend: FriendInformation = {

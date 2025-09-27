@@ -22,7 +22,7 @@ export class InstanceFetcher {
       userEventMap.set(event.userId, event)
     }
 
-    const roomUsers = await this.users.Fetcher.fetchUsers(
+    const roomUsers = await this.users.fetchUsers(
       users.map((user) => user.userId),
       (user) => {
         const instanceUser = userMap.get(user.userId)
@@ -39,32 +39,28 @@ export class InstanceFetcher {
 
     const eventUserIds = [...userEventMap.keys()]
     const eventQueueUserIds = eventUserIds.filter((id) => !roomUsers.has(id))
-    const eventUsers = await this.users.Fetcher.fetchUserSummaries(
-      eventQueueUserIds,
-      false,
-      (users) => {
-        const events: InstanceEventMessage[] = []
+    const eventUsers = await this.users.fetchUserSummaries(eventQueueUserIds, false, (users) => {
+      const events: InstanceEventMessage[] = []
 
-        for (const user of users) {
-          const event = userEventMap.get(user.userId)
-          if (event) {
-            events.push({
-              type: event.type,
-              recordedAt: event.recordedAt,
-              content: {
-                userId: event.userId,
-                userName: event.userName,
-                userSummary: user
-              }
-            })
-          }
-        }
-
-        if (events.length > 0 && processHandler) {
-          processHandler([], events)
+      for (const user of users) {
+        const event = userEventMap.get(user.userId)
+        if (event) {
+          events.push({
+            type: event.type,
+            recordedAt: event.recordedAt,
+            content: {
+              userId: event.userId,
+              userName: event.userName,
+              userSummary: user
+            }
+          })
         }
       }
-    )
+
+      if (events.length > 0 && processHandler) {
+        processHandler([], events)
+      }
+    })
 
     for (const userId of eventUserIds) {
       if (roomUsers.has(userId)) {

@@ -33,24 +33,15 @@ export class WorldFetcher {
     private readonly files: VRChatFiles
   ) {}
 
-  public async fetchWorldSummary(worldId: string): Promise<WorldEntity | null>
-  public async fetchWorldSummary(worldIds: string[]): Promise<Map<string, WorldEntity>>
-  public async fetchWorldSummary(
-    worldIds: string | string[]
-  ): Promise<WorldEntity | Map<string, WorldEntity> | null> {
-    if (Array.isArray(worldIds) && worldIds.length === 0) {
-      return new Map()
-    }
-
-    const _date = new Date()
-    const _worldIds = Array.isArray(worldIds) ? worldIds : [worldIds]
+  public async fetchWorldSummaries(worldIds: string[]): Promise<Map<string, WorldEntity>> {
+    const date = new Date()
 
     // Get entity from cache
-    const entities = await this.repository.getSavedEntities(_worldIds)
-    const invalidIds = _worldIds.filter(
+    const entities = await this.repository.getSavedEntities(worldIds)
+    const invalidIds = worldIds.filter(
       (id) =>
         !entities.has(id) ||
-        _date.getTime() - entities.get(id)!.cacheUpdatedAt!.getTime() >
+        date.getTime() - entities.get(id)!.cacheUpdatedAt!.getTime() >
           SAVED_WORLD_ENTITY_EXPIRE_DELAY
     )
 
@@ -88,7 +79,12 @@ export class WorldFetcher {
       this.logger.info(`Fetched ${worlds.length} world entities`)
     }
 
-    return Array.isArray(worldIds) ? entities : (entities.get(worldIds) ?? null)
+    return entities
+  }
+
+  public async fetchWorldSummary(worldId: string): Promise<WorldEntity | null> {
+    const entities = await this.fetchWorldSummaries([worldId])
+    return entities.get(worldId) ?? null
   }
 
   public async fetchWorld(
@@ -109,13 +105,8 @@ export class WorldFetcher {
     const entity = toWorldEntity(world.value.body)
     await this.repository.saveEntities(entity)
 
-    const groups = !ignoreInstances
-      ? await this.groups.Fetcher.fetchGroupSummary(groupIds)
-      : undefined
-
-    const fileAssets = !ignorePackages
-      ? await this.files.Fetcher.fetchFileAnalysis(assetFiles)
-      : undefined
+    const groups = !ignoreInstances ? await this.groups.fetchGroupSummaries(groupIds) : undefined
+    const fileAssets = !ignorePackages ? await this.files.fetchFileAnalysis(assetFiles) : undefined
 
     return this.processWorldDetail(world.value.body, groups, fileAssets, {
       ignoreInstances,

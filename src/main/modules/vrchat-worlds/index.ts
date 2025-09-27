@@ -27,17 +27,24 @@ export class VRChatWorlds extends Module<{}> {
     this.repository = new WorldRepository(this.database)
     this.fetcher = new WorldFetcher(this.logger, this.repository, this.api, this.groups, this.files)
     this.eventBinding = new WorldEventBinding(this.logger, this.pipeline, this.repository)
+    this.eventBinding.bindEvents()
   }
 
-  public get Repository(): WorldRepository {
-    return this.repository
+  public fetchWorldSummaries(...args: Parameters<WorldFetcher['fetchWorldSummaries']>) {
+    return this.fetcher.fetchWorldSummaries(...args)
   }
 
-  public get EventBinding(): WorldEventBinding {
-    return this.eventBinding
+  public fetchWorldSummary(...args: Parameters<WorldFetcher['fetchWorldSummary']>) {
+    return this.fetcher.fetchWorldSummary(...args)
   }
 
-  public get Fetcher(): WorldFetcher {
-    return this.fetcher
+  public fetchWorld(...args: Parameters<WorldFetcher['fetchWorld']>) {
+    return this.fetcher.fetchWorld(...args)
+  }
+
+  public enrichLocationWithWorldInfo(
+    ...args: Parameters<WorldFetcher['enrichLocationWithWorldInfo']>
+  ) {
+    return this.fetcher.enrichLocationWithWorldInfo(...args)
   }
 }

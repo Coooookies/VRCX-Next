@@ -32,7 +32,7 @@ export class VRChatFiles extends Module<{}> {
     this.eventBinding.bindProtocolEvents()
   }
 
-  public get Fetcher(): FilesFetcher {
-    return this.fetcher
+  public fetchFileAnalysis(...args: Parameters<FilesFetcher['fetchFileAnalysis']>) {
+    return this.fetcher.fetchFileAnalysis(...args)
   }
 }

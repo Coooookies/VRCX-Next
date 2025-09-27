@@ -64,12 +64,36 @@ export class VRChatUsers extends Module<{}> {
     })
   }
 
-  public get Repository(): UsersRepository {
-    return this.repository
+  public fetchUserLocation(...args: Parameters<UsersFetcher['fetchUserLocation']>) {
+    return this.fetcher.fetchUserLocation(...args)
   }
 
-  public get Fetcher(): UsersFetcher {
-    return this.fetcher
+  public enrichLocationInstance(...args: Parameters<UsersFetcher['enrichLocationInstance']>) {
+    return this.fetcher.enrichLocationInstance(...args)
+  }
+
+  public saveUserEntities(...args: Parameters<UsersRepository['saveUserEntities']>) {
+    return this.repository.saveUserEntities(...args)
+  }
+
+  public getFriendUserIndex(...args: Parameters<UsersRepository['getFriendUserIndex']>) {
+    return this.repository.getFriendUserIndex(...args)
+  }
+
+  public fetchUsers(...args: Parameters<UsersFetcher['fetchUsers']>) {
+    return this.fetcher.fetchUsers(...args)
+  }
+
+  public fetchUser(...args: Parameters<UsersFetcher['fetchUser']>) {
+    return this.fetcher.fetchUser(...args)
+  }
+
+  public fetchUserSummaries(...args: Parameters<UsersFetcher['fetchUserSummaries']>) {
+    return this.fetcher.fetchUserSummaries(...args)
+  }
+
+  public fetchUserSummary(...args: Parameters<UsersFetcher['fetchUserSummary']>) {
+    return this.fetcher.fetchUserSummary(...args)
   }
 
   public get state() {
