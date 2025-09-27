@@ -7,6 +7,7 @@ import CurrentInstanceSearchInput from '../components/current-instance/current-i
 import CurrentInstanceTabInstance from '../components/current-instance/current-instance-tab-instance.vue'
 import CurrentInstanceTabWorld from '../components/current-instance/current-instance-tab-world.vue'
 import CurrentInstanceNotRunning from '../components/current-instance/current-instance-not-running.vue'
+import LightRaysBackground from '@renderer/shared/components/light-rays-background.vue'
 import { computed, provide, ref } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
 import { useRoute, useRouter } from 'vue-router'
@@ -63,6 +64,14 @@ provide('current-instance:search-value', searchValue)
 
 <template>
   <AppRoute>
+    <template #background>
+      <div
+        v-if="!isGameRunning"
+        class="group-has-[*]/right-expanded:pr-[var(--sidebar-padding-right)]"
+      >
+        <LightRaysBackground class="w-full h-screen" />
+      </div>
+    </template>
     <div class="@container w-full">
       <template v-if="isGameRunning">
         <div
