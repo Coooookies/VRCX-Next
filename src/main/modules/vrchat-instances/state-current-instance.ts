@@ -47,6 +47,8 @@ export class CurrentInstance extends Nanobus<{
   'instance:event': (activity: InstanceEventMessage) => void
   'user:joined': (user: InstanceUserSummary) => void
   'user:left': (userId: string) => void
+  'video:playback-load': (url: string) => void
+  'video:playback-error': (reason: string) => void
 }> {
   private isListening = false
   private isInitialBatchMode = false
@@ -376,6 +378,14 @@ export class CurrentInstance extends Nanobus<{
         await this.handlePlayerLeft(data.content, context)
         break
       }
+      case LogEvents.VideoPlaybackLoad: {
+        await this.handleVideoPlaybackLoad(data.content.url, context)
+        break
+      }
+      case LogEvents.VideoPlaybackError: {
+        await this.handleVideoPlaybackError(data.content.reason, context)
+        break
+      }
     }
   }
 
@@ -522,6 +532,34 @@ export class CurrentInstance extends Nanobus<{
     this.repository.appendCurrentInstanceEvent(presentEvent)
     this.emit('user:left', user.userId)
     this.emit('instance:event', presentEvent)
+  }
+
+  private async handleVideoPlaybackLoad(url: string, context: LogEventContext) {
+    const event: InstanceEventMessage = {
+      type: InstanceEvents.VideoPlaybackLoad,
+      recordedAt: context.date,
+      content: {
+        url
+      }
+    }
+
+    this.repository.appendCurrentInstanceEvent(event)
+    this.emit('instance:event', event)
+    this.emit('video:playback-load', url)
+  }
+
+  private async handleVideoPlaybackError(reason: string, context: LogEventContext) {
+    const event: InstanceEventMessage = {
+      type: InstanceEvents.VideoPlaybackError,
+      recordedAt: context.date,
+      content: {
+        reason
+      }
+    }
+
+    this.repository.appendCurrentInstanceEvent(event)
+    this.emit('instance:event', event)
+    this.emit('video:playback-error', reason)
   }
 
   private clearState() {
