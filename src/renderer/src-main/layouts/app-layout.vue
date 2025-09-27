@@ -18,6 +18,8 @@ const rightRoutePadding = computed(() =>
 )
 
 provide('routePadding', {
+  leftExpanded: computed(() => props.leftExpanded),
+  rightExpanded: computed(() => props.rightExpanded),
   leftRoutePadding,
   rightRoutePadding
 })
