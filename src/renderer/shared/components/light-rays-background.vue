@@ -353,7 +353,6 @@ const initializeWebGL = async (): Promise<void> => {
         animationIdRef.value = null
       }
 
-      // 清理 ResizeObserver
       if (resizeObserverRef.value) {
         resizeObserverRef.value.disconnect()
         resizeObserverRef.value = null
@@ -367,14 +366,22 @@ const initializeWebGL = async (): Promise<void> => {
       if (renderer) {
         try {
           const canvas = renderer.gl.canvas
-          const loseContextExt = renderer.gl.getExtension('WEBGL_lose_context')
-          if (loseContextExt) {
-            loseContextExt.loseContext()
-          }
+          canvas.style.opacity = '0'
 
-          if (canvas && canvas.parentNode) {
-            canvas.parentNode.removeChild(canvas)
-          }
+          setTimeout(() => {
+            try {
+              const loseContextExt = renderer.gl.getExtension('WEBGL_lose_context')
+              if (loseContextExt) {
+                loseContextExt.loseContext()
+              }
+
+              if (canvas && canvas.parentNode) {
+                canvas.parentNode.removeChild(canvas)
+              }
+            } catch (error) {
+              console.warn('Error during WebGL cleanup:', error)
+            }
+          })
         } catch (error) {
           console.warn('Error during WebGL cleanup:', error)
         }
@@ -522,6 +529,9 @@ onUnmounted((): void => {
 <template>
   <div
     ref="containerRef"
-    :class="['w-full h-full relative pointer-events-none z-[3] overflow-hidden', className]"
+    :class="[
+      'w-full h-full relative bg-transparent pointer-events-none z-[3] overflow-hidden',
+      className
+    ]"
   />
 </template>
