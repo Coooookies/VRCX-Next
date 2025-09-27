@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { AsTag } from 'reka-ui'
 import { computed } from 'vue'
 
 interface ShinyTextProps {
@@ -6,11 +7,13 @@ interface ShinyTextProps {
   disabled?: boolean
   speed?: number
   className?: string
+  as?: AsTag
 }
 
 const props = withDefaults(defineProps<ShinyTextProps>(), {
   disabled: false,
   speed: 5,
+  as: 'span',
   className: ''
 })
 
@@ -18,7 +21,8 @@ const animationDuration = computed(() => `${props.speed}s`)
 </script>
 
 <template>
-  <span
+  <component
+    :is="props.as"
     :class="`text-[#b5b5b5a4] bg-clip-text inline-block ${!props.disabled ? 'animate-shine' : ''} ${props.className}`"
     :style="{
       backgroundImage:
@@ -34,7 +38,7 @@ const animationDuration = computed(() => `${props.speed}s`)
     <template v-else>
       {{ props.text }}
     </template>
-  </span>
+  </component>
 </template>
 
 <style scoped>
