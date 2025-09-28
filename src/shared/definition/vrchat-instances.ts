@@ -28,6 +28,11 @@ export const LocationInstanceGroupType = {
 export type LocationInstanceGroupType =
   (typeof LocationInstanceGroupType)[keyof typeof LocationInstanceGroupType]
 
+export type LocationInstanceType =
+  | LocationInstancePublicType
+  | LocationInstanceUserType
+  | LocationInstanceGroupType
+
 interface LocationInstanceBase {
   location: string
   worldId: string
@@ -97,6 +102,10 @@ export interface InstanceEventUser {
   userSummary: UserSummary | null
 }
 
+export interface InstanceEventVoteKick {
+  userName: string
+}
+
 export interface InstanceEventVideoPlaybackLoad {
   url: string
 }
@@ -110,17 +119,24 @@ export const InstanceEvents = {
   UserJoin: 'user-join',
   UserPresent: 'user-present',
   UserRemain: 'user-remain',
+  VoteKick: 'vote-kick',
   VideoPlaybackLoad: 'video-playback-load',
   VideoPlaybackError: 'video-playback-error'
 } as const
 
 export type InstanceEvents = (typeof InstanceEvents)[keyof typeof InstanceEvents]
+export type InstanceUserEvents =
+  | typeof InstanceEvents.UserJoin
+  | typeof InstanceEvents.UserLeave
+  | typeof InstanceEvents.UserPresent
+  | typeof InstanceEvents.UserRemain
 
 export type InstanceEventDefinition = {
   [InstanceEvents.UserLeave]: InstanceEventUser
   [InstanceEvents.UserJoin]: InstanceEventUser
   [InstanceEvents.UserPresent]: InstanceEventUser
   [InstanceEvents.UserRemain]: InstanceEventUser
+  [InstanceEvents.VoteKick]: InstanceEventVoteKick
   [InstanceEvents.VideoPlaybackLoad]: InstanceEventVideoPlaybackLoad
   [InstanceEvents.VideoPlaybackError]: InstanceEventVideoPlaybackError
 }
