@@ -7,6 +7,11 @@ import { WorldEntity } from './entities/vrchat-cache-world'
 import { GroupEntity } from './entities/vrchat-cache-group'
 import { SettingEntity } from './entities/setting'
 import { UserEntity } from './entities/vrchat-cache-users'
+import {
+  VisitedInstanceEntity,
+  VisitedInstanceCommonEventEntity,
+  VisitedInstanceUserEventEntity
+} from './entities/vrchat-visited-instance'
 import { NotificationEntity } from './entities/vrchat-notifications'
 import { ImageSelectionEntity } from './entities/selection-images'
 import { FileAnalysisEntity } from './entities/vrchat-cache-analysis-file'
@@ -21,9 +26,10 @@ import {
   CreateNotificationTable1710000000000,
   CreateImageSelectionTable1710000000000,
   CreateAnalysisFilesTable1720000000000,
-  CreateVisitedInstanceTable1710000000000
+  CreateVisitedInstanceTable1710000000000,
+  CreateVisitedInstanceUserEventsTable1710000000001,
+  CreateVisitedInstanceCommonEventsTable1710000000002
 } from './migration'
-import { VisitedInstanceEntity } from './entities/vrchat-visited-instance'
 
 const STORAGE_DATABASE_NAME = 'storage.db'
 
@@ -44,6 +50,8 @@ export class Database extends Module {
         WorldEntity,
         UserEntity,
         VisitedInstanceEntity,
+        VisitedInstanceCommonEventEntity,
+        VisitedInstanceUserEventEntity,
         NotificationEntity,
         ImageSelectionEntity,
         FileAnalysisEntity
@@ -58,7 +66,9 @@ export class Database extends Module {
         CreateNotificationTable1710000000000,
         CreateImageSelectionTable1710000000000,
         CreateAnalysisFilesTable1720000000000,
-        CreateVisitedInstanceTable1710000000000
+        CreateVisitedInstanceTable1710000000000,
+        CreateVisitedInstanceUserEventsTable1710000000001,
+        CreateVisitedInstanceCommonEventsTable1710000000002
       ]
     })
 

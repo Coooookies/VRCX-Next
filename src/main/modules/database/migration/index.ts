@@ -6,4 +6,8 @@ export { CreateUsersTable1710000000000 } from './vrchat-cache-users-table'
 export { CreateNotificationTable1710000000000 } from './vrchat-notifications-table'
 export { CreateImageSelectionTable1710000000000 } from './selection-images-table'
 export { CreateAnalysisFilesTable1720000000000 } from './vrchat-cache-analysis-files-table'
-export { CreateVisitedInstanceTable1710000000000 } from './vrchat-visited-instances-table'
+export {
+  CreateVisitedInstanceTable1710000000000,
+  CreateVisitedInstanceUserEventsTable1710000000001,
+  CreateVisitedInstanceCommonEventsTable1710000000002
+} from './vrchat-visited-instances-table'
