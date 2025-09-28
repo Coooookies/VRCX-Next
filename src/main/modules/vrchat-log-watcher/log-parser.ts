@@ -5,7 +5,8 @@ import {
   GAMELOG_PLAYER_ACTIVITY_REGEXP,
   GAMELOG_PREPARATION_REGEXP,
   GAMELOG_VIDEO_PLAYBACK_ERROR_REGEXP,
-  GAMELOG_VIDEO_PLAYBACK_LOAD_REGEXP
+  GAMELOG_VIDEO_PLAYBACK_LOAD_REGEXP,
+  GAMELOG_VOTE_KICK_REGEXP
 } from './constants'
 import { LogEvents } from './types'
 import type { LogEventContext, LogEventMessage } from './types'
@@ -158,5 +159,22 @@ export function parseSpecialEventLine(data: LogEventContext): LogEventMessage | 
     }
   }
 
+  // votekick
+  if (
+    data.type === 'debug' &&
+    data.topic === 'ModerationManager' &&
+    data.content?.endsWith('A vote kick has been initiated against')
+  ) {
+    const regexRes = data.content.match(GAMELOG_VOTE_KICK_REGEXP)
+
+    if (regexRes?.groups?.username) {
+      return {
+        type: LogEvents.VoteKick,
+        content: {
+          userName: regexRes?.groups?.username
+        }
+      }
+    }
+  }
   return null
 }

@@ -22,6 +22,10 @@ export interface LogEventSelfJoin {
   location: string
 }
 
+export interface LogEventVoteKick {
+  userName: string
+}
+
 export interface LogEventPlayerActivity {
   userId?: string
   userName: string
@@ -39,6 +43,7 @@ export const LogEvents = {
   PlayerJoined: 'playerJoined',
   PlayerLeft: 'playerLeft',
   Prepartion: 'prepartion',
+  VoteKick: 'voteKick',
   StringLoad: 'stringLoad',
   ImageLoad: 'imageLoad',
   VideoPlaybackLoad: 'VideoPlaybackLoad',
@@ -53,6 +58,7 @@ export type LogEventDefinition = {
   [LogEvents.PlayerJoined]: LogEventPlayerActivity
   [LogEvents.PlayerLeft]: LogEventPlayerActivity
   [LogEvents.Prepartion]: LogEventPrepartion
+  [LogEvents.VoteKick]: LogEventVoteKick
   [LogEvents.StringLoad]: LogEventUrlLoad
   [LogEvents.ImageLoad]: LogEventUrlLoad
   [LogEvents.VideoPlaybackLoad]: LogEventVideoLoad
