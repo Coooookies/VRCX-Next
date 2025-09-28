@@ -20,6 +20,7 @@ export function toWorldEntity(world: World | FavoritedWorld): WorldEntity {
     worldId: world.id,
     worldName: world.name,
     authorUserId: world.authorId,
+    authorUserName: world.authorName,
     description: world.description,
     imageFileId: imageFileInfo?.fileId || '',
     imageFileVersion: imageFileInfo?.version || 0,
