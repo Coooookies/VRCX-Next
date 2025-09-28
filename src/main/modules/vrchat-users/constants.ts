@@ -1,8 +1,13 @@
 import { CurrentUserInformation } from '@shared/definition/vrchat-users'
 
 export const SAVED_USER_ENTITY_EXPIRE_DELAY = 1000 * 60 * 60 * 24 * 3 // 3 days
+
 export const USERNOTES_QUERY_SIZE = 100
 export const USER_ENTITIES_QUERY_THREAD_SIZE = 10
+
+// robot
+// export const USER_DEFAULT_AVATAR_THUMBNAIL_FILEID = 'file_0e8c4e32-7444-44ea-ade4-313c010d4bae'
+
 export const USER_UPDATE_COMPARE_KEYS: (keyof CurrentUserInformation)[] = [
   'profileIconFileId',
   'profileIconFileVersion',

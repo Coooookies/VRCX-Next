@@ -16,17 +16,23 @@ import type {
 } from '@shared/definition/vrchat-api-response'
 
 export function getProfileIconUrl(target: User | CurrentUser | LimitedUserFriend): string {
-  return (
-    target.userIcon || target.currentAvatarThumbnailImageUrl || target.profilePicOverrideThumbnail
-  )
+  const supporterIconUrl = isSupporter(target.tags) ? target.userIcon : null
+  const avatarUrl = isSupporter(target.tags) ? null : target.currentAvatarImageUrl
+  const profileUrl = target.profilePicOverride
+  return supporterIconUrl || avatarUrl || profileUrl
+}
+
+export function getProfileBackgroundUrl(target: User | CurrentUser | LimitedUserFriend): string {
+  const profileUrl = target.profilePicOverride
+  const avatarUrl = target.currentAvatarImageUrl
+  return profileUrl || avatarUrl
 }
 
 export function toCurrentUserInformation(user: CurrentUser): CurrentUserInformation {
   const profileIconUrl = getProfileIconUrl(user)
+  const profileBackgroundUrl = getProfileBackgroundUrl(user)
   const profileIconFileInfo = parseFileUrl(profileIconUrl)
-  const profileBackgroundFileInfo = parseFileUrl(
-    user.profilePicOverride || user.currentAvatarImageUrl
-  )
+  const profileBackgroundFileInfo = parseFileUrl(profileBackgroundUrl)
 
   const languages = toUserLanguageTags(user.tags)
   const trustRank = toUserTrustRank(user.tags)
@@ -81,10 +87,9 @@ export function toCurrentUserInformation(user: CurrentUser): CurrentUserInformat
 
 export function toUserInformation(user: User): UserInformation {
   const profileIconUrl = getProfileIconUrl(user)
+  const profileBackgroundUrl = getProfileBackgroundUrl(user)
   const profileIconFileInfo = parseFileUrl(profileIconUrl)
-  const profileBackgroundFileInfo = parseFileUrl(
-    user.profilePicOverride || user.currentAvatarImageUrl
-  )
+  const profileBackgroundFileInfo = parseFileUrl(profileBackgroundUrl)
 
   const languages = toUserLanguageTags(user.tags)
   const trustRank = toUserTrustRank(user.tags)
