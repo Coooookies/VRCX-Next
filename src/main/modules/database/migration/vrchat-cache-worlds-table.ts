@@ -3,12 +3,13 @@ import { MigrationInterface, QueryRunner } from 'typeorm'
 export class CreateWorldsTable1710000000000 implements MigrationInterface {
   name = 'CreateVRChatCacheWorldsTable1710000000000'
 
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
+  public async up(runner: QueryRunner): Promise<void> {
+    await runner.query(`
       CREATE TABLE "vrchat_cache_worlds" (
         "world_id" varchar(63) PRIMARY KEY NOT NULL,
         "world_name" text NOT NULL,
         "author_user_id" varchar(63) NOT NULL,
+        "author_user_name" text NOT NULL,
         "description" text NOT NULL,
         "image_file_id" text NOT NULL,
         "image_file_version" integer NOT NULL,
@@ -20,8 +21,8 @@ export class CreateWorldsTable1710000000000 implements MigrationInterface {
     `)
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
+  public async down(runner: QueryRunner): Promise<void> {
+    await runner.query(`
       DROP TABLE "vrchat_cache_worlds"
     `)
   }

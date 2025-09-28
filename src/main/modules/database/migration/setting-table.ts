@@ -3,8 +3,8 @@ import { MigrationInterface, QueryRunner } from 'typeorm'
 export class CreateSettingTable1710000000000 implements MigrationInterface {
   name = 'CreateSettingTable1710000000000'
 
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
+  public async up(runner: QueryRunner): Promise<void> {
+    await runner.query(`
       CREATE TABLE "setting" (
         "key" varchar NOT NULL,
         "namespace" varchar NOT NULL,
@@ -14,8 +14,8 @@ export class CreateSettingTable1710000000000 implements MigrationInterface {
     `)
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
+  public async down(runner: QueryRunner): Promise<void> {
+    await runner.query(`
       DROP TABLE "setting"
     `)
   }

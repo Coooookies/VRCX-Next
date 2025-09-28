@@ -26,6 +26,12 @@ export class WorldEntity implements WorldSummary {
   declare authorUserId: string
 
   @Column({
+    name: 'author_user_name',
+    type: 'text'
+  })
+  declare authorUserName: string
+
+  @Column({
     name: 'description',
     type: 'text'
   })
@@ -67,7 +73,6 @@ export class WorldEntity implements WorldSummary {
   @Column({
     name: 'cache_updated_at',
     type: 'datetime',
-    nullable: true,
     ...datetimeTransformer,
     ...datetimeDefault
   })

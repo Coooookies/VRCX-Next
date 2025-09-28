@@ -51,7 +51,6 @@ export class CredentialEntity {
   @Column({
     name: 'updated_at',
     type: 'datetime',
-    nullable: true,
     ...datetimeTransformer,
     ...datetimeDefault
   })

@@ -9,7 +9,7 @@ import { SettingEntity } from './entities/setting'
 import { UserEntity } from './entities/vrchat-cache-users'
 import { NotificationEntity } from './entities/vrchat-notifications'
 import { ImageSelectionEntity } from './entities/selection-images'
-import { FileAnalysisEntity } from './entities/vrchat-cache-analysis-files'
+import { FileAnalysisEntity } from './entities/vrchat-cache-analysis-file'
 import { APP_DATABASE_DIR } from '@main/constants'
 
 import {
@@ -20,8 +20,10 @@ import {
   CreateUsersTable1710000000000,
   CreateNotificationTable1710000000000,
   CreateImageSelectionTable1710000000000,
-  CreateAnalysisFilesTable1720000000000
+  CreateAnalysisFilesTable1720000000000,
+  CreateVisitedInstanceTable1710000000000
 } from './migration'
+import { VisitedInstanceEntity } from './entities/vrchat-visited-instance'
 
 const STORAGE_DATABASE_NAME = 'storage.db'
 
@@ -37,10 +39,11 @@ export class Database extends Module {
       logger: this.logger,
       entities: [
         CredentialEntity,
+        GroupEntity,
         SettingEntity,
         WorldEntity,
-        GroupEntity,
         UserEntity,
+        VisitedInstanceEntity,
         NotificationEntity,
         ImageSelectionEntity,
         FileAnalysisEntity
@@ -54,7 +57,8 @@ export class Database extends Module {
         CreateUsersTable1710000000000,
         CreateNotificationTable1710000000000,
         CreateImageSelectionTable1710000000000,
-        CreateAnalysisFilesTable1720000000000
+        CreateAnalysisFilesTable1720000000000,
+        CreateVisitedInstanceTable1710000000000
       ]
     })
 

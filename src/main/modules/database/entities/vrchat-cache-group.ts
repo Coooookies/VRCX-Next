@@ -69,7 +69,6 @@ export class GroupEntity implements GroupSummary {
   @Column({
     name: 'cache_updated_at',
     type: 'datetime',
-    nullable: true,
     ...datetimeTransformer,
     ...datetimeDefault
   })

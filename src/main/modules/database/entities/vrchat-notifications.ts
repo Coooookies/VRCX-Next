@@ -86,7 +86,6 @@ export class NotificationEntity {
   @Column({
     name: 'created_at',
     type: 'datetime',
-    nullable: true,
     ...datetimeTransformer,
     ...datetimeDefault
   })

@@ -3,8 +3,8 @@ import { MigrationInterface, QueryRunner } from 'typeorm'
 export class CreateImageSelectionTable1710000000000 implements MigrationInterface {
   name = 'CreateImageSelectionTable1710000000000'
 
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
+  public async up(runner: QueryRunner): Promise<void> {
+    await runner.query(`
       CREATE TABLE "selection_images" (
         "selection_id" varchar(63) PRIMARY KEY NOT NULL,
         "file_name" text NOT NULL,
@@ -16,7 +16,7 @@ export class CreateImageSelectionTable1710000000000 implements MigrationInterfac
     `)
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP TABLE "image_selection"`)
+  public async down(runner: QueryRunner): Promise<void> {
+    await runner.query(`DROP TABLE "image_selection"`)
   }
 }

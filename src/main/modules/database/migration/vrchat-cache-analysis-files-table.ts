@@ -3,8 +3,8 @@ import { MigrationInterface, QueryRunner } from 'typeorm'
 export class CreateAnalysisFilesTable1720000000000 implements MigrationInterface {
   name = 'CreateVRChatCacheAnalysisFilesTable1720000000000'
 
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
+  public async up(runner: QueryRunner): Promise<void> {
+    await runner.query(`
       CREATE TABLE "vrchat_cache_analysis_files" (
         "file_id" varchar(63) NOT NULL,
         "file_version" integer NOT NULL,
@@ -18,7 +18,7 @@ export class CreateAnalysisFilesTable1720000000000 implements MigrationInterface
     `)
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP TABLE "vrchat_cache_analysis_files"`)
+  public async down(runner: QueryRunner): Promise<void> {
+    await runner.query(`DROP TABLE "vrchat_cache_analysis_files"`)
   }
 }

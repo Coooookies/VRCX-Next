@@ -3,8 +3,8 @@ import { MigrationInterface, QueryRunner } from 'typeorm'
 export class CreateGroupsTable1710000000000 implements MigrationInterface {
   name = 'CreateVRChatCacheGroupsTable1710000000000'
 
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
+  public async up(runner: QueryRunner): Promise<void> {
+    await runner.query(`
       CREATE TABLE "vrchat_cache_groups" (
         "group_id" varchar(63) PRIMARY KEY NOT NULL,
         "group_name" text NOT NULL,
@@ -21,8 +21,8 @@ export class CreateGroupsTable1710000000000 implements MigrationInterface {
     `)
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
+  public async down(runner: QueryRunner): Promise<void> {
+    await runner.query(`
       DROP TABLE "vrchat_cache_groups"
     `)
   }

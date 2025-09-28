@@ -52,7 +52,6 @@ export class UserEntity implements UserSummary {
   @Column({
     name: 'cache_updated_at',
     type: 'datetime',
-    nullable: true,
     ...datetimeTransformer,
     ...datetimeDefault
   })

@@ -38,7 +38,6 @@ export class ImageSelectionEntity {
   @Column({
     name: 'recorded_at',
     type: 'datetime',
-    nullable: true,
     ...datetimeTransformer,
     ...datetimeDefault
   })
