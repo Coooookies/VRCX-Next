@@ -1,4 +1,5 @@
 import {
+  getProfileBackgroundUrl,
   getProfileIconUrl,
   isSupporter,
   toUserLanguageTags,
@@ -17,11 +18,15 @@ export function toBaseFriendInformation(
   friend: User | CurrentUser | LimitedUserFriend
 ): BaseFriendInformation {
   const platform = ('platform' in friend && <Platform>friend.platform) || Platform.Unknown
+
+  if (friend.id === 'usr_6cd0d886-363a-4ef1-adad-e2e58f0a1abe') {
+    console.log(JSON.stringify(friend, null, 2))
+  }
+
   const profileIconUrl = getProfileIconUrl(friend)
+  const profileBackgroundUrl = getProfileBackgroundUrl(friend)
   const profileIconFileInfo = parseFileUrl(profileIconUrl)
-  const profileBackgroundFileInfo = parseFileUrl(
-    friend.profilePicOverride || friend.currentAvatarImageUrl
-  )
+  const profileBackgroundFileInfo = parseFileUrl(profileBackgroundUrl)
 
   const avatarFileInfo = parseFileUrl(friend.currentAvatarImageUrl)
   const languages = toUserLanguageTags(friend.tags)
