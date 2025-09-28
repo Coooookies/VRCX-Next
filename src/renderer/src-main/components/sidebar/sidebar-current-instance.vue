@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ImageVRChatContext from '@renderer/shared/components/image-vrchat-context.vue'
-import HeadsetIcon from '@shared/assets/vector/navigator-icon-headset.svg?component'
+import VRChatIcon from '@shared/assets/vector/navigator-icon-vrchat.svg?component'
 
 import { cn } from '@renderer/shared/utils/style'
 import { computed } from 'vue'
@@ -75,7 +75,7 @@ const initializing = computed(() => instance.currentInstance.locationPlayersInit
           </div>
           <div v-else class="size-full flex items-center justify-center">
             <div class="size-6">
-              <HeadsetIcon
+              <VRChatIcon
                 :class="
                   cn(
                     'size-full transition-colors duration-200 ease-in-out',
