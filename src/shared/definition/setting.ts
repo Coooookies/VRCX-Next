@@ -24,8 +24,8 @@ export type ProxyType = 'socks' | 'http'
 export interface SettingDefinition {
   appearance: {
     language: LanguageAvailableCode
-    sidebar_left_expand: boolean
     sidebar_right_expand: boolean
+    // sidebar_left_expand: boolean
   }
   network: {
     proxy_state: ProxyState

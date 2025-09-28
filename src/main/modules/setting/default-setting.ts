@@ -20,8 +20,8 @@ function getLocale(): LanguageAvailableCode {
 export const DEFAULT_SETTING: FunctionProperties<SettingDefinition> = {
   appearance: {
     language: () => getLocale(),
-    sidebar_left_expand: () => false,
     sidebar_right_expand: () => true
+    // sidebar_left_expand: () => false
   },
   network: {
     proxy_state: () => 'disabled',
