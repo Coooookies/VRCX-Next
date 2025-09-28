@@ -5,6 +5,7 @@ export interface WorldSummary {
   worldId: string
   worldName: string
   authorUserId: string
+  authorUserName: string
   description: string
   imageFileId: string
   imageFileVersion: number
