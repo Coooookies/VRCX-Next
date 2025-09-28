@@ -79,6 +79,14 @@ export class VRChatInstances extends Module {
       this.logger.info(`Current-Instance Joined instance:`, location.location)
     })
 
+    this.instance.on('instance:joined-complete', (_, location, world) => {
+      this.logger.info(
+        `Current-Instance Joined instance complete:`,
+        location.location,
+        `${world?.worldName || 'Unknown'}(${world?.worldId || 'Unknown'})`
+      )
+    })
+
     this.instance.on('instance:left', () => {
       this.logger.info('Current-Instance Left instance')
     })

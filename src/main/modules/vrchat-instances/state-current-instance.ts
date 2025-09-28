@@ -3,7 +3,7 @@ import { debounce } from 'lodash'
 import { toUserInformationSummary } from '../vrchat-users/factory'
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { generateInstanceRecordId } from './utils'
-import { INSTANCE_USERS_INITIAL_BATCH_DELAY } from './constants'
+import { CURRENT_INSTANCE_LOG_EVENTS_LIMIT, INSTANCE_USERS_INITIAL_BATCH_DELAY } from './constants'
 import { LogEvents } from '../vrchat-log-watcher/types'
 import {
   InstanceEvents,
@@ -13,7 +13,6 @@ import {
 } from '@shared/definition/vrchat-instances'
 import type {
   InstanceEventMessage,
-  InstanceUserSummary,
   LocationInstance,
   LocationOwner
 } from '@shared/definition/vrchat-instances'
@@ -21,8 +20,13 @@ import type { VRChatLogWatcher } from '../vrchat-log-watcher'
 import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatWorlds } from '../vrchat-worlds'
 import type { VRChatGroups } from '../vrchat-groups'
-import type { WorldDetail } from '@shared/definition/vrchat-worlds'
-import type { InstanceData, InstanceUserPresentEvent } from './types'
+import type {
+  CurrentInstanceEmitEvent,
+  CurrentInstancePlayerActivityEvent,
+  CurrentInstanceState,
+  InstanceData,
+  InstanceUserPresentEvent
+} from './types'
 import type { InstanceFetcher } from './fetcher'
 import type { InstanceRepository } from './repository'
 import type { InstanceUser } from '@shared/definition/vrchat-instances'
@@ -34,35 +38,17 @@ import type {
   LogEventSummary
 } from '../vrchat-log-watcher/types'
 
-export class CurrentInstance extends Nanobus<{
-  'instance:left': (recordId: string) => void
-  'instance:joined': (recordId: string, location: LocationInstance) => void
-  'instance:world-summary-initialized': (recordId: string, detail: WorldDetail | null) => void
-  'instance:owner-summary-initialized': (recordId: string, detail: LocationOwner | null) => void
-  'instance:present-progress': (
-    recordId: string,
-    users: InstanceUserSummary[],
-    events: InstanceEventMessage[]
-  ) => void
-  'instance:present-loaded': (
-    recordId: string,
-    users: InstanceUserSummary[],
-    events: InstanceEventMessage[]
-  ) => void
-  'user:joined': (recordId: string, user: InstanceUserSummary) => void
-  'user:left': (recordId: string, userId: string) => void
-  'video:playback-load': (recordId: string, url: string) => void
-  'video:playback-error': (recordId: string, reason: string) => void
-  'moderation:vote-kick': (recordId: string, userName: string) => void
-}> {
-  private isListening = false
-  private isInitialBatchMode = false
-  private isPending = false
-  private isCurrentUserInInstance = false
+export class CurrentInstance extends Nanobus<CurrentInstanceEmitEvent> {
+  private readonly state: CurrentInstanceState = {
+    isListening: false,
+    isInitialBatchMode: false,
+    isPending: false,
+    isCurrentUserInInstance: false
+  }
 
   private initialEvents: LogEventSummary[] = []
   private pendingCacheEvents: LogEventSummary[] = []
-  private resetInitialBatchTimer = debounce(() => {
+  private readonly resetInitialBatchTimer = debounce(() => {
     this.processInitialBatchEvents()
   }, INSTANCE_USERS_INITIAL_BATCH_DELAY)
 
@@ -79,11 +65,11 @@ export class CurrentInstance extends Nanobus<{
 
   public bindEvents() {
     this.logWatcher.on('message', (data, context) => {
-      if (!this.isListening) {
+      if (!this.state.isListening) {
         return
       }
 
-      if (this.isPending) {
+      if (this.state.isPending) {
         this.pendingCacheEvents.push({ data, context })
         return
       }
@@ -93,7 +79,7 @@ export class CurrentInstance extends Nanobus<{
   }
 
   public async start(ignoreHistoryLog?: boolean) {
-    if (this.isListening && this.isPending) {
+    if (this.state.isListening && this.state.isPending) {
       return
     }
 
@@ -101,24 +87,24 @@ export class CurrentInstance extends Nanobus<{
   }
 
   public async stop() {
-    this.isListening = false
+    this.state.isListening = false
     this.clearState()
     this.repository.clearCurrentInstance()
     await this.resetInitialBatchTimer.cancel()
   }
 
   private async listen(ignoreHistoryLog?: boolean) {
-    this.isListening = true
+    this.state.isListening = true
 
     if (!ignoreHistoryLog) {
-      this.isPending = true
+      this.state.isPending = true
 
       const latestInstance = await this.getLatestInstance()
       if (latestInstance && !latestInstance.isLeft) {
         await this.initializeInstance(latestInstance)
       }
 
-      this.isPending = false
+      this.state.isPending = false
     }
 
     return this.processCacheEvents()
@@ -130,23 +116,26 @@ export class CurrentInstance extends Nanobus<{
   }
 
   private async resolveLatestInstanceEvents() {
-    return this.logWatcher.resolveBackwardEvents(1500, (data, _, signal) => {
-      switch (data.type) {
-        case LogEvents.SelfLeave:
-        case LogEvents.PlayerJoined:
-        case LogEvents.PlayerLeft:
-        case LogEvents.VideoPlaybackLoad:
-        case LogEvents.VideoPlaybackError: {
-          return true
+    return this.logWatcher.resolveBackwardEvents(
+      CURRENT_INSTANCE_LOG_EVENTS_LIMIT,
+      (data, _, signal) => {
+        switch (data.type) {
+          case LogEvents.SelfLeave:
+          case LogEvents.PlayerJoined:
+          case LogEvents.PlayerLeft:
+          case LogEvents.VideoPlaybackLoad:
+          case LogEvents.VideoPlaybackError: {
+            return true
+          }
+          case LogEvents.SelfJoin: {
+            signal.stop(true)
+            break
+          }
         }
-        case LogEvents.SelfJoin: {
-          signal.stop(true)
-          break
-        }
-      }
 
-      return false
-    })
+        return false
+      }
+    )
   }
 
   private parseInstanceFromEvents(events: LogEventSummary[]): InstanceData | null {
@@ -190,69 +179,27 @@ export class CurrentInstance extends Nanobus<{
     for (const event of events) {
       switch (event.data.type) {
         case LogEvents.PlayerJoined: {
-          if (event.data.content.userId) {
-            if (
-              this.users.currentUser &&
-              this.users.currentUser.userId === event.data.content.userId
-            ) {
-              isCurrentUserInInstance = true
-            }
-
-            users.set(event.data.content.userId, {
-              userId: event.data.content.userId,
-              userName: event.data.content.userName,
-              joinedAt: event.context.date
-            })
-
-            userEvents.push({
-              userId: event.data.content.userId,
-              userName: event.data.content.userName,
-              type: isCurrentUserInInstance ? InstanceEvents.UserJoin : InstanceEvents.UserPresent,
-              recordedAt: event.context.date
-            })
+          const result = this.handlePlayerJoinedEvent(event, users, isCurrentUserInInstance)
+          if (result) {
+            isCurrentUserInInstance = result.isCurrentUserInInstance
+            userEvents.push(result.event)
           }
           break
         }
         case LogEvents.PlayerLeft: {
-          if (event.data.content.userId) {
-            users.delete(event.data.content.userId)
-            userEvents.push({
-              userId: event.data.content.userId,
-              userName: event.data.content.userName,
-              type: InstanceEvents.UserLeave,
-              recordedAt: event.context.date
-            })
+          const result = this.handlePlayerLeftEvent(event, users)
+          if (result) {
+            userEvents.push(result)
           }
           break
         }
-        case LogEvents.VideoPlaybackLoad: {
-          videoEvents.push({
-            type: InstanceEvents.VideoPlaybackLoad,
-            recordedAt: event.context.date,
-            content: {
-              url: event.data.content.url
-            }
-          })
-          break
-        }
-        case LogEvents.VideoPlaybackError: {
-          videoEvents.push({
-            type: InstanceEvents.VideoPlaybackError,
-            recordedAt: event.context.date,
-            content: {
-              reason: event.data.content.reason
-            }
-          })
-          break
-        }
+        case LogEvents.VideoPlaybackLoad:
+        case LogEvents.VideoPlaybackError:
         case LogEvents.VoteKick: {
-          videoEvents.push({
-            type: InstanceEvents.VoteKick,
-            recordedAt: event.context.date,
-            content: {
-              userName: event.data.content.userName
-            }
-          })
+          const commonEvent = this.parseCommonEvent(event)
+          if (commonEvent) {
+            videoEvents.push(commonEvent)
+          }
           break
         }
       }
@@ -266,6 +213,104 @@ export class CurrentInstance extends Nanobus<{
     }
   }
 
+  private handlePlayerJoinedEvent(
+    event: LogEventSummary,
+    users: Map<string, InstanceUser>,
+    currentUserInInstance: boolean
+  ) {
+    if (event.data.type !== LogEvents.PlayerJoined || !event.data.content?.userId) {
+      return null
+    }
+
+    const content = event.data.content as LogEventPlayerActivity
+    if (!content.userId) {
+      return null
+    }
+
+    const isCurrentUser = this.users.currentUser?.userId === content.userId
+
+    if (isCurrentUser) {
+      currentUserInInstance = true
+    }
+
+    users.set(content.userId, {
+      userId: content.userId,
+      userName: content.userName,
+      joinedAt: event.context.date
+    })
+
+    return {
+      isCurrentUserInInstance: currentUserInInstance,
+      event: {
+        userId: content.userId,
+        userName: content.userName,
+        type: isCurrentUser ? InstanceEvents.UserJoin : InstanceEvents.UserPresent,
+        recordedAt: event.context.date
+      } as InstanceUserPresentEvent
+    }
+  }
+
+  private handlePlayerLeftEvent(event: LogEventSummary, users: Map<string, InstanceUser>) {
+    if (event.data.type !== LogEvents.PlayerLeft || !event.data.content?.userId) {
+      return null
+    }
+
+    const content = event.data.content as LogEventPlayerActivity
+    if (!content.userId) {
+      return null
+    }
+
+    users.delete(content.userId)
+
+    return {
+      userId: content.userId,
+      userName: content.userName,
+      type: InstanceEvents.UserLeave,
+      recordedAt: event.context.date
+    } as InstanceUserPresentEvent
+  }
+
+  private parseCommonEvent(event: LogEventSummary): InstanceEventMessage | null {
+    if (!event.data.content) {
+      return null
+    }
+
+    switch (event.data.type) {
+      case LogEvents.VideoPlaybackLoad: {
+        const content = event.data.content as { url: string }
+        return {
+          type: InstanceEvents.VideoPlaybackLoad,
+          recordedAt: event.context.date,
+          content: {
+            url: content.url
+          }
+        }
+      }
+      case LogEvents.VideoPlaybackError: {
+        const content = event.data.content as { reason: string }
+        return {
+          type: InstanceEvents.VideoPlaybackError,
+          recordedAt: event.context.date,
+          content: {
+            reason: content.reason
+          }
+        }
+      }
+      case LogEvents.VoteKick: {
+        const content = event.data.content as { userName: string }
+        return {
+          type: InstanceEvents.VoteKick,
+          recordedAt: event.context.date,
+          content: {
+            userName: content.userName
+          }
+        }
+      }
+      default:
+        return null
+    }
+  }
+
   private async initializeInstance(instance: InstanceData): Promise<void> {
     const { location, users, userEvents, videoEvents, joinedAt } = instance
     const recordId = generateInstanceRecordId(location.worldId, location.name, joinedAt)
@@ -275,12 +320,15 @@ export class CurrentInstance extends Nanobus<{
     this.repository.setCurrentInstanceLocation(location, joinedAt)
     this.repository.setCurrentInstanceJoined(true)
 
-    await this.processWorldSummary(location.worldId)
-    await this.processWorldOwner(location)
+    const world = await this.processWorldSummary(location.worldId)
+    const owner = await this.processWorldOwner(location)
+
+    this.emit('instance:joined-complete', this.recordId!, location, world, owner)
+
     await this.processInitialInstance(users, userEvents, videoEvents)
 
-    this.isInitialBatchMode = users.length === 0
-    this.isCurrentUserInInstance = instance.isCurrentUserInInstance
+    this.state.isInitialBatchMode = users.length === 0
+    this.state.isCurrentUserInInstance = instance.isCurrentUserInInstance
     this.repository.setCurrentInstanceLoading(false)
   }
 
@@ -291,6 +339,7 @@ export class CurrentInstance extends Nanobus<{
 
     this.repository.setCurrentInstanceWorldDetail(detail)
     this.emit('instance:world-summary-initialized', this.recordId!, detail)
+    return detail
   }
 
   private async processWorldOwner(location: LocationInstance) {
@@ -326,6 +375,7 @@ export class CurrentInstance extends Nanobus<{
 
     this.repository.setCurrentInstanceLocationOwner(owner)
     this.emit('instance:owner-summary-initialized', this.recordId!, owner)
+    return owner
   }
 
   private async processInitialInstance(
@@ -333,10 +383,8 @@ export class CurrentInstance extends Nanobus<{
     userEvents: InstanceUserPresentEvent[],
     videoEvents: InstanceEventMessage[]
   ) {
-    // preset null user to avoid flickering
     this.repository.upsertCurrentInstanceUser(users.map((u) => ({ ...u, user: null })))
 
-    // fetch users and activities
     const { usersSummaries, presentEvents: userPresentEvents } =
       await this.fetcher.fetchInstancePresent(users, userEvents, (users, activities) => {
         this.repository.upsertCurrentInstanceUser(users)
@@ -347,6 +395,7 @@ export class CurrentInstance extends Nanobus<{
     this.repository.upsertCurrentInstanceUser(usersSummaries)
     this.repository.appendCurrentInstanceEvent(totalEvents)
     this.emit('instance:present-loaded', this.recordId!, usersSummaries, totalEvents)
+    return { users: usersSummaries, events: totalEvents }
   }
 
   private async processCacheEvents() {
@@ -358,8 +407,8 @@ export class CurrentInstance extends Nanobus<{
   }
 
   private async processInitialBatchEvents() {
-    this.isInitialBatchMode = false
-    this.isPending = true
+    this.state.isInitialBatchMode = false
+    this.state.isPending = true
 
     const { users, userEvents, videoEvents, isCurrentUserInInstance } = this.parseInstanceEvents(
       this.initialEvents
@@ -367,9 +416,9 @@ export class CurrentInstance extends Nanobus<{
 
     await this.processInitialInstance(users, userEvents, videoEvents)
 
-    this.isPending = false
+    this.state.isPending = false
     this.initialEvents = []
-    this.isCurrentUserInInstance = isCurrentUserInInstance
+    this.state.isCurrentUserInInstance = isCurrentUserInInstance
 
     this.processCacheEvents()
     this.repository.setCurrentInstanceLoading(false)
@@ -416,9 +465,9 @@ export class CurrentInstance extends Nanobus<{
 
     const recordId = generateInstanceRecordId(location.worldId, location.name, context.date)
 
-    this.isInitialBatchMode = true
-    this.isCurrentUserInInstance = false
-    this.isPending = false
+    this.state.isInitialBatchMode = true
+    this.state.isCurrentUserInInstance = false
+    this.state.isPending = false
 
     this.repository.clearCurrentInstance()
     this.repository.setCurrentInstanceRecordId(recordId)
@@ -427,8 +476,10 @@ export class CurrentInstance extends Nanobus<{
     this.repository.setCurrentInstanceJoined(true)
     this.emit('instance:joined', this.recordId!, location)
 
-    await this.processWorldSummary(location.worldId)
-    await this.processWorldOwner(location)
+    const world = await this.processWorldSummary(location.worldId)
+    const owner = await this.processWorldOwner(location)
+
+    this.emit('instance:joined-complete', this.recordId!, location, world, owner)
   }
 
   private async handleSelfLeave() {
@@ -442,12 +493,12 @@ export class CurrentInstance extends Nanobus<{
       return
     }
 
-    const user = {
+    const user: CurrentInstancePlayerActivityEvent = {
       userId: data.userId,
       userName: data.userName
     }
 
-    if (this.isInitialBatchMode) {
+    if (this.state.isInitialBatchMode) {
       await this.handlePlayerJoinedInBatchMode(user, context)
     } else {
       await this.handlePlayerJoinedNormal(user, context)
@@ -455,7 +506,7 @@ export class CurrentInstance extends Nanobus<{
   }
 
   private async handlePlayerJoinedInBatchMode(
-    user: Pick<InstanceUser, 'userId' | 'userName'>,
+    user: CurrentInstancePlayerActivityEvent,
     context: LogEventContext
   ): Promise<void> {
     this.resetInitialBatchTimer()
@@ -466,10 +517,9 @@ export class CurrentInstance extends Nanobus<{
   }
 
   private async handlePlayerJoinedNormal(
-    user: Pick<InstanceUser, 'userId' | 'userName'>,
+    user: CurrentInstancePlayerActivityEvent,
     context: LogEventContext
   ): Promise<void> {
-    // preset null user to avoid flickering
     this.repository.upsertCurrentInstanceUser({
       ...user,
       joinedAt: context.date,
@@ -480,7 +530,7 @@ export class CurrentInstance extends Nanobus<{
     const userSummary = userInformation ? toUserInformationSummary(userInformation) : null
 
     if (this.isUser(user.userId)) {
-      this.isCurrentUserInInstance = true
+      this.state.isCurrentUserInInstance = true
     }
 
     const roomUserSummary = {
@@ -490,7 +540,9 @@ export class CurrentInstance extends Nanobus<{
     }
 
     const presentEvent: InstanceEventMessage = {
-      type: this.isCurrentUserInInstance ? InstanceEvents.UserJoin : InstanceEvents.UserPresent,
+      type: this.state.isCurrentUserInInstance
+        ? InstanceEvents.UserJoin
+        : InstanceEvents.UserPresent,
       recordedAt: context.date,
       content: {
         userId: user.userId,
@@ -509,12 +561,12 @@ export class CurrentInstance extends Nanobus<{
       return
     }
 
-    const user = {
+    const user: CurrentInstancePlayerActivityEvent = {
       userId: data.userId,
       userName: data.userName
     }
 
-    if (this.isInitialBatchMode) {
+    if (this.state.isInitialBatchMode) {
       await this.handlePlayerLeftInBatchMode(user, context)
     } else {
       await this.handlePlayerLeftNormal(user, context)
@@ -522,7 +574,7 @@ export class CurrentInstance extends Nanobus<{
   }
 
   private async handlePlayerLeftInBatchMode(
-    user: Pick<InstanceUser, 'userId' | 'userName'>,
+    user: CurrentInstancePlayerActivityEvent,
     context: LogEventContext
   ): Promise<void> {
     this.initialEvents.push({
@@ -532,7 +584,7 @@ export class CurrentInstance extends Nanobus<{
   }
 
   private async handlePlayerLeftNormal(
-    user: Pick<InstanceUser, 'userId' | 'userName'>,
+    user: CurrentInstancePlayerActivityEvent,
     context: LogEventContext
   ): Promise<void> {
     const summary = await this.users.fetchUserSummary(user.userId)
@@ -555,11 +607,8 @@ export class CurrentInstance extends Nanobus<{
     const event: InstanceEventMessage = {
       type: InstanceEvents.VideoPlaybackLoad,
       recordedAt: context.date,
-      content: {
-        url
-      }
+      content: { url }
     }
-
     this.repository.appendCurrentInstanceEvent(event)
     this.emit('video:playback-load', this.recordId!, url)
   }
@@ -568,11 +617,8 @@ export class CurrentInstance extends Nanobus<{
     const event: InstanceEventMessage = {
       type: InstanceEvents.VideoPlaybackError,
       recordedAt: context.date,
-      content: {
-        reason
-      }
+      content: { reason }
     }
-
     this.repository.appendCurrentInstanceEvent(event)
     this.emit('video:playback-error', this.recordId!, reason)
   }
@@ -581,23 +627,24 @@ export class CurrentInstance extends Nanobus<{
     const event: InstanceEventMessage = {
       type: InstanceEvents.VoteKick,
       recordedAt: context.date,
-      content: {
-        userName
-      }
+      content: { userName }
     }
-
     this.repository.appendCurrentInstanceEvent(event)
     this.emit('moderation:vote-kick', this.recordId!, userName)
   }
 
   private clearState() {
-    this.isInitialBatchMode = false
-    this.isPending = false
-    this.isCurrentUserInInstance = false
+    this.state.isInitialBatchMode = false
+    this.state.isPending = false
+    this.state.isCurrentUserInInstance = false
   }
 
   private isUser(userId: string): boolean {
     return this.users.currentUser?.userId === userId
+  }
+
+  private get recordId(): string | null {
+    return this.repository.currentRecordId
   }
 
   public get isJoined(): boolean {
@@ -606,9 +653,5 @@ export class CurrentInstance extends Nanobus<{
 
   public get locationInstance(): LocationInstance | null {
     return this.repository.State.currentInstance.locationInstance
-  }
-
-  public get recordId(): string | null {
-    return this.repository.currentRecordId
   }
 }
