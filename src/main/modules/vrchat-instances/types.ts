@@ -1,7 +1,7 @@
 import type {
   InstanceEventMessage,
-  InstanceEvents,
   InstanceUser,
+  InstanceUserEvents,
   InstanceUserSummary,
   LocationInstance
 } from '@shared/definition/vrchat-instances'
@@ -26,9 +26,5 @@ export interface InstanceUserPresentEvent {
   userId: string
   userName: string
   recordedAt: Date
-  type:
-    | typeof InstanceEvents.UserJoin
-    | typeof InstanceEvents.UserLeave
-    | typeof InstanceEvents.UserPresent
-    | typeof InstanceEvents.UserRemain
+  type: InstanceUserEvents
 }

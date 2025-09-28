@@ -49,11 +49,11 @@ export class CurrentInstance extends Nanobus<{
     users: InstanceUserSummary[],
     events: InstanceEventMessage[]
   ) => void
-  'instance:event': (recordId: string, activity: InstanceEventMessage) => void
   'user:joined': (recordId: string, user: InstanceUserSummary) => void
   'user:left': (recordId: string, userId: string) => void
   'video:playback-load': (recordId: string, url: string) => void
   'video:playback-error': (recordId: string, reason: string) => void
+  'moderation:vote-kick': (recordId: string, userName: string) => void
 }> {
   private isListening = false
   private isInitialBatchMode = false
@@ -245,6 +245,16 @@ export class CurrentInstance extends Nanobus<{
           })
           break
         }
+        case LogEvents.VoteKick: {
+          videoEvents.push({
+            type: InstanceEvents.VoteKick,
+            recordedAt: event.context.date,
+            content: {
+              userName: event.data.content.userName
+            }
+          })
+          break
+        }
       }
     }
 
@@ -391,6 +401,10 @@ export class CurrentInstance extends Nanobus<{
         await this.handleVideoPlaybackError(data.content.reason, context)
         break
       }
+      case LogEvents.VoteKick: {
+        await this.handleVoteKick(data.content.userName, context)
+        break
+      }
     }
   }
 
@@ -488,7 +502,6 @@ export class CurrentInstance extends Nanobus<{
     this.repository.upsertCurrentInstanceUser(roomUserSummary)
     this.repository.appendCurrentInstanceEvent(presentEvent)
     this.emit('user:joined', this.recordId!, roomUserSummary)
-    this.emit('instance:event', this.recordId!, presentEvent)
   }
 
   private async handlePlayerLeft(data: LogEventPlayerActivity, context: LogEventContext) {
@@ -536,7 +549,6 @@ export class CurrentInstance extends Nanobus<{
     this.repository.removeCurrentInstanceUser(user.userId)
     this.repository.appendCurrentInstanceEvent(presentEvent)
     this.emit('user:left', this.recordId!, user.userId)
-    this.emit('instance:event', this.recordId!, presentEvent)
   }
 
   private async handleVideoPlaybackLoad(url: string, context: LogEventContext) {
@@ -549,7 +561,6 @@ export class CurrentInstance extends Nanobus<{
     }
 
     this.repository.appendCurrentInstanceEvent(event)
-    this.emit('instance:event', this.recordId!, event)
     this.emit('video:playback-load', this.recordId!, url)
   }
 
@@ -563,8 +574,20 @@ export class CurrentInstance extends Nanobus<{
     }
 
     this.repository.appendCurrentInstanceEvent(event)
-    this.emit('instance:event', this.recordId!, event)
     this.emit('video:playback-error', this.recordId!, reason)
+  }
+
+  private async handleVoteKick(userName: string, context: LogEventContext) {
+    const event: InstanceEventMessage = {
+      type: InstanceEvents.VoteKick,
+      recordedAt: context.date,
+      content: {
+        userName
+      }
+    }
+
+    this.repository.appendCurrentInstanceEvent(event)
+    this.emit('moderation:vote-kick', this.recordId!, userName)
   }
 
   private clearState() {

@@ -14,3 +14,5 @@ export const GAMELOG_PREPARATION_REGEXP =
 export const GAMELOG_VIDEO_PLAYBACK_LOAD_REGEXP = /Attempting to resolve URL '(?<url>[^']+)'/
 
 export const GAMELOG_VIDEO_PLAYBACK_ERROR_REGEXP = /ERROR: (?<reason>.+)$/
+
+export const GAMELOG_VOTE_KICK_REGEXP = /against\s(?<username>.+?), do you agree\?/
