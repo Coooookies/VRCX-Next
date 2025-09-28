@@ -12,8 +12,19 @@ import type { VRChatGroups } from '../vrchat-groups'
 import type { VRChatWorlds } from '../vrchat-worlds'
 import type { MobxState } from '../mobx-state'
 import type { Database } from '../database'
+import type { UserUpdateDiff } from './types'
+import type { CurrentUserInformation, UserLocation } from '@shared/definition/vrchat-users'
 
-export class VRChatUsers extends Module<{}> {
+export class VRChatUsers extends Module<{
+  'user:update': (diff: UserUpdateDiff, updatedKeys: (keyof CurrentUserInformation)[]) => void
+  'user:location': (location: UserLocation) => void
+  'friends:state-update': (state: {
+    all: string[]
+    online: string[]
+    offline: string[]
+    active: string[]
+  }) => void
+}> {
   @Dependency('VRChatAPI') declare private api: VRChatAPI
   @Dependency('VRChatAuthentication') declare private auth: VRChatAuthentication
   @Dependency('VRChatWorkflowCoordinator') declare private workflow: VRChatWorkflowCoordinator
@@ -38,6 +49,7 @@ export class VRChatUsers extends Module<{}> {
       this.groups
     )
     this.eventBinding = new UsersEventBinding(
+      this,
       this.logger,
       this.repository,
       this.pipeline,
@@ -50,8 +62,21 @@ export class VRChatUsers extends Module<{}> {
   private bindEvents(): void {
     this.workflow.registerPostLoginTask('user-notes-resolver', 40, async () => {
       if (this.auth.currentState.type === 'authenticated') {
+        const {
+          friends: allFriends,
+          onlineFriends,
+          offlineFriends,
+          activeFriends
+        } = this.auth.currentState.userInfo
+
         this.repository.setUserState(toCurrentUserInformation(this.auth.currentState.userInfo))
-        this.repository.setFriendUserIds(this.auth.currentState.userInfo.friends)
+        this.emit('friends:state-update', {
+          all: allFriends,
+          online: onlineFriends || [],
+          offline: offlineFriends || [],
+          active: activeFriends || []
+        })
+
         await this.fetcher.fetchNotes()
       }
     })
@@ -59,8 +84,24 @@ export class VRChatUsers extends Module<{}> {
     this.workflow.registerPostLogoutTask('user-notes-clear', 40, () => {
       this.repository.setUserState(null)
       this.repository.setLocationState(null)
-      this.repository.setFriendUserIds([])
       this.repository.clearNotes()
+    })
+
+    this.on('user:location', ({ location, isTraveling }) => {
+      this.logger.info(
+        'friend-location',
+        location ? `${location.worldName}(${location.worldId})` : 'Private',
+        isTraveling ? 'Traveling' : 'Not-Traveling'
+      )
+    })
+
+    this.on('user:update', (diff, keys) => {
+      this.logger.info(
+        'user-update',
+        `before: ${JSON.stringify(diff.before, null, 2)}`,
+        `after: ${JSON.stringify(diff.after, null, 2)}`,
+        `keys: ${keys.join(',')}`
+      )
     })
   }
 
@@ -74,10 +115,6 @@ export class VRChatUsers extends Module<{}> {
 
   public saveUserEntities(...args: Parameters<UsersRepository['saveUserEntities']>) {
     return this.repository.saveUserEntities(...args)
-  }
-
-  public getFriendUserIndex(...args: Parameters<UsersRepository['getFriendUserIndex']>) {
-    return this.repository.getFriendUserIndex(...args)
   }
 
   public fetchUsers(...args: Parameters<UsersFetcher['fetchUsers']>) {

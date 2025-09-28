@@ -1,7 +1,7 @@
 import { isGroupInstance } from './utils'
 import { parseInstance } from './location-parser'
 import { parseFileUrl } from '../vrchat-files/factory'
-import type { WorldEntity } from '../database/entities/world'
+import type { WorldEntity } from '../database/entities/vrchat-cache-world'
 import type { FavoritedWorld, Platform, World } from '@shared/definition/vrchat-api-response'
 import type { FileUrlParsedResult } from '@shared/definition/vrchat-files'
 import type { LocationInstanceGroup } from '@shared/definition/vrchat-instances'

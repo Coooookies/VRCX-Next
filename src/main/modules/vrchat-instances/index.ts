@@ -75,7 +75,7 @@ export class VRChatInstances extends Module {
       }
     })
 
-    this.instance.on('instance:joined', (location) => {
+    this.instance.on('instance:joined', (_, location) => {
       this.logger.info(`Current-Instance Joined instance:`, location.location)
     })
 
@@ -83,21 +83,21 @@ export class VRChatInstances extends Module {
       this.logger.info('Current-Instance Left instance')
     })
 
-    this.instance.on('instance:world-summary-initialized', (summary) => {
+    this.instance.on('instance:world-summary-initialized', (_, summary) => {
       this.logger.info(
         `Current-Instance World summary initialized:`,
         `${summary?.worldName || 'Unknown'}(${this.repository.State.currentInstance.locationInstance?.location})`
       )
     })
 
-    this.instance.on('instance:present-loaded', (users) => {
+    this.instance.on('instance:present-loaded', (_, users) => {
       this.logger.info(
         'Current-Instance Users in instance:',
         users.map((user) => `${user.userName}(${user.userId})`).join(',')
       )
     })
 
-    this.instance.on('user:joined', (user) => {
+    this.instance.on('user:joined', (_, user) => {
       this.logger.info('Current-Instance User joined:', `${user.userName}(${user.userId})`)
     })
 
@@ -105,7 +105,7 @@ export class VRChatInstances extends Module {
       this.logger.info('Current-Instance User left:', userId)
     })
 
-    this.instance.on('instance:event', (event) => {
+    this.instance.on('instance:event', (_, event) => {
       this.logger.info(
         'Current-Instance Event:',
         `${event.type} - ${JSON.stringify(event.content)}`

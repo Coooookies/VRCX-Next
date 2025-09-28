@@ -1,20 +1,15 @@
 import { Entity, Column, PrimaryColumn } from 'typeorm'
-import { datetimeDefault, datetimeTransformer } from '../transform'
+import { datetimeDefault, datetimeTransformer, propertyTransformer } from '../transform'
+import { UserSummary, UserLanguage, UserTrustRank } from '@shared/definition/vrchat-users'
 
-@Entity('credentials')
-export class CredentialEntity {
+@Entity('vrchat_cache_users')
+export class UserEntity implements UserSummary {
   @PrimaryColumn({
     name: 'user_id',
     type: 'varchar',
     length: 63
   })
   declare userId: string
-
-  @Column({
-    name: 'user_name',
-    type: 'text'
-  })
-  declare userName: string
 
   @Column({
     name: 'display_name',
@@ -35,24 +30,31 @@ export class CredentialEntity {
   declare profileIconFileVersion: number
 
   @Column({
-    name: 'token',
+    name: 'trust_rank',
     type: 'varchar',
-    length: 127
+    length: 31
   })
-  declare token: string
+  declare trustRank: UserTrustRank
 
   @Column({
-    name: 'two_factor_token',
-    type: 'text'
+    name: 'languages',
+    type: 'text',
+    ...propertyTransformer
   })
-  declare twoFactorToken: string
+  declare languages: UserLanguage[]
 
   @Column({
-    name: 'updated_at',
+    name: 'is_supporter',
+    type: 'boolean'
+  })
+  declare isSupporter: boolean
+
+  @Column({
+    name: 'cache_updated_at',
     type: 'datetime',
     nullable: true,
     ...datetimeTransformer,
     ...datetimeDefault
   })
-  declare updatedAt?: Date
+  declare cacheUpdatedAt?: Date
 }

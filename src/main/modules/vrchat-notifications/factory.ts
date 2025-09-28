@@ -3,7 +3,7 @@ import {
   NotificationSenderType
 } from '@shared/definition/vrchat-notifications'
 import { NotificationType, NotificationV2Type } from '@shared/definition/vrchat-api-response'
-import type { NotificationEntity } from '../database/entities/notifications'
+import type { NotificationEntity } from '../database/entities/vrchat-notifications'
 import type { NotificationBaseInformation } from '@shared/definition/vrchat-notifications'
 import type {
   Notification,

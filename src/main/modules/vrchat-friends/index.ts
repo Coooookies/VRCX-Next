@@ -13,8 +13,22 @@ import type { VRChatWorlds } from '../vrchat-worlds'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { VRChatAuthentication } from '../vrchat-authentication'
 import type { VRChatWorkflowCoordinator } from '../vrchat-workflow-coordinator'
+import type { BaseFriendInformation, FriendInformation } from '@shared/definition/vrchat-friends'
+import type { FriendUpdateDiff } from './types'
 
-export class VRChatFriends extends Module<{}> {
+export class VRChatFriends extends Module<{
+  'friend:delete': (user: FriendInformation) => void
+  'friend:add': (user: FriendInformation) => void
+  'friend:online': (user: FriendInformation) => void
+  'friend:offline': (user: FriendInformation) => void
+  'friend:location': (user: FriendInformation) => void
+  'friend:active': (user: FriendInformation) => void
+  'friend:update': (
+    user: FriendInformation,
+    diff: FriendUpdateDiff,
+    updatedKeys: (keyof BaseFriendInformation)[]
+  ) => void
+}> {
   @Dependency('IPCModule') declare private ipc: IPCModule
   @Dependency('MobxState') declare private mobx: MobxState
   @Dependency('VRChatAPI') declare private api: VRChatAPI
@@ -32,7 +46,6 @@ export class VRChatFriends extends Module<{}> {
   private fetcher!: FriendsFetcher
 
   protected onInit(): void {
-    this.bindEvents()
     this.repository = new FriendsRepository(this.moduleId, this.mobx)
     this.ipcBinding = new FriendsIPCBinding(this.ipc, this.repository)
     this.fetcher = new FriendsFetcher(
@@ -44,6 +57,7 @@ export class VRChatFriends extends Module<{}> {
       this.users
     )
     this.eventBinding = new FriendsEventBinding(
+      this,
       this.logger,
       this.pipeline,
       this.repository,
@@ -54,6 +68,7 @@ export class VRChatFriends extends Module<{}> {
     this.ipcBinding.bindEvents()
     this.ipcBinding.bindInvokes()
     this.eventBinding.bindEvents()
+    this.bindEvents()
   }
 
   private bindEvents(): void {
@@ -70,6 +85,56 @@ export class VRChatFriends extends Module<{}> {
       if (type === 'post-login') {
         this.repository.setLoadingState(true)
       }
+    })
+
+    this.on('friend:active', (friend) => {
+      this.logger.info(
+        'friend-active',
+        friend.userId,
+        friend.displayName,
+        friend.status,
+        friend.platform
+      )
+    })
+
+    this.on('friend:offline', (friend) => {
+      this.logger.info('friend-offline', `${friend.displayName}(${friend.userId})`, friend.platform)
+    })
+
+    this.on('friend:online', (friend) => {
+      this.logger.info(
+        'friend-online',
+        `${friend.displayName}(${friend.userId})`,
+        friend.location ? `${friend.location.worldName}(${friend.location.worldId})` : 'Private',
+        friend.platform
+      )
+    })
+
+    this.on('friend:location', (friend) => {
+      this.logger.info(
+        'friend-location',
+        `${friend.displayName}(${friend.userId})`,
+        friend.location ? `${friend.location.worldName}(${friend.location.worldId})` : 'Private',
+        friend.isTraveling ? 'Traveling' : 'Not-Traveling'
+      )
+    })
+
+    this.on('friend:add', (friend) => {
+      this.logger.info('friend-add', `${friend.displayName}(${friend.userId})`)
+    })
+
+    this.on('friend:delete', (friend) => {
+      this.logger.info('friend-delete', `${friend.displayName}(${friend.userId})`)
+    })
+
+    this.on('friend:update', (friend, diff, keys) => {
+      this.logger.info(
+        'friend-update',
+        `${friend.displayName}(${friend.userId})`,
+        `before: ${JSON.stringify(diff.before, null, 2)}`,
+        `after: ${JSON.stringify(diff.after, null, 2)}`,
+        `keys: ${keys.join(',')}`
+      )
     })
   }
 

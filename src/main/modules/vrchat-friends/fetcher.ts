@@ -11,8 +11,8 @@ import type {
   LocationInstanceSummary
 } from '@shared/definition/vrchat-instances'
 import type { LimitedUserFriend, World } from '@shared/definition/vrchat-api-response'
-import type { WorldEntity } from '../database/entities/world'
-import type { GroupEntity } from '../database/entities/group'
+import type { WorldEntity } from '../database/entities/vrchat-cache-world'
+import type { GroupEntity } from '../database/entities/vrchat-cache-group'
 import type { LoggerFactory } from '@main/logger'
 import { parseFileUrl } from '../vrchat-files/factory'
 import { parseLocation } from '../vrchat-worlds/location-parser'
@@ -106,7 +106,7 @@ export class FriendsFetcher {
     worlds: Map<string, WorldEntity>,
     groups: Map<string, GroupEntity>
   ): FriendInformation {
-    const order = this.users.getFriendUserIndex(friend.id)
+    const order = this.repository.getFriendUserIndex(friend.id)
     const location = parseLocation(friend.location)
     const locationArrivedAt = location ? new Date() : null
     const locationSummary = <LocationInstanceSummary>location

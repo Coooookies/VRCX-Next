@@ -1,6 +1,6 @@
 import Nanobus from 'nanobus'
 import { toNotificationEntity } from './factory'
-import { NotificationEntity } from '../database/entities/notifications'
+import { NotificationEntity } from '../database/entities/vrchat-notifications'
 import type { Repository } from 'typeorm'
 import type { Database } from '../database'
 import type { MobxState } from '../mobx-state'

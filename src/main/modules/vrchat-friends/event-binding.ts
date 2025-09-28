@@ -1,4 +1,3 @@
-import Nanobus from 'nanobus'
 import { diffObjects } from '@main/utils/object'
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { toBaseFriendInformation } from './factory'
@@ -7,11 +6,11 @@ import { FRIEND_UPDATE_COMPARE_KEYS } from './constants'
 import { Platform, UserStatus } from '@shared/definition/vrchat-api-response'
 import { PipelineEvents } from '@shared/definition/vrchat-pipeline'
 import type { LoggerFactory } from '@main/logger'
+import type { VRChatFriends } from '.'
 import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { FriendsRepository } from './repository'
 import type { FriendsFetcher } from './fetcher'
-import type { FriendUpdateDiff } from './types'
 import type { BaseFriendInformation, FriendInformation } from '@shared/definition/vrchat-friends'
 import type {
   PipelineEventFriendActive,
@@ -24,28 +23,15 @@ import type {
   PipelineEventMessage
 } from '@shared/definition/vrchat-pipeline'
 
-export class FriendsEventBinding extends Nanobus<{
-  'friend:delete': (user: FriendInformation) => void
-  'friend:add': (user: FriendInformation) => void
-  'friend:online': (user: FriendInformation) => void
-  'friend:offline': (user: FriendInformation) => void
-  'friend:location': (user: FriendInformation) => void
-  'friend:active': (user: FriendInformation) => void
-  'friend:update': (
-    user: FriendInformation,
-    diff: FriendUpdateDiff,
-    updatedKeys: (keyof BaseFriendInformation)[]
-  ) => void
-}> {
+export class FriendsEventBinding {
   constructor(
+    private readonly parent: VRChatFriends,
     private readonly logger: LoggerFactory,
     private readonly pipeline: VRChatPipeline,
     private readonly repository: FriendsRepository,
     private readonly fetcher: FriendsFetcher,
     private readonly users: VRChatUsers
-  ) {
-    super('VRChatFriends:EventBinding')
-  }
+  ) {}
 
   private shieldedPipelineEvent = true
 
@@ -58,54 +44,8 @@ export class FriendsEventBinding extends Nanobus<{
       this.handlePipeMessage(message)
     })
 
-    this.on('friend:active', (friend) => {
-      this.logger.info(
-        'friend-active',
-        friend.userId,
-        friend.displayName,
-        friend.status,
-        friend.platform
-      )
-    })
-
-    this.on('friend:offline', (friend) => {
-      this.logger.info('friend-offline', `${friend.displayName}(${friend.userId})`, friend.platform)
-    })
-
-    this.on('friend:online', (friend) => {
-      this.logger.info(
-        'friend-online',
-        `${friend.displayName}(${friend.userId})`,
-        friend.location ? `${friend.location.worldName}(${friend.location.worldId})` : 'Private',
-        friend.platform
-      )
-    })
-
-    this.on('friend:location', (friend) => {
-      this.logger.info(
-        'friend-location',
-        `${friend.displayName}(${friend.userId})`,
-        friend.location ? `${friend.location.worldName}(${friend.location.worldId})` : 'Private',
-        friend.isTraveling ? 'Traveling' : 'Not-Traveling'
-      )
-    })
-
-    this.on('friend:add', (friend) => {
-      this.logger.info('friend-add', `${friend.displayName}(${friend.userId})`)
-    })
-
-    this.on('friend:delete', (friend) => {
-      this.logger.info('friend-delete', `${friend.displayName}(${friend.userId})`)
-    })
-
-    this.on('friend:update', (friend, diff, keys) => {
-      this.logger.info(
-        'friend-update',
-        `${friend.displayName}(${friend.userId})`,
-        `before: ${JSON.stringify(diff.before, null, 2)}`,
-        `after: ${JSON.stringify(diff.after, null, 2)}`,
-        `keys: ${keys.join(',')}`
-      )
+    this.users.on('friends:state-update', async (state) => {
+      this.repository.setFriendUserIds(state.all)
     })
   }
 
@@ -168,7 +108,7 @@ export class FriendsEventBinding extends Nanobus<{
       ? await this.users.enrichLocationInstance(nextLocation)
       : null
 
-    const friend: FriendInformation = {
+    const information = {
       ...baseFriendInfo,
       order,
       isTraveling,
@@ -176,15 +116,15 @@ export class FriendsEventBinding extends Nanobus<{
       locationArrivedAt: nextLocationArrivedAt
     }
 
-    this.repository.set(friend)
-    this.emit('friend:add', friend)
+    this.repository.set(information)
+    this.parent.emit('friend:add', information)
   }
 
   private async handleFriendDelete({ userId }: PipelineEventFriendDelete): Promise<void> {
     const friend = this.repository.get(userId)
 
     if (friend) {
-      this.emit('friend:delete', friend)
+      this.parent.emit('friend:delete', friend)
       this.repository.delete(userId)
     }
   }
@@ -229,13 +169,13 @@ export class FriendsEventBinding extends Nanobus<{
     }
 
     this.repository.update(userId, () => newDiff)
-    this.emit('friend:online', {
+    this.parent.emit('friend:online', {
       ...friend,
       ...newDiff
     })
 
     if (friendUpdatedKeys.length > 0) {
-      this.emit(
+      this.parent.emit(
         'friend:update',
         {
           ...friend,
@@ -270,7 +210,7 @@ export class FriendsEventBinding extends Nanobus<{
     }
 
     this.repository.update(userId, () => diff)
-    this.emit('friend:offline', {
+    this.parent.emit('friend:offline', {
       ...friend,
       ...diff
     })
@@ -304,7 +244,7 @@ export class FriendsEventBinding extends Nanobus<{
     }
 
     this.repository.update(userId, () => diff)
-    this.emit('friend:location', {
+    this.parent.emit('friend:location', {
       ...friend,
       ...diff
     })
@@ -331,7 +271,7 @@ export class FriendsEventBinding extends Nanobus<{
     }
 
     this.repository.update(userId, () => diff)
-    this.emit('friend:active', {
+    this.parent.emit('friend:active', {
       ...friend,
       ...diff
     })
@@ -357,7 +297,7 @@ export class FriendsEventBinding extends Nanobus<{
     }
 
     this.repository.update(userId, () => friendDiff.after)
-    this.emit(
+    this.parent.emit(
       'friend:update',
       {
         ...friend,

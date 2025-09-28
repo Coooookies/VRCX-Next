@@ -1,4 +1,4 @@
-import { GroupEntity } from '../database/entities/group'
+import { GroupEntity } from '../database/entities/vrchat-cache-group'
 import { In } from 'typeorm'
 import type { Repository } from 'typeorm'
 import type { Database } from '../database'

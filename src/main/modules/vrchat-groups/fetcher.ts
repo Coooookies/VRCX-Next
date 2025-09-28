@@ -1,7 +1,7 @@
 import type { LoggerFactory } from '@main/logger'
 import { toGroupEntity } from './factory'
 import { limitedAllSettled } from '@shared/utils/async'
-import { GroupEntity } from '../database/entities/group'
+import { GroupEntity } from '../database/entities/vrchat-cache-group'
 import { GroupRepository } from './repository'
 import { VRChatAPI } from '../vrchat-api'
 import { GROUP_ENTITIES_QUERY_THREAD_SIZE, SAVED_GROUP_ENTITY_EXPIRE_DELAY } from './constants'

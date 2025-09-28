@@ -35,20 +35,25 @@ import type {
 } from '../vrchat-log-watcher/types'
 
 export class CurrentInstance extends Nanobus<{
-  'instance:left': () => void
-  'instance:joined': (location: LocationInstance) => void
-  'instance:world-summary-initialized': (detail: WorldDetail | null) => void
-  'instance:owner-summary-initialized': (detail: LocationOwner | null) => void
+  'instance:left': (recordId: string) => void
+  'instance:joined': (recordId: string, location: LocationInstance) => void
+  'instance:world-summary-initialized': (recordId: string, detail: WorldDetail | null) => void
+  'instance:owner-summary-initialized': (recordId: string, detail: LocationOwner | null) => void
   'instance:present-progress': (
+    recordId: string,
     users: InstanceUserSummary[],
     events: InstanceEventMessage[]
   ) => void
-  'instance:present-loaded': (users: InstanceUserSummary[], events: InstanceEventMessage[]) => void
-  'instance:event': (activity: InstanceEventMessage) => void
-  'user:joined': (user: InstanceUserSummary) => void
-  'user:left': (userId: string) => void
-  'video:playback-load': (url: string) => void
-  'video:playback-error': (reason: string) => void
+  'instance:present-loaded': (
+    recordId: string,
+    users: InstanceUserSummary[],
+    events: InstanceEventMessage[]
+  ) => void
+  'instance:event': (recordId: string, activity: InstanceEventMessage) => void
+  'user:joined': (recordId: string, user: InstanceUserSummary) => void
+  'user:left': (recordId: string, userId: string) => void
+  'video:playback-load': (recordId: string, url: string) => void
+  'video:playback-error': (recordId: string, reason: string) => void
 }> {
   private isListening = false
   private isInitialBatchMode = false
@@ -275,7 +280,7 @@ export class CurrentInstance extends Nanobus<{
     })
 
     this.repository.setCurrentInstanceWorldDetail(detail)
-    this.emit('instance:world-summary-initialized', detail)
+    this.emit('instance:world-summary-initialized', this.recordId!, detail)
   }
 
   private async processWorldOwner(location: LocationInstance) {
@@ -310,7 +315,7 @@ export class CurrentInstance extends Nanobus<{
     }
 
     this.repository.setCurrentInstanceLocationOwner(owner)
-    this.emit('instance:owner-summary-initialized', owner)
+    this.emit('instance:owner-summary-initialized', this.recordId!, owner)
   }
 
   private async processInitialInstance(
@@ -325,13 +330,13 @@ export class CurrentInstance extends Nanobus<{
     const { usersSummaries, presentEvents: userPresentEvents } =
       await this.fetcher.fetchInstancePresent(users, userEvents, (users, activities) => {
         this.repository.upsertCurrentInstanceUser(users)
-        this.emit('instance:present-progress', users, activities)
+        this.emit('instance:present-progress', this.recordId!, users, activities)
       })
 
     const totalEvents = [...userPresentEvents, ...videoEvents]
     this.repository.upsertCurrentInstanceUser(usersSummaries)
     this.repository.appendCurrentInstanceEvent(totalEvents)
-    this.emit('instance:present-loaded', usersSummaries, totalEvents)
+    this.emit('instance:present-loaded', this.recordId!, usersSummaries, totalEvents)
   }
 
   private async processCacheEvents() {
@@ -406,7 +411,7 @@ export class CurrentInstance extends Nanobus<{
     this.repository.setCurrentInstanceLoading(true)
     this.repository.setCurrentInstanceLocation(location, context.date)
     this.repository.setCurrentInstanceJoined(true)
-    this.emit('instance:joined', location)
+    this.emit('instance:joined', this.recordId!, location)
 
     await this.processWorldSummary(location.worldId)
     await this.processWorldOwner(location)
@@ -414,7 +419,7 @@ export class CurrentInstance extends Nanobus<{
 
   private async handleSelfLeave() {
     this.repository.setCurrentInstanceJoined(false)
-    this.emit('instance:left')
+    this.emit('instance:left', this.recordId!)
     await this.resetInitialBatchTimer.cancel()
   }
 
@@ -460,7 +465,7 @@ export class CurrentInstance extends Nanobus<{
     const userInformation = await this.users.fetchUser(user.userId)
     const userSummary = userInformation ? toUserInformationSummary(userInformation) : null
 
-    if (this.isCurrentUser(user.userId)) {
+    if (this.isUser(user.userId)) {
       this.isCurrentUserInInstance = true
     }
 
@@ -482,8 +487,8 @@ export class CurrentInstance extends Nanobus<{
 
     this.repository.upsertCurrentInstanceUser(roomUserSummary)
     this.repository.appendCurrentInstanceEvent(presentEvent)
-    this.emit('user:joined', roomUserSummary)
-    this.emit('instance:event', presentEvent)
+    this.emit('user:joined', this.recordId!, roomUserSummary)
+    this.emit('instance:event', this.recordId!, presentEvent)
   }
 
   private async handlePlayerLeft(data: LogEventPlayerActivity, context: LogEventContext) {
@@ -530,8 +535,8 @@ export class CurrentInstance extends Nanobus<{
 
     this.repository.removeCurrentInstanceUser(user.userId)
     this.repository.appendCurrentInstanceEvent(presentEvent)
-    this.emit('user:left', user.userId)
-    this.emit('instance:event', presentEvent)
+    this.emit('user:left', this.recordId!, user.userId)
+    this.emit('instance:event', this.recordId!, presentEvent)
   }
 
   private async handleVideoPlaybackLoad(url: string, context: LogEventContext) {
@@ -544,8 +549,8 @@ export class CurrentInstance extends Nanobus<{
     }
 
     this.repository.appendCurrentInstanceEvent(event)
-    this.emit('instance:event', event)
-    this.emit('video:playback-load', url)
+    this.emit('instance:event', this.recordId!, event)
+    this.emit('video:playback-load', this.recordId!, url)
   }
 
   private async handleVideoPlaybackError(reason: string, context: LogEventContext) {
@@ -558,8 +563,8 @@ export class CurrentInstance extends Nanobus<{
     }
 
     this.repository.appendCurrentInstanceEvent(event)
-    this.emit('instance:event', event)
-    this.emit('video:playback-error', reason)
+    this.emit('instance:event', this.recordId!, event)
+    this.emit('video:playback-error', this.recordId!, reason)
   }
 
   private clearState() {
@@ -568,7 +573,7 @@ export class CurrentInstance extends Nanobus<{
     this.isCurrentUserInInstance = false
   }
 
-  private isCurrentUser(userId: string): boolean {
+  private isUser(userId: string): boolean {
     return this.users.currentUser?.userId === userId
   }
 
@@ -581,6 +586,6 @@ export class CurrentInstance extends Nanobus<{
   }
 
   public get recordId(): string | null {
-    return this.repository.State.currentInstance.recordId
+    return this.repository.currentRecordId
   }
 }

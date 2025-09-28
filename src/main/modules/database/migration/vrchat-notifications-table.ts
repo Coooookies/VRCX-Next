@@ -1,11 +1,11 @@
 import { MigrationInterface, QueryRunner } from 'typeorm'
 
 export class CreateNotificationTable1710000000000 implements MigrationInterface {
-  name = 'CreateNotificationTable1710000000000'
+  name = 'CreateVRChatNotificationTable1710000000000'
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-      CREATE TABLE "notifications" (
+      CREATE TABLE "vrchat_notifications" (
         "notification_id" varchar(63) NOT NULL,
         "owner_user_id" varchar(63) NOT NULL,
         "type" varchar(63) NOT NULL,
@@ -23,12 +23,12 @@ export class CreateNotificationTable1710000000000 implements MigrationInterface 
     `)
 
     await queryRunner.query(`
-      CREATE INDEX "IDX_notifications_owner_user_id" ON "notifications" ("owner_user_id");
+      CREATE INDEX "IDX_vrchat_notifications_owner_user_id" ON "notifications" ("owner_user_id");
     `)
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX "IDX_notifications_owner_user_id"`)
-    await queryRunner.query(`DROP TABLE "notifications"`)
+    await queryRunner.query(`DROP INDEX "IDX_vrchat_notifications_owner_user_id"`)
+    await queryRunner.query(`DROP TABLE "vrchat_notifications"`)
   }
 }

@@ -1,6 +1,6 @@
 import { FileType } from './types'
 import type { FileAnalysis } from '@shared/definition/vrchat-api-response'
-import type { FileAnalysisEntity } from '../database/entities/analysis-files'
+import type { FileAnalysisEntity } from '../database/entities/vrchat-cache-analysis-files'
 
 export { parseFileUrl } from '@shared/utils/vrchat-url-parser'
 

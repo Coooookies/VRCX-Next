@@ -10,6 +10,7 @@ export class FriendsRepository extends Nanobus<{
   'friends:clear': () => void
 }> {
   private readonly friends = new Map<string, FriendInformation>()
+  private friendUserIds: string[] = []
   private $!: FriendSharedState
 
   constructor(
@@ -101,11 +102,27 @@ export class FriendsRepository extends Nanobus<{
     })
   }
 
+  public setFriendUserIds(userIds: string[]) {
+    this.friendUserIds = userIds
+  }
+
+  public appendFriendUserIds(userIds: string[]) {
+    this.friendUserIds = [...this.friendUserIds, ...userIds]
+  }
+
+  public getFriendUserIndex(userId: string) {
+    return this.friendUserIds.indexOf(userId)
+  }
+
   public get State(): FriendSharedState {
     return this.$
   }
 
   public get friendCount() {
     return this.friends.size
+  }
+
+  public get isLoading(): boolean {
+    return this.$.loading
   }
 }

@@ -3,7 +3,7 @@ import { datetimeDefault, datetimeTransformer } from '../transform'
 import type { ReleaseStatus } from '@shared/definition/vrchat-api-response'
 import type { WorldSummary } from '@shared/definition/vrchat-worlds'
 
-@Entity('worlds')
+@Entity('vrchat_cache_worlds')
 export class WorldEntity implements WorldSummary {
   @PrimaryColumn({
     name: 'world_id',

@@ -158,4 +158,8 @@ export class InstanceRepository extends Nanobus<{
   public get currentInstanceEvents(): InstanceEventMessage[] {
     return this._currentInstanceEvents
   }
+
+  public get currentRecordId(): string | null {
+    return this.$.currentInstance.recordId
+  }
 }

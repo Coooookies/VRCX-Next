@@ -1,4 +1,4 @@
-import { WorldEntity } from '../database/entities/world'
+import { WorldEntity } from '../database/entities/vrchat-cache-world'
 import { In } from 'typeorm'
 import type { Repository } from 'typeorm'
 import type { Database } from '../database'

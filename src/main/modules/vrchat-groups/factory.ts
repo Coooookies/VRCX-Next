@@ -1,6 +1,6 @@
 import { parseFileUrl } from '../vrchat-files/factory'
 import { Group } from '@shared/definition/vrchat-api-response'
-import type { GroupEntity } from '../database/entities/group'
+import type { GroupEntity } from '../database/entities/vrchat-cache-group'
 
 export function toGroupEntity(group: Group): GroupEntity {
   const iconFileInfo = parseFileUrl(group.iconUrl || '')

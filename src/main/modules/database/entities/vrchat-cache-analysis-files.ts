@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryColumn } from 'typeorm'
 import { datetimeDefault, datetimeTransformer, propertyTransformer } from '../transform'
 import { FileType } from '@main/modules/vrchat-files/types'
 
-@Entity('analysis_files')
+@Entity('vrchat_cache_analysis_files')
 export class FileAnalysisEntity {
   @PrimaryColumn({
     name: 'file_id',

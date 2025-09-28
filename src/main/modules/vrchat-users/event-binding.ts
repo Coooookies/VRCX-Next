@@ -1,4 +1,3 @@
-import Nanobus from 'nanobus'
 import { toJS } from 'mobx'
 import { isSameLocation } from '../vrchat-worlds/utils'
 import { toCurrentUserInformation, toUserEntity } from './factory'
@@ -6,6 +5,7 @@ import { parseLocation } from '../vrchat-worlds/location-parser'
 import { diffObjects } from '@main/utils/object'
 import { USER_UPDATE_COMPARE_KEYS } from './constants'
 import { PipelineEvents } from '@shared/definition/vrchat-pipeline'
+import type { VRChatUsers } from '.'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { LoggerFactory } from '@main/logger'
 import type { LocationInstanceSummary } from '@shared/definition/vrchat-instances'
@@ -17,44 +17,22 @@ import type {
   PipelineEventUserLocation,
   PipelineEventUserUpdate
 } from '@shared/definition/vrchat-pipeline'
-import type { CurrentUserInformation, UserLocation } from '@shared/definition/vrchat-users'
+import type { CurrentUserInformation } from '@shared/definition/vrchat-users'
 import type { UsersRepository } from './repository'
 import type { UsersFetcher } from './fetcher'
-import type { UserUpdateDiff } from './types'
 
-export class UsersEventBinding extends Nanobus<{
-  'user:update': (diff: UserUpdateDiff, updatedKeys: (keyof CurrentUserInformation)[]) => void
-  'user:location': (location: UserLocation) => void
-}> {
+export class UsersEventBinding {
   constructor(
+    private readonly parent: VRChatUsers,
     private readonly logger: LoggerFactory,
     private readonly repository: UsersRepository,
     private readonly pipeline: VRChatPipeline,
     private readonly fetcher: UsersFetcher
-  ) {
-    super('VRChatFriends:EventBinding')
-  }
+  ) {}
 
   public bindEvents() {
     this.pipeline.on('message', (message: PipelineEventMessage) => {
       this.handlePipeMessage(message)
-    })
-
-    this.on('user:location', ({ location, isTraveling }) => {
-      this.logger.info(
-        'friend-location',
-        location ? `${location.worldName}(${location.worldId})` : 'Private',
-        isTraveling ? 'Traveling' : 'Not-Traveling'
-      )
-    })
-
-    this.on('user:update', (diff, keys) => {
-      this.logger.info(
-        'user-update',
-        `before: ${JSON.stringify(diff.before, null, 2)}`,
-        `after: ${JSON.stringify(diff.after, null, 2)}`,
-        `keys: ${keys.join(',')}`
-      )
     })
   }
 
@@ -119,7 +97,7 @@ export class UsersEventBinding extends Nanobus<{
     }
 
     this.repository.setLocationState(newLocation)
-    this.emit('user:location', newLocation)
+    this.parent.emit('user:location', newLocation)
   }
 
   private async handleUserUpdate({ user }: PipelineEventUserUpdate): Promise<void> {
@@ -137,7 +115,7 @@ export class UsersEventBinding extends Nanobus<{
     )
 
     this.repository.setUserState(updatedUser)
-    this.emit(
+    this.parent.emit(
       'user:update',
       {
         before: { ...userDiff.before },

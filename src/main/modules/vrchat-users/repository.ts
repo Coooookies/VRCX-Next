@@ -1,6 +1,6 @@
 import Nanobus from 'nanobus'
 import { In } from 'typeorm'
-import { UserEntity } from '../database/entities/users'
+import { UserEntity } from '../database/entities/vrchat-cache-users'
 import type { UserNoteInformation } from './types'
 import type { Database } from '../database'
 import type { MobxState } from '../mobx-state'
@@ -14,7 +14,6 @@ export class UsersRepository extends Nanobus<{
   'notes:clear': () => void
 }> {
   private $!: UserSharedState
-  private _friendUserIds: string[] = []
 
   constructor(
     moduleId: string,
@@ -54,14 +53,6 @@ export class UsersRepository extends Nanobus<{
     }
 
     this.emit('notes:update', pendingNotes)
-  }
-
-  public setFriendUserIds(userIds: string[]) {
-    this._friendUserIds = userIds
-  }
-
-  public getFriendUserIndex(userId: string) {
-    return this._friendUserIds.indexOf(userId)
   }
 
   public deleteNote(userId: string) {

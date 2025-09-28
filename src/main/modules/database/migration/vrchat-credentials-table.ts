@@ -1,11 +1,11 @@
 import { MigrationInterface, QueryRunner } from 'typeorm'
 
 export class CreateCredentialsTable1710000000000 implements MigrationInterface {
-  name = 'CreateCredentialsTable1710000000000'
+  name = 'CreateVRChatCredentialsTable1710000000000'
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-      CREATE TABLE "credentials" (
+      CREATE TABLE "vrchat_credentials" (
         "user_id" varchar(63) NOT NULL,
         "user_name" text NOT NULL,
         "display_name" text NOT NULL,
@@ -19,12 +19,12 @@ export class CreateCredentialsTable1710000000000 implements MigrationInterface {
     `)
 
     await queryRunner.query(`
-      CREATE INDEX "idx_credentials_user_name" ON "credentials" ("user_name");
+      CREATE INDEX "idx_vrchat_credentials_user_name" ON "credentials" ("user_name");
     `)
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX "idx_credentials_user_name"`)
-    await queryRunner.query(`DROP TABLE "credentials"`)
+    await queryRunner.query(`DROP INDEX "idx_vrchat_credentials_user_name"`)
+    await queryRunner.query(`DROP TABLE "vrchat_credentials"`)
   }
 }

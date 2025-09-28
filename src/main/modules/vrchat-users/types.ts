@@ -1,5 +1,5 @@
 import type { CurrentUserInformation, UserInformation } from '@shared/definition/vrchat-users'
-import type { UserEntity } from '../database/entities/users'
+import type { UserEntity } from '../database/entities/vrchat-cache-users'
 
 export interface UserNoteInformation {
   createdAt: Date

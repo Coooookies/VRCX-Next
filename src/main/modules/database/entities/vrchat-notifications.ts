@@ -6,8 +6,8 @@ import type {
   NotificationVersion
 } from '@shared/definition/vrchat-notifications'
 
-@Entity('notifications')
-@Index('IDX_notifications_owner_user_id', ['ownerUserId'])
+@Entity('vrchat_notifications')
+@Index('IDX_vrchat_notifications_owner_user_id', ['ownerUserId'])
 export class NotificationEntity {
   @PrimaryColumn({
     name: 'notification_id',

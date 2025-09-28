@@ -1,6 +1,6 @@
 import { parseFileUrl } from '../vrchat-files/factory'
 import { UserTrustRank, UserLanguage } from '@shared/definition/vrchat-users'
-import { UserEntity } from '../database/entities/users'
+import { UserEntity } from '../database/entities/vrchat-cache-users'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
 import type { ReferenceAvatar, UserAvatar } from '@shared/definition/vrchat-avatars'
 import type {

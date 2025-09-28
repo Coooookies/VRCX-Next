@@ -5,8 +5,8 @@ import { NotificationSenderType } from '@shared/definition/vrchat-notifications'
 import type { LoggerFactory } from '@main/logger'
 import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatGroups } from '../vrchat-groups'
-import type { UserEntity } from '../database/entities/users'
-import type { GroupEntity } from '../database/entities/group'
+import type { UserEntity } from '../database/entities/vrchat-cache-users'
+import type { GroupEntity } from '../database/entities/vrchat-cache-group'
 import type {
   NotificationBaseInformation,
   NotificationInformation

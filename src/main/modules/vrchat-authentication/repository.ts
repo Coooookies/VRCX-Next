@@ -1,4 +1,4 @@
-import { CredentialEntity } from '../database/entities/credential'
+import { CredentialEntity } from '../database/entities/vrchat-credential'
 import type { Repository } from 'typeorm'
 import type { Database } from '../database'
 import type { MobxState } from '../mobx-state'

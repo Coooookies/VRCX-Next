@@ -1,11 +1,11 @@
 import { MigrationInterface, QueryRunner } from 'typeorm'
 
 export class CreateWorldsTable1710000000000 implements MigrationInterface {
-  name = 'CreateWorldsTable1710000000000'
+  name = 'CreateVRChatCacheWorldsTable1710000000000'
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-      CREATE TABLE "worlds" (
+      CREATE TABLE "vrchat_cache_worlds" (
         "world_id" varchar(63) PRIMARY KEY NOT NULL,
         "world_name" text NOT NULL,
         "author_user_id" varchar(63) NOT NULL,
@@ -22,7 +22,7 @@ export class CreateWorldsTable1710000000000 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-      DROP TABLE "worlds"
+      DROP TABLE "vrchat_cache_worlds"
     `)
   }
 }
