@@ -89,7 +89,7 @@ export class VRChatUsers extends Module<{
 
     this.on('user:location', ({ location, isTraveling }) => {
       this.logger.info(
-        'friend-location',
+        'user-location',
         location ? `${location.worldName}(${location.worldId})` : 'Private',
         isTraveling ? 'Traveling' : 'Not-Traveling'
       )
