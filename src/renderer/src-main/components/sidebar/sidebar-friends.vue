@@ -7,6 +7,7 @@ import { ref } from 'vue'
 import { useI18n } from '@renderer/shared/locale'
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import type { VirtualFriend } from '@renderer/src-main/composables/sidebar-friends'
+import type { FriendInformation } from '@shared/definition/vrchat-friends'
 
 const { t } = useI18n()
 
@@ -25,6 +26,10 @@ const emits = defineEmits<{
 const handleContextMenuOpenChage = (open: boolean) => {
   contextMenuOpenedCount.value += open ? 1 : -1
   emits('itemContextMenuOpenChange', contextMenuOpenedCount.value > 0)
+}
+
+const handleClick = (information: FriendInformation) => {
+  console.log(information)
 }
 </script>
 
@@ -63,6 +68,7 @@ const handleContextMenuOpenChage = (open: boolean) => {
               v-else
               :user="item.item"
               :show-elapsed-timer="item.mode === 'timer'"
+              @click="handleClick(item.item)"
               @context-menu-open-change="handleContextMenuOpenChage"
             />
           </DynamicScrollerItem>

@@ -28,6 +28,7 @@ const showBadge = computed(() => {
 
 const emits = defineEmits<{
   (e: 'contextMenuOpenChange', open: boolean): void
+  (e: 'click', event: MouseEvent): void
 }>()
 </script>
 
@@ -44,6 +45,7 @@ const emits = defineEmits<{
                 openMenu && 'bg-accent/50 dark:bg-accent/30'
               )
             "
+            @click="emits('click', $event)"
           >
             <SidebarProfileAvatar
               :file-id="props.user.profileIconFileId"
