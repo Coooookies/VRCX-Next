@@ -104,5 +104,17 @@ export class VRChatInstances extends Module {
     this.instance.on('user:left', (userId) => {
       this.logger.info('Current-Instance User left:', userId)
     })
+
+    this.instance.on('video:playback-load', (url) => {
+      this.logger.info('Current-Instance Video playback load:', url)
+    })
+
+    this.instance.on('video:playback-error', (message) => {
+      this.logger.warn('Current-Instance Video playback error:', message)
+    })
+
+    this.instance.on('moderation:vote-kick', (userName) => {
+      this.logger.info('Current-Instance Vote kick:', userName)
+    })
   }
 }
