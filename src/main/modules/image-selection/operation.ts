@@ -1,7 +1,7 @@
-import { randomUUID } from 'node:crypto'
 import { basename, extname } from 'node:path'
 import { dialog } from 'electron'
 import { insertIf } from '@shared/utils/array'
+import { generateImageSelectionId } from './utils'
 import { IMAGE_SELECT_FORMAT_FILTERS } from './constants'
 import type { MainWindow } from '../main-window'
 import type { LoggerFactory } from '@main/logger'
@@ -50,7 +50,7 @@ export class ImageSelectionOperation {
       const name = basename(selection.path, ext)
       const _ext = ext.toLowerCase().replace(/^\./, '')
       return {
-        selectionId: `imgsel_${randomUUID()}`,
+        selectionId: generateImageSelectionId(),
         fileName: name,
         fileExtension: _ext,
         path: selection.path,
