@@ -68,7 +68,7 @@ provide('current-instance:search-value', searchValue)
     <template #background>
       <div
         v-if="!isGameRunning"
-        class="group-has-[*]/right-expanded:pr-[var(--sidebar-padding-right)]"
+        class="group-has-[*]/right-expanded:pr-[var(--sidebar-padding-right)] group-has-[*]/right-expanded:pl-[var(--sidebar-padding-left)]"
       >
         <LightRaysBackground class="w-full h-screen" />
       </div>
