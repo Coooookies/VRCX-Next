@@ -11,6 +11,7 @@ export class VisitedInstanceEntity {
   })
   declare recordId: string
 
+  @Index('IDX_vrchat_visited_instances_world_id')
   @Column({
     name: 'world_id',
     type: 'varchar',
@@ -18,12 +19,14 @@ export class VisitedInstanceEntity {
   })
   declare worldId: string
 
+  @Index('IDX_vrchat_visited_instances_world_name')
   @Column({
     name: 'world_name',
     type: 'text'
   })
   declare worldName: string
 
+  @Index('IDX_vrchat_visited_instances_owner_id')
   @Column({
     name: 'owner_id',
     type: 'varchar',
@@ -32,6 +35,7 @@ export class VisitedInstanceEntity {
   })
   declare ownerId?: string
 
+  @Index('IDX_vrchat_visited_instances_owner_name')
   @Column({
     name: 'owner_name',
     type: 'text',
@@ -83,7 +87,6 @@ export class VisitedInstanceEntity {
 }
 
 @Entity('vrchat_visited_instance_common_events')
-@Index('IDX_vrchat_visited_instance_common_events_record_id', ['recordId'])
 export class VisitedInstanceCommonEventEntity {
   @PrimaryColumn({
     name: 'event_id',
@@ -92,6 +95,7 @@ export class VisitedInstanceCommonEventEntity {
   })
   declare eventId: string
 
+  @Index('IDX_vrchat_visited_instance_common_events_record_id')
   @Column({
     name: 'record_id',
     type: 'varchar',
@@ -105,6 +109,13 @@ export class VisitedInstanceCommonEventEntity {
     length: 15
   })
   declare eventType: InstanceEvents
+
+  @Index('IDX_vrchat_visited_instance_common_events_keyword')
+  @Column({
+    name: 'keyword',
+    type: 'text'
+  })
+  declare keyword: string
 
   @Column({
     name: 'raw',
@@ -130,8 +141,6 @@ export class VisitedInstanceCommonEventEntity {
 }
 
 @Entity('vrchat_visited_instance_user_events')
-@Index('IDX_vrchat_visited_instance_user_events_record_id', ['recordId'])
-@Index('IDX_vrchat_visited_instance_user_events_user_id', ['userId'])
 export class VisitedInstanceUserEventEntity {
   @PrimaryColumn({
     name: 'event_id',
@@ -140,6 +149,7 @@ export class VisitedInstanceUserEventEntity {
   })
   declare eventId: string
 
+  @Index('IDX_vrchat_visited_instance_user_events_record_id')
   @Column({
     name: 'record_id',
     type: 'varchar',
@@ -154,6 +164,7 @@ export class VisitedInstanceUserEventEntity {
   })
   declare eventType: InstanceEvents
 
+  @Index('IDX_vrchat_visited_instance_user_events_user_id')
   @Column({
     name: 'user_id',
     type: 'varchar',
@@ -161,6 +172,7 @@ export class VisitedInstanceUserEventEntity {
   })
   declare userId: string
 
+  @Index('IDX_vrchat_visited_instance_user_events_user_name')
   @Column({
     name: 'user_name',
     type: 'text'

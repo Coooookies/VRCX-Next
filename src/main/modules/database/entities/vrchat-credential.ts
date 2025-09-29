@@ -2,7 +2,6 @@ import { Entity, Column, PrimaryColumn, Index } from 'typeorm'
 import { datetimeDefault, datetimeTransformer } from '../transform'
 
 @Entity('vrchat_credentials')
-@Index('idx_vrchat_credentials_user_name', ['userName'])
 export class CredentialEntity {
   @PrimaryColumn({
     name: 'user_id',
@@ -11,6 +10,7 @@ export class CredentialEntity {
   })
   declare userId: string
 
+  @Index('idx_vrchat_credentials_user_name')
   @Column({
     name: 'user_name',
     type: 'text'
