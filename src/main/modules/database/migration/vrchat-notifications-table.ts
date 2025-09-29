@@ -12,12 +12,14 @@ export class CreateNotificationTable1710000000000 implements MigrationInterface 
         "title" text NOT NULL,
         "message" text NOT NULL,
         "is_read" boolean NOT NULL,
-        "thumbnail_image_url" text NULL,
-        "sender_id" varchar(63) NULL,
+        "thumbnail_image_url" text,
+        "sender_id" varchar(63),
         "sender_type" varchar(31) NOT NULL,
         "version" varchar(15) NOT NULL,
         "raw" text NOT NULL,
-        "created_at" datetime DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)),
+        "created_at" datetime NOT NULL DEFAULT (
+          strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)
+        ),
         PRIMARY KEY ("notification_id", "owner_user_id")
       );
     `)

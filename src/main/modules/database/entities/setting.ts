@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryColumn } from 'typeorm'
 import { propertyTransformer } from '../transform'
 import type { SettingNamespace, SettingProperty } from '@shared/definition/setting'
 
-@Entity('setting')
+@Entity('settings')
 export class SettingEntity {
   @PrimaryColumn({
     name: 'key',

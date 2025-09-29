@@ -50,7 +50,8 @@ export class NotificationEntity {
 
   @Column({
     name: 'thumbnail_image_url',
-    type: 'text'
+    type: 'text',
+    nullable: true
   })
   declare thumbnailImageUrl?: string
 

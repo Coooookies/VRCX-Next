@@ -10,9 +10,11 @@ export class CreateAnalysisFilesTable1720000000000 implements MigrationInterface
         "file_version" integer NOT NULL,
         "file_size" integer NOT NULL,
         "file_uncompressed_size" integer NOT NULL,
-        "type" varchar(15) NOT NULL,
+        "type" varchar(31) NOT NULL,
         "stats" text NOT NULL,
-        "cache_updated_at" datetime DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)),
+        "cache_updated_at" datetime NOT NULL DEFAULT (
+          strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)
+        ),
         PRIMARY KEY ("file_id", "file_version")
       );
     `)

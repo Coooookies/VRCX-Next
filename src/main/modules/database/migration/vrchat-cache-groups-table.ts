@@ -16,7 +16,9 @@ export class CreateGroupsTable1710000000000 implements MigrationInterface {
         "banner_file_version" integer NOT NULL,
         "owner_user_id" varchar(63) NOT NULL,
         "is_verified" boolean NOT NULL,
-        "cache_updated_at" datetime DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3))
+        "cache_updated_at" datetime NOT NULL DEFAULT (
+          strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)
+        )
       );
     `)
   }

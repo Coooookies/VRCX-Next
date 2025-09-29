@@ -13,7 +13,9 @@ export class CreateUsersTable1710000000000 implements MigrationInterface {
         "trust_rank" varchar(31) NOT NULL,
         "languages" text NOT NULL,
         "is_supporter" boolean NOT NULL,
-        "cache_updated_at" datetime DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3))
+        "cache_updated_at" datetime NOT NULL DEFAULT (
+          strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)
+        )
       );
     `)
   }

@@ -15,8 +15,12 @@ export class CreateWorldsTable1710000000000 implements MigrationInterface {
         "image_file_version" integer NOT NULL,
         "organization" text NOT NULL,
         "release_status" varchar(31) NOT NULL,
-        "updated_at" datetime DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)),
-        "cache_updated_at" datetime DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3))
+        "updated_at" datetime NOT NULL DEFAULT (
+          strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)
+        ),
+        "cache_updated_at" datetime NOT NULL DEFAULT (
+          strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)
+        )
       );
     `)
   }

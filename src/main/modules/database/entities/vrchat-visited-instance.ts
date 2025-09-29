@@ -22,7 +22,8 @@ export class VisitedInstanceEntity {
   @Index('IDX_vrchat_visited_instances_world_name')
   @Column({
     name: 'world_name',
-    type: 'text'
+    type: 'text',
+    nullable: true
   })
   declare worldName: string
 

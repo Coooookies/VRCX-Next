@@ -10,13 +10,15 @@ export class CreateImageSelectionTable1710000000000 implements MigrationInterfac
         "file_name" text NOT NULL,
         "file_extension" text NOT NULL,
         "path" text NOT NULL,
-        "macos_bookmark" text NULL,
-        "recorded_at" datetime DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3))
+        "macos_bookmark" text,
+        "recorded_at" datetime NOT NULL DEFAULT (
+          strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)
+        )
       );
     `)
   }
 
   public async down(runner: QueryRunner): Promise<void> {
-    await runner.query(`DROP TABLE "image_selection"`)
+    await runner.query(`DROP TABLE "selection_images"`)
   }
 }

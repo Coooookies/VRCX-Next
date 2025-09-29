@@ -6,15 +6,16 @@ export class CreateCredentialsTable1710000000000 implements MigrationInterface {
   public async up(runner: QueryRunner): Promise<void> {
     await runner.query(`
       CREATE TABLE "vrchat_credentials" (
-        "user_id" varchar(63) NOT NULL,
+        "user_id" varchar(63) PRIMARY KEY NOT NULL,
         "user_name" text NOT NULL,
         "display_name" text NOT NULL,
         "profile_icon_file_id" text NOT NULL,
         "profile_icon_file_version" integer NOT NULL,
         "token" varchar(127) NOT NULL,
         "two_factor_token" text NOT NULL,
-        "updated_at" datetime DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)),
-        PRIMARY KEY ("user_id")
+        "updated_at" datetime NOT NULL DEFAULT (
+          strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)
+        )
       );
     `)
 
