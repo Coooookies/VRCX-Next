@@ -30,7 +30,7 @@ import InstancePreviewRoomStatusVector from '@shared/assets/vector/instance-prev
             <span class="text-sm">1</span>
           </div>
         </div>
-        <p class="text-sm text-foreground text-center font-semibold">Launch your VRChat</p>
+        <p class="text-sm text-foreground text-center font-semibold">Launch VRChat</p>
       </div>
       <div class="space-y-3">
         <div class="flex flex-col items-center">
