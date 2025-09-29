@@ -90,16 +90,10 @@ export type LocationInstanceSummary =
   | LocationInstanceUserSummary
   | LocationInstanceGroupSummary
 
-export interface InstanceUser {
-  userName: string
-  userId: string
-  joinedAt: Date
-}
-
 export interface InstanceEventUser {
   userName: string
   userId: string
-  userSummary: UserSummary | null
+  user: UserSummary | null
 }
 
 export interface InstanceEventVoteKick {
@@ -144,12 +138,18 @@ export type InstanceEventDefinition = {
 export type InstanceEventMessage = {
   [K in InstanceEvents]: {
     type: K
+    eventId: string
     content: InstanceEventDefinition[K]
     recordedAt: Date
   }
 }[InstanceEvents]
 
-export interface InstanceUserSummary extends InstanceUser {
+export interface InstanceUser {
+  userName: string
+  userId: string
+  joinedAt: Date
+}
+export interface InstanceUserWithInformation extends InstanceUser {
   user: UserInformation | null
 }
 

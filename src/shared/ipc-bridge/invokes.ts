@@ -8,7 +8,10 @@ import type {
   AuthenticationState
 } from '@shared/definition/vrchat-authentication'
 import type { ImageSelectionInstance } from '@shared/definition/image-selection'
-import type { InstanceEventMessage, InstanceUserSummary } from '@shared/definition/vrchat-instances'
+import type {
+  InstanceEventMessage,
+  InstanceUserWithInformation
+} from '@shared/definition/vrchat-instances'
 
 export type IpcInvokeEvents = {
   // MobxState
@@ -51,8 +54,8 @@ export type IpcInvokeEvents = {
   ) => void
 
   // VRChatInstances
-  'vrchat-instances:get-current-instance-users': () => InstanceUserSummary[]
-  'vrchat-instances:get-current-instance-events': () => InstanceEventMessage[]
+  'vrchat-instances:instance-tracker:get-current-players': () => InstanceUserWithInformation[]
+  'vrchat-instances:instance-tracker:get-current-events': () => InstanceEventMessage[]
 
   // ImageSelection
   'image-selection:select-image': (

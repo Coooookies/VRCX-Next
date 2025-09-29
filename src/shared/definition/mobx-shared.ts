@@ -24,16 +24,17 @@ export interface FriendSharedState {
   loading: boolean
 }
 
-export interface InstanceSharedState {
-  currentInstance: {
-    recordId: string | null
-    joined: boolean
-    world: WorldDetail | null
-    locationInstance: LocationInstance | null
-    locationOwner: LocationOwner | null
-    locationJoinedAt: Date | null
-    locationPlayersInitializing: boolean
-  }
+export interface InstanceSharedState {}
+
+export interface InstanceTrackerSharedState {
+  recordId: string | null
+  isInitializing: boolean
+  isInInstance: boolean
+  isJoined: boolean
+  worldDetail: WorldDetail | null
+  ownerDetail: LocationOwner | null
+  locationInstance: LocationInstance | null
+  locationJoinedAt: Date | null
 }
 
 export interface NotificationSharedState {
