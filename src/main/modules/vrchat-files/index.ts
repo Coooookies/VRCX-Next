@@ -29,7 +29,8 @@ export class VRChatFiles extends Module<{}> {
       this.repository
     )
 
-    this.eventBinding.bindProtocolEvents()
+    // unused protect
+    void this.eventBinding
   }
 
   public fetchFileAnalysis(...args: Parameters<FilesFetcher['fetchFileAnalysis']>) {

@@ -7,9 +7,12 @@ export class NotificationIPCBinding {
     private ipc: IPCModule,
     private repository: NotificationRepository,
     private operation: NotificationOperation
-  ) {}
+  ) {
+    this.bindEvents()
+    this.bindInvokes()
+  }
 
-  public bindEvents() {
+  private bindEvents() {
     this.repository.on('notification:remote:insert', (notifications) => {
       this.ipc.send('vrchat-notifications:notification:list-insert', notifications)
     })
@@ -27,7 +30,7 @@ export class NotificationIPCBinding {
     })
   }
 
-  public bindInvokes() {
+  private bindInvokes() {
     this.ipc.listener.handle('vrchat-notifications:get-notifications', () => {
       return this.repository.getAllNotifications()
     })

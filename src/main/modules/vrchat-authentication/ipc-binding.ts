@@ -7,15 +7,18 @@ export class AuthenticationIPCBinding {
     private self: VRChatAuthentication,
     private ipc: IPCModule,
     private repository: AuthenticationRepository
-  ) {}
+  ) {
+    this.bindEvents()
+    this.bindInvokes()
+  }
 
-  public bindEvents() {
+  private bindEvents() {
     this.self.on('state:update', (...args) => {
       this.ipc.send('vrchat-authentication:state:update', ...args)
     })
   }
 
-  public bindInvokes() {
+  private bindInvokes() {
     this.ipc.listener.handle('vrchat-authentication:state', () => {
       return this.self.currentState
     })

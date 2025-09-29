@@ -31,11 +31,13 @@ export class FriendsEventBinding {
     private readonly repository: FriendsRepository,
     private readonly fetcher: FriendsFetcher,
     private readonly users: VRChatUsers
-  ) {}
+  ) {
+    this.bindEvents()
+  }
 
   private shieldedPipelineEvent = true
 
-  public bindEvents() {
+  private bindEvents() {
     this.pipeline.on('message', (message: PipelineEventMessage) => {
       if (this.shieldedPipelineEvent) {
         return
@@ -101,6 +103,7 @@ export class FriendsEventBinding {
 
     const order = this.repository.friendCount
     const isTraveling = location === 'traveling'
+    const isOffline = location === 'offline'
     const nextLocation = location ? parseLocation(location) : null
     const nextLocationArrivedAt = nextLocation ? new Date() : null
 
@@ -108,9 +111,10 @@ export class FriendsEventBinding {
       ? await this.users.enrichLocationInstance(nextLocation)
       : null
 
-    const information = {
+    const information: FriendInformation = {
       ...baseFriendInfo,
       order,
+      status: isOffline ? UserStatus.Offline : user.status,
       isTraveling,
       location: nextLocationSummary,
       locationArrivedAt: nextLocationArrivedAt

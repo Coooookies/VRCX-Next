@@ -12,9 +12,11 @@ export class FilesEventBinding {
     private readonly protocol: ProtocolServer,
     private readonly fetcher: FilesFetcher,
     private readonly repository: FilesRepository
-  ) {}
+  ) {
+    this.bindProtocolEvents()
+  }
 
-  public bindProtocolEvents(): void {
+  private bindProtocolEvents(): void {
     const createNotFoundResponse = () => {
       return new Response(null, { status: 404 })
     }

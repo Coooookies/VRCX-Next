@@ -27,7 +27,9 @@ export class VRChatWorlds extends Module<{}> {
     this.repository = new WorldRepository(this.database)
     this.fetcher = new WorldFetcher(this.logger, this.repository, this.api, this.groups, this.files)
     this.eventBinding = new WorldEventBinding(this.logger, this.pipeline, this.repository)
-    this.eventBinding.bindEvents()
+
+    // unused protect
+    void this.eventBinding
   }
 
   public fetchWorldSummaries(...args: Parameters<WorldFetcher['fetchWorldSummaries']>) {

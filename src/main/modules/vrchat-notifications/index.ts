@@ -52,10 +52,6 @@ export class VRChatNotifications extends Module<{}> {
       this.pipeline
     )
 
-    this.ipcBinding.bindEvents()
-    this.ipcBinding.bindInvokes()
-    this.eventBinding.bindEvents()
-
     this.workflow.registerPostLoginTask('notifications-resolver', 60, async () => {
       await this.refreshNotifications(true)
     })
@@ -69,6 +65,10 @@ export class VRChatNotifications extends Module<{}> {
         this.repository.setLoadingState(true)
       }
     })
+
+    // unused protect
+    void this.ipcBinding
+    void this.eventBinding
   }
 
   public async refreshNotifications(force?: boolean) {

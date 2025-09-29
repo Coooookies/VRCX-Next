@@ -8,9 +8,11 @@ export class ImageSelectionEventBinding {
     private readonly logger: LoggerFactory,
     private readonly protocol: ProtocolServer,
     private readonly repository: ImageSelectionRepository
-  ) {}
+  ) {
+    this.bindProtocolEvents()
+  }
 
-  public bindProtocolEvents(): void {
+  private bindProtocolEvents(): void {
     const createNotFoundResponse = () => {
       return new Response(null, { status: 404 })
     }

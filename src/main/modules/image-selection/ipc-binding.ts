@@ -7,9 +7,11 @@ export class ImageSelectionIPCBinding {
     private ipc: IPCModule,
     private repository: ImageSelectionRepository,
     private operation: ImageSelectionOperation
-  ) {}
+  ) {
+    this.bindInvokes()
+  }
 
-  public bindInvokes() {
+  private bindInvokes() {
     this.ipc.listener.handle('image-selection:get-selection', (_, selectionId) => {
       return this.repository.resolveImageSelection(selectionId)
     })

@@ -56,7 +56,9 @@ export class VRChatUsers extends Module<{
       this.fetcher
     )
     this.bindEvents()
-    this.eventBinding.bindEvents()
+
+    // unused protect
+    void this.eventBinding
   }
 
   private bindEvents(): void {

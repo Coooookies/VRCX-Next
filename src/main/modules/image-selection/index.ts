@@ -26,19 +26,9 @@ export class ImageSelection extends Module {
     this.operation = new ImageSelectionOperation(this.logger, this.window, this.repository)
     this.eventBinding = new ImageSelectionEventBinding(this.logger, this.protocol, this.repository)
     this.ipcBinding = new ImageSelectionIPCBinding(this.ipc, this.repository, this.operation)
-    this.eventBinding.bindProtocolEvents()
-    this.ipcBinding.bindInvokes()
-  }
 
-  public get Operation(): ImageSelectionOperation {
-    return this.operation
-  }
-
-  public get Repository(): ImageSelectionRepository {
-    return this.repository
-  }
-
-  public get EventBinding(): ImageSelectionEventBinding {
-    return this.eventBinding
+    // unused protect
+    void this.eventBinding
+    void this.ipcBinding
   }
 }

@@ -65,10 +65,10 @@ export class VRChatFriends extends Module<{
       this.users
     )
 
-    this.ipcBinding.bindEvents()
-    this.ipcBinding.bindInvokes()
-    this.eventBinding.bindEvents()
     this.bindEvents()
+
+    // usused protect
+    void this.ipcBinding
   }
 
   private bindEvents(): void {

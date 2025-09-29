@@ -14,9 +14,11 @@ export class WorldEventBinding {
     private readonly logger: LoggerFactory,
     private readonly pipeline: VRChatPipeline,
     private readonly repository: WorldRepository
-  ) {}
+  ) {
+    this.bindEvents()
+  }
 
-  public bindEvents() {
+  private bindEvents() {
     this.pipeline.on('message', (message: PipelineEventMessage) => {
       this.handlePipeMessage(message)
     })

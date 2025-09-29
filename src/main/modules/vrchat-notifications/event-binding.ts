@@ -21,9 +21,11 @@ export class NotificationEventBinding {
     private readonly fetcher: NotificationFetcher,
     private readonly users: VRChatUsers,
     private readonly pipeline: VRChatPipeline
-  ) {}
+  ) {
+    this.bindEvents()
+  }
 
-  public bindEvents() {
+  private bindEvents() {
     this.pipeline.on('message', (message: PipelineEventMessage) => {
       this.handlePipeMessage(message)
     })

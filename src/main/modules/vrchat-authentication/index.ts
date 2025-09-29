@@ -39,9 +39,10 @@ export class VRChatAuthentication extends Module<{
 
     this.repository = new AuthenticationRepository(this, this.mobx, this.database)
     this.binding = new AuthenticationIPCBinding(this, this.ipc, this.repository)
-    this.binding.bindEvents()
-    this.binding.bindInvokes()
     this.bindEvents()
+
+    // unused protect
+    void this.binding
   }
 
   protected onLoad(): void {

@@ -5,9 +5,12 @@ export class FriendsIPCBinding {
   constructor(
     private ipc: IPCModule,
     private repository: FriendsRepository
-  ) {}
+  ) {
+    this.bindEvents()
+    this.bindInvokes()
+  }
 
-  public bindEvents() {
+  private bindEvents() {
     this.repository.on('friends:insert', (users) => {
       this.ipc.send('vrchat-friends:friend:list-insert', users)
     })
@@ -25,7 +28,7 @@ export class FriendsIPCBinding {
     })
   }
 
-  public bindInvokes() {
+  private bindInvokes() {
     this.ipc.listener.handle('vrchat-friends:get-friends', () => {
       return this.repository.getAll()
     })
