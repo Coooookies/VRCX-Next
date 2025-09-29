@@ -90,14 +90,14 @@ export function parseSpecialEventLine(data: LogEventContext): LogEventMessage | 
   ) {
     const regexRes = data.content.match(GAMELOG_PLAYER_ACTIVITY_REGEXP)
 
-    if (regexRes?.groups?.username) {
+    if (regexRes?.groups?.username && regexRes?.groups?.userId) {
       return {
         type: data.content.startsWith('OnPlayerJoined ')
           ? LogEvents.PlayerJoined
           : LogEvents.PlayerLeft,
         content: {
           userName: regexRes.groups.username,
-          userId: regexRes.groups.userId || undefined
+          userId: regexRes.groups.userId
         }
       }
     }

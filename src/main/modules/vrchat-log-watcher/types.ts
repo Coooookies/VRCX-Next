@@ -27,7 +27,7 @@ export interface LogEventVoteKick {
 }
 
 export interface LogEventPlayerActivity {
-  userId?: string
+  userId: string
   userName: string
 }
 
