@@ -1,8 +1,6 @@
 import { createLogger } from '@main/logger'
 import { Dependency, Module } from '@shared/module-constructor'
-import { CurrentInstance } from './state-current-instance'
-import { InstanceFetcher } from './fetcher'
-import { InstanceRepository } from './repository'
+import { InstanceTracker } from './instance-tracker'
 import { InstanceIPCBinding } from './ipc-binding'
 import type { IPCModule } from '../ipc'
 import type { ServiceMonitor } from '../service-monitor'
@@ -28,26 +26,20 @@ export class VRChatInstances extends Module {
   @Dependency('VRChatWorkflowCoordinator') declare private workflow: VRChatWorkflowCoordinator
 
   private readonly logger = createLogger(this.moduleId)
-  private repository!: InstanceRepository
-  private fetcher!: InstanceFetcher
-  private instance!: CurrentInstance
+  private instance!: InstanceTracker
   private ipcBinding!: InstanceIPCBinding
 
   protected onInit(): void {
-    this.repository = new InstanceRepository(this.moduleId, this.mobx)
-    this.fetcher = new InstanceFetcher(this.users)
-    this.instance = new CurrentInstance(
-      this.repository,
-      this.fetcher,
+    this.instance = new InstanceTracker(
       this.logWatcher,
+      this.mobx,
       this.users,
       this.worlds,
       this.groups
     )
-    this.ipcBinding = new InstanceIPCBinding(this.ipc, this.repository)
+    this.ipcBinding = new InstanceIPCBinding(this.ipc, this.instance)
     this.ipcBinding.bindInvokes()
     this.ipcBinding.bindEvents()
-    this.instance.bindEvents()
     this.bindEvents()
   }
 
@@ -79,10 +71,9 @@ export class VRChatInstances extends Module {
       this.logger.info(`Current-Instance Joined instance:`, location.location)
     })
 
-    this.instance.on('instance:joined-complete', (_, location, world) => {
+    this.instance.on('instance:initialization-complete', (_, world) => {
       this.logger.info(
-        `Current-Instance Joined instance complete:`,
-        location.location,
+        `Current-Instance initialization completed:`,
         `${world?.worldName || 'Unknown'}(${world?.worldId || 'Unknown'})`
       )
     })
@@ -91,38 +82,20 @@ export class VRChatInstances extends Module {
       this.logger.info('Current-Instance Left instance')
     })
 
-    this.instance.on('instance:world-summary-initialized', (_, summary) => {
-      this.logger.info(
-        `Current-Instance World summary initialized:`,
-        `${summary?.worldName || 'Unknown'}(${this.repository.State.currentInstance.locationInstance?.location})`
-      )
+    this.instance.on('instance:player-joined', (_, users) => {
+      users.forEach((user) => {
+        this.logger.info('Current-Instance User joined:', `${user.userName}(${user.userId})`)
+      })
     })
 
-    this.instance.on('instance:present-loaded', (_, users) => {
-      this.logger.info(
-        'Current-Instance Users in instance:',
-        users.map((user) => `${user.userName}(${user.userId})`).join(',')
-      )
-    })
-
-    this.instance.on('user:joined', (_, user) => {
-      this.logger.info('Current-Instance User joined:', `${user.userName}(${user.userId})`)
-    })
-
-    this.instance.on('user:left', (userId) => {
+    this.instance.on('instance:player-left', (_, userId) => {
       this.logger.info('Current-Instance User left:', userId)
     })
 
-    this.instance.on('video:playback-load', (url) => {
-      this.logger.info('Current-Instance Video playback load:', url)
-    })
-
-    this.instance.on('video:playback-error', (message) => {
-      this.logger.warn('Current-Instance Video playback error:', message)
-    })
-
-    this.instance.on('moderation:vote-kick', (userName) => {
-      this.logger.info('Current-Instance Vote kick:', userName)
+    this.instance.on('instance:event', (_, events) => {
+      events.forEach((event) => {
+        this.logger.info('Current-Instance Event:', event.type, JSON.stringify(event.content))
+      })
     })
   }
 }

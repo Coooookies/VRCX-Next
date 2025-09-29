@@ -1,45 +1,45 @@
 import type { IPCModule } from '../ipc'
-import type { InstanceRepository } from './repository'
+import type { InstanceTracker } from './instance-tracker'
 
 export class InstanceIPCBinding {
   constructor(
     private ipc: IPCModule,
-    private repository: InstanceRepository
+    private tracker: InstanceTracker
   ) {}
 
   public bindEvents() {
-    this.repository.on('current-instance:append-events', (events) => {
-      this.ipc.send('vrchat-instances:current-instance:append-events', events)
+    this.tracker.on('instance:clear', () => {
+      this.ipc.send('vrchat-instances:instance-tracker:clear')
     })
 
-    this.repository.on('current-instance:insert-users', (users) => {
-      this.ipc.send('vrchat-instances:current-instance:insert-users', users)
+    this.tracker.on('instance:player-joined', (_, users) => {
+      this.ipc.send('vrchat-instances:instance-tracker:insert-users', users)
     })
 
-    this.repository.on('current-instance:update-users', (users) => {
-      this.ipc.send('vrchat-instances:current-instance:update-users', users)
+    this.tracker.on('instance:player-patch', (_, userId, user) => {
+      this.ipc.send('vrchat-instances:instance-tracker:update-user', userId, user)
     })
 
-    this.repository.on('current-instance:remove-users', (userId) => {
-      this.ipc.send('vrchat-instances:current-instance:remove-users', userId)
+    this.tracker.on('instance:player-left', (_, userId) => {
+      this.ipc.send('vrchat-instances:instance-tracker:remove-user', userId)
     })
 
-    this.repository.on('current-instance:clear-users', () => {
-      this.ipc.send('vrchat-instances:current-instance:clear-users')
+    this.tracker.on('instance:event', (_, events) => {
+      this.ipc.send('vrchat-instances:instance-tracker:append-events', events)
     })
 
-    this.repository.on('current-instance:clear-events', () => {
-      this.ipc.send('vrchat-instances:current-instance:clear-events')
+    this.tracker.on('instance:event-patch', (_, eventId, event) => {
+      this.ipc.send('vrchat-instances:instance-tracker:update-event', eventId, event)
     })
   }
 
   public bindInvokes() {
-    this.ipc.listener.handle('vrchat-instances:get-current-instance-users', () => {
-      return this.repository.currentInstanceUsers
+    this.ipc.listener.handle('vrchat-instances:instance-tracker:get-current-players', () => {
+      return this.tracker.currentPlayers
     })
 
-    this.ipc.listener.handle('vrchat-instances:get-current-instance-events', () => {
-      return this.repository.currentInstanceEvents
+    this.ipc.listener.handle('vrchat-instances:instance-tracker:get-current-events', () => {
+      return this.tracker.currentEvents
     })
   }
 }
