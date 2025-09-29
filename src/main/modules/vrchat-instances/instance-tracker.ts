@@ -40,10 +40,12 @@ export class InstanceTracker extends Nanobus<{
   'instance:joined': (recordId: string, location: LocationInstance, joinedAt: Date) => void
   'instance:initialization-complete': (
     recordId: string,
+    location: LocationInstance,
     world: WorldDetail | null,
-    owner: LocationOwner | null
+    owner: LocationOwner | null,
+    joinedAt: Date
   ) => void
-  'instance:left': (recordId: string, joinedAt: Date) => void
+  'instance:left': (recordId: string, leftAt: Date) => void
   'instance:player-joined': (recordId: string, users: InstanceUserWithInformation[]) => void
   'instance:player-patch': (
     recordId: string,
@@ -188,7 +190,14 @@ export class InstanceTracker extends Nanobus<{
       this.state.isInitializing = false
     })
 
-    this.emit('instance:initialization-complete', recordId, world, owner)
+    this.emit(
+      'instance:initialization-complete',
+      recordId,
+      locationInstance,
+      world,
+      owner,
+      instance.joinedAt
+    )
   }
 
   private async resumeInstanceEvents(instance: LogInstanceSummary) {
@@ -305,7 +314,7 @@ export class InstanceTracker extends Nanobus<{
       this.state.isInitializing = false
     })
 
-    this.emit('instance:initialization-complete', recordId, world, owner)
+    this.emit('instance:initialization-complete', recordId, location, world, owner, context.date)
   }
 
   private async handleSelfLeave(context: LogEventContext) {
@@ -337,7 +346,8 @@ export class InstanceTracker extends Nanobus<{
       })
     }
 
-    const eventId = generateEventId(recordId, InstanceEvents.UserJoin, data.userId, context.date)
+    const evenType = this.state.isJoined ? InstanceEvents.UserJoin : InstanceEvents.UserPresent
+    const eventId = generateEventId(recordId, evenType, data.userId, context.date)
     const user: InstanceUserWithInformation = {
       userId: data.userId,
       userName: data.userName,
@@ -353,7 +363,7 @@ export class InstanceTracker extends Nanobus<{
 
     const event: InstanceEventMessage = {
       eventId,
-      type: this.state.isJoined ? InstanceEvents.UserJoin : InstanceEvents.UserPresent,
+      type: evenType,
       recordedAt: context.date,
       content: eventContent
     }
@@ -386,7 +396,8 @@ export class InstanceTracker extends Nanobus<{
       return
     }
 
-    const eventId = generateEventId(recordId, InstanceEvents.UserLeave, data.userId, context.date)
+    const evenType = this.state.isJoined ? InstanceEvents.UserLeave : InstanceEvents.UserRemain
+    const eventId = generateEventId(recordId, evenType, data.userId, context.date)
     const eventContent: InstanceEventUser = {
       userName: data.userName,
       userId: data.userId,
@@ -395,7 +406,7 @@ export class InstanceTracker extends Nanobus<{
 
     const event: InstanceEventMessage = {
       eventId,
-      type: this.state.isJoined ? InstanceEvents.UserLeave : InstanceEvents.UserRemain,
+      type: evenType,
       recordedAt: context.date,
       content: eventContent
     }

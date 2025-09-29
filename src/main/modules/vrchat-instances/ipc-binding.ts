@@ -3,11 +3,14 @@ import type { InstanceTracker } from './instance-tracker'
 
 export class InstanceIPCBinding {
   constructor(
-    private ipc: IPCModule,
-    private tracker: InstanceTracker
-  ) {}
+    private readonly ipc: IPCModule,
+    private readonly tracker: InstanceTracker
+  ) {
+    this.bindInvokes()
+    this.bindEvents()
+  }
 
-  public bindEvents() {
+  private bindEvents() {
     this.tracker.on('instance:clear', () => {
       this.ipc.send('vrchat-instances:instance-tracker:clear')
     })
@@ -33,7 +36,7 @@ export class InstanceIPCBinding {
     })
   }
 
-  public bindInvokes() {
+  private bindInvokes() {
     this.ipc.listener.handle('vrchat-instances:instance-tracker:get-current-players', () => {
       return this.tracker.currentPlayers
     })

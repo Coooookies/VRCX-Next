@@ -1,7 +1,12 @@
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { generateEventId, generateRecordId } from './utils'
 import { LogEvents } from '../vrchat-log-watcher/types'
-import { InstanceEvents } from '@shared/definition/vrchat-instances'
+import {
+  InstanceEvents,
+  LocationInstanceGroupType,
+  LocationInstancePublicType,
+  LocationInstanceUserType
+} from '@shared/definition/vrchat-instances'
 import type {
   InstanceEventMessage,
   InstanceUser,
@@ -54,16 +59,17 @@ export function parseInstanceFromEventLogs(
         case LogEvents.PlayerJoined: {
           const userId = event.data.content.userId
           const recordedAt = event.context.date
-          const eventId = generateEventId(recordId, InstanceEvents.UserLeave, userId, recordedAt)
 
           if (userId === currentUserId) {
             isJoined = true
           }
 
-          const type =
+          const evenType =
             userId === currentUserId || isJoined
               ? InstanceEvents.UserJoin
               : InstanceEvents.UserPresent
+
+          const eventId = generateEventId(recordId, evenType, userId, recordedAt)
 
           players.set(userId, {
             userId: userId,
@@ -72,7 +78,7 @@ export function parseInstanceFromEventLogs(
           })
 
           events.set(eventId, {
-            type,
+            type: evenType,
             eventId,
             recordedAt,
             content: {
@@ -86,15 +92,15 @@ export function parseInstanceFromEventLogs(
         case LogEvents.PlayerLeft: {
           const userId = event.data.content.userId
           const recordedAt = event.context.date
-          const eventId = generateEventId(recordId, InstanceEvents.UserLeave, userId, recordedAt)
-          const type =
+          const evenType =
             userId === currentUserId || isJoined
               ? InstanceEvents.UserLeave
               : InstanceEvents.UserRemain
 
+          const eventId = generateEventId(recordId, evenType, userId, recordedAt)
           players.delete(userId)
           events.set(eventId, {
-            type,
+            type: evenType,
             eventId,
             recordedAt,
             content: {
@@ -109,7 +115,12 @@ export function parseInstanceFromEventLogs(
         case LogEvents.VideoPlaybackLoad: {
           const recordedAt = event.context.date
           const url = event.data.content.url
-          const eventId = generateEventId(recordId, InstanceEvents.UserLeave, url, recordedAt)
+          const eventId = generateEventId(
+            recordId,
+            InstanceEvents.VideoPlaybackLoad,
+            url,
+            recordedAt
+          )
 
           events.set(eventId, {
             type: InstanceEvents.VideoPlaybackLoad,
@@ -124,7 +135,12 @@ export function parseInstanceFromEventLogs(
         case LogEvents.VideoPlaybackError: {
           const recordedAt = event.context.date
           const reason = event.data.content.reason
-          const eventId = generateEventId(recordId, InstanceEvents.UserLeave, reason, recordedAt)
+          const eventId = generateEventId(
+            recordId,
+            InstanceEvents.VideoPlaybackError,
+            reason,
+            recordedAt
+          )
 
           events.set(eventId, {
             type: InstanceEvents.VideoPlaybackError,
@@ -139,7 +155,7 @@ export function parseInstanceFromEventLogs(
         case LogEvents.VoteKick: {
           const recordedAt = event.context.date
           const userName = event.data.content.userName
-          const eventId = generateEventId(recordId, InstanceEvents.UserLeave, userName, recordedAt)
+          const eventId = generateEventId(recordId, InstanceEvents.VoteKick, userName, recordedAt)
 
           events.set(eventId, {
             type: InstanceEvents.VoteKick,
@@ -169,4 +185,23 @@ export function parseInstanceFromEventLogs(
   }
 
   return null
+}
+
+export function parseOwnerIdfromLocationInstance(location: LocationInstance): string | null {
+  switch (location.type) {
+    case LocationInstancePublicType.Public: {
+      return null
+    }
+    case LocationInstanceUserType.Friends:
+    case LocationInstanceUserType.FriendsPlus:
+    case LocationInstanceUserType.Invite:
+    case LocationInstanceUserType.InvitePlus: {
+      return location.userId
+    }
+    case LocationInstanceGroupType.Group:
+    case LocationInstanceGroupType.GroupPlus:
+    case LocationInstanceGroupType.GroupPublic: {
+      return location.groupId
+    }
+  }
 }

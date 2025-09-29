@@ -2,6 +2,8 @@ import { createLogger } from '@main/logger'
 import { Dependency, Module } from '@shared/module-constructor'
 import { InstanceTracker } from './instance-tracker'
 import { InstanceIPCBinding } from './ipc-binding'
+import { InstanceEventBinding } from './event-binding'
+import { InstanceRepository } from './repository'
 import type { IPCModule } from '../ipc'
 import type { ServiceMonitor } from '../service-monitor'
 import type { VRChatAuthentication } from '../vrchat-authentication'
@@ -10,8 +12,9 @@ import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { VRChatWorlds } from '../vrchat-worlds'
 import type { VRChatGroups } from '../vrchat-groups'
 import type { VRChatUsers } from '../vrchat-users'
-import type { MobxState } from '../mobx-state'
 import type { VRChatWorkflowCoordinator } from '../vrchat-workflow-coordinator'
+import type { MobxState } from '../mobx-state'
+import type { Database } from '../database'
 
 export class VRChatInstances extends Module {
   @Dependency('MobxState') declare private mobx: MobxState
@@ -24,12 +27,16 @@ export class VRChatInstances extends Module {
   @Dependency('VRChatWorlds') declare private worlds: VRChatWorlds
   @Dependency('VRChatGroups') declare private groups: VRChatGroups
   @Dependency('VRChatWorkflowCoordinator') declare private workflow: VRChatWorkflowCoordinator
+  @Dependency('Database') declare private database: Database
 
   private readonly logger = createLogger(this.moduleId)
+  private repository!: InstanceRepository
   private instance!: InstanceTracker
   private ipcBinding!: InstanceIPCBinding
+  private eventBinding!: InstanceEventBinding
 
   protected onInit(): void {
+    this.repository = new InstanceRepository(this.database)
     this.instance = new InstanceTracker(
       this.logWatcher,
       this.mobx,
@@ -38,9 +45,12 @@ export class VRChatInstances extends Module {
       this.groups
     )
     this.ipcBinding = new InstanceIPCBinding(this.ipc, this.instance)
-    this.ipcBinding.bindInvokes()
-    this.ipcBinding.bindEvents()
+    this.eventBinding = new InstanceEventBinding(this.repository, this.instance)
     this.bindEvents()
+
+    // unused protect
+    void this.ipcBinding
+    void this.eventBinding
   }
 
   private bindEvents(): void {
@@ -71,7 +81,7 @@ export class VRChatInstances extends Module {
       this.logger.info(`Current-Instance Joined instance:`, location.location)
     })
 
-    this.instance.on('instance:initialization-complete', (_, world) => {
+    this.instance.on('instance:initialization-complete', (_, __, world) => {
       this.logger.info(
         `Current-Instance initialization completed:`,
         `${world?.worldName || 'Unknown'}(${world?.worldId || 'Unknown'})`
