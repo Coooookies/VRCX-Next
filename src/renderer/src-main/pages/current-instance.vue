@@ -7,6 +7,7 @@ import CurrentInstanceSearchInput from '../components/current-instance/current-i
 import CurrentInstanceTabInstance from '../components/current-instance/current-instance-tab-instance.vue'
 import CurrentInstanceTabWorld from '../components/current-instance/current-instance-tab-world.vue'
 import CurrentInstanceNotRunning from '../components/current-instance/current-instance-not-running.vue'
+import CurrentInstanceWaitingForJoin from '../components/current-instance/current-instance-waiting-for-join.vue'
 import LightRaysBackground from '@renderer/shared/components/light-rays-background.vue'
 import { computed, provide, ref } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
@@ -17,12 +18,10 @@ import { RouterView } from 'vue-router'
 import { LocationInstanceGroupType } from '@shared/definition/vrchat-instances'
 import type { CurrentInstanceInfoTab } from '../components/current-instance/current-instance-info-tabs.vue'
 import type { CurrentInstancePageTab } from '../components/current-instance/current-instance-page-tabs.vue'
-import CurrentInstanceWaitingForJoin from '../components/current-instance/current-instance-waiting-for-join.vue'
 
 const router = useRouter()
 const route = useRoute()
-const { instancePlayers, instance, isGameRunning, isInstanceLoading, isJoined } =
-  useCurrentInstance()
+const { instancePlayers, instance, isGameRunning, isInInstance } = useCurrentInstance()
 
 const infoTabs: CurrentInstanceInfoTab[] = [
   { value: 'info-room', label: 'Room' },
@@ -34,8 +33,8 @@ const pageTabs: CurrentInstancePageTab[] = [
   { value: 'page-app-current-instance.events', label: 'Event History' }
 ]
 
-const currentLocation = computed(() => instance.currentInstance.locationInstance)
-const currentWorld = computed(() => instance.currentInstance.world)
+const currentLocation = computed(() => instance.locationInstance)
+const currentWorld = computed(() => instance.worldDetail)
 const require18yo = computed(() => {
   if (
     currentLocation.value?.type === LocationInstanceGroupType.Group ||
@@ -56,10 +55,6 @@ const routeTo = (name: string) => {
 }
 
 const searchValue = ref('')
-const isInstancePreloading = computed(
-  () => isInstanceLoading.value && instancePlayers.value.length === 0
-)
-
 provide('current-instance:search-value', searchValue)
 </script>
 
@@ -76,7 +71,7 @@ provide('current-instance:search-value', searchValue)
     <div class="@container w-full">
       <template v-if="isGameRunning">
         <div
-          v-if="isJoined"
+          v-if="isInInstance"
           :class="
             cn(
               'relative flex flex-col mx-auto gap-8 w-full px-10',
@@ -103,15 +98,15 @@ provide('current-instance:search-value', searchValue)
                 <CurrentInstanceTabInstance
                   :value="infoTabs[0].value"
                   :instance="currentLocation"
-                  :owner="instance.currentInstance.locationOwner"
-                  :player-count="!isInstancePreloading ? instancePlayers.length : null"
+                  :owner="instance.ownerDetail"
+                  :player-count="instancePlayers.length || null"
                   :player-capacity="currentWorld?.capacity.maxCapacity || null"
-                  :joined-at="instance.currentInstance.locationJoinedAt"
+                  :joined-at="instance.locationJoinedAt"
                   :require18yo="require18yo"
                 />
                 <CurrentInstanceTabWorld
                   :value="infoTabs[1].value"
-                  :detail="instance.currentInstance.world"
+                  :detail="instance.worldDetail"
                 />
               </Tabs>
             </div>

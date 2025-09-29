@@ -39,8 +39,8 @@ const instancePresentUsers = computed(() => {
       acc.push({
         userId: event.content.userId,
         userName: event.content.userName,
-        profileIconFileId: event.content.userSummary?.profileIconFileId,
-        profileIconFileVersion: event.content.userSummary?.profileIconFileVersion
+        profileIconFileId: event.content.user?.profileIconFileId,
+        profileIconFileVersion: event.content.user?.profileIconFileVersion
       })
     }
     return acc
@@ -60,23 +60,20 @@ const instancePresentUsersVisible = computed(() => {
 
 <template>
   <div class="w-full">
-    <CurrentInstanceEventHeader
-      class="sticky top-31 z-1"
-      :joined-at="instance.currentInstance.locationJoinedAt"
-    />
+    <CurrentInstanceEventHeader class="sticky top-31 z-1" :joined-at="instance.locationJoinedAt" />
     <div class="w-full pt-1.5">
       <template v-for="(event, index) in instanceSortedEvents" :key="index">
         <CurrentInstanceEventItemUserJoin
           v-if="event.type === InstanceEvents.UserJoin"
-          :icon-file-id="event.content.userSummary?.profileIconFileId"
-          :icon-file-version="event.content.userSummary?.profileIconFileVersion"
+          :icon-file-id="event.content.user?.profileIconFileId"
+          :icon-file-version="event.content.user?.profileIconFileVersion"
           :user-name="event.content.userName"
           :recorded-at="event.recordedAt"
         />
         <CurrentInstanceEventItemUserLeave
           v-else-if="event.type === InstanceEvents.UserLeave"
-          :icon-file-id="event.content.userSummary?.profileIconFileId"
-          :icon-file-version="event.content.userSummary?.profileIconFileVersion"
+          :icon-file-id="event.content.user?.profileIconFileId"
+          :icon-file-version="event.content.user?.profileIconFileVersion"
           :user-name="event.content.userName"
           :recorded-at="event.recordedAt"
         />

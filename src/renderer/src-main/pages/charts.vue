@@ -10,25 +10,25 @@ const service = useModule<ServiceMonitor>('ServiceMonitor')
 const instance = useModule<VRChatInstances>('VRChatInstances')
 
 const intanceJson = computed(() => {
-  return instance.state.currentInstance.locationInstance
-    ? JSON.stringify(instance.state.currentInstance.locationInstance, null, 2)
+  return instance.trackerState.locationInstance
+    ? JSON.stringify(instance.trackerState.locationInstance, null, 2)
     : 'null'
 })
 
 const ownerJson = computed(() => {
-  return instance.state.currentInstance.locationOwner
-    ? JSON.stringify(instance.state.currentInstance.locationOwner, null, 2)
+  return instance.trackerState.ownerDetail
+    ? JSON.stringify(instance.trackerState.ownerDetail, null, 2)
     : 'null'
 })
 
 const worldJson = computed(() => {
-  return instance.state.currentInstance.world
-    ? JSON.stringify(instance.state.currentInstance.world, null, 2)
+  return instance.trackerState.worldDetail
+    ? JSON.stringify(instance.trackerState.worldDetail, null, 2)
     : 'null'
 })
 
 const usersJson = computed(() => {
-  return JSON.stringify(instance.currentInstanceUsers.value, null, 2)
+  return JSON.stringify(instance.currentInstancePlayers.value, null, 2)
 })
 
 const activitiesJson = computed(() => {
@@ -50,10 +50,10 @@ const activitiesJson = computed(() => {
         <p>{{ service.state.steamvr.cmd }}</p>
       </div>
       <div class="bg-white/5 p-4 rounded-md">
-        <p>{{ instance.state.currentInstance.recordId }}</p>
-        <p>{{ instance.state.currentInstance.joined }}</p>
+        <p>{{ instance.trackerState.recordId }}</p>
+        <p>{{ instance.trackerState.isJoined }}</p>
         <p class="whitespace-pre-wrap text-xs">{{ intanceJson }}</p>
-        <Spinner v-if="instance.state.currentInstance.locationPlayersInitializing" class="size-5" />
+        <Spinner v-if="instance.trackerState.isInitializing" class="size-5" />
       </div>
       <div class="bg-white/5 p-4 rounded-md">
         <p class="whitespace-pre-wrap text-xs">{{ ownerJson }}</p>
@@ -61,12 +61,12 @@ const activitiesJson = computed(() => {
       <div class="bg-white/5 p-4 rounded-md">
         <p class="whitespace-pre-wrap text-xs">{{ worldJson }}</p>
         <p class="whitespace-pre-wrap text-xs">
-          {{ instance.state.currentInstance.locationJoinedAt }}
+          {{ instance.trackerState.locationJoinedAt }}
         </p>
       </div>
       <div class="bg-white/5 p-4 rounded-md">
         <p class="whitespace-pre-wrap text-xs">
-          Users: {{ instance.currentInstanceUsers.value.length }}
+          Users: {{ instance.currentInstancePlayers.value.length }}
         </p>
         <p class="whitespace-pre-wrap text-xs">{{ usersJson }}</p>
       </div>

@@ -6,10 +6,10 @@ import { useCurrentInstance } from '../composables/current-instance'
 import type { Ref } from 'vue'
 
 const searchValue = inject<Ref<string>>('current-instance:search-value')!
-const { instancePlayers, isInstanceLoading } = useCurrentInstance()
+const { instancePlayers, isInInstance } = useCurrentInstance()
 
 const isInstancePreloading = computed(() => {
-  return isInstanceLoading.value && instancePlayers.value.length === 0
+  return isInInstance && instancePlayers.value.length === 0
 })
 </script>
 

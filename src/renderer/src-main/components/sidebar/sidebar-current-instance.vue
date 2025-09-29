@@ -12,14 +12,14 @@ import { ImageFallback, ImageRoot } from '@renderer/shared/components/ui/image'
 import { ImageIcon } from 'lucide-vue-next'
 
 const { t } = useI18n()
-const { isGameRunning, isJoined, service, instance } = useCurrentInstance()
+const { isGameRunning, isInitializing, isInInstance, service, instance } = useCurrentInstance()
 
 const props = defineProps<{
   active?: boolean
 }>()
 
-const currentWorld = computed(() => instance.currentInstance.world)
-const initializing = computed(() => instance.currentInstance.locationPlayersInitializing)
+const currentWorld = computed(() => instance.worldDetail)
+const isWaitingForJoin = computed(() => !isInInstance.value && isGameRunning.value)
 </script>
 
 <template>
@@ -45,9 +45,9 @@ const initializing = computed(() => instance.currentInstance.locationPlayersInit
                   ? 'before:border-muted-foreground/50'
                   : 'before:border-muted-foreground/15'
                 : 'before:border-transparent',
-              initializing && 'after:border-white after:mask-size-[200%_100%]',
-              initializing && 'after:mask-x-from-50% after:mask-x-to-75%',
-              initializing && 'after:animate-[animation-mask-shimmer_1.5s_infinite_linear]'
+              isWaitingForJoin && 'after:border-white after:mask-size-[200%_100%]',
+              isWaitingForJoin && 'after:mask-x-from-50% after:mask-x-to-75%',
+              isWaitingForJoin && 'after:animate-[animation-mask-shimmer_1.5s_infinite_linear]'
             )
           "
         >
@@ -55,7 +55,7 @@ const initializing = computed(() => instance.currentInstance.locationPlayersInit
             v-if="service.vrchat.isRunning"
             class="bg-popover size-full rounded-full overflow-hidden"
           >
-            <ImageRoot v-if="isJoined && currentWorld" class="size-full">
+            <ImageRoot v-if="isInInstance && currentWorld" class="size-full">
               <ImageVRChatContext
                 :file-id="currentWorld.imageFileId"
                 :version="currentWorld.imageFileVersion"
@@ -112,8 +112,8 @@ const initializing = computed(() => instance.currentInstance.locationPlayersInit
         >
           {{
             isGameRunning
-              ? isJoined
-                ? !initializing
+              ? isInInstance
+                ? !isInitializing
                   ? currentWorld?.worldName || '-'
                   : t('sidebar.vrchat_world_loading')
                 : t('sidebar.vrchat_waiting_for_join')

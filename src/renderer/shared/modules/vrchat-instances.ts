@@ -2,66 +2,71 @@ import { ref } from 'vue'
 import { Dependency, Module } from '@shared/module-constructor'
 import type { IPCRenderer } from './ipc'
 import type { MobxRenderer } from './mobx-renderer'
-import type { InstanceSharedState } from '@shared/definition/mobx-shared'
-import type { InstanceEventMessage, InstanceUserSummary } from '@shared/definition/vrchat-instances'
+import type {
+  InstanceEventMessage,
+  InstanceUserWithInformation
+} from '@shared/definition/vrchat-instances'
+import type { InstanceTrackerSharedState } from '@shared/definition/mobx-shared'
 
 export class VRChatInstances extends Module {
   @Dependency('IPCRenderer') declare private ipc: IPCRenderer
   @Dependency('MobxRenderer') declare private mobx: MobxRenderer
 
-  public readonly currentInstanceUsers = ref<InstanceUserSummary[]>([])
+  public readonly currentInstancePlayers = ref<InstanceUserWithInformation[]>([])
   public readonly currentInstanceEvents = ref<InstanceEventMessage[]>([])
-  private $!: InstanceSharedState
+  private $tracker!: InstanceTrackerSharedState
 
   protected async onInit() {
     this.bindEvents()
-    this.$ = this.mobx.use<InstanceSharedState>(this.moduleId)
-    this.currentInstanceUsers.value = await this.getCurrentInstanceUsers()
+    this.$tracker = this.mobx.use<InstanceTrackerSharedState>('VRChatInstances:InstanceTracker')
+    this.currentInstancePlayers.value = await this.getCurrentInstancePlayers()
     this.currentInstanceEvents.value = await this.getCurrentInstanceEvents()
   }
 
   private bindEvents() {
-    this.ipc.listener.on('vrchat-instances:current-instance:append-events', (_, events) => {
+    this.ipc.listener.on('vrchat-instances:instance-tracker:append-events', (_, events) => {
       this.currentInstanceEvents.value.push(...events)
     })
 
-    this.ipc.listener.on('vrchat-instances:current-instance:insert-users', (_, users) => {
-      this.currentInstanceUsers.value.push(...users)
-    })
-
-    this.ipc.listener.on('vrchat-instances:current-instance:update-users', (_, users) => {
-      for (const updatedUser of users) {
-        const i = this.currentInstanceUsers.value.findIndex((u) => u.userId === updatedUser.userId)
-        if (i !== -1) {
-          this.currentInstanceUsers.value[i] = updatedUser
-        }
+    this.ipc.listener.on('vrchat-instances:instance-tracker:update-event', (_, eventId, event) => {
+      const i = this.currentInstanceEvents.value.findIndex((u) => u.eventId === eventId)
+      if (i !== -1) {
+        this.currentInstanceEvents.value[i] = event
       }
     })
 
-    this.ipc.listener.on('vrchat-instances:current-instance:remove-users', (_, userId) => {
-      this.currentInstanceUsers.value = this.currentInstanceUsers.value.filter(
+    this.ipc.listener.on('vrchat-instances:instance-tracker:insert-users', (_, users) => {
+      this.currentInstancePlayers.value.push(...users)
+    })
+
+    this.ipc.listener.on('vrchat-instances:instance-tracker:update-user', (_, userId, user) => {
+      const i = this.currentInstancePlayers.value.findIndex((u) => u.userId === userId)
+      if (i !== -1) {
+        this.currentInstancePlayers.value[i] = user
+      }
+    })
+
+    this.ipc.listener.on('vrchat-instances:instance-tracker:remove-user', (_, userId) => {
+      this.currentInstancePlayers.value = this.currentInstancePlayers.value.filter(
         (user) => user.userId !== userId
       )
     })
 
-    this.ipc.listener.on('vrchat-instances:current-instance:clear-users', () => {
-      this.currentInstanceUsers.value = []
-    })
-
-    this.ipc.listener.on('vrchat-instances:current-instance:clear-events', () => {
+    this.ipc.listener.on('vrchat-instances:instance-tracker:clear', () => {
+      this.currentInstancePlayers.value = []
       this.currentInstanceEvents.value = []
     })
   }
 
-  public getCurrentInstanceUsers() {
-    return this.ipc.emitter.invoke('vrchat-instances:get-current-instance-users')
+  public getCurrentInstancePlayers() {
+    return this.ipc.emitter.invoke('vrchat-instances:instance-tracker:get-current-players')
   }
 
   public getCurrentInstanceEvents() {
-    return this.ipc.emitter.invoke('vrchat-instances:get-current-instance-events')
+    return this.ipc.emitter.invoke('vrchat-instances:instance-tracker:get-current-events')
   }
 
-  public get state() {
-    return this.$
+  public get trackerState() {
+    return this.$tracker
   }
 }

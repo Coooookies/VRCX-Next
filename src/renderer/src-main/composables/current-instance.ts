@@ -1,12 +1,12 @@
 import { computed, shallowRef, watchEffect } from 'vue'
 import { useModule } from '@renderer/shared/hooks/use-module'
 import { LocationInstanceUserType } from '@shared/definition/vrchat-instances'
-import type { InstanceUserSummary } from '@shared/definition/vrchat-instances'
+import type { InstanceUserWithInformation } from '@shared/definition/vrchat-instances'
 import type { ServiceMonitor } from '@renderer/shared/modules/service-monitor'
 import type { VRChatFriends } from '@renderer/shared/modules/vrchat-friends'
 import type { VRChatInstances } from '@renderer/shared/modules/vrchat-instances'
 
-export interface InstancePlayer extends InstanceUserSummary {
+export interface InstancePlayer extends InstanceUserWithInformation {
   isFriend: boolean
   isOwner: boolean
 }
@@ -18,17 +18,14 @@ export function useCurrentInstance() {
   const instancePlayers = shallowRef<InstancePlayer[]>([])
   const instanceEvents = instance.currentInstanceEvents
 
-  const isJoined = computed(() => instance.state.currentInstance.joined)
+  const isJoined = computed(() => instance.trackerState.isJoined)
+  const isInInstance = computed(() => instance.trackerState.isInInstance)
+  const isInitializing = computed(() => instance.trackerState.isInitializing)
   const isGameRunning = computed(() => service.state.vrchat.isRunning)
-  const isInstanceLoading = computed(() => {
-    return service.state.vrchat.isRunning
-      ? instance.state.currentInstance.locationPlayersInitializing
-      : false
-  })
 
   watchEffect(() => {
-    instancePlayers.value = instance.currentInstanceUsers.value.map((user) => {
-      const location = instance.state.currentInstance.locationInstance
+    instancePlayers.value = instance.currentInstancePlayers.value.map((user) => {
+      const location = instance.trackerState.locationInstance
       const isFriend = friends.value.findIndex((f) => f.userId === user.userId) !== -1
       const isOwner =
         (location?.type === LocationInstanceUserType.Friends ||
@@ -49,9 +46,10 @@ export function useCurrentInstance() {
     instancePlayers,
     instanceEvents,
     isGameRunning,
-    isInstanceLoading,
     isJoined,
+    isInInstance,
+    isInitializing,
     service: service.state,
-    instance: instance.state
+    instance: instance.trackerState
   }
 }
