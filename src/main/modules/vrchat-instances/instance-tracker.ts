@@ -409,6 +409,8 @@ export class InstanceTracker extends Nanobus<{
     }
 
     this.players.delete(data.userId)
+    this.events.set(eventId, event)
+    this.emit('instance:player-left', recordId, data.userId)
     patcher()
 
     const summary = await this.requestQueue.add(() => this.users.fetchUserSummary(data.userId!))
@@ -433,6 +435,7 @@ export class InstanceTracker extends Nanobus<{
       }
     }
 
+    this.events.set(eventId, event)
     this.emit('instance:event', recordId, [event])
   }
 
@@ -453,6 +456,7 @@ export class InstanceTracker extends Nanobus<{
       }
     }
 
+    this.events.set(eventId, event)
     this.emit('instance:event', recordId, [event])
   }
 
@@ -473,6 +477,7 @@ export class InstanceTracker extends Nanobus<{
       }
     }
 
+    this.events.set(eventId, event)
     this.emit('instance:event', recordId, [event])
   }
 
