@@ -72,3 +72,42 @@ export async function limitedAllSettled<T extends readonly (() => Promise<unknow
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
+
+export class RequestQueue {
+  private queue: Array<() => void> = []
+  private running = 0
+  private readonly concurrency: number
+
+  constructor(concurrency: number) {
+    this.concurrency = Math.max(1, Math.floor(concurrency))
+  }
+
+  public add<T>(task: () => Promise<T>): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      const runner = () => {
+        this.running++
+        task()
+          .then(resolve)
+          .catch(reject)
+          .finally(() => {
+            this.running--
+            this.runNext()
+          })
+      }
+
+      if (this.running < this.concurrency) {
+        runner()
+      } else {
+        this.queue.push(runner)
+      }
+    })
+  }
+
+  private runNext(): void {
+    if (this.running >= this.concurrency) return
+    const next = this.queue.shift()
+    if (next) {
+      next()
+    }
+  }
+}
