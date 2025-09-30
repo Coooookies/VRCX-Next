@@ -10,7 +10,7 @@ import { Database } from './database'
 import { ServiceMonitor } from './service-monitor'
 import { VRChatAPI } from './vrchat-api'
 import { VRChatAuthentication } from './vrchat-authentication'
-import { VRChatLogWatcher } from './vrchat-log-watcher'
+import { VRChatGameProcess } from './vrchat-game-process'
 import { VRChatMiscellaneous } from './vrchat-miscellaneous'
 import { VRChatWorkflowCoordinator } from './vrchat-workflow-coordinator'
 import { VRChatPipeline } from './vrchat-pipeline'
@@ -35,7 +35,7 @@ export const APP_MODULES: Record<string, ModuleConstructor> = {
   IPCModule,
   ImageSelection,
   ServiceMonitor,
-  VRChatLogWatcher,
+  VRChatGameProcess,
   VRChatAPI,
   VRChatMiscellaneous,
   VRChatAuthentication,

@@ -6,14 +6,26 @@ import { readLinesReverse, ReverseReadStopSignal } from '@main/utils/fs'
 import { parseEventLine, parseSpecialEventLine } from './log-parser'
 import { getLatestLogfile, getLogDir, isLogFile } from './utils'
 import { Tail } from 'tail'
-import { Module } from '@shared/module-constructor'
-import { GAMELOG_PARSER_DATE_REGEXP, GAMELOG_PARSER_REGEXP } from './constants'
-import type { LogEventContext, LogEventMessage, LogEventSummary } from './types'
+import { Dependency, Module } from '@shared/module-constructor'
+import {
+  GAMELOG_PARSER_DATE_REGEXP,
+  GAMELOG_PARSER_REGEXP,
+  GAMELOG_PROCESS_USER_EVENTS_LIMIT
+} from './constants'
+import { LogEvents } from './types'
+import { ServiceMonitor } from '../service-monitor'
+import type { GameProcessUser, LogEventContext, LogEventMessage, LogEventSummary } from './types'
 
-export class VRChatLogWatcher extends Module<{
-  raw: (raw: string) => void
-  message: (data: LogEventMessage, context: LogEventContext) => void
+export class VRChatGameProcess extends Module<{
+  'log:raw': (raw: string) => void
+  'game:start': () => void
+  'game:stop': () => void
+  'game:event': (data: LogEventMessage, context: LogEventContext) => void
+  'game:user-authenticated': (userId: string, userName: string) => void
+  'game:user-logged-out': (exitWithGame: boolean) => void
 }> {
+  @Dependency('ServiceMonitor') declare private monitor: ServiceMonitor
+
   private readonly logger = createLogger(this.moduleId)
   public static lineRegex = GAMELOG_PARSER_REGEXP
   public static lineDataRegex = GAMELOG_PARSER_DATE_REGEXP
@@ -21,6 +33,7 @@ export class VRChatLogWatcher extends Module<{
   private currentLogDir: string = getLogDir()
   private currentLogFile: null | string = null
   private tail: null | Tail = null
+  private user: GameProcessUser | null = null
 
   protected onInit(): void {
     this.bindEvents()
@@ -28,15 +41,36 @@ export class VRChatLogWatcher extends Module<{
 
   protected onLoad(): void {
     this.startWatchFile()
+
+    if (this.monitor.vrchatState.isRunning) {
+      this.resumeCurrentGameUser()
+    }
   }
 
   private bindEvents() {
-    // this.on('raw', (data) => {
-    //   this.logger.debug('Raw log line:', data)
-    // })
+    this.on('game:event', (event) => {
+      switch (event.type) {
+        case LogEvents.UserAuthenticated: {
+          this.setCurrentGameUser(event.content)
+          break
+        }
+        case LogEvents.UserLoggedOut: {
+          this.clearCurrentGameUser(false)
+          break
+        }
+      }
 
-    this.on('message', (data) => {
-      this.logger.debug('Parsed log event:', data.type, JSON.stringify(data.content, null, 2))
+      this.logger.debug('Parsed log event:', event.type, JSON.stringify(event.content, null, 2))
+    })
+
+    this.monitor.on('process:vrchat:state-change', (isRunning) => {
+      if (isRunning) {
+        this.resumeCurrentGameUser()
+        this.emit('game:start')
+      } else {
+        this.clearCurrentGameUser(true)
+        this.emit('game:stop')
+      }
     })
   }
 
@@ -93,7 +127,7 @@ export class VRChatLogWatcher extends Module<{
   }
 
   private handleParseLine(data: string) {
-    this.emit('raw', data)
+    this.emit('log:raw', data)
 
     const context = parseEventLine(data)
     if (!context) {
@@ -102,7 +136,50 @@ export class VRChatLogWatcher extends Module<{
 
     const specialEvent = parseSpecialEventLine(context)
     if (specialEvent) {
-      this.emit('message', specialEvent, context)
+      this.emit('game:event', specialEvent, context)
+    }
+  }
+
+  private setCurrentGameUser(user: GameProcessUser) {
+    this.user = user
+    this.emit('game:user-authenticated', user.userId, user.userName)
+  }
+
+  private clearCurrentGameUser(exitWithGame: boolean) {
+    this.user = null
+    this.emit('game:user-logged-out', exitWithGame)
+  }
+
+  private async resumeCurrentGameUser() {
+    const events = await this.resolveBackwardEvents(
+      GAMELOG_PROCESS_USER_EVENTS_LIMIT,
+      (data, _, signal) => {
+        switch (data.type) {
+          case LogEvents.UserAuthenticated:
+          case LogEvents.UserLoggedOut: {
+            signal.stop(true)
+            break
+          }
+        }
+
+        return false
+      }
+    )
+
+    if (events.length === 0) {
+      return
+    }
+
+    const event = events[0]
+    switch (event.data.type) {
+      case LogEvents.UserAuthenticated: {
+        this.setCurrentGameUser(event.data.content)
+        break
+      }
+      case LogEvents.UserLoggedOut: {
+        this.clearCurrentGameUser(false)
+        break
+      }
     }
   }
 
@@ -140,5 +217,9 @@ export class VRChatLogWatcher extends Module<{
       const data = parseSpecialEventLine(context)!
       return { context, data }
     })
+  }
+
+  public get currentUser() {
+    return this.user
   }
 }

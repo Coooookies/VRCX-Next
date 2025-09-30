@@ -4,6 +4,7 @@ import {
   GAMELOG_PARSER_REGEXP,
   GAMELOG_PLAYER_ACTIVITY_REGEXP,
   GAMELOG_PREPARATION_REGEXP,
+  GAMELOG_USER_AUTHENTICATED_REGEXP,
   GAMELOG_VIDEO_PLAYBACK_ERROR_REGEXP,
   GAMELOG_VIDEO_PLAYBACK_LOAD_REGEXP,
   GAMELOG_VOTE_KICK_REGEXP
@@ -42,6 +43,33 @@ export function parseEventLine(line: string): LogEventContext | null {
 }
 
 export function parseSpecialEventLine(data: LogEventContext): LogEventMessage | null {
+  // user authenticated
+  if (data.type === 'debug' && data.data.startsWith('User Authenticated:')) {
+    const regexRes = data.data.match(GAMELOG_USER_AUTHENTICATED_REGEXP)
+
+    if (regexRes?.groups?.username && regexRes?.groups?.userId) {
+      return {
+        type: LogEvents.UserAuthenticated,
+        content: {
+          userName: regexRes.groups.username,
+          userId: regexRes.groups.userId
+        }
+      }
+    }
+  }
+
+  // user logged out
+  if (
+    data.type === 'debug' &&
+    data.topic === 'Behaviour' &&
+    data.content?.startsWith('User is logged out.')
+  ) {
+    return {
+      type: LogEvents.UserLoggedOut,
+      content: null
+    }
+  }
+
   // String Download / Image Download
   if (
     data.type === 'debug' &&

@@ -38,6 +38,8 @@ export interface LogEventPrepartion {
 }
 
 export const LogEvents = {
+  UserAuthenticated: 'authenticated',
+  UserLoggedOut: 'loggedOut',
   SelfJoin: 'selfJoin',
   SelfLeave: 'selfLeave',
   PlayerJoined: 'playerJoined',
@@ -53,6 +55,8 @@ export const LogEvents = {
 export type LogEvents = (typeof LogEvents)[keyof typeof LogEvents]
 
 export type LogEventDefinition = {
+  [LogEvents.UserAuthenticated]: LogEventPlayerActivity
+  [LogEvents.UserLoggedOut]: null
   [LogEvents.SelfJoin]: LogEventSelfJoin
   [LogEvents.SelfLeave]: null
   [LogEvents.PlayerJoined]: LogEventPlayerActivity
@@ -75,4 +79,9 @@ export type LogEventMessage = {
 export interface LogEventSummary {
   data: LogEventMessage
   context: LogEventContext
+}
+
+export interface GameProcessUser {
+  userId: string
+  userName: string
 }
