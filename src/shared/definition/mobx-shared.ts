@@ -28,6 +28,7 @@ export interface InstanceSharedState {}
 
 export interface InstanceTrackerSharedState {
   recordId: string | null
+  isRunning: boolean
   isInitializing: boolean
   isInInstance: boolean
   isJoined: boolean

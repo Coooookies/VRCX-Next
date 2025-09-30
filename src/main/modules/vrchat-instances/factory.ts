@@ -1,6 +1,6 @@
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { generateEventId, generateRecordId } from './utils'
-import { LogEvents } from '../vrchat-log-watcher/types'
+import { LogEvents } from '../vrchat-game-process/types'
 import {
   InstanceEvents,
   LocationInstanceGroupType,
@@ -13,7 +13,7 @@ import type {
   LocationInstance
 } from '@shared/definition/vrchat-instances'
 import type { LogInstanceSummary } from './types'
-import type { LogEventSummary } from '../vrchat-log-watcher/types'
+import type { LogEventSummary } from '../vrchat-game-process/types'
 
 export function parseInstanceFromEventLogs(
   logs: LogEventSummary[],

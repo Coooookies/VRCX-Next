@@ -18,6 +18,7 @@ export class InstanceEventBinding {
 
   private bindEvents() {
     this.tracker.on('instance:joined', (recordId, location, joinedAt) => {
+      const refUserId = this.tracker.currentUserId || 'Unknown'
       const ownerId = parseOwnerIdfromLocationInstance(location) || 'Unknown'
       const [, instanceId] = location.location.split(':')
 
@@ -27,6 +28,7 @@ export class InstanceEventBinding {
       entity.recordedAt = joinedAt
       entity.worldId = location.worldId
       entity.ownerId = ownerId
+      entity.refUserId = refUserId
       entity.instanceId = instanceId
       entity.instanceType = location.type
       this.repository.upsertVisitedInstanceRecord(entity)
@@ -34,6 +36,7 @@ export class InstanceEventBinding {
 
     this.tracker.on('instance:initialization-complete', (recordId, _, world, owner) => {
       const worldName = world ? world.worldName : 'Unknown'
+      const worldVersion = world ? world.version : 0
       let ownerName: string
 
       switch (owner?.type) {
@@ -50,6 +53,7 @@ export class InstanceEventBinding {
 
       this.repository.updateVisitedInstanceRecord(recordId, {
         worldName,
+        worldVersion,
         ownerName
       })
     })

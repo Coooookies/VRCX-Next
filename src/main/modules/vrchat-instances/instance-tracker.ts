@@ -11,7 +11,7 @@ import {
   LogEventPlayerActivity,
   LogEvents,
   LogEventSelfJoin
-} from '../vrchat-log-watcher/types'
+} from '../vrchat-game-process/types'
 import {
   InstanceEvents,
   InstanceEventUser,
@@ -21,7 +21,7 @@ import {
 } from '@shared/definition/vrchat-instances'
 import type { UserEntity } from '../database/entities/vrchat-cache-users'
 import type { MobxState } from '../mobx-state'
-import type { VRChatLogWatcher } from '../vrchat-log-watcher'
+import type { VRChatGameProcess } from '../vrchat-game-process'
 import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatWorlds } from '../vrchat-worlds'
 import type { VRChatGroups } from '../vrchat-groups'
@@ -61,9 +61,10 @@ export class InstanceTracker extends Nanobus<{
   private events = new Map<string, InstanceEventMessage>()
   private state!: InstanceTrackerSharedState
   private isListening = false
+  private bindingUserId: string | null = null
 
   constructor(
-    private readonly log: VRChatLogWatcher,
+    private readonly gameProcess: VRChatGameProcess,
     private readonly mobx: MobxState,
     private readonly users: VRChatUsers,
     private readonly world: VRChatWorlds,
@@ -75,6 +76,7 @@ export class InstanceTracker extends Nanobus<{
       'VRChatInstances:InstanceTracker',
       {
         recordId: null,
+        isRunning: false,
         isInitializing: false,
         isInInstance: false,
         isJoined: false,
@@ -85,6 +87,7 @@ export class InstanceTracker extends Nanobus<{
       },
       [
         'recordId',
+        'isRunning',
         'isInitializing',
         'isInInstance',
         'isJoined',
@@ -96,10 +99,18 @@ export class InstanceTracker extends Nanobus<{
     )
   }
 
-  public async start(ignoreLatestInstance = false) {
+  public async loginAs(userId: string, ignoreLatestInstance = false) {
+    if (this.isListening) {
+      return
+    }
+
+    this.bindingUserId = userId
+    this.mobx.action(() => {
+      this.state.isRunning = true
+    })
+
     const logs = await this.resolveLatestInstanceEvents()
-    const currentUserId = this.users.currentUser?.userId ?? ''
-    const currentInstance = parseInstanceFromEventLogs(logs.toReversed(), currentUserId)
+    const currentInstance = parseInstanceFromEventLogs(logs.toReversed(), userId)
 
     if (currentInstance && currentInstance.isInInstance && !ignoreLatestInstance) {
       await this.applyLogInstanceSummary(currentInstance)
@@ -113,11 +124,16 @@ export class InstanceTracker extends Nanobus<{
     }
   }
 
-  public stop() {
+  public logout(exitWithGame = false) {
+    if (exitWithGame) {
+      this.handleGameExit()
+    }
+
     this.players.clear()
     this.events.clear()
     this.emit('instance:clear')
 
+    this.bindingUserId = null
     this.isListening = false
     this.mobx.action(() => {
       this.state.recordId = null
@@ -125,6 +141,7 @@ export class InstanceTracker extends Nanobus<{
       this.state.locationJoinedAt = null
       this.state.worldDetail = null
       this.state.ownerDetail = null
+      this.state.isRunning = false
       this.state.isInitializing = false
       this.state.isInInstance = false
       this.state.isJoined = false
@@ -132,7 +149,7 @@ export class InstanceTracker extends Nanobus<{
   }
 
   private bindEvents() {
-    this.log.on('message', (data, context) => {
+    this.gameProcess.on('game:event', (data, context) => {
       if (!this.isListening) {
         return
       }
@@ -346,8 +363,12 @@ export class InstanceTracker extends Nanobus<{
       })
     }
 
-    const evenType = this.state.isJoined ? InstanceEvents.UserJoin : InstanceEvents.UserPresent
-    const eventId = generateEventId(recordId, evenType, data.userId, context.date)
+    const eventType =
+      this.isCurrentUser(data.userId) || this.state.isJoined
+        ? InstanceEvents.UserJoin
+        : InstanceEvents.UserPresent
+
+    const eventId = generateEventId(recordId, eventType, data.userId, context.date)
     const user: InstanceUserWithInformation = {
       userId: data.userId,
       userName: data.userName,
@@ -363,7 +384,7 @@ export class InstanceTracker extends Nanobus<{
 
     const event: InstanceEventMessage = {
       eventId,
-      type: evenType,
+      type: eventType,
       recordedAt: context.date,
       content: eventContent
     }
@@ -396,8 +417,12 @@ export class InstanceTracker extends Nanobus<{
       return
     }
 
-    const evenType = this.state.isJoined ? InstanceEvents.UserLeave : InstanceEvents.UserRemain
-    const eventId = generateEventId(recordId, evenType, data.userId, context.date)
+    const eventType =
+      this.isCurrentUser(data.userId) || this.state.isJoined
+        ? InstanceEvents.UserLeave
+        : InstanceEvents.UserRemain
+
+    const eventId = generateEventId(recordId, eventType, data.userId, context.date)
     const eventContent: InstanceEventUser = {
       userName: data.userName,
       userId: data.userId,
@@ -406,7 +431,7 @@ export class InstanceTracker extends Nanobus<{
 
     const event: InstanceEventMessage = {
       eventId,
-      type: evenType,
+      type: eventType,
       recordedAt: context.date,
       content: eventContent
     }
@@ -493,23 +518,28 @@ export class InstanceTracker extends Nanobus<{
   }
 
   private async resolveLatestInstanceEvents() {
-    return this.log.resolveBackwardEvents(CURRENT_INSTANCE_LOG_EVENTS_LIMIT, (data, _, signal) => {
-      switch (data.type) {
-        case LogEvents.SelfLeave:
-        case LogEvents.PlayerJoined:
-        case LogEvents.PlayerLeft:
-        case LogEvents.VideoPlaybackLoad:
-        case LogEvents.VideoPlaybackError: {
-          return true
+    return this.gameProcess.resolveBackwardEvents(
+      CURRENT_INSTANCE_LOG_EVENTS_LIMIT,
+      (data, _, signal) => {
+        switch (data.type) {
+          case LogEvents.SelfLeave:
+          case LogEvents.PlayerJoined:
+          case LogEvents.PlayerLeft:
+          case LogEvents.VideoPlaybackLoad:
+          case LogEvents.VideoPlaybackError: {
+            return true
+          }
+          case LogEvents.SelfJoin:
+          case LogEvents.UserAuthenticated:
+          case LogEvents.UserLoggedOut: {
+            signal.stop(true)
+            break
+          }
         }
-        case LogEvents.SelfJoin: {
-          signal.stop(true)
-          break
-        }
-      }
 
-      return false
-    })
+        return false
+      }
+    )
   }
 
   private async getOwnerFromLocation(location: LocationInstance): Promise<LocationOwner | null> {
@@ -546,6 +576,38 @@ export class InstanceTracker extends Nanobus<{
     return owner
   }
 
+  private handleGameExit() {
+    const recordId = this.state.recordId
+    if (!recordId) {
+      return
+    }
+
+    const date = new Date()
+    const remainPlayers = [...this.players.values()]
+    const events = remainPlayers.map((player) => {
+      const eventType = this.isCurrentUser(player.userId)
+        ? InstanceEvents.UserLeave
+        : InstanceEvents.UserRemain
+
+      const eventId = generateEventId(recordId, eventType, player.userId, date)
+      const eventContent: InstanceEventUser = {
+        userName: player.userName,
+        userId: player.userId,
+        user: player.user
+      }
+
+      return {
+        eventId,
+        type: eventType,
+        recordedAt: date,
+        content: eventContent
+      }
+    })
+
+    this.emit('instance:event', recordId, events)
+    this.emit('instance:left', recordId, date)
+  }
+
   private getWorldFromLocation(location: LocationInstance): Promise<WorldDetail | null> {
     return this.world.fetchWorld(location.worldId, {
       ignoreInstances: true
@@ -553,7 +615,7 @@ export class InstanceTracker extends Nanobus<{
   }
 
   private isCurrentUser(userId: string): boolean {
-    return this.users.currentUser?.userId === userId
+    return this.bindingUserId === userId
   }
 
   public get instance() {
@@ -581,5 +643,9 @@ export class InstanceTracker extends Nanobus<{
 
   public get currentEvents() {
     return [...this.events.values()]
+  }
+
+  public get currentUserId() {
+    return this.bindingUserId
   }
 }
