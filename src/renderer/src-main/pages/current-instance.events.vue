@@ -6,6 +6,7 @@ import CurrentInstanceEventItemUserLeave from '../components/current-instance/cu
 import CurrentInstanceEventItemUserPresent from '../components/current-instance/current-instance-event-item-user-present.vue'
 import { useCurrentInstance } from '../composables/current-instance'
 import { InstanceEvents } from '@shared/definition/vrchat-instances'
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import type { Ref } from 'vue'
 import type { InstancePresentUser } from '../components/current-instance/types'
 
@@ -13,7 +14,9 @@ const searchValue = inject<Ref<string>>('current-instance:search-value')!
 const { instance, instanceEvents } = useCurrentInstance()
 
 const instanceSortedEvents = computed(() => {
+  const availableEvents = [InstanceEvents.UserJoin, InstanceEvents.UserLeave] as readonly string[]
   return instanceEvents.value
+    .filter((item) => availableEvents.includes(item.type))
     .filter((item) => {
       const searchCtx = searchValue.value.toLowerCase()
 
@@ -56,28 +59,50 @@ const instancePresentUsersVisible = computed(() => {
     user.userName.toLowerCase().includes(searchValue.value.toLowerCase())
   )
 })
+
+const isLastItem = (index: number) => {
+  return index === instanceSortedEvents.value.length - 1 && !instancePresentUsersVisible.value
+}
 </script>
 
 <template>
   <div class="w-full">
     <CurrentInstanceEventHeader class="sticky top-32 z-1" :joined-at="instance.locationJoinedAt" />
     <div class="w-full pt-1.5">
-      <template v-for="(event, index) in instanceSortedEvents" :key="index">
-        <CurrentInstanceEventItemUserJoin
-          v-if="event.type === InstanceEvents.UserJoin"
-          :icon-file-id="event.content.user?.profileIconFileId"
-          :icon-file-version="event.content.user?.profileIconFileVersion"
-          :user-name="event.content.userName"
-          :recorded-at="event.recordedAt"
-        />
-        <CurrentInstanceEventItemUserLeave
-          v-else-if="event.type === InstanceEvents.UserLeave"
-          :icon-file-id="event.content.user?.profileIconFileId"
-          :icon-file-version="event.content.user?.profileIconFileVersion"
-          :user-name="event.content.userName"
-          :recorded-at="event.recordedAt"
-        />
-      </template>
+      <DynamicScroller
+        key-field="eventId"
+        page-mode
+        item-class="group/event-item"
+        :items="instanceSortedEvents"
+        :min-item-size="70"
+      >
+        <template #default="{ item, index, active }">
+          <DynamicScrollerItem
+            :item="item"
+            :size-dependencies="['item.type']"
+            :active="active"
+            :data-index="index"
+            class="w-full h-fit"
+          >
+            <CurrentInstanceEventItemUserJoin
+              v-if="item.type === InstanceEvents.UserJoin"
+              :icon-file-id="item.content.user?.profileIconFileId"
+              :icon-file-version="item.content.user?.profileIconFileVersion"
+              :user-name="item.content.userName"
+              :recorded-at="item.recordedAt"
+              :last-item="isLastItem(index)"
+            />
+            <CurrentInstanceEventItemUserLeave
+              v-else-if="item.type === InstanceEvents.UserLeave"
+              :icon-file-id="item.content.user?.profileIconFileId"
+              :icon-file-version="item.content.user?.profileIconFileVersion"
+              :user-name="item.content.userName"
+              :recorded-at="item.recordedAt"
+              :last-item="isLastItem(index)"
+            />
+          </DynamicScrollerItem>
+        </template>
+      </DynamicScroller>
       <CurrentInstanceEventItemUserPresent
         v-if="instancePresentUsersVisible"
         :users="instancePresentUsers"

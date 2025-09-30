@@ -8,6 +8,7 @@ const props = defineProps<{
   userName: string
   iconFileId?: string
   iconFileVersion?: number
+  lastItem?: boolean
 }>()
 </script>
 
@@ -18,7 +19,7 @@ const props = defineProps<{
         'py-3 pl-10 relative',
         'after:absolute after:content-normal after:left-5.5 after:top-0 after:h-full',
         'after:border-l-2 after:border-muted after:border-dotted after:-z-1',
-        'last:after:h-5.5'
+        props.lastItem ? 'after:h-5.5' : 'after:h-full'
       )
     "
   >
