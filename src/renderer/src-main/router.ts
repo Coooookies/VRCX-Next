@@ -103,7 +103,7 @@ export function createRouter() {
   })
 
   auth.on('state:update', ({ type }) => {
-    router.push({ name: type === 'authenticated' ? 'page-app' : 'page-auth' })
+    router.replace({ name: type === 'authenticated' ? 'page-app' : 'page-auth' })
   })
 
   return router
