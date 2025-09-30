@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '../layouts/app-layout.vue'
+import Header from '../components/header/header.vue'
 import SidebarLeft from '../components/sidebar/sidebar-left.vue'
 import SidebarRight from '../components/sidebar/sidebar-right.vue'
 import { computed, ref } from 'vue'
@@ -55,7 +56,9 @@ const routeTo = (name: string) => {
     <template #content>
       <SlideRouterView />
     </template>
-    <template #overlay> </template>
+    <template #overlay>
+      <Header />
+    </template>
     <template #right-sidebar>
       <SidebarRight
         v-model:expanded="rightExpanded"

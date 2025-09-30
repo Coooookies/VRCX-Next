@@ -76,7 +76,7 @@ provide('routePadding', {
       <div
         :class="
           cn(
-            'relative -mt-10 flex justify-center w-full',
+            'relative -mt-10 flex justify-center w-full z-9',
             props.leftExpanded ? 'pl-[var(--left-expand-width)]' : 'pl-[var(--collapse-width)]',
             props.rightExpanded ? 'pr-[var(--right-expand-width)]' : 'pr-[var(--collapse-width)]'
           )
