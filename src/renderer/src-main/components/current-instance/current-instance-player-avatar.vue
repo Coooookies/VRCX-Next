@@ -28,12 +28,9 @@ const maskImage = computed(() => {
 <template>
   <div class="relative size-6">
     <div class="relative size-full rounded-full overflow-hidden" :style="{ maskImage }">
-      <ImageRoot
-        v-if="props.fileId && props.version"
-        :key="`${props.fileId}-${props.version}`"
-        class="size-full"
-      >
+      <ImageRoot :key="`${props.fileId}-${props.version}`" class="size-full">
         <ImageVRChatContext
+          v-if="props.fileId && props.version"
           :file-id="props.fileId"
           :version="props.version"
           :size="32"
@@ -49,7 +46,6 @@ const maskImage = computed(() => {
           </template>
         </ImageFallback>
       </ImageRoot>
-      <Skeleton v-else class="size-full" />
     </div>
     <div class="absolute -bottom-0.5 -right-0.5 size-3">
       <InstanceOwnerIcon v-if="props.isOwner" class="size-full text-amber-300" />
