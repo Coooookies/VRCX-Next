@@ -9,6 +9,8 @@ export class CreateVisitedInstanceTable1710000000000 implements MigrationInterfa
         "record_id" varchar(63) PRIMARY KEY NOT NULL,
         "world_id" varchar(63) NOT NULL,
         "world_name" text,
+        "world_version" integer,
+        "ref_user_id" varchar(63) NOT NULL,
         "owner_id" varchar(63),
         "owner_name" text,
         "instance_id" text NOT NULL,
@@ -26,6 +28,9 @@ export class CreateVisitedInstanceTable1710000000000 implements MigrationInterfa
     `)
     await runner.query(`
       CREATE INDEX "IDX_vrchat_visited_instances_owner_name" ON "vrchat_visited_instances" ("owner_name");
+    `)
+    await runner.query(`
+      CREATE INDEX "IDX_vrchat_visited_instances_ref_user_id" ON "vrchat_visited_instances" ("ref_user_id");
     `)
     await runner.query(`
       CREATE INDEX "IDX_vrchat_visited_instances_world_id" ON "vrchat_visited_instances" ("world_id");
