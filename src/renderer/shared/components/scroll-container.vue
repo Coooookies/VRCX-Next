@@ -16,7 +16,7 @@ export interface ScrollContainerProps {
   scrollbarWidth?: number
   fadeOutAtTop?: boolean
   fadeOutAtBottom?: boolean
-  disableScrollBar?: boolean
+  disableScroll?: boolean
 }
 
 const props = withDefaults(defineProps<ScrollContainerProps>(), {
@@ -26,7 +26,7 @@ const props = withDefaults(defineProps<ScrollContainerProps>(), {
   scrollbarWidth: 4,
   fadeOutAtTop: false,
   fadeOutAtBottom: false,
-  disableScrollBar: false
+  disableScroll: false
 })
 
 const content = useTemplateRef('content')
@@ -48,7 +48,7 @@ const scrollThumbProportion = computed(() => containerHeight.value / scrollHeigh
 const scrollThumbRate = computed(() => scrollTop.value / scrollHeight.value)
 
 const ThumbMouseDown = (event: MouseEvent): void => {
-  if (props.disableScrollBar) {
+  if (props.disableScroll) {
     return
   }
 
@@ -71,7 +71,7 @@ const ThumbMouseUp = (): void => {
 }
 
 const updateScrollbar = (): void => {
-  if (!container.value || props.disableScrollBar) {
+  if (!container.value || props.disableScroll) {
     return
   }
 
@@ -146,7 +146,7 @@ defineExpose({
         'hide-all': scrollState === 'all'
       }"
       :style="{
-        overflow: props.disableScrollBar ? 'hidden' : 'auto'
+        overflow: props.disableScroll ? 'hidden' : 'auto'
       }"
       @scroll="updateScrollbar"
     >
