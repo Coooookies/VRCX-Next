@@ -159,7 +159,11 @@ export class ServiceMonitor extends Module<{
     }
   }
 
-  public get Repository() {
-    return this.repository
+  public get vrchatState() {
+    return this.repository.vrchatState
+  }
+
+  public get steamvrState() {
+    return this.repository.steamvrState
   }
 }
