@@ -85,10 +85,10 @@ provide('current-instance:search-value', searchValue)
         >
           <div
             :class="
-              cn('relative w-full pt-18 h-fit z-2', '@5xl:sticky @5xl:top-0 @5xl:w-64', '@7xl:w-70')
+              cn('relative w-full pt-19 h-fit z-2', '@5xl:sticky @5xl:top-0 @5xl:w-64', '@7xl:w-70')
             "
           >
-            <div :class="cn('h-12 flex flex-row items-center', '@5xl:h-9')">
+            <div :class="cn('h-9 flex flex-row items-center', '@5xl:h-9')">
               <p :class="cn('font-semibold text-2xl', '@5xl:text-lg')">Location</p>
             </div>
             <div :class="cn('flex mt-4 flex-row gap-8', '@5xl:flex-col @5xl:gap-4')">
@@ -114,8 +114,8 @@ provide('current-instance:search-value', searchValue)
               </Tabs>
             </div>
           </div>
-          <div :class="cn('relative w-full pb-10 -mt-18', '@5xl:mt-0 @5xl:w-[unset] @5xl:flex-1')">
-            <div class="sticky top-0 z-1 pt-18 pb-4 bg-background">
+          <div :class="cn('relative w-full pb-10 -mt-19', '@5xl:mt-0 @5xl:w-[unset] @5xl:flex-1')">
+            <div class="sticky top-0 z-1 pt-19 pb-4 bg-background">
               <div class="flex flex-row justify-between h-9 pl-1">
                 <CurrentInstancePageTabs
                   :tabs="pageTabs"

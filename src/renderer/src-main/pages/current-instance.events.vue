@@ -60,7 +60,7 @@ const instancePresentUsersVisible = computed(() => {
 
 <template>
   <div class="w-full">
-    <CurrentInstanceEventHeader class="sticky top-31 z-1" :joined-at="instance.locationJoinedAt" />
+    <CurrentInstanceEventHeader class="sticky top-32 z-1" :joined-at="instance.locationJoinedAt" />
     <div class="w-full pt-1.5">
       <template v-for="(event, index) in instanceSortedEvents" :key="index">
         <CurrentInstanceEventItemUserJoin
