@@ -86,6 +86,11 @@ export class VRChatAuthentication extends Module<{
 
       this.repository.setState(state)
     })
+
+    // auto signout when unauthorized
+    this.api.on('response:unauthorized', () => {
+      this.signout()
+    })
   }
 
   private async resumeLoginSession() {
