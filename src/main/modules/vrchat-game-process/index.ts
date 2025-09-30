@@ -48,6 +48,10 @@ export class VRChatGameProcess extends Module<{
   }
 
   private bindEvents() {
+    this.on('log:raw', (raw) => {
+      this.logger.trace('Raw log line:', raw)
+    })
+
     this.on('game:event', (event) => {
       switch (event.type) {
         case LogEvents.UserAuthenticated: {
