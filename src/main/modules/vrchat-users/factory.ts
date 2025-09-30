@@ -16,10 +16,12 @@ import type {
 } from '@shared/definition/vrchat-api-response'
 
 export function getProfileIconUrl(target: User | CurrentUser | LimitedUserFriend): string {
-  const supporterIconUrl = isSupporter(target.tags) ? target.userIcon : null
-  const avatarUrl = isSupporter(target.tags) ? null : target.currentAvatarImageUrl
   const profileUrl = target.profilePicOverride
-  return supporterIconUrl || avatarUrl || profileUrl
+  const supporterAvatarUrl =
+    isSupporter(target.tags) && target.userIcon ? target.userIcon : profileUrl
+
+  const avatarUrl = target.currentAvatarImageUrl
+  return supporterAvatarUrl || profileUrl || avatarUrl
 }
 
 export function getProfileBackgroundUrl(target: User | CurrentUser | LimitedUserFriend): string {
