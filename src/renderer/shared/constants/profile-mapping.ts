@@ -118,7 +118,7 @@ export const SOCIAL_PATTERN_MAPPING: Record<UserSocial, SocialPatternItem> = {
     label: 'profile.social.discord',
     icon: SocialDiscordIcon,
     pattern: (href) =>
-      /^https?:\/\/(www\.)?discord\.gg\/.*$|^https?:\/\/(www\.)?discord\.com\/.*$|^https?:\/\/discordapp\.com\/.*$/i.test(
+      /^https?:\/\/(www\.)?discord\.gg\/.*$|^https?:\/\/(www\.)?discord\.com\/.*$|^https?:\/\/discord\.io\/.*$|^https?:\/\/discordapp\.com\/.*$/i.test(
         href
       )
   },
@@ -172,7 +172,7 @@ export const SOCIAL_PATTERN_MAPPING: Record<UserSocial, SocialPatternItem> = {
   [UserSocial.Twitch]: {
     label: 'profile.social.twitch',
     icon: SocialTwitchIcon,
-    pattern: (href) => /^https?:\/\/(www\.)?twitch\.tv\/.*$/.test(href)
+    pattern: (href) => /^https?:\/\/(?:www\.|clips\.)?twitch\.tv\/.*$/.test(href)
   },
   [UserSocial.Vimeo]: {
     label: 'profile.social.vimeo',
