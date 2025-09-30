@@ -18,8 +18,8 @@ export class InstanceEventBinding {
 
   private bindEvents() {
     this.tracker.on('instance:joined', (recordId, location, joinedAt) => {
-      const refUserId = this.tracker.currentUserId || 'Unknown'
-      const ownerId = parseOwnerIdfromLocationInstance(location) || 'Unknown'
+      const refUserId = this.tracker.currentUserId || ''
+      const ownerId = parseOwnerIdfromLocationInstance(location) || ''
       const [, instanceId] = location.location.split(':')
 
       const entity = new VisitedInstanceEntity()
@@ -35,16 +35,16 @@ export class InstanceEventBinding {
     })
 
     this.tracker.on('instance:initialization-complete', (recordId, _, world, owner) => {
-      const worldName = world ? world.worldName : 'Unknown'
+      const worldName = world ? world.worldName : ''
       const worldVersion = world ? world.version : 0
       let ownerName: string
 
       switch (owner?.type) {
         case 'user':
-          ownerName = owner.summary?.displayName || 'Unknown'
+          ownerName = owner.summary?.displayName || ''
           break
         case 'group':
-          ownerName = owner.summary?.groupName || 'Unknown'
+          ownerName = owner.summary?.groupName || ''
           break
         default:
           ownerName = 'Unknown'
