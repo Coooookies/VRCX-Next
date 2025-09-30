@@ -11,16 +11,19 @@ import CurrentInstanceWaitingForJoin from '../components/current-instance/curren
 import LightRaysBackground from '@renderer/shared/components/light-rays-background.vue'
 import { computed, provide, ref } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
+import { useModule } from '@renderer/shared/hooks/use-module'
 import { useRoute, useRouter } from 'vue-router'
 import { useCurrentInstance } from '../composables/current-instance'
 import { Tabs } from '@renderer/shared/components/ui/tabs'
 import { RouterView } from 'vue-router'
 import { LocationInstanceGroupType } from '@shared/definition/vrchat-instances'
+import type { VRChatUsers } from '@renderer/shared/modules/vrchat-users'
 import type { CurrentInstanceInfoTab } from '../components/current-instance/current-instance-info-tabs.vue'
 import type { CurrentInstancePageTab } from '../components/current-instance/current-instance-page-tabs.vue'
 
 const router = useRouter()
 const route = useRoute()
+const users = useModule<VRChatUsers>('VRChatUsers')
 const { instancePlayers, instance, isGameRunning, isInInstance } = useCurrentInstance()
 
 const infoTabs: CurrentInstanceInfoTab[] = [
@@ -132,7 +135,10 @@ provide('current-instance:search-value', searchValue)
         </div>
       </template>
       <template v-else>
-        <CurrentInstanceNotRunning class="z-3" />
+        <CurrentInstanceNotRunning
+          :user-name="users.state.user?.displayName || 'Unknown'"
+          class="z-3"
+        />
       </template>
     </div>
   </AppRoute>

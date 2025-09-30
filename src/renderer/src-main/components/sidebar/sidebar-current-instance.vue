@@ -12,7 +12,7 @@ import { ImageFallback, ImageRoot } from '@renderer/shared/components/ui/image'
 import { ImageIcon } from 'lucide-vue-next'
 
 const { t } = useI18n()
-const { isGameRunning, isInitializing, isInInstance, service, instance } = useCurrentInstance()
+const { isGameRunning, isInitializing, isInInstance, instance } = useCurrentInstance()
 
 const props = defineProps<{
   active?: boolean
@@ -51,10 +51,7 @@ const isWaitingForJoin = computed(() => !isInInstance.value && isGameRunning.val
             )
           "
         >
-          <div
-            v-if="service.vrchat.isRunning"
-            class="bg-popover size-full rounded-full overflow-hidden"
-          >
+          <div v-if="isGameRunning" class="bg-popover size-full rounded-full overflow-hidden">
             <ImageRoot v-if="isInInstance && currentWorld" class="size-full">
               <ImageVRChatContext
                 :file-id="currentWorld.imageFileId"

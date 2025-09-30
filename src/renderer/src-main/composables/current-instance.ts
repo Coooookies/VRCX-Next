@@ -2,7 +2,6 @@ import { computed, shallowRef, watchEffect } from 'vue'
 import { useModule } from '@renderer/shared/hooks/use-module'
 import { LocationInstanceUserType } from '@shared/definition/vrchat-instances'
 import type { InstanceUserWithInformation } from '@shared/definition/vrchat-instances'
-import type { ServiceMonitor } from '@renderer/shared/modules/service-monitor'
 import type { VRChatFriends } from '@renderer/shared/modules/vrchat-friends'
 import type { VRChatInstances } from '@renderer/shared/modules/vrchat-instances'
 
@@ -13,7 +12,6 @@ export interface InstancePlayer extends InstanceUserWithInformation {
 
 export function useCurrentInstance() {
   const { friends } = useModule<VRChatFriends>('VRChatFriends')
-  const service = useModule<ServiceMonitor>('ServiceMonitor')
   const instance = useModule<VRChatInstances>('VRChatInstances')
   const instancePlayers = shallowRef<InstancePlayer[]>([])
   const instanceEvents = instance.currentInstanceEvents
@@ -21,7 +19,7 @@ export function useCurrentInstance() {
   const isJoined = computed(() => instance.trackerState.isJoined)
   const isInInstance = computed(() => instance.trackerState.isInInstance)
   const isInitializing = computed(() => instance.trackerState.isInitializing)
-  const isGameRunning = computed(() => service.state.vrchat.isRunning)
+  const isGameRunning = computed(() => instance.trackerState.isRunning)
 
   watchEffect(() => {
     instancePlayers.value = instance.currentInstancePlayers.value.map((user) => {
@@ -49,7 +47,6 @@ export function useCurrentInstance() {
     isJoined,
     isInInstance,
     isInitializing,
-    service: service.state,
     instance: instance.trackerState
   }
 }
