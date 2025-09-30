@@ -48,7 +48,13 @@ const handleClick = (information: FriendInformation) => {
       fade-out-at-bottom
       :disable-scroll="contextMenuOpenedCount > 0"
     >
-      <DynamicScroller key-field="id" page-mode :items="props.friends" :min-item-size="40">
+      <DynamicScroller
+        key-field="id"
+        page-mode
+        :buffer="400"
+        :items="props.friends"
+        :min-item-size="40"
+      >
         <template #default="{ item, index, active }">
           <DynamicScrollerItem
             :item="item"

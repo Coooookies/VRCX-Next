@@ -73,6 +73,7 @@ const isLastItem = (index: number) => {
         key-field="eventId"
         page-mode
         item-class="group/event-item"
+        :buffer="600"
         :items="instanceSortedEvents"
         :min-item-size="70"
       >
