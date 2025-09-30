@@ -10,7 +10,7 @@ export class CredentialEntity {
   })
   declare userId: string
 
-  @Index('idx_vrchat_credentials_user_name')
+  @Index('IDX_vrchat_credentials_user_name')
   @Column({
     name: 'user_name',
     type: 'text'

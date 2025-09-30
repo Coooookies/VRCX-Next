@@ -20,7 +20,7 @@ export class CreateCredentialsTable1710000000000 implements MigrationInterface {
     `)
 
     await runner.query(`
-      CREATE INDEX "idx_vrchat_credentials_user_name" ON "vrchat_credentials" ("user_name");
+      CREATE INDEX "IDX_vrchat_credentials_user_name" ON "vrchat_credentials" ("user_name");
     `)
   }
 
