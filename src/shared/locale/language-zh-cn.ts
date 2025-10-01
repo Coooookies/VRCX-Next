@@ -162,6 +162,8 @@ export const LANGUAGE_ZH_CN: LocaleStructure = {
     },
     instance: {
       traveling: '正在前往',
+      loading_world: '正在加载...',
+      loading_group: '正在加载...',
       type: {
         friends_plus: '好友+',
         friends: '仅限好友',

@@ -162,6 +162,8 @@ export const LANGUAGE_JA_JP: LocaleStructure = {
     },
     instance: {
       traveling: '進入中',
+      loading_world: '読み込み中...',
+      loading_group: '読み込み中...',
       type: {
         friends_plus: 'フレンド+',
         friends: 'フレンドのみ',

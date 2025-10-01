@@ -92,6 +92,8 @@ export type LocaleDefinition = {
   }
   instance: {
     traveling: string
+    loading_world: string
+    loading_group: string
     type: {
       friends_plus: string
       friends: string

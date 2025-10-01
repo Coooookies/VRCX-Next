@@ -162,6 +162,8 @@ export const LANGUAGE_EN_US: LocaleStructure = {
     },
     instance: {
       traveling: 'Taveling',
+      loading_world: 'Loading...',
+      loading_group: 'Loading...',
       type: {
         friends_plus: 'Friends+',
         friends: 'Friends',
