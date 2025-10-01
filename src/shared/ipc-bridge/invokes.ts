@@ -39,7 +39,7 @@ export type IpcInvokeEvents = {
   'vrchat-authentication:signout': () => void
 
   // VRChatFriends
-  'vrchat-friends:get-friends': () => FriendInformation[]
+  'vrchat-friends:friend-sessions:get-friends': () => FriendInformation[]
 
   // VRChatNotifications
   'vrchat-notifications:get-notifications': () => NotificationInformation[]
