@@ -10,7 +10,7 @@ import { ElapsedTimerText } from '@renderer/shared/components/timer'
 import { TabsContent } from '@renderer/shared/components/ui/tabs'
 import { LocationInstancePublicType } from '@shared/definition/vrchat-instances'
 import { LOCATION_TYPE_TRANSLATE_KEY } from '@renderer/shared/constants/instance-mapping'
-import type { LocationInstance, LocationOwner } from '@shared/definition/vrchat-instances'
+import type { LocationInstance, InstanceOwner } from '@shared/definition/vrchat-instances'
 
 const { t } = useI18n()
 
@@ -18,7 +18,7 @@ const props = defineProps<{
   value: string
   playerCount: number | null
   playerCapacity: number | null
-  owner: LocationOwner | null
+  owner: InstanceOwner | null
   instance: LocationInstance | null
   joinedAt: Date | null
   require18yo: boolean

@@ -14,11 +14,11 @@ const users = useModule<VRChatUsers>('VRChatUsers')
 const notifications = useModule<VRChatNotifications>('VRChatNotifications')
 
 const userJson = computed(() => {
-  return users.state.user ? JSON.stringify(users.state.user, null, 2) : 'null'
+  return users.currentUser.user ? JSON.stringify(users.currentUser.user, null, 2) : 'null'
 })
 
 const locationJson = computed(() => {
-  return users.state.location ? JSON.stringify(users.state.location, null, 2) : 'null'
+  return users.currentUser.location ? JSON.stringify(users.currentUser.location, null, 2) : 'null'
 })
 
 const notificationJson = computed(() => {

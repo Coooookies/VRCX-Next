@@ -136,7 +136,7 @@ provide('current-instance:search-value', searchValue)
       </template>
       <template v-else>
         <CurrentInstanceNotRunning
-          :user-name="users.state.user?.displayName || 'Unknown'"
+          :user-name="users.currentUser.user?.displayName || 'Unknown'"
           class="z-3"
         />
       </template>
