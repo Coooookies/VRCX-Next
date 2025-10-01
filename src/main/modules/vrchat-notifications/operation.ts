@@ -12,7 +12,7 @@ export class NotificationOperation {
 
   public markNotificationAsRead(notificationId: string) {
     const notification = this.repository.getNotification(notificationId)
-    const currentUser = this.users.state.user
+    const currentUser = this.users.activeUser
 
     if (notification && currentUser) {
       this.repository.saveNotification(

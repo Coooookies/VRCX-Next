@@ -179,8 +179,8 @@ export class NotificationEventBinding {
   }
 
   private upsertNotification(notification: NotificationInformation): void {
-    if (this.users.state.user) {
-      this.repository.saveNotification(notification, this.users.state.user.userId)
+    if (this.users.activeUser?.userId) {
+      this.repository.saveNotification(notification, this.users.activeUser?.userId)
     }
   }
 }

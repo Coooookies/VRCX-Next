@@ -32,8 +32,10 @@ export class NotificationFetcher {
     const notificationsV1 = await this.loadV1Notifications()
     const notificationsV2 = await this.loadV2Notifications()
     const notifications = [...notificationsV1, ...notificationsV2]
-    if (this.users.state.user) {
-      this.repository.saveNotification(notifications, this.users.state.user.userId)
+    const activeUserId = this.users.activeUser?.userId
+
+    if (activeUserId) {
+      this.repository.saveNotification(notifications, activeUserId)
     }
 
     this.logger.info(
