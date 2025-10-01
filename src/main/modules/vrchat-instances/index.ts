@@ -53,7 +53,7 @@ export class VRChatInstances extends Module {
 
   private bindEvents(): void {
     this.workflow.registerPostLoginTask('instance-listener-mount', 60, async () => {
-      const loggedInUserId = this.users.currentUser?.userId
+      const loggedInUserId = this.users.activeUser?.userId
       const gameProcessUserId = this.gameProcess.currentUser?.userId
 
       // if the user is already logged in the game process
@@ -67,7 +67,7 @@ export class VRChatInstances extends Module {
     })
 
     this.gameProcess.on('game:user-authenticated', (userId) => {
-      const loggedInUserId = this.users.currentUser?.userId
+      const loggedInUserId = this.users.activeUser?.userId
       const isLoggedIn = this.auth.isLoggedIn
 
       if (isLoggedIn && userId === loggedInUserId) {

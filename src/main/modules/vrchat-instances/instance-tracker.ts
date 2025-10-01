@@ -13,6 +13,7 @@ import {
   LogEventSelfJoin
 } from '../vrchat-game-process/types'
 import {
+  InstanceAccessCategory,
   InstanceEvents,
   InstanceEventUser,
   LocationInstanceGroupType,
@@ -28,8 +29,8 @@ import type { VRChatGroups } from '../vrchat-groups'
 import type {
   InstanceEventMessage,
   InstanceUserWithInformation,
-  LocationInstance,
-  LocationOwner
+  InstanceOwner,
+  LocationInstance
 } from '@shared/definition/vrchat-instances'
 import type { WorldDetail } from '@shared/definition/vrchat-worlds'
 import type { LogInstanceSummary } from './types'
@@ -42,7 +43,7 @@ export class InstanceTracker extends Nanobus<{
     recordId: string,
     location: LocationInstance,
     world: WorldDetail | null,
-    owner: LocationOwner | null,
+    owner: InstanceOwner | null,
     joinedAt: Date
   ) => void
   'instance:left': (recordId: string, leftAt: Date) => void
@@ -542,12 +543,12 @@ export class InstanceTracker extends Nanobus<{
     )
   }
 
-  private async getOwnerFromLocation(location: LocationInstance): Promise<LocationOwner | null> {
-    let owner: LocationOwner | null = null
+  private async getOwnerFromLocation(location: LocationInstance): Promise<InstanceOwner | null> {
+    let owner: InstanceOwner | null = null
     switch (location.type) {
       case LocationInstancePublicType.Public: {
         owner = {
-          type: 'public',
+          type: InstanceAccessCategory.Public,
           summary: null
         }
         break
@@ -557,7 +558,7 @@ export class InstanceTracker extends Nanobus<{
       case LocationInstanceUserType.Invite:
       case LocationInstanceUserType.InvitePlus: {
         owner = {
-          type: 'user',
+          type: InstanceAccessCategory.User,
           summary: await this.users.fetchUserSummary(location.userId)
         }
         break
@@ -566,7 +567,7 @@ export class InstanceTracker extends Nanobus<{
       case LocationInstanceGroupType.GroupPlus:
       case LocationInstanceGroupType.GroupPublic: {
         owner = {
-          type: 'group',
+          type: InstanceAccessCategory.Group,
           summary: await this.group.fetchGroupSummary(location.groupId)
         }
         break
