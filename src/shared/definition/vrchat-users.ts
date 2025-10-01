@@ -1,9 +1,9 @@
 import type { ReferenceAvatar, UserAvatar } from './vrchat-avatars'
-import type { LocationInstanceSummary } from './vrchat-instances'
 import type {
   AgeVerificationStatus,
   DeveloperType,
   Platform,
+  UserState,
   UserStatus
 } from './vrchat-api-response'
 
@@ -108,6 +108,7 @@ export interface UserInformationBase {
   profileBackgroundFileId: string
   profileBackgroundFileVersion: number
   displayName: string
+  state: UserState
   status: UserStatus
   statusDescription: string
   bio: string
@@ -125,6 +126,7 @@ export interface UserInformation extends UserInformationBase {
   badges: UserBadge[]
   developerType: DeveloperType
   referenceAvatar: ReferenceAvatar
+  allowAvatarCopying: boolean
   ageVerified: boolean
   ageVerificationStatus: AgeVerificationStatus
   registeredAt: Date | null
@@ -139,12 +141,6 @@ export interface CurrentUserInformation extends UserInformationBase {
   ageVerificationStatus: AgeVerificationStatus
   statusHistory: string[]
   registeredAt: Date | null
-}
-
-export interface UserLocation {
-  location: LocationInstanceSummary | null
-  locationArrivedAt: Date | null
-  isTraveling: boolean
 }
 
 export interface UserBadge {

@@ -1,5 +1,5 @@
 import type { InstanceContentSettings, Platform, ReleaseStatus } from './vrchat-api-response'
-import type { LocationInstanceSummary } from './vrchat-instances'
+import type { LocationInstance } from './vrchat-instances'
 
 export interface WorldSummary {
   worldId: string
@@ -64,7 +64,7 @@ export type WorldFavoriteState =
       favoriteGroupName: string
     }
 
-export type WorldInstance = LocationInstanceSummary & {
+export type WorldInstance = LocationInstance & {
   occupants: number
 }
 

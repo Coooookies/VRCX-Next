@@ -1,6 +1,7 @@
 import type { Region } from './vrchat-api-response'
 import type { GroupSummary } from './vrchat-groups'
 import type { UserInformation, UserSummary } from './vrchat-users'
+import { WorldSummary } from './vrchat-worlds'
 
 export const LocationInstancePublicType = {
   Public: 'public'
@@ -57,38 +58,58 @@ export interface LocationInstanceGroup extends LocationInstanceBase {
 
 export type LocationInstance = LocationInstancePublic | LocationInstanceUser | LocationInstanceGroup
 
-interface LocationInstanceBaseSummary {
-  location: string
-  worldId: string
-  worldName: string
-  worldImageFileId: string
-  worldImageFileVersion: number
-  name: string
-  region?: Region
+export interface LocationInstanceBaseOverview {
+  instance: LocationInstance
+  isTraveling: boolean
+  arrivedAt: Date
+  referenceWorld?: WorldSummary
 }
 
-export interface LocationInstancePublicSummary extends LocationInstanceBaseSummary {
-  type: LocationInstancePublicType
+export interface LocationInstanceNormalOverview extends LocationInstanceBaseOverview {
+  category: typeof InstanceAccessCategory.Public | typeof InstanceAccessCategory.User
 }
 
-export interface LocationInstanceUserSummary extends LocationInstanceBaseSummary {
-  type: LocationInstanceUserType
-  userId: string
+export interface LocationInstanceGroupOverview extends LocationInstanceBaseOverview {
+  category: typeof InstanceAccessCategory.Group
+  referenceGroup?: GroupSummary
 }
 
-export interface LocationInstanceGroupSummary extends LocationInstanceBaseSummary {
-  type: LocationInstanceGroupType
-  groupId: string
-  groupName: string
-  groupImageFileId: string
-  groupImageFileVersion: number
-  require18yo: boolean
-}
+export type LocationInstanceOverview =
+  | LocationInstanceNormalOverview
+  | LocationInstanceGroupOverview
 
-export type LocationInstanceSummary =
-  | LocationInstancePublicSummary
-  | LocationInstanceUserSummary
-  | LocationInstanceGroupSummary
+// interface LocationInstanceBaseSummary {
+//   location: string
+//   worldId: string
+//   worldName: string
+//   worldImageFileId: string
+//   worldImageFileVersion: number
+//   name: string
+//   region?: Region
+// }
+
+// export interface LocationInstancePublicSummary extends LocationInstanceBaseSummary {
+//   type: LocationInstancePublicType
+// }
+
+// export interface LocationInstanceUserSummary extends LocationInstanceBaseSummary {
+//   type: LocationInstanceUserType
+//   userId: string
+// }
+
+// export interface LocationInstanceGroupSummary extends LocationInstanceBaseSummary {
+//   type: LocationInstanceGroupType
+//   groupId: string
+//   groupName: string
+//   groupImageFileId: string
+//   groupImageFileVersion: number
+//   require18yo: boolean
+// }
+
+// export type LocationInstanceSummary =
+//   | LocationInstancePublicSummary
+//   | LocationInstanceUserSummary
+//   | LocationInstanceGroupSummary
 
 export interface InstanceEventUser {
   userName: string
@@ -153,16 +174,25 @@ export interface InstanceUserWithInformation extends InstanceUser {
   user: UserInformation | null
 }
 
-export type LocationOwner =
+export const InstanceAccessCategory = {
+  User: 'user',
+  Group: 'group',
+  Public: 'public'
+} as const
+
+export type InstanceAccessCategory =
+  (typeof InstanceAccessCategory)[keyof typeof InstanceAccessCategory]
+
+export type InstanceOwner =
   | {
-      type: 'user'
+      type: typeof InstanceAccessCategory.User
       summary: UserSummary | null
     }
   | {
-      type: 'group'
+      type: typeof InstanceAccessCategory.Group
       summary: GroupSummary | null
     }
   | {
-      type: 'public'
+      type: typeof InstanceAccessCategory.Public
       summary: null
     }
