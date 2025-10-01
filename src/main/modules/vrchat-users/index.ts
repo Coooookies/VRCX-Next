@@ -51,7 +51,8 @@ export class VRChatUsers extends Module {
       if (this.auth.currentState.type === 'authenticated') {
         const user = this.auth.currentState.userInfo
         const currentUser = toCurrentUserInformation(user)
-        const currentLocationRaw = user.location || ''
+        // const currentLocationRaw = user.location || ''
+        const currentLocationRaw = ''
         const travelingLocationRaw = ''
         this.currentUser.presentUser(currentUser, currentLocationRaw, travelingLocationRaw)
       }
