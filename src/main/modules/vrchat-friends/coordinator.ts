@@ -132,8 +132,12 @@ export class FriendsCoordinator {
     this.store.updateFriendState(userId, UserState.Offline, platform)
   }
 
-  private async handleFriendActive({ userId, platform }: PipelineEventFriendActive): Promise<void> {
-    this.store.updateFriendState(userId, UserState.Active, platform)
+  private async handleFriendActive({
+    userId,
+    user,
+    platform
+  }: PipelineEventFriendActive): Promise<void> {
+    this.store.updateFriendState(userId, UserState.Active, platform, toBaseFriendInformation(user))
   }
 
   private async handleFriendLocation({

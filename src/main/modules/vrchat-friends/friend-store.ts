@@ -146,12 +146,12 @@ export class FriendsStore extends Nanobus<{
     updatedFriend?: BaseFriendInformation
   ) {
     const existing = this.friendSessions.get(userId)
-    // const updatedDetail = updatedFriend || {}
 
     if (!existing) {
       return
     }
 
+    const detail = toFriendInformationFromTracking(existing)
     existing.state = state
     existing.platform = platform
 
@@ -161,16 +161,10 @@ export class FriendsStore extends Nanobus<{
     }
 
     if (updatedFriend) {
-      this.updateFriendAttributes(userId, updatedFriend)
+      this.updateFriendAttributes(userId, {
+        ...updatedFriend
+      })
     }
-
-    const updated = updatedFriend || {}
-    const detail = toFriendInformationFromTracking({
-      ...existing,
-      ...updated,
-      platform,
-      state
-    })
 
     this.emit('friend:state', userId, detail, state, platform)
   }
@@ -182,15 +176,23 @@ export class FriendsStore extends Nanobus<{
       return
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { state, platform, ...rest } = updatedFriend
+    const updatedDetail = {
+      ...rest,
+      state: existing.state,
+      platform: existing.platform
+    }
+
     const { diff: detailDiff, keys: updatedKeys } = diffObjects<BaseFriendInformation>(
       existing,
-      updatedFriend,
+      updatedDetail,
       FRIEND_UPDATE_COMPARE_KEYS
     )
 
     const nextDetail: FriendInformationWithLocationTracking = {
       ...existing,
-      ...updatedFriend
+      ...updatedDetail
     }
 
     this.friendSessions.set(userId, nextDetail)
