@@ -29,10 +29,4 @@ export class VRChatGroups extends Module<{}> {
   public fetchGroupSummaries(...args: Parameters<GroupFetcher['fetchGroupSummaries']>) {
     return this.fetcher.fetchGroupSummaries(...args)
   }
-
-  public enrichLocationWithGroupInfo(
-    ...args: Parameters<GroupFetcher['enrichLocationWithGroupInfo']>
-  ) {
-    return this.fetcher.enrichLocationWithGroupInfo(...args)
-  }
 }
