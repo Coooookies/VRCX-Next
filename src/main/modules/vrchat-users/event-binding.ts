@@ -1,14 +1,9 @@
-import { toJS } from 'mobx'
-import { isSameLocation } from '../vrchat-worlds/utils'
 import { toCurrentUserInformation, toUserEntity } from './factory'
-import { parseLocation } from '../vrchat-worlds/location-parser'
-import { diffObjects } from '@main/utils/object'
-import { USER_UPDATE_COMPARE_KEYS } from './constants'
 import { PipelineEvents } from '@shared/definition/vrchat-pipeline'
-import type { VRChatUsers } from '.'
+import type { CurrentUserStore } from './current-user-store'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { LoggerFactory } from '@main/logger'
-import type { LocationInstanceSummary } from '@shared/definition/vrchat-instances'
+import type { UsersRepository } from './repository'
 import type {
   PipelineEventFriendAdd,
   PipelineEventFriendOnline,
@@ -17,17 +12,13 @@ import type {
   PipelineEventUserLocation,
   PipelineEventUserUpdate
 } from '@shared/definition/vrchat-pipeline'
-import type { CurrentUserInformation } from '@shared/definition/vrchat-users'
-import type { UsersRepository } from './repository'
-import type { UsersFetcher } from './fetcher'
 
 export class UsersEventBinding {
   constructor(
-    private readonly parent: VRChatUsers,
     private readonly logger: LoggerFactory,
     private readonly repository: UsersRepository,
     private readonly pipeline: VRChatPipeline,
-    private readonly fetcher: UsersFetcher
+    private readonly currentUser: CurrentUserStore
   ) {
     this.bindEvents()
   }
@@ -67,64 +58,11 @@ export class UsersEventBinding {
     location,
     travelingToLocation
   }: PipelineEventUserLocation): Promise<void> {
-    const isTraveling = location === 'traveling:traveling'
-    const isOffline = location === 'offline:offline' || travelingToLocation === 'offline'
-
-    if (isOffline) {
-      return this.repository.setLocationState(null)
-    }
-
-    const originalTarget = parseLocation(location)
-    const travelingTarget = parseLocation(travelingToLocation)
-    const nextLocation = isTraveling ? travelingTarget : originalTarget
-    const prevLocation = this.repository.State.location?.location || null
-
-    let nextLocationSummary: LocationInstanceSummary | null
-    let nextLocationArrivedAt: Date | null
-
-    if (isSameLocation(prevLocation, nextLocation)) {
-      nextLocationArrivedAt = this.repository.State.location?.locationArrivedAt || null
-      nextLocationSummary = prevLocation || null
-    } else {
-      nextLocationArrivedAt = nextLocation ? new Date() : null
-      nextLocationSummary = nextLocation
-        ? await this.fetcher.enrichLocationInstance(nextLocation)
-        : null
-    }
-
-    const newLocation = {
-      isTraveling,
-      location: nextLocationSummary,
-      locationArrivedAt: nextLocationArrivedAt
-    }
-
-    this.repository.setLocationState(newLocation)
-    this.parent.emit('user:location', newLocation)
+    this.currentUser.updateLocation(location, travelingToLocation)
   }
 
   private async handleUserUpdate({ user }: PipelineEventUserUpdate): Promise<void> {
-    if (!this.repository.State.user) {
-      return
-    }
-
-    const baseUser = toJS(this.repository.State.user)
-    const updatedUser = toCurrentUserInformation(user)
-
-    const { diff: userDiff, keys: userUpdatedKeys } = diffObjects<CurrentUserInformation>(
-      baseUser,
-      updatedUser,
-      USER_UPDATE_COMPARE_KEYS
-    )
-
-    this.repository.setUserState(updatedUser)
-    this.parent.emit(
-      'user:update',
-      {
-        before: { ...userDiff.before },
-        after: { ...userDiff.after }
-      },
-      userUpdatedKeys
-    )
+    this.currentUser.updateUser(toCurrentUserInformation(user))
   }
 
   private async handleFriendAdd({ user }: PipelineEventFriendAdd): Promise<void> {

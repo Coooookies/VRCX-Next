@@ -1,68 +1,62 @@
 import type { LoggerFactory } from '@main/logger'
 import type { UsersRepository } from './repository'
 import type { VRChatAPI } from '../vrchat-api'
-import type { VRChatWorlds } from '../vrchat-worlds'
-import type { VRChatGroups } from '../vrchat-groups'
 import type { UserEntityProcessHandler, UserProcessHandler } from './types'
 import type { UserInformation } from '@shared/definition/vrchat-users'
-import type { UserNote } from '@shared/definition/vrchat-api-response'
+// import type { UserNote } from '@shared/definition/vrchat-api-response'
 import type { UserEntity } from '../database/entities/vrchat-cache-users'
-import type { LocationInstance } from '@shared/definition/vrchat-instances'
 import { limitedAllSettled } from '@shared/utils/async'
-import { isGroupInstance } from '../vrchat-worlds/utils'
 import { toUserEntity, toUserInformation } from './factory'
 import {
   SAVED_USER_ENTITY_EXPIRE_DELAY,
-  USER_ENTITIES_QUERY_THREAD_SIZE,
-  USERNOTES_QUERY_SIZE
+  USER_ENTITIES_QUERY_THREAD_SIZE
+  // USERNOTES_QUERY_SIZE
 } from './constants'
 
 export class UsersFetcher {
   constructor(
     private readonly logger: LoggerFactory,
     private readonly repository: UsersRepository,
-    private readonly api: VRChatAPI,
-    private readonly worlds: VRChatWorlds,
-    private readonly groups: VRChatGroups
+    private readonly api: VRChatAPI
   ) {}
 
-  public async fetchNotes() {
-    let startOffset = 0
-    let notes: UserNote[] = []
+  // public async fetchNotes() {
+  //   let startOffset = 0
+  //   let notes: UserNote[] = []
 
-    while (true) {
-      const result = await this.api.ref.sessionAPI.users.getNotes(startOffset, USERNOTES_QUERY_SIZE)
+  //   while (true) {
+  //     const result = await this.api.ref.sessionAPI.users.getNotes(startOffset, USERNOTES_QUERY_SIZE)
 
-      if (!result.success) {
-        this.logger.error('Failed to fetch users note')
-        break
-      }
+  //     if (!result.success) {
+  //       this.logger.error('Failed to fetch users note')
+  //       break
+  //     }
 
-      const notesBatch = result.value.body
+  //     const notesBatch = result.value.body
 
-      if (notesBatch.length === 0) {
-        break
-      }
+  //     if (notesBatch.length === 0) {
+  //       break
+  //     }
 
-      notes = notes.concat(notesBatch)
-      startOffset += notesBatch.length
+  //     notes = notes.concat(notesBatch)
+  //     startOffset += notesBatch.length
 
-      this.logger.info(`Fetched ${notes.length} user notes, total: ${notes.length}`)
+  //     this.logger.info(`Fetched ${notes.length} user notes, total: ${notes.length}`)
 
-      if (notesBatch.length < USERNOTES_QUERY_SIZE) {
-        break
-      }
-    }
+  //     if (notesBatch.length < USERNOTES_QUERY_SIZE) {
+  //       break
+  //     }
+  //   }
 
-    this.repository.setNotes(
-      notes.map((note) => ({
-        userId: note.targetUserId,
-        noteId: note.id,
-        note: note.note,
-        createdAt: new Date(note.createdAt)
-      }))
-    )
-  }
+  //   this.repository.setNotes(
+  //     notes.map((note) => ({
+  //       userId: note.targetUserId,
+  //       noteId: note.id,
+  //       note: note.note,
+  //       createdAt: new Date(note.createdAt)
+  //     }))
+  //   )
+  // }
 
   public async fetchUserSummary(
     userId: string,
@@ -196,26 +190,16 @@ export class UsersFetcher {
     return users
   }
 
-  public async fetchUserLocation(userId: string): Promise<string | null> {
-    const { success, value, error } = await this.api.ref.sessionAPI.users.getUser(userId)
-    if (!success) {
-      this.logger.error(`Failed to fetch user location for ID: ${userId} , error: ${error.message}`)
-      return null
-    }
+  // public async fetchUserLocation(userId: string): Promise<string | null> {
+  //   const { success, value, error } = await this.api.ref.sessionAPI.users.getUser(userId)
+  //   if (!success) {
+  //     this.logger.error(`Failed to fetch user location for ID: ${userId} , error: ${error.message}`)
+  //     return null
+  //   }
 
-    const user = value.body
-    const entity = toUserEntity(user)
-    await this.repository.saveUserEntities(entity)
-    return user.location || null
-  }
-
-  public async enrichLocationInstance(location: LocationInstance) {
-    let nextLocationSummary = await this.worlds.enrichLocationWithWorldInfo(location)
-
-    if (isGroupInstance(nextLocationSummary)) {
-      nextLocationSummary = await this.groups.enrichLocationWithGroupInfo(nextLocationSummary)
-    }
-
-    return nextLocationSummary
-  }
+  //   const user = value.body
+  //   const entity = toUserEntity(user)
+  //   await this.repository.saveUserEntities(entity)
+  //   return user.location || null
+  // }
 }

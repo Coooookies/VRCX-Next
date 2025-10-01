@@ -1,19 +1,15 @@
 import { parseFileUrl } from '../vrchat-files/factory'
 import { UserTrustRank, UserLanguage } from '@shared/definition/vrchat-users'
-import { UserEntity } from '../database/entities/vrchat-cache-users'
+import { Platform, UserState } from '@shared/definition/vrchat-api-response'
+import type { UserEntity } from '../database/entities/vrchat-cache-users'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
 import type { ReferenceAvatar, UserAvatar } from '@shared/definition/vrchat-avatars'
+import type { CurrentUser, LimitedUserFriend, User } from '@shared/definition/vrchat-api-response'
 import type {
   CurrentUserInformation,
   UserInformation,
   UserSummary
 } from '@shared/definition/vrchat-users'
-import type {
-  CurrentUser,
-  LimitedUserFriend,
-  Platform,
-  User
-} from '@shared/definition/vrchat-api-response'
 
 export function getProfileIconUrl(target: User | CurrentUser | LimitedUserFriend): string {
   const profileUrl = target.profilePicOverride
@@ -64,6 +60,7 @@ export function toCurrentUserInformation(user: CurrentUser): CurrentUserInformat
     userId: user.id,
     displayName: user.displayName,
     developerType: user.developerType,
+    state: user.state,
     status: user.status,
     statusDescription: user.statusDescription,
     statusHistory: user.statusHistory,
@@ -111,14 +108,14 @@ export function toUserInformation(user: User): UserInformation {
   const avatarFileInfo = parseFileUrl(user.currentAvatarImageUrl)
   const referenceAvatar: ReferenceAvatar = {
     imageFileId: avatarFileInfo?.fileId || '',
-    imageFileVersion: avatarFileInfo?.version || 0,
-    allowCopying: user.allowAvatarCopying
+    imageFileVersion: avatarFileInfo?.version || 0
   }
 
   return {
     userId: user.id,
     displayName: user.displayName,
     developerType: user.developerType,
+    state: user.state,
     status: user.status,
     statusDescription: user.statusDescription,
     profileIconFileId: profileIconFileInfo?.fileId || '',
@@ -126,6 +123,7 @@ export function toUserInformation(user: User): UserInformation {
     profileBackgroundFileId: profileBackgroundFileInfo?.fileId || '',
     profileBackgroundFileVersion: profileBackgroundFileInfo?.version || 0,
     pronouns: user.pronouns,
+    allowAvatarCopying: user.allowAvatarCopying,
     referenceAvatar,
     bio: user.bio || '',
     bioLinks: user.bioLinks || [],
@@ -158,6 +156,21 @@ export function toUserEntity(user: User | CurrentUser | LimitedUserFriend): User
     languages,
     isSupporter: supporter,
     cacheUpdatedAt: new Date()
+  }
+}
+
+export function toUserPlatformState(platform: Platform): UserState {
+  switch (platform) {
+    case Platform.Unknown:
+    case Platform.UnknownPlatform: {
+      return UserState.Offline
+    }
+    case Platform.Web: {
+      return UserState.Active
+    }
+    default: {
+      return UserState.Online
+    }
   }
 }
 

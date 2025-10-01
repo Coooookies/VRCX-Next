@@ -1,76 +1,52 @@
-import Nanobus from 'nanobus'
 import { In } from 'typeorm'
 import { UserEntity } from '../database/entities/vrchat-cache-users'
-import type { UserNoteInformation } from './types'
 import type { Database } from '../database'
-import type { MobxState } from '../mobx-state'
 import type { Repository } from 'typeorm'
-import type { UserSharedState } from '@shared/definition/mobx-shared'
-import type { CurrentUserInformation, UserLocation } from '@shared/definition/vrchat-users'
+// import type { UserNoteInformation } from './types'
 
-export class UsersRepository extends Nanobus<{
-  'notes:update': (friends: UserNoteInformation[]) => void
-  'notes:delete': (userId: string) => void
-  'notes:clear': () => void
-}> {
-  private $!: UserSharedState
-
-  constructor(
-    moduleId: string,
-    private readonly mobx: MobxState,
-    private readonly database: Database
-  ) {
-    super('VRChatUsers:Repository')
-    this.$ = this.mobx.observable(
-      moduleId,
-      {
-        user: null,
-        location: null
-      },
-      ['user', 'location']
-    )
-  }
+export class UsersRepository {
+  constructor(private readonly database: Database) {}
 
   public get repository(): Repository<UserEntity> {
     return this.database.source.getRepository(UserEntity)
   }
 
-  private readonly notes = new Map<string, UserNoteInformation>()
+  // private readonly notes = new Map<string, UserNoteInformation>()
 
-  public getNote(userId: string) {
-    return this.notes.get(userId)
-  }
+  // public getNote(userId: string) {
+  //   return this.notes.get(userId)
+  // }
 
-  public getAllNotes() {
-    return [...this.notes.values()]
-  }
+  // public getAllNotes() {
+  //   return [...this.notes.values()]
+  // }
 
-  public setNotes(notes: UserNoteInformation | UserNoteInformation[]) {
-    const pendingNotes = Array.isArray(notes) ? notes : [notes]
+  // public setNotes(notes: UserNoteInformation | UserNoteInformation[]) {
+  //   const pendingNotes = Array.isArray(notes) ? notes : [notes]
 
-    for (const note of pendingNotes) {
-      this.notes.set(note.userId, note)
-    }
+  //   for (const note of pendingNotes) {
+  //     this.notes.set(note.userId, note)
+  //   }
 
-    this.emit('notes:update', pendingNotes)
-  }
+  //   this.emit('notes:update', pendingNotes)
+  // }
 
-  public deleteNote(userId: string) {
-    const deleted = this.notes.delete(userId)
-    if (deleted) {
-      this.emit('notes:delete', userId)
-    }
-    return deleted
-  }
+  // public deleteNote(userId: string) {
+  //   const deleted = this.notes.delete(userId)
+  //   if (deleted) {
+  //     this.emit('notes:delete', userId)
+  //   }
+  //   return deleted
+  // }
 
-  public clearNotes() {
-    this.notes.clear()
-    this.emit('notes:clear')
-  }
+  // public clearNotes() {
+  //   this.notes.clear()
+  //   this.emit('notes:clear')
+  // }
 
-  public hasNote(userId: string): boolean {
-    return this.notes.has(userId)
-  }
+  // public hasNote(userId: string): boolean {
+  //   return this.notes.has(userId)
+  // }
 
   public async getSavedUserEntities(userId: string): Promise<UserEntity | null>
   public async getSavedUserEntities(userIds: string[]): Promise<Map<string, UserEntity>>
@@ -101,21 +77,5 @@ export class UsersRepository extends Nanobus<{
       conflictPaths: ['userId'],
       skipUpdateIfNoValuesChanged: true
     })
-  }
-
-  public setUserState(user: CurrentUserInformation | null) {
-    this.mobx.action(() => {
-      this.$.user = user
-    })
-  }
-
-  public setLocationState(location: UserLocation | null) {
-    this.mobx.action(() => {
-      this.$.location = location
-    })
-  }
-
-  public get State() {
-    return this.$
   }
 }
