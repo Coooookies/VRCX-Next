@@ -1,8 +1,9 @@
 import { createLogger } from '@main/logger'
+import { toFriendUserEntity } from '../vrchat-users/factory'
 import { Dependency, Module } from '@shared/module-constructor'
+import { FriendsStore } from './friend-store'
 import { FriendsFetcher } from './fetcher'
-import { FriendsRepository } from './repository'
-import { FriendsEventBinding } from './event-binding'
+import { FriendsCoordinator } from './coordinator'
 import { FriendsIPCBinding } from './ipc-binding'
 import type { IPCModule } from '../ipc'
 import type { MobxState } from '../mobx-state'
@@ -12,23 +13,10 @@ import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatWorlds } from '../vrchat-worlds'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { VRChatAuthentication } from '../vrchat-authentication'
-import type { VRChatWorkflowCoordinator } from '../vrchat-workflow-coordinator'
-import type { BaseFriendInformation, FriendInformation } from '@shared/definition/vrchat-friends'
-import type { FriendUpdateDiff } from './types'
+import { VRChatWorkflowCoordinator } from '../vrchat-workflow-coordinator'
+import type { FriendSharedState } from '@shared/definition/mobx-shared'
 
-export class VRChatFriends extends Module<{
-  'friend:delete': (user: FriendInformation) => void
-  'friend:add': (user: FriendInformation) => void
-  'friend:online': (user: FriendInformation) => void
-  'friend:offline': (user: FriendInformation) => void
-  'friend:location': (user: FriendInformation) => void
-  'friend:active': (user: FriendInformation) => void
-  'friend:update': (
-    user: FriendInformation,
-    diff: FriendUpdateDiff,
-    updatedKeys: (keyof BaseFriendInformation)[]
-  ) => void
-}> {
+export class VRChatFriends extends Module {
   @Dependency('IPCModule') declare private ipc: IPCModule
   @Dependency('MobxState') declare private mobx: MobxState
   @Dependency('VRChatAPI') declare private api: VRChatAPI
@@ -40,115 +28,72 @@ export class VRChatFriends extends Module<{
   @Dependency('VRChatWorkflowCoordinator') declare private workflow: VRChatWorkflowCoordinator
 
   private readonly logger = createLogger(this.moduleId)
-  private repository!: FriendsRepository
-  private ipcBinding!: FriendsIPCBinding
-  private eventBinding!: FriendsEventBinding
+  private store!: FriendsStore
   private fetcher!: FriendsFetcher
+  private coordinator!: FriendsCoordinator
+  private ipcBinding!: FriendsIPCBinding
+  private $!: FriendSharedState
 
   protected onInit(): void {
-    this.repository = new FriendsRepository(this.moduleId, this.mobx)
-    this.ipcBinding = new FriendsIPCBinding(this.ipc, this.repository)
-    this.fetcher = new FriendsFetcher(
-      this.logger,
-      this.repository,
-      this.api,
-      this.groups,
-      this.worlds,
-      this.users
-    )
-    this.eventBinding = new FriendsEventBinding(
-      this,
-      this.logger,
-      this.pipeline,
-      this.repository,
-      this.fetcher,
-      this.users
+    this.fetcher = new FriendsFetcher(this.logger, this.api)
+    this.store = new FriendsStore(this.groups, this.worlds)
+    this.coordinator = new FriendsCoordinator(this.logger, this.pipeline, this.store, this.fetcher)
+    this.ipcBinding = new FriendsIPCBinding(this.ipc, this.store)
+    this.$ = this.mobx.observable<FriendSharedState>(
+      this.moduleId,
+      {
+        loading: false
+      },
+      ['loading']
     )
 
     this.bindEvents()
 
-    // usused protect
     void this.ipcBinding
   }
 
   private bindEvents(): void {
+    this.workflow.on('workflow:start', () => {
+      this.mobx.action(() => {
+        this.$.loading = true
+      })
+    })
+
     this.workflow.registerPostLoginTask('friends-resolver', 40, async () => {
-      await this.refreshFriends(true)
+      await this.coordinator.initialize()
+      this.mobx.action(() => {
+        this.$.loading = false
+      })
     })
 
     this.workflow.registerPostLogoutTask('friends-pipeline-shielde', 40, () => {
-      this.eventBinding.stopPipeProcessing()
-      this.repository.clear()
+      this.coordinator.uninitialize()
     })
 
-    this.workflow.on('workflow:start', (type) => {
-      if (type === 'post-login') {
-        this.repository.setLoadingState(true)
-      }
+    this.store.on('friend:present', (friends) => {
+      this.users.saveUserEntities(friends.map((f) => toFriendUserEntity(f)))
     })
 
-    this.on('friend:active', (friend) => {
+    this.store.on('friend:add', (friend) => {
+      this.logger.info(`Friend added: ${friend.displayName} (${friend.userId})`)
+    })
+
+    this.store.on('friend:update', (friendUserId, friend, _, keys) => {
+      this.logger.info(`Friend updated: ${friend.displayName} (${friendUserId})`, ...keys)
+    })
+
+    this.store.on('friend:delete', (friendUserId, friend) => {
+      this.logger.info(`Friend deleted: ${friend.displayName} (${friendUserId})`)
+    })
+
+    this.store.on('friend:state', (friendUserId, friend, state) => {
+      this.logger.info(`Friend state changed: ${friend.displayName} (${friendUserId}) ${state}`)
+    })
+
+    this.store.on('friend:location', (friendUserId, friend, location) => {
       this.logger.info(
-        'friend-active',
-        friend.userId,
-        friend.displayName,
-        friend.status,
-        friend.platform
+        `Friend location changed: ${friend.displayName} (${friendUserId}) ${location?.instance.location || 'Private'}`
       )
     })
-
-    this.on('friend:offline', (friend) => {
-      this.logger.info('friend-offline', `${friend.displayName}(${friend.userId})`, friend.platform)
-    })
-
-    this.on('friend:online', (friend) => {
-      this.logger.info(
-        'friend-online',
-        `${friend.displayName}(${friend.userId})`,
-        friend.location ? `${friend.location.worldName}(${friend.location.worldId})` : 'Private',
-        friend.platform
-      )
-    })
-
-    this.on('friend:location', (friend) => {
-      this.logger.info(
-        'friend-location',
-        `${friend.displayName}(${friend.userId})`,
-        friend.location ? `${friend.location.worldName}(${friend.location.worldId})` : 'Private',
-        friend.isTraveling ? 'Traveling' : 'Not-Traveling'
-      )
-    })
-
-    this.on('friend:add', (friend) => {
-      this.logger.info('friend-add', `${friend.displayName}(${friend.userId})`)
-    })
-
-    this.on('friend:delete', (friend) => {
-      this.logger.info('friend-delete', `${friend.displayName}(${friend.userId})`)
-    })
-
-    this.on('friend:update', (friend, diff, keys) => {
-      this.logger.info(
-        'friend-update',
-        `${friend.displayName}(${friend.userId})`,
-        `before: ${JSON.stringify(diff.before, null, 2)}`,
-        `after: ${JSON.stringify(diff.after, null, 2)}`,
-        `keys: ${keys.join(',')}`
-      )
-    })
-  }
-
-  public async refreshFriends(force?: boolean) {
-    if (this.repository.State.loading && !force) {
-      return
-    }
-
-    this.eventBinding.stopPipeProcessing()
-    this.repository.setLoadingState(true)
-
-    await this.fetcher.initFriends()
-    await this.eventBinding.startPipeProcessing(this.pipeline.cachedEvents)
-
-    this.repository.setLoadingState(false)
   }
 }
