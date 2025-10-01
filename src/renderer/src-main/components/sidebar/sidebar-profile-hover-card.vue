@@ -12,9 +12,9 @@ import { ImageFallback, ImageRoot } from '@renderer/shared/components/ui/image'
 import { Skeleton } from '@renderer/shared/components/ui/skeleton'
 import { HoverCardContent } from '@renderer/shared/components/ui/hover-card'
 import { UserLanguage, UserTrustRank } from '@shared/definition/vrchat-users'
-import { UserStatus } from '@shared/definition/vrchat-api-response'
+import { UserState, UserStatus } from '@shared/definition/vrchat-api-response'
 import type { HoverCardContentProps } from 'reka-ui'
-import type { LocationInstanceSummary } from '@shared/definition/vrchat-instances'
+import type { LocationInstanceOverview } from '@shared/definition/vrchat-instances'
 
 const props = defineProps<{
   displayName: string
@@ -24,13 +24,12 @@ const props = defineProps<{
   profileBackgroundFileVersion: number
   bio: string
   isSupporter: boolean
+  state: UserState
   status: UserStatus
   statusDescription: string
   trustRank: UserTrustRank
   languages: UserLanguage[]
-  location: LocationInstanceSummary | null
-  locationArrivedAt: Date | null
-  isTraveling: boolean
+  location: LocationInstanceOverview | null
   displayAlign: HoverCardContentProps['align']
 }>()
 
@@ -99,6 +98,7 @@ const isSameThumbnail = computed(() => {
       <div class="w-full mt-4 overflow-hidden space-y-0.5">
         <h3 class="text-lg leading-6 font-bold truncate">{{ props.displayName }}</h3>
         <SidebarProfileHoverCardStatus
+          :state="props.state"
           :status="props.status"
           :status-description="props.statusDescription"
         />
@@ -116,11 +116,7 @@ const isSameThumbnail = computed(() => {
       </div>
       <div v-if="props.location" class="w-full mt-6 space-y-1.5">
         <p class="text-xs text-foreground">位置</p>
-        <SidebarProfileHoverCardLocation
-          :location="props.location"
-          :is-traveling="props.isTraveling"
-          :arrived-at="props.locationArrivedAt"
-        />
+        <SidebarProfileHoverCardLocation :location="props.location" />
       </div>
     </div>
   </HoverCardContent>

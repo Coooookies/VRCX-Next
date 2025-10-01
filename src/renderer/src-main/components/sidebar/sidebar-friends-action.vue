@@ -98,7 +98,7 @@ const notificationVisible = defineModel<boolean>('notificationVisible', {
 })
 
 const isSupporter = computed(() => {
-  return users.state.user?.isSupporter || false
+  return users.currentUser.user?.isSupporter || false
 })
 </script>
 

@@ -88,8 +88,8 @@ console.log(emits)
       <div class="w-full">
         <SidebarProfileOverview
           class="w-full"
-          :user="users.state.user"
-          :location="users.state.location"
+          :user="users.currentUser.user"
+          :location="users.currentUser.location"
           @context-menu-open-change="handleOverviewMenuOpenChange"
         />
       </div>

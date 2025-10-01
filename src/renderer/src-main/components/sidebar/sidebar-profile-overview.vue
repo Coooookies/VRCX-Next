@@ -13,13 +13,14 @@ import { Button } from '@renderer/shared/components/ui/button'
 import { HoverCard, HoverCardTrigger } from '@renderer/shared/components/ui/hover-card'
 import { ContextMenu, ContextMenuTrigger } from '@renderer/shared/components/ui/context-menu'
 import { STATUS_TRANSLATE_KEY } from '@renderer/shared/constants/profile-mapping'
-import type { CurrentUserInformation, UserLocation } from '@shared/definition/vrchat-users'
+import type { CurrentUserInformation } from '@shared/definition/vrchat-users'
+import type { LocationInstanceOverview } from '@shared/definition/vrchat-instances'
 
 const { t } = useI18n()
 const openMenu = ref(false)
 const props = defineProps<{
   user: CurrentUserInformation | null
-  location: UserLocation | null
+  location: LocationInstanceOverview | null
 }>()
 
 const emits = defineEmits<{
@@ -69,7 +70,7 @@ const emits = defineEmits<{
                 />
                 <SidebarProfileStatusLocation
                   v-if="location"
-                  :location="location.location"
+                  :location="location"
                   :is-traveling="location.isTraveling"
                 />
                 <SidebarProfileStatusText
@@ -88,13 +89,12 @@ const emits = defineEmits<{
               profileBackgroundFileVersion: props.user.profileBackgroundFileVersion,
               bio: props.user.bio,
               isSupporter: props.user.isSupporter,
+              state: props.user.state,
               status: props.user.status,
               statusDescription: props.user.statusDescription,
               trustRank: props.user.trustRank,
               languages: props.user.languages,
-              location: location?.location || null,
-              locationArrivedAt: location?.locationArrivedAt || null,
-              isTraveling: location?.isTraveling || false
+              location: location
             }"
             display-align="start"
           />

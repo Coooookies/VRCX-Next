@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { cn } from '@renderer/shared/utils/style'
 import { useI18n } from '@renderer/shared/locale'
-import { UserStatus } from '@shared/definition/vrchat-api-response'
+import { UserState, UserStatus } from '@shared/definition/vrchat-api-response'
 import { STATUS_TRANSLATE_KEY } from '@renderer/shared/constants/profile-mapping'
 
 const { t } = useI18n()
 
 const props = defineProps<{
+  state: UserState
   status: UserStatus
   statusDescription?: string
 }>()
@@ -22,7 +23,16 @@ const UserStatusBackgroundColors: Record<UserStatus, string> = {
 
 <template>
   <div class="flex flex-row gap-1 items-center h-4">
-    <div :class="cn('size-2 rounded-full', UserStatusBackgroundColors[props.status])" />
+    <div
+      :class="
+        cn(
+          'size-2 rounded-full',
+          props.state !== UserState.Offline
+            ? UserStatusBackgroundColors[props.status]
+            : UserStatusBackgroundColors[UserStatus.Offline]
+        )
+      "
+    />
     <span
       :class="
         cn(
@@ -31,7 +41,7 @@ const UserStatusBackgroundColors: Record<UserStatus, string> = {
         )
       "
       >{{
-        props.statusDescription && props.status !== UserStatus.Offline
+        props.statusDescription && props.state !== UserState.Offline
           ? props.statusDescription
           : t(STATUS_TRANSLATE_KEY[props.status])
       }}</span

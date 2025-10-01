@@ -9,15 +9,13 @@ import { ImageFallback, ImageRoot } from '@renderer/shared/components/ui/image'
 import { Skeleton } from '@renderer/shared/components/ui/skeleton'
 import { Button } from '@renderer/shared/components/ui/button'
 import { ElapsedTimerText } from '@renderer/shared/components/timer'
-import type { LocationInstanceSummary } from '@shared/definition/vrchat-instances'
+import type { LocationInstanceOverview } from '@shared/definition/vrchat-instances'
 
 const { t } = useI18n()
 const thumbnailMask = `url("${AreaThumbnailMask}")`
 
 const props = defineProps<{
-  location: LocationInstanceSummary
-  isTraveling: boolean
-  arrivedAt: Date | null
+  location: LocationInstanceOverview
 }>()
 </script>
 
@@ -25,15 +23,16 @@ const props = defineProps<{
   <Button variant="outline" class="w-full h-19 flex flex-row items-center gap-2.5 px-2">
     <div class="relative size-14">
       <ImageRoot
+        v-if="props.location.referenceWorld"
         class="block bg-popover size-full rounded-[6px] overflow-hidden"
         :style="{
           maskImage: thumbnailMask
         }"
       >
         <ImageVRChatContext
-          :key="`${props.location.worldImageFileId}-${props.location.worldImageFileVersion}`"
-          :file-id="props.location.worldImageFileId"
-          :version="props.location.worldImageFileVersion"
+          :key="`${props.location.referenceWorld.imageFileId}-${props.location.referenceWorld.imageFileVersion}`"
+          :file-id="props.location.referenceWorld.imageFileId"
+          :version="props.location.referenceWorld.imageFileVersion"
           :size="128"
           class="size-full object-cover"
         />
@@ -46,19 +45,21 @@ const props = defineProps<{
           </template>
         </ImageFallback>
       </ImageRoot>
-      <BadgeArea class="absolute -bottom-0.5 right-0 size-4" :region="props.location.region" />
+      <BadgeArea
+        class="absolute -bottom-0.5 right-0 size-4"
+        :region="props.location.instance.region"
+      />
     </div>
     <div class="grid flex-1 text-left leading-tight gap-px overflow-hidden">
       <p class="font-semibold text-sm text-foreground truncate">
-        {{ props.location.worldName }}
+        {{ props.location.referenceWorld?.worldName || 'Loading' }}
       </p>
       <p class="leading-4 text-xs text-muted-foreground truncate">
         {{ getLocationLabel(props.location, false)(t) }}
       </p>
       <p class="leading-4 text-xs text-muted-foreground">
-        <span v-if="props.isTraveling">{{ t('instance.traveling') }} - </span>
-        <ElapsedTimerText v-if="props.arrivedAt" :start-time="props.arrivedAt" />
-        <span v-else>{{ `--:--:--` }}</span>
+        <span v-if="props.location.isTraveling">{{ t('instance.traveling') }} - </span>
+        <ElapsedTimerText :start-time="props.location.arrivedAt" />
       </p>
     </div>
   </Button>

@@ -10,7 +10,7 @@ import { ref, computed } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
 import { useI18n } from '@renderer/shared/locale'
 import { Button } from '@renderer/shared/components/ui/button'
-import { Platform, UserStatus } from '@shared/definition/vrchat-api-response'
+import { UserState } from '@shared/definition/vrchat-api-response'
 import { HoverCard, HoverCardTrigger } from '@renderer/shared/components/ui/hover-card'
 import { ContextMenu, ContextMenuTrigger } from '@renderer/shared/components/ui/context-menu'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
@@ -23,7 +23,7 @@ const props = defineProps<{
 }>()
 
 const showBadge = computed(() => {
-  return props.user.platform !== Platform.Web && props.user.status !== UserStatus.Offline
+  return props.user.state === UserState.Online
 })
 
 const emits = defineEmits<{
@@ -70,19 +70,20 @@ const emits = defineEmits<{
               />
               <template v-if="props.showElapsedTimer">
                 <SidebarProfileStatusText
-                  v-if="props.user.isTraveling"
+                  v-if="props.user.location?.isTraveling"
                   :text="t('instance.traveling')"
                   shiny
                 />
-                <SidebarProfileStatusTimer v-else :arrived-at="props.user.locationArrivedAt" />
-              </template>
-              <template v-else-if="props.user.status !== UserStatus.Offline">
-                <SidebarProfileStatusLocation
-                  v-if="props.user.platform !== Platform.Web"
-                  :location="props.user.location"
-                  :is-traveling="props.user.isTraveling"
+                <SidebarProfileStatusTimer
+                  v-else
+                  :arrived-at="props.user.location?.arrivedAt || null"
                 />
-                <SidebarProfileStatusText v-else :text="props.user.statusDescription" />
+              </template>
+              <template v-else-if="props.user.state === UserState.Active">
+                <SidebarProfileStatusText :text="props.user.statusDescription" />
+              </template>
+              <template v-else-if="props.user.state === UserState.Online">
+                <SidebarProfileStatusLocation :location="props.user.location" />
               </template>
             </div>
           </Button>
@@ -96,13 +97,12 @@ const emits = defineEmits<{
             profileBackgroundFileVersion: props.user.profileBackgroundFileVersion,
             bio: props.user.bio,
             isSupporter: props.user.isSupporter,
+            state: props.user.state,
             status: props.user.status,
             statusDescription: props.user.statusDescription,
             trustRank: props.user.trustRank,
             languages: props.user.languages,
-            location: props.user.location,
-            locationArrivedAt: props.user.locationArrivedAt,
-            isTraveling: props.user.isTraveling
+            location: props.user.location
           }"
           display-align="start"
         />

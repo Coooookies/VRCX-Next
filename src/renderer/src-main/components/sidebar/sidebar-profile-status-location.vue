@@ -1,17 +1,16 @@
 <script setup lang="ts">
 import ShinyText from '@renderer/shared/components/shiny-text.vue'
+import BadgeArea from '../badge/badge-area.vue'
 import { computed } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
 import { useI18n } from '@renderer/shared/locale'
 import { getLocationLabel } from '@renderer/src-main/composables/sidebar-friends'
-import type { UserLocation } from '@shared/definition/vrchat-users'
-import BadgeArea from '../badge/badge-area.vue'
+import type { LocationInstanceOverview } from '@shared/definition/vrchat-instances'
 
 const { t } = useI18n()
 
 const props = defineProps<{
-  isTraveling: UserLocation['isTraveling']
-  location: UserLocation['location']
+  location: LocationInstanceOverview | null
 }>()
 
 const locationText = computed(() => {
@@ -31,10 +30,10 @@ const locationText = computed(() => {
     <template v-if="!props.location">
       <span>{{ t('instance.type.private') }}</span>
     </template>
-    <template v-else-if="props.isTraveling">
+    <template v-else-if="props.location.isTraveling">
       <div class="size-4 shrink-0 flex flex-row items-center">
         <BadgeArea
-          :region="props.location.region"
+          :region="props.location.instance.region"
           class="size-3.5 animate-[animation-icon-shiny_2.5s_infinite]"
         />
       </div>
@@ -42,7 +41,7 @@ const locationText = computed(() => {
     </template>
     <template v-else>
       <div class="size-4 shirnk-0 flex flex-row items-center">
-        <BadgeArea :region="props.location.region" class="size-3.5" />
+        <BadgeArea :region="props.location.instance.region" class="size-3.5" />
       </div>
       <span class="truncate">{{ locationText }}</span>
     </template>
