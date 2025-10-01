@@ -1,6 +1,6 @@
 import type { AuthenticationState } from './vrchat-authentication'
-import type { LocationInstance, LocationOwner } from './vrchat-instances'
-import type { CurrentUserInformation, UserLocation } from './vrchat-users'
+import type { LocationInstance, InstanceOwner, LocationInstanceOverview } from './vrchat-instances'
+import type { CurrentUserInformation } from './vrchat-users'
 import type { WorldDetail } from './vrchat-worlds'
 import type { WorkflowType } from './vrchat-workflow-coordinator'
 
@@ -15,9 +15,9 @@ export interface WorkflowCoordinatorSharedState {
   index: number
 }
 
-export interface UserSharedState {
+export interface UserStoreSharedState {
   user: CurrentUserInformation | null
-  location: UserLocation | null
+  location: LocationInstanceOverview | null
 }
 
 export interface FriendSharedState {
@@ -33,7 +33,7 @@ export interface InstanceTrackerSharedState {
   isInInstance: boolean
   isJoined: boolean
   worldDetail: WorldDetail | null
-  ownerDetail: LocationOwner | null
+  ownerDetail: InstanceOwner | null
   locationInstance: LocationInstance | null
   locationJoinedAt: Date | null
 }
