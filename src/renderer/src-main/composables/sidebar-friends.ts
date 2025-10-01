@@ -1,9 +1,11 @@
 import { computed, ref, watch } from 'vue'
 import { useModule } from '@renderer/shared/hooks/use-module'
 import { AnnoyedIcon, LaughIcon, MapPinHouseIcon, SmileIcon } from 'lucide-vue-next'
-import { Platform, UserStatus } from '@shared/definition/vrchat-api-response'
+import { UserState } from '@shared/definition/vrchat-api-response'
 import {
+  InstanceAccessCategory,
   LocationInstanceGroupType,
+  LocationInstanceOverview,
   LocationInstancePublicType,
   LocationInstanceUserType
 } from '@shared/definition/vrchat-instances'
@@ -12,7 +14,6 @@ import { LOCATION_TYPE_TRANSLATE_KEY } from '@renderer/shared/constants/instance
 import type { VRChatFriends } from '@renderer/shared/modules/vrchat-friends'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
 import type { FunctionalComponent } from 'vue'
-import type { LocationInstanceSummary } from '@shared/definition/vrchat-instances'
 import type { LocaleI18NKeys } from '@renderer/shared/locale/types'
 import type { TranslationFunction } from '@renderer/shared/locale'
 
@@ -23,7 +24,7 @@ export interface GroupedFriends {
 }
 
 export interface LocationGroup {
-  location: LocationInstanceSummary
+  location: LocationInstanceOverview
   friends: FriendInformation[]
 }
 
@@ -66,12 +67,20 @@ export type VirtualFriend = VirtualFriendHeader | VirtualFriendItem
 function groupFriends(friends: FriendInformation[]): GroupedFriends {
   return friends.reduce<GroupedFriends>(
     (acc, friend) => {
-      if (friend.status === UserStatus.Offline) {
-        acc.offline.push(friend)
-      } else if (friend.platform === Platform.Web) {
-        acc.webActive.push(friend)
-      } else {
-        acc.online.push(friend)
+      switch (friend.state) {
+        case UserState.Online: {
+          acc.online.push(friend)
+          break
+        }
+        case UserState.Active: {
+          acc.webActive.push(friend)
+          break
+        }
+        case UserState.Offline:
+        default: {
+          acc.offline.push(friend)
+          break
+        }
       }
       return acc
     },
@@ -85,7 +94,7 @@ function groupFriendsByLocation(friends: FriendInformation[]): LocationGroup[] {
   for (const friend of friends) {
     if (!friend.location) continue
 
-    const key = `${friend.location.worldId}::${friend.location.name}`
+    const key = `${friend.location.instance.worldId}::${friend.location.instance.name}`
     const existingGroup = locationMap.get(key)
 
     if (existingGroup) {
@@ -149,16 +158,20 @@ function wrapGroupedFriends(
 }
 
 export function getLocationLabel(
-  location: LocationInstanceSummary,
+  location: LocationInstanceOverview,
   includeWorldName: boolean = true
 ) {
-  switch (location.type) {
+  const instance = location.instance
+  const world = location.referenceWorld
+  const group = location.category === InstanceAccessCategory.Group ? location.referenceGroup : null
+
+  switch (instance.type) {
     case LocationInstanceGroupType.Group:
     case LocationInstanceGroupType.GroupPlus:
     case LocationInstanceGroupType.GroupPublic: {
       return (t: TranslationFunction) => {
-        const baseText = `${includeWorldName ? `${location.worldName} ` : ''}#${location.name} ${t(LOCATION_TYPE_TRANSLATE_KEY[location.type])}(${location.groupName})`
-        return location.require18yo ? `${baseText} 18+` : baseText
+        const baseText = `${includeWorldName ? `${world?.worldName || t('instance.loading_world')} ` : ''}#${instance.name} ${t(LOCATION_TYPE_TRANSLATE_KEY[instance.type])}(${group?.groupName || t('instance.loading_group')})`
+        return instance.require18yo ? `${baseText} 18+` : baseText
       }
     }
     case LocationInstancePublicType.Public:
@@ -168,7 +181,7 @@ export function getLocationLabel(
     case LocationInstanceUserType.InvitePlus:
     default: {
       return (t: TranslationFunction) =>
-        `${includeWorldName ? `${location.worldName} ` : ''}#${location.name} ${t(LOCATION_TYPE_TRANSLATE_KEY[location.type])}`
+        `${includeWorldName ? `${world?.worldName || t('instance.loading_world')} ` : ''}#${instance.name} ${t(LOCATION_TYPE_TRANSLATE_KEY[instance.type])}`
     }
   }
 }
@@ -189,7 +202,7 @@ export function useSidebarFriends() {
     return friends.friends.value.filter((friend) => {
       const displayName = friend.displayName.toLowerCase()
       const statusDescription = friend.statusDescription?.toLowerCase() || ''
-      const worldName = friend.location?.worldName?.toLowerCase() || ''
+      const worldName = friend.location?.referenceWorld?.worldName?.toLowerCase() || ''
 
       return (
         displayName.includes(searchTerm) ||
@@ -237,7 +250,8 @@ export function useSidebarFriends() {
     )
 
     const sameLocationGroupedFriends = sameLocationFriends.value.flatMap((curr) => {
-      const groupId = `location-group-${curr.location.worldId}-${curr.location.name}`
+      const instance = curr.location.instance
+      const groupId = `location-group-${instance.worldId}-${instance.name}`
       const collapsed = isCollapsed(groupId)
       const label = getLocationLabel(curr.location)
       const header: VirtualFriendHeader = {
