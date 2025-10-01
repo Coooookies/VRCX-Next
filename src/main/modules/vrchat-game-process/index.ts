@@ -159,6 +159,7 @@ export class VRChatGameProcess extends Module<{
       GAMELOG_PROCESS_USER_EVENTS_LIMIT,
       (data, _, signal) => {
         switch (data.type) {
+          case LogEvents.GameExit:
           case LogEvents.UserAuthenticated:
           case LogEvents.UserLoggedOut: {
             signal.stop(true)

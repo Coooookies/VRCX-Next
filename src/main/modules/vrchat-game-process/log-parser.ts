@@ -43,6 +43,33 @@ export function parseEventLine(line: string): LogEventContext | null {
 }
 
 export function parseSpecialEventLine(data: LogEventContext): LogEventMessage | null {
+  // game exit
+  if (
+    data.type === 'debug' &&
+    (data.data.startsWith('VRCApplication: OnApplicationQuit') ||
+      data.data.startsWith('VRCApplication: HandleApplicationQuit'))
+  ) {
+    return {
+      type: LogEvents.GameExit,
+      content: null
+    }
+  }
+
+  // user authenticated
+  if (data.type === 'debug' && data.data.startsWith('User Authenticated:')) {
+    const regexRes = data.data.match(GAMELOG_USER_AUTHENTICATED_REGEXP)
+
+    if (regexRes?.groups?.username && regexRes?.groups?.userId) {
+      return {
+        type: LogEvents.UserAuthenticated,
+        content: {
+          userName: regexRes.groups.username,
+          userId: regexRes.groups.userId
+        }
+      }
+    }
+  }
+
   // user authenticated
   if (data.type === 'debug' && data.data.startsWith('User Authenticated:')) {
     const regexRes = data.data.match(GAMELOG_USER_AUTHENTICATED_REGEXP)
