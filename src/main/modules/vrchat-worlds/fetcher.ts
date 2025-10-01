@@ -8,11 +8,6 @@ import type { GroupEntity } from '../database/entities/vrchat-cache-group'
 import type { WorldDetail } from '@shared/definition/vrchat-worlds'
 import type { Platform, World } from '@shared/definition/vrchat-api-response'
 import type { FileAnalysisResult } from '../vrchat-files/types'
-import type {
-  LocationInstance,
-  LocationInstanceGroupSummary,
-  LocationInstanceSummary
-} from '@shared/definition/vrchat-instances'
 import {
   toWorldDetail,
   toWorldDetailDependencys,
@@ -21,7 +16,6 @@ import {
 } from './factory'
 import { limitedAllSettled } from '@shared/utils/async'
 import { parseInstance } from './location-parser'
-import { isGroupInstance } from './utils'
 import { SAVED_WORLD_ENTITY_EXPIRE_DELAY, WORLD_ENTITIES_QUERY_THREAD_SIZE } from './constants'
 
 export class WorldFetcher {
@@ -114,54 +108,38 @@ export class WorldFetcher {
     })
   }
 
-  public async enrichLocationWithWorldInfo(location: LocationInstance) {
-    const world = await this.fetchWorldSummary(location.worldId)
-    const summary = <LocationInstanceSummary>{
-      ...location,
-      worldName: 'Unknown World',
-      worldImageFileId: '',
-      worldImageFileVersion: 0
-    }
-
-    if (world) {
-      summary.worldName = world.worldName
-      summary.worldImageFileId = world.imageFileId
-      summary.worldImageFileVersion = world.imageFileVersion
-    }
-
-    return summary
-  }
-
   public processWorldDetail(
     world: World,
     groups?: Map<string, GroupEntity>,
     fileAssets?: Map<string, FileAnalysisResult>,
     options?: { ignoreInstances?: boolean; ignorePackages?: boolean }
   ): WorldDetail {
+    void groups
+
     const detail = toWorldDetail(world)
     const { ignoreInstances = false, ignorePackages = false } = options ?? {}
 
     if (!ignoreInstances && world.instances) {
       for (const [instanceId, occupant] of world.instances) {
-        const location = <LocationInstanceSummary>parseInstance(world.id, instanceId)
+        const location = parseInstance(world.id, instanceId)!
 
-        if (location) {
-          location.worldName = detail.worldName
-          location.worldImageFileId = detail.imageFileId
-          location.worldImageFileVersion = detail.imageFileVersion
-        }
+        // if (location) {
+        //   location.worldName = detail.worldName
+        //   location.worldImageFileId = detail.imageFileId
+        //   location.worldImageFileVersion = detail.imageFileVersion
+        // }
 
-        if (location && isGroupInstance(location)) {
-          const groupLocation = location as LocationInstanceGroupSummary
-          const group = groups?.get(groupLocation.groupId) ?? null
-          if (group) {
-            groupLocation.groupName = group.groupName
-            groupLocation.groupImageFileId = group.iconFileId
-            groupLocation.groupImageFileVersion = group.iconFileVersion
-          } else {
-            groupLocation.groupName = 'Unknown Group'
-          }
-        }
+        // if (location && isGroupInstance(location)) {
+        //   const groupLocation = location as LocationInstanceGroupSummary
+        //   const group = groups?.get(groupLocation.groupId) ?? null
+        //   if (group) {
+        //     groupLocation.groupName = group.groupName
+        //     groupLocation.groupImageFileId = group.iconFileId
+        //     groupLocation.groupImageFileVersion = group.iconFileVersion
+        //   } else {
+        //     groupLocation.groupName = 'Unknown Group'
+        //   }
+        // }
 
         detail.instances.push({
           ...location,

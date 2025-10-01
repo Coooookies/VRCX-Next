@@ -4,7 +4,16 @@ import { LOCATION_PARSER_REGEXP } from './constants'
 import type { LocationInstance } from '@shared/definition/vrchat-instances'
 
 export function parseLocation(location: string): LocationInstance | null {
-  if (['offline', 'traveling', 'private', ''].includes(location)) {
+  const blackList = [
+    'offline',
+    'offline:offline',
+    'traveling',
+    'traveling:traveling',
+    'private',
+    ''
+  ]
+
+  if (blackList.includes(location)) {
     return null
   }
 

@@ -1,19 +1,14 @@
 import { LocationInstanceGroupType } from '@shared/definition/vrchat-instances'
-import type { LocationInstance, LocationInstanceSummary } from '@shared/definition/vrchat-instances'
+import type { LocationInstance, LocationInstanceGroup } from '@shared/definition/vrchat-instances'
 
-export function isSameLocation(
-  currentLocation: LocationInstance | LocationInstanceSummary | null,
-  nextLocation: LocationInstance | LocationInstanceSummary | null
+export function isSameLocationInstance(
+  currentLocation: LocationInstance | null,
+  nextLocation: LocationInstance | null
 ): boolean {
-  return (
-    !!currentLocation &&
-    !!nextLocation &&
-    nextLocation.worldId === currentLocation.worldId &&
-    nextLocation.name === currentLocation.name
-  )
+  return !!currentLocation && !!nextLocation && nextLocation.location === currentLocation.location
 }
 
-export function isGroupInstance(location: LocationInstance | LocationInstanceSummary) {
+export function isGroupInstance(location: LocationInstance): location is LocationInstanceGroup {
   return (
     location.type === LocationInstanceGroupType.GroupPublic ||
     location.type === LocationInstanceGroupType.GroupPlus ||

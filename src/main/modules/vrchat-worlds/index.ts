@@ -43,10 +43,4 @@ export class VRChatWorlds extends Module<{}> {
   public fetchWorld(...args: Parameters<WorldFetcher['fetchWorld']>) {
     return this.fetcher.fetchWorld(...args)
   }
-
-  public enrichLocationWithWorldInfo(
-    ...args: Parameters<WorldFetcher['enrichLocationWithWorldInfo']>
-  ) {
-    return this.fetcher.enrichLocationWithWorldInfo(...args)
-  }
 }
