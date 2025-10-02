@@ -39,6 +39,10 @@ export class FriendsIPCBinding {
       this.ipc.send('vrchat-friends:friend-sessions:location', friendUserId, location)
     })
 
+    this.sessions.on('friend:clear-location', (friendUserId) => {
+      this.ipc.send('vrchat-friends:friend-sessions:location', friendUserId, null)
+    })
+
     this.sessions.on('friend:clear', () => {
       this.ipc.send('vrchat-friends:friend-sessions:clear')
     })

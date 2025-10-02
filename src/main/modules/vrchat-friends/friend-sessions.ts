@@ -32,6 +32,16 @@ import type {
 } from './types'
 
 export type TrackSymbolReference = Record<string, symbol>
+export type TrackLocationResult = Record<string, LocationInstanceOverview | null>
+
+export const buildTrackLocationDetailPromise = (
+  detailPromise: Promise<TrackLocationResult>,
+  userId: string
+) => {
+  return detailPromise
+    .then((response) => (response ? response[userId] || null : null))
+    .catch(() => null)
+}
 
 export class FriendsSessions extends Nanobus<{
   'friend:clear': () => void
@@ -47,8 +57,10 @@ export class FriendsSessions extends Nanobus<{
   'friend:location': (
     friendUserId: string,
     friend: FriendInformation,
-    location: LocationInstanceOverview | null
+    location: LocationInstanceOverview | null,
+    detailPromise?: Promise<LocationInstanceOverview | null>
   ) => void
+  'friend:clear-location': (friendUserId: string, friend: FriendInformation) => void
   'friend:patch-location': (
     friendUserId: string,
     friend: FriendInformation,
@@ -112,16 +124,17 @@ export class FriendsSessions extends Nanobus<{
     this.emit('friend:add', updated)
 
     if (nextLocation) {
+      const result = this.batchUpdateFriendLocation({
+        [friend.userId]: nextLocation.__trackSymbol__
+      })
+
       this.emit(
         'friend:location',
         friend.userId,
         updated,
-        toLocationInstanceOverviewFromTracking(nextLocation)
+        toLocationInstanceOverviewFromTracking(nextLocation),
+        buildTrackLocationDetailPromise(result, friend.userId)
       )
-
-      this.batchUpdateFriendLocation({
-        [friend.userId]: nextLocation.__trackSymbol__
-      })
     }
   }
 
@@ -157,7 +170,7 @@ export class FriendsSessions extends Nanobus<{
 
     if (state === UserState.Offline || state === UserState.Active) {
       existing.location = null
-      this.emit('friend:location', userId, existing, null)
+      this.emit('friend:clear-location', userId, detail)
     }
 
     if (updatedFriend) {
@@ -223,38 +236,48 @@ export class FriendsSessions extends Nanobus<{
       nextLocation?.instance || null
     )
 
-    const emitLocation = () => {
+    const emitLocation = (detailPromise?: ReturnType<typeof buildTrackLocationDetailPromise>) => {
       this.emit(
         'friend:location',
         userId,
         existing,
-        existing.location ? toLocationInstanceOverviewFromTracking(existing.location) : null
+        existing.location ? toLocationInstanceOverviewFromTracking(existing.location) : null,
+        detailPromise
+      )
+    }
+
+    const emitPatchLocation = () => {
+      this.emit(
+        'friend:patch-location',
+        userId,
+        toFriendInformationFromTracking(existing),
+        toLocationInstanceOverviewFromTracking(existing.location!)
       )
     }
 
     if (isSameLocation) {
       if (existing.location!.isTraveling !== nextLocation!.isTraveling) {
-        existing.location!.isTraveling = nextLocation!.isTraveling
-
         // emit location change only when traveling state changed
-        emitLocation()
+        existing.location!.isTraveling = nextLocation!.isTraveling
+        emitPatchLocation()
       }
     } else {
+      // emit location change when location instance changed
       existing.location = nextLocation
-
       if (nextLocation) {
-        nextLocation.referenceWorld = world
-        this.batchUpdateFriendLocation({
+        const result = this.batchUpdateFriendLocation({
           [userId]: nextLocation.__trackSymbol__
         })
-      }
 
-      // emit location change when location instance changed
-      emitLocation()
+        nextLocation.referenceWorld = world
+        emitLocation(buildTrackLocationDetailPromise(result, userId))
+      } else {
+        emitLocation()
+      }
     }
   }
 
-  private patchFriendLocationReference(
+  private assembleFriendLocationReference(
     userId: string,
     trackSymbol: symbol,
     worlds: Map<string, WorldEntity>,
@@ -263,7 +286,7 @@ export class FriendsSessions extends Nanobus<{
     const existing = this.friendSessions.get(userId)
 
     if (!existing || !existing.location || existing.location.__trackSymbol__ !== trackSymbol) {
-      return
+      return null
     }
 
     const location = existing.location
@@ -280,19 +303,14 @@ export class FriendsSessions extends Nanobus<{
       location.referenceGroup = group
     }
 
-    this.emit(
-      'friend:patch-location',
-      userId,
-      toFriendInformationFromTracking(existing),
-      toLocationInstanceOverviewFromTracking(location)
-    )
+    return existing
   }
 
   private async batchUpdateFriendLocation(tracker: TrackSymbolReference) {
     const friendUserIds = Object.keys(tracker)
 
     if (friendUserIds.length === 0) {
-      return
+      return {}
     }
 
     const friendUserLocations = friendUserIds
@@ -319,9 +337,22 @@ export class FriendsSessions extends Nanobus<{
       ? await this.batchRequestQueue.add(() => this.group.fetchGroupSummaries(pendingGroupIds))
       : await this.requestQueue.add(() => this.group.fetchGroupSummaries(pendingGroupIds))
 
+    const trackerPromise: TrackLocationResult = {}
+
     for (const [userId, trackSymbol] of Object.entries(tracker)) {
-      this.patchFriendLocationReference(userId, trackSymbol, worlds, groups)
+      const result = this.assembleFriendLocationReference(userId, trackSymbol, worlds, groups)
+      if (result && result.location) {
+        trackerPromise[userId] = result.location
+        this.emit(
+          'friend:patch-location',
+          userId,
+          toFriendInformationFromTracking(result),
+          toLocationInstanceOverviewFromTracking(result.location)
+        )
+      }
     }
+
+    return trackerPromise
   }
 
   public get friends(): FriendInformation[] {

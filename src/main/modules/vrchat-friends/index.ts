@@ -99,10 +99,16 @@ export class VRChatFriends extends Module {
       this.logger.info(`Friend state changed: ${friend.displayName} (${friendUserId}) ${state}`)
     })
 
-    this.sessions.on('friend:location', (friendUserId, friend, location) => {
+    this.sessions.on('friend:location', (friendUserId, friend, location, detailPromise) => {
       this.logger.info(
         `Friend location changed: ${friend.displayName} (${friendUserId}) ${location?.instance.location || 'Private'}`
       )
+
+      detailPromise?.then((detail) => {
+        this.logger.info(
+          `Friend location detail patched: ${friend.displayName} (${friendUserId}) ${detail?.referenceWorld?.worldName}(${detail?.referenceWorld?.worldId})`
+        )
+      })
     })
   }
 }
