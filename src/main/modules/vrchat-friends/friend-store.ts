@@ -223,23 +223,35 @@ export class FriendsStore extends Nanobus<{
       nextLocation?.instance || null
     )
 
+    const emitLocation = () => {
+      this.emit(
+        'friend:location',
+        userId,
+        existing,
+        existing.location ? toLocationInstanceOverviewFromTracking(existing.location) : null
+      )
+    }
+
     if (isSameLocation) {
-      existing.location!.isTraveling = nextLocation!.isTraveling
+      if (existing.location!.isTraveling !== nextLocation!.isTraveling) {
+        existing.location!.isTraveling = nextLocation!.isTraveling
+
+        // emit location change only when traveling state changed
+        emitLocation()
+      }
     } else {
       existing.location = nextLocation
+
       if (nextLocation) {
         nextLocation.referenceWorld = world
         this.batchUpdateFriendLocation({
           [userId]: nextLocation.__trackSymbol__
         })
       }
+
+      // emit location change when location instance changed
+      emitLocation()
     }
-
-    const location = existing.location
-      ? toLocationInstanceOverviewFromTracking(existing.location)
-      : null
-
-    this.emit('friend:location', userId, existing, location)
   }
 
   private patchFriendLocationReference(

@@ -78,8 +78,12 @@ export class VRChatFriends extends Module {
       this.logger.info(`Friend added: ${friend.displayName} (${friend.userId})`)
     })
 
-    this.store.on('friend:update', (friendUserId, friend, _, keys) => {
-      this.logger.info(`Friend updated: ${friend.displayName} (${friendUserId})`, ...keys)
+    this.store.on('friend:update', (friendUserId, friend, diff, keys) => {
+      this.logger.info(
+        `Friend updated: ${friend.displayName} (${friendUserId})`,
+        ...keys,
+        JSON.stringify(diff)
+      )
     })
 
     this.store.on('friend:delete', (friendUserId, friend) => {
