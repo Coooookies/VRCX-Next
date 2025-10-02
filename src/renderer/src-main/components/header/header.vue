@@ -17,7 +17,9 @@ const { canGoBack, canGoForward, backRoute, forwardRoute } = useRouteForward()
         <ChevronRightIcon class="size-4.5" />
       </HeaderActionButton>
     </div>
-    <HeaderInput class="h-8" />
+    <div class="w-115 h-8">
+      <HeaderInput class="h-full" />
+    </div>
     <div class="flex flex-row items-center w-14 h-8 justify-between">
       <HeaderActionButton>
         <RotateCcwIcon class="size-3.5" />
