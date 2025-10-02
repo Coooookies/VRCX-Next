@@ -17,9 +17,11 @@ export class GroupFetcher {
     groupIds: string[],
     ignoreExpiration?: boolean
   ): Promise<Map<string, GroupEntity>> {
-    const date = new Date()
+    if (groupIds.length === 0) {
+      return new Map()
+    }
 
-    // Get entity from cache
+    const date = new Date()
     const entities = await this.repository.getSavedEntities(groupIds)
     const invalidIds = groupIds.filter((id) => {
       if (!entities.has(id)) {

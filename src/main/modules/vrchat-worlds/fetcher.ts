@@ -28,9 +28,11 @@ export class WorldFetcher {
   ) {}
 
   public async fetchWorldSummaries(worldIds: string[]): Promise<Map<string, WorldEntity>> {
-    const date = new Date()
+    if (worldIds.length === 0) {
+      return new Map()
+    }
 
-    // Get entity from cache
+    const date = new Date()
     const entities = await this.repository.getSavedEntities(worldIds)
     const invalidIds = worldIds.filter(
       (id) =>

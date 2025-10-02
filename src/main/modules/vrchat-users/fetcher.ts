@@ -71,6 +71,10 @@ export class UsersFetcher {
     ignoreExpiration?: boolean,
     processHandler?: UserEntityProcessHandler
   ): Promise<Map<string, UserEntity>> {
+    if (userIds.length === 0) {
+      return new Map()
+    }
+
     const date = new Date()
     const entities = await this.repository.getSavedUserEntities(userIds)
     const invalidIds = userIds.filter((id) => {
