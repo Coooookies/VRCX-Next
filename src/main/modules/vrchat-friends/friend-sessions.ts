@@ -33,7 +33,7 @@ import type {
 
 export type TrackSymbolReference = Record<string, symbol>
 
-export class FriendsStore extends Nanobus<{
+export class FriendsSessions extends Nanobus<{
   'friend:clear': () => void
   'friend:add': (friend: FriendInformation) => void
   'friend:state': (

@@ -1,7 +1,7 @@
 import { createLogger } from '@main/logger'
 import { toFriendUserEntity } from '../vrchat-users/factory'
 import { Dependency, Module } from '@shared/module-constructor'
-import { FriendsStore } from './friend-store'
+import { FriendsSessions } from './friend-sessions'
 import { FriendsFetcher } from './fetcher'
 import { FriendsCoordinator } from './coordinator'
 import { FriendsIPCBinding } from './ipc-binding'
@@ -28,7 +28,7 @@ export class VRChatFriends extends Module {
   @Dependency('VRChatWorkflowCoordinator') declare private workflow: VRChatWorkflowCoordinator
 
   private readonly logger = createLogger(this.moduleId)
-  private store!: FriendsStore
+  private sessions!: FriendsSessions
   private fetcher!: FriendsFetcher
   private coordinator!: FriendsCoordinator
   private ipcBinding!: FriendsIPCBinding
@@ -36,9 +36,14 @@ export class VRChatFriends extends Module {
 
   protected onInit(): void {
     this.fetcher = new FriendsFetcher(this.logger, this.api)
-    this.store = new FriendsStore(this.groups, this.worlds)
-    this.coordinator = new FriendsCoordinator(this.logger, this.pipeline, this.store, this.fetcher)
-    this.ipcBinding = new FriendsIPCBinding(this.ipc, this.store)
+    this.sessions = new FriendsSessions(this.groups, this.worlds)
+    this.coordinator = new FriendsCoordinator(
+      this.logger,
+      this.pipeline,
+      this.sessions,
+      this.fetcher
+    )
+    this.ipcBinding = new FriendsIPCBinding(this.ipc, this.sessions)
     this.$ = this.mobx.observable<FriendSharedState>(
       this.moduleId,
       {
@@ -70,15 +75,15 @@ export class VRChatFriends extends Module {
       this.coordinator.uninitialize()
     })
 
-    this.store.on('friend:present', (friends) => {
+    this.sessions.on('friend:present', (friends) => {
       this.users.saveUserEntities(friends.map((f) => toFriendUserEntity(f)))
     })
 
-    this.store.on('friend:add', (friend) => {
+    this.sessions.on('friend:add', (friend) => {
       this.logger.info(`Friend added: ${friend.displayName} (${friend.userId})`)
     })
 
-    this.store.on('friend:update', (friendUserId, friend, diff, keys) => {
+    this.sessions.on('friend:update', (friendUserId, friend, diff, keys) => {
       this.logger.info(
         `Friend updated: ${friend.displayName} (${friendUserId})`,
         ...keys,
@@ -86,15 +91,15 @@ export class VRChatFriends extends Module {
       )
     })
 
-    this.store.on('friend:delete', (friendUserId, friend) => {
+    this.sessions.on('friend:delete', (friendUserId, friend) => {
       this.logger.info(`Friend deleted: ${friend.displayName} (${friendUserId})`)
     })
 
-    this.store.on('friend:state', (friendUserId, friend, state) => {
+    this.sessions.on('friend:state', (friendUserId, friend, state) => {
       this.logger.info(`Friend state changed: ${friend.displayName} (${friendUserId}) ${state}`)
     })
 
-    this.store.on('friend:location', (friendUserId, friend, location) => {
+    this.sessions.on('friend:location', (friendUserId, friend, location) => {
       this.logger.info(
         `Friend location changed: ${friend.displayName} (${friendUserId}) ${location?.instance.location || 'Private'}`
       )

@@ -4,7 +4,7 @@ import { toBaseFriendInformation } from './factory'
 import { UserState } from '@shared/definition/vrchat-api-response-community'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { FriendsFetcher } from './fetcher'
-import type { FriendsStore } from './friend-store'
+import type { FriendsSessions } from './friend-sessions'
 import type {
   PipelineEventFriendActive,
   PipelineEventFriendAdd,
@@ -23,7 +23,7 @@ export class FriendsCoordinator {
   constructor(
     private readonly logger: LoggerFactory,
     private readonly pipeline: VRChatPipeline,
-    private readonly store: FriendsStore,
+    private readonly sessions: FriendsSessions,
     private readonly fetcher: FriendsFetcher
   ) {
     this.bindEvents()
@@ -33,7 +33,7 @@ export class FriendsCoordinator {
     // pause pipeline event processing
     this.shieldedPipelineEvent = true
 
-    const result = await this.fetcher.fetchCurrentFriends((f) => this.store.presentFriends(f))
+    const result = await this.fetcher.fetchCurrentFriends((f) => this.sessions.presentFriends(f))
     await this.processCachedPipelineEvents()
 
     this.logger.info(
@@ -47,7 +47,7 @@ export class FriendsCoordinator {
   }
 
   public uninitialize() {
-    this.store.clear()
+    this.sessions.clear()
   }
 
   public bindEvents() {
@@ -101,7 +101,7 @@ export class FriendsCoordinator {
 
   private async handleFriendAdd({ user }: PipelineEventFriendAdd): Promise<void> {
     const friend = toBaseFriendInformation(user)
-    this.store.addFriend({
+    this.sessions.addFriend({
       ...friend,
       currentLocationRaw: user.location || '',
       travelingLocationRaw: ''
@@ -109,7 +109,7 @@ export class FriendsCoordinator {
   }
 
   private async handleFriendDelete({ userId }: PipelineEventFriendDelete): Promise<void> {
-    this.store.deleteFriend(userId)
+    this.sessions.deleteFriend(userId)
   }
 
   private async handleFriendOnline({
@@ -121,15 +121,20 @@ export class FriendsCoordinator {
     travelingToLocation
   }: PipelineEventFriendOnline): Promise<void> {
     const worldSummary = world ? toWorldEntity(world) : undefined
-    this.store.updateFriendState(userId, UserState.Online, platform, toBaseFriendInformation(user))
-    this.store.updateFriendLocation(userId, location, travelingToLocation, worldSummary)
+    this.sessions.updateFriendState(
+      userId,
+      UserState.Online,
+      platform,
+      toBaseFriendInformation(user)
+    )
+    this.sessions.updateFriendLocation(userId, location, travelingToLocation, worldSummary)
   }
 
   private async handleFriendOffline({
     userId,
     platform
   }: PipelineEventFriendOffline): Promise<void> {
-    this.store.updateFriendState(userId, UserState.Offline, platform)
+    this.sessions.updateFriendState(userId, UserState.Offline, platform)
   }
 
   private async handleFriendActive({
@@ -137,7 +142,12 @@ export class FriendsCoordinator {
     user,
     platform
   }: PipelineEventFriendActive): Promise<void> {
-    this.store.updateFriendState(userId, UserState.Active, platform, toBaseFriendInformation(user))
+    this.sessions.updateFriendState(
+      userId,
+      UserState.Active,
+      platform,
+      toBaseFriendInformation(user)
+    )
   }
 
   private async handleFriendLocation({
@@ -147,10 +157,10 @@ export class FriendsCoordinator {
     travelingToLocation
   }: PipelineEventFriendLocation): Promise<void> {
     const worldSummary = world ? toWorldEntity(world) : undefined
-    this.store.updateFriendLocation(userId, location, travelingToLocation, worldSummary)
+    this.sessions.updateFriendLocation(userId, location, travelingToLocation, worldSummary)
   }
 
   private async handleFriendUpdate({ user, userId }: PipelineEventFriendUpdate): Promise<void> {
-    this.store.updateFriendAttributes(userId, toBaseFriendInformation(user))
+    this.sessions.updateFriendAttributes(userId, toBaseFriendInformation(user))
   }
 }
