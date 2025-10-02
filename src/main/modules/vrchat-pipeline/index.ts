@@ -66,9 +66,7 @@ export class VRChatPipeline extends Module<{
       this.logger.debug(
         'Parsed pipeline message:',
         message.type,
-        typeof message.content === 'string'
-          ? message.content
-          : JSON.stringify(message.content, null, 2)
+        typeof message.content === 'string' ? message.content : JSON.stringify(message.content)
       )
 
       if (this.cacheEnabled) {
