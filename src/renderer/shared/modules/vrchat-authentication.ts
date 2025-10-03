@@ -6,7 +6,7 @@ import type { AuthenticationState } from '@shared/definition/vrchat-authenticati
 import type { AuthenticationSharedState } from '@shared/definition/mobx-shared'
 
 export class VRChatAuthentication extends Module<{
-  'state:update': (state: AuthenticationState) => void
+  'state:update': (state: Readonly<AuthenticationState>) => void
 }> {
   @Dependency('IPCRenderer') declare private ipc: IPCRenderer
   @Dependency('MobxRenderer') declare private mobx: MobxRenderer
