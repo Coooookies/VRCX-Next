@@ -47,7 +47,7 @@ export class InstanceEventBinding {
           ownerName = owner.summary?.groupName || ''
           break
         default:
-          ownerName = 'Unknown'
+          ownerName = ''
           break
       }
 
