@@ -17,6 +17,7 @@ import { VRChatPipeline } from './vrchat-pipeline'
 import { VRChatInstances } from './vrchat-instances'
 import { VRChatFiles } from './vrchat-files'
 import { VRChatFriends } from './vrchat-friends'
+import { VRChatAvatars } from './vrchat-avatars'
 import { VRChatUsers } from './vrchat-users'
 import { VRChatWorlds } from './vrchat-worlds'
 import { VRChatGroups } from './vrchat-groups'
@@ -43,6 +44,7 @@ export const APP_MODULES: Record<string, ModuleConstructor> = {
   VRChatPipeline,
   VRChatInstances,
   VRChatFiles,
+  VRChatAvatars,
   VRChatWorlds,
   VRChatGroups,
   VRChatUsers,
