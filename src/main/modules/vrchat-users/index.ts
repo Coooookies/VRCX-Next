@@ -62,21 +62,15 @@ export class VRChatUsers extends Module {
       this.currentUser.clear()
     })
 
-    this.on('user:location', ({ location, isTraveling }) => {
+    this.currentUser.on('user:location', (location) => {
       this.logger.info(
-        'user-location',
-        location ? `${location.worldName}(${location.worldId})` : 'Private',
-        isTraveling ? 'Traveling' : 'Not-Traveling'
+        'User location updated:',
+        location ? `${location.instance.location}` : 'Private'
       )
     })
 
-    this.on('user:update', (diff, keys) => {
-      this.logger.info(
-        'user-update',
-        `before: ${JSON.stringify(diff.before, null, 2)}`,
-        `after: ${JSON.stringify(diff.after, null, 2)}`,
-        `keys: ${keys.join(',')}`
-      )
+    this.currentUser.on('user:update', (user, diff, keys) => {
+      this.logger.info('User information updated:', user.displayName, ...keys, JSON.stringify(diff))
     })
   }
 
