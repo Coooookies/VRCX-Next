@@ -4,7 +4,10 @@ import {
 } from '@shared/definition/vrchat-notifications'
 import { NotificationType, NotificationV2Type } from '@shared/definition/vrchat-api-response'
 import type { NotificationEntity } from '../database/entities/vrchat-notifications'
-import type { NotificationBaseInformation } from '@shared/definition/vrchat-notifications'
+import type {
+  NotificationBaseInformation,
+  NotificationInformation
+} from '@shared/definition/vrchat-notifications'
 import type {
   Notification,
   NotificationV2,
@@ -138,18 +141,19 @@ export function toNotificationV2BaseInformation(
 }
 
 export function toNotificationEntity(
-  notification: NotificationBaseInformation,
-  ownerUserId: string
+  notification: NotificationInformation,
+  refUserId: string
 ): NotificationEntity {
   return {
     notificationId: notification.notificationId,
-    ownerUserId,
+    refUserId,
     type: notification.type,
     title: notification.title,
     message: notification.message,
     isRead: notification.isRead,
     thumbnailImageUrl: notification.thumbnailImageUrl || undefined,
     senderId: notification.senderId || undefined,
+    senderName: notification.senderName || undefined,
     senderType: notification.senderType,
     version: notification.version,
     raw: notification.raw,
