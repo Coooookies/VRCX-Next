@@ -121,12 +121,8 @@ export class FriendsCoordinator {
     travelingToLocation
   }: PipelineEventFriendOnline): Promise<void> {
     const worldSummary = world ? toWorldEntity(world) : undefined
-    this.sessions.updateFriendState(
-      userId,
-      UserState.Online,
-      platform,
-      toBaseFriendInformation(user)
-    )
+    const baseInformation = toBaseFriendInformation(user)
+    this.sessions.updateFriendState(userId, UserState.Online, platform, baseInformation)
     this.sessions.updateFriendLocation(userId, location, travelingToLocation, worldSummary)
   }
 
