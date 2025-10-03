@@ -9,3 +9,8 @@ export interface UserAvatar {
   imageFileId: string
   imageFileVersion: number
 }
+
+export interface ReferenceAvatarWithDetail extends ReferenceAvatar {
+  avatarName: string
+  ownerUserId: string
+}
