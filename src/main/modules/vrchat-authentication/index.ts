@@ -17,7 +17,7 @@ import type { SettingModule } from '../setting'
 import type { AuthenticationState, AuthenticationUserOverview } from './types'
 
 export class VRChatAuthentication extends Module<{
-  'state:update': (state: AuthenticationState) => void
+  'state:update': (state: Readonly<AuthenticationState>) => void
 }> {
   @Dependency('SettingModule') declare private setting: SettingModule
   @Dependency('IPCModule') declare private ipc: IPCModule

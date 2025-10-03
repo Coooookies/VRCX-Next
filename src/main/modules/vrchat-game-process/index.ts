@@ -20,7 +20,7 @@ export class VRChatGameProcess extends Module<{
   'log:raw': (raw: string) => void
   'game:start': () => void
   'game:stop': () => void
-  'game:event': (data: LogEventMessage, context: LogEventContext) => void
+  'game:event': (data: Readonly<LogEventMessage>, context: Readonly<LogEventContext>) => void
   'game:user-authenticated': (userId: string, userName: string) => void
   'game:user-logged-out': (exitWithGame: boolean) => void
 }> {

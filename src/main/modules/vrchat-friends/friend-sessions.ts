@@ -48,29 +48,29 @@ export class FriendsSessions extends Nanobus<{
   'friend:add': (friend: FriendInformation) => void
   'friend:state': (
     friendUserId: string,
-    friend: FriendInformation,
+    friend: Readonly<FriendInformation>,
     state: UserState,
     platform: Platform
   ) => void
-  'friend:present': (friends: FriendInformation[]) => void
-  'friend:delete': (friendUserId: string, friend: FriendInformation) => void
+  'friend:present': (friends: Readonly<FriendInformation>[]) => void
+  'friend:delete': (friendUserId: string, friend: Readonly<FriendInformation>) => void
   'friend:location': (
     friendUserId: string,
-    friend: FriendInformation,
-    location: LocationInstanceOverview | null,
-    detailPromise?: Promise<LocationInstanceOverview | null>
+    friend: Readonly<FriendInformation>,
+    location: Readonly<LocationInstanceOverview> | null,
+    detailPromise?: Readonly<Promise<LocationInstanceOverview | null>>
   ) => void
-  'friend:clear-location': (friendUserId: string, friend: FriendInformation) => void
+  'friend:clear-location': (friendUserId: string, friend: Readonly<FriendInformation>) => void
   'friend:patch-location': (
     friendUserId: string,
-    friend: FriendInformation,
-    location: LocationInstanceOverview
+    friend: Readonly<FriendInformation>,
+    location: Readonly<LocationInstanceOverview>
   ) => void
   'friend:update': (
     friendUserId: string,
-    friend: BaseFriendInformation,
-    detailDiff: DiffResult<BaseFriendInformation>['diff'],
-    updatedKeys: DiffResult<BaseFriendInformation>['keys']
+    friend: Readonly<BaseFriendInformation>,
+    detailDiff: Readonly<DiffResult<BaseFriendInformation>['diff']>,
+    updatedKeys: Readonly<DiffResult<BaseFriendInformation>['keys']>
   ) => void
 }> {
   private readonly friendSessions = new Map<string, FriendInformationWithLocationTracking>()
@@ -160,7 +160,7 @@ export class FriendsSessions extends Nanobus<{
   ) {
     const existing = this.friendSessions.get(userId)
 
-    if (!existing) {
+    if (!existing || existing.state === state) {
       return
     }
 

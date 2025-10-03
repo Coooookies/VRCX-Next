@@ -42,14 +42,14 @@ export class NotificationRepository extends Nanobus<{
   private upsertNotifications(entities: NotificationEntity | NotificationEntity[]) {
     const entitiesArr = Array.isArray(entities) ? entities : [entities]
     return this.repository.upsert(entitiesArr, {
-      conflictPaths: ['notificationId', 'ownerUserId'],
+      conflictPaths: ['notificationId', 'refUserId'],
       skipUpdateIfNoValuesChanged: true
     })
   }
 
   public async saveNotification(
     notification: NotificationInformation | NotificationInformation[],
-    ownerUserId: string
+    refUserId: string
   ) {
     const pendingNotifications = Array.isArray(notification) ? notification : [notification]
     const pendingUpdateNotifications: NotificationInformation[] = []
@@ -65,7 +65,7 @@ export class NotificationRepository extends Nanobus<{
       this.notifications.set(notification.notificationId, notification)
     }
 
-    const entities = pendingNotifications.map((n) => toNotificationEntity(n, ownerUserId))
+    const entities = pendingNotifications.map((n) => toNotificationEntity(n, refUserId))
     await this.upsertNotifications(entities)
 
     if (pendingInsertNotifications.length > 0) {

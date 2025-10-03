@@ -7,7 +7,7 @@ import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { VRChatAuthentication } from '../vrchat-authentication'
 import type { Database } from '../database'
 
-export class VRChatGroups extends Module<{}> {
+export class VRChatGroups extends Module {
   @Dependency('VRChatAPI') declare private api: VRChatAPI
   @Dependency('VRChatPipeline') declare private pipeline: VRChatPipeline
   @Dependency('VRChatAuthentication') declare private auth: VRChatAuthentication

@@ -10,7 +10,7 @@ import type { VRChatGroups } from '../vrchat-groups'
 import type { VRChatFiles } from '../vrchat-files'
 import type { Database } from '../database'
 
-export class VRChatWorlds extends Module<{}> {
+export class VRChatWorlds extends Module {
   @Dependency('VRChatAPI') declare private api: VRChatAPI
   @Dependency('VRChatPipeline') declare private pipeline: VRChatPipeline
   @Dependency('VRChatAuthentication') declare private auth: VRChatAuthentication

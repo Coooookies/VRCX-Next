@@ -9,7 +9,7 @@ import type {
 } from '@shared/definition/setting'
 
 export class SettingModule extends Module<{
-  update: (property: InstanceProperties<SettingDefinition>) => void
+  update: (property: Readonly<InstanceProperties<SettingDefinition>>) => void
 }> {
   @Dependency('IPCRenderer') declare private ipc: IPCRenderer
   @Dependency('MobxRenderer') declare private mobx: MobxRenderer

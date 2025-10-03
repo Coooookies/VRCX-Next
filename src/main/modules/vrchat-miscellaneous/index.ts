@@ -7,7 +7,7 @@ import type { VRChatAPI } from '../vrchat-api'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { VRChatWorkflowCoordinator } from '../vrchat-workflow-coordinator'
 
-export class VRChatMiscellaneous extends Module<{}> {
+export class VRChatMiscellaneous extends Module {
   @Dependency('MobxState') declare private mobx: MobxState
   @Dependency('VRChatAPI') declare private api: VRChatAPI
   @Dependency('VRChatPipeline') declare private pipeline: VRChatPipeline

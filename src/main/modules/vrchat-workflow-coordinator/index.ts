@@ -18,7 +18,7 @@ export class VRChatWorkflowCoordinator extends Module<{
   'workflow:interrupted': (
     workflowType: WorkflowType,
     taskName: string,
-    reason: WorkflowTaskError
+    reason: Readonly<WorkflowTaskError>
   ) => void
 }> {
   @Dependency('VRChatAuthentication') declare private auth: VRChatAuthentication

@@ -20,12 +20,12 @@ import type { DiffResult } from '@main/utils/object'
 const MODULE_NAME = 'VRChatUsers:CurrentUserStore'
 
 export class CurrentUserStore extends Nanobus<{
-  'user:location': (location: LocationInstanceOverview | null) => void
-  'user:patch-location': (location: LocationInstanceOverview | null) => void
+  'user:location': (location: Readonly<LocationInstanceOverview> | null) => void
+  'user:patch-location': (location: Readonly<LocationInstanceOverview> | null) => void
   'user:update': (
-    user: CurrentUserInformation,
-    detailDiff: DiffResult<CurrentUserInformation>['diff'],
-    updatedKeys: DiffResult<CurrentUserInformation>['keys']
+    user: Readonly<CurrentUserInformation>,
+    detailDiff: Readonly<DiffResult<CurrentUserInformation>['diff']>,
+    updatedKeys: Readonly<DiffResult<CurrentUserInformation>['keys']>
   ) => void
 }> {
   private $!: UserStoreSharedState

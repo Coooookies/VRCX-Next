@@ -8,7 +8,7 @@ import type { VRChatAuthentication } from '../vrchat-authentication'
 import type { ProtocolServer } from '../protocol-server'
 import type { Database } from '../database'
 
-export class VRChatFiles extends Module<{}> {
+export class VRChatFiles extends Module {
   @Dependency('ProtocolServer') declare private protocol: ProtocolServer
   @Dependency('VRChatAPI') declare private api: VRChatAPI
   @Dependency('VRChatAuthentication') declare private auth: VRChatAuthentication

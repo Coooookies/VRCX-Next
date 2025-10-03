@@ -9,12 +9,12 @@ import type { Got, Response } from 'got'
 import type { SettingModule } from '../setting'
 
 export class VRChatAPI extends Module<{
-  'response:unauthorized': (response: Response<unknown>) => void
-  'response:bad-request': (response: Response<unknown>) => void
-  'response:forbidden': (response: Response<unknown>) => void
-  'response:not-found': (response: Response<unknown>) => void
-  'response:rate-limit': (response: Response<unknown>) => void
-  'response:server-error': (response: Response<unknown>) => void
+  'response:unauthorized': (response: Readonly<Response<unknown>>) => void
+  'response:bad-request': (response: Readonly<Response<unknown>>) => void
+  'response:forbidden': (response: Readonly<Response<unknown>>) => void
+  'response:not-found': (response: Readonly<Response<unknown>>) => void
+  'response:rate-limit': (response: Readonly<Response<unknown>>) => void
+  'response:server-error': (response: Readonly<Response<unknown>>) => void
 }> {
   @Dependency('SettingModule') declare private setting: SettingModule
 

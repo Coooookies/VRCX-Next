@@ -15,7 +15,7 @@ import type { VRChatWorkflowCoordinator } from '../vrchat-workflow-coordinator'
 import type { Database } from '../database'
 import type { MobxState } from '../mobx-state'
 
-export class VRChatNotifications extends Module<{}> {
+export class VRChatNotifications extends Module {
   @Dependency('IPCModule') declare private ipc: IPCModule
   @Dependency('Database') declare private database: Database
   @Dependency('MobxState') declare private mobx: MobxState

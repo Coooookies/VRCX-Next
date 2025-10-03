@@ -18,7 +18,7 @@ import type {
 } from '@shared/definition/setting'
 
 export class SettingModule extends Module<{
-  update: (property: InstanceProperties<SettingDefinition>) => void
+  update: (property: Readonly<InstanceProperties<SettingDefinition>>) => void
 }> {
   @Dependency('Database') declare private database: Database
   @Dependency('MobxState') declare private mobx: MobxState
