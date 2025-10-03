@@ -15,13 +15,13 @@ export class NotificationEntity {
   })
   declare notificationId: string
 
-  @Index('IDX_vrchat_notifications_owner_user_id')
+  @Index('IDX_vrchat_notifications_ref_user_id')
   @PrimaryColumn({
-    name: 'owner_user_id',
+    name: 'ref_user_id',
     type: 'varchar',
     length: 63
   })
-  declare ownerUserId: string
+  declare refUserId: string
 
   @Column({
     name: 'type',
@@ -55,6 +55,7 @@ export class NotificationEntity {
   })
   declare thumbnailImageUrl?: string
 
+  @Index('IDX_vrchat_notifications_sender_id')
   @Column({
     name: 'sender_id',
     type: 'varchar',
@@ -62,6 +63,14 @@ export class NotificationEntity {
     length: 63
   })
   declare senderId?: string
+
+  @Index('IDX_vrchat_notifications_sender_name')
+  @Column({
+    name: 'sender_name',
+    type: 'text',
+    nullable: true
+  })
+  declare senderName?: string
 
   @Column({
     name: 'sender_type',

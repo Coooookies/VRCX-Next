@@ -1,0 +1,33 @@
+// vrchat-friend-location-activity
+// activityId
+// refUserId
+// friendUserId
+// friendUserName
+// worldId
+// worldName
+// worldVersion
+// ownerId
+// ownerName
+// instanceId
+// instanceType
+// recordedAt
+
+// vrchat-friend-avatar-activity
+// activityId
+// refUserId
+// friendUserId
+// friendUserName
+// avatarImagefileId
+// avatarImagefileVersion
+// avatarName:
+// recordedAt
+
+// vrchat-friend-common-activity
+// activityId
+// activityType
+// refUserId
+// friendUserId
+// friendUserName
+// beforeValue
+// afterValue
+// recordedAt

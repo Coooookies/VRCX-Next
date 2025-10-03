@@ -15,6 +15,7 @@ import {
 import { NotificationEntity } from './entities/vrchat-notifications'
 import { ImageSelectionEntity } from './entities/selection-images'
 import { FileAnalysisEntity } from './entities/vrchat-cache-analysis-file'
+import { AvatarReferenceEntity } from './entities/vrchat-cache-avatar-reference'
 import { APP_DATABASE_DIR } from '@main/constants'
 
 import {
@@ -28,7 +29,8 @@ import {
   CreateAnalysisFilesTable1720000000000,
   CreateVisitedInstanceTable1710000000000,
   CreateVisitedInstanceUserEventsTable1710000000001,
-  CreateVisitedInstanceCommonEventsTable1710000000002
+  CreateVisitedInstanceCommonEventsTable1710000000002,
+  CreateAvatarReferencesTable1710000000000
 } from './migration'
 
 const STORAGE_DATABASE_NAME = 'storage.db'
@@ -54,7 +56,8 @@ export class Database extends Module {
         VisitedInstanceUserEventEntity,
         NotificationEntity,
         ImageSelectionEntity,
-        FileAnalysisEntity
+        FileAnalysisEntity,
+        AvatarReferenceEntity
       ],
       migrationsRun: true,
       migrations: [
@@ -68,7 +71,8 @@ export class Database extends Module {
         CreateAnalysisFilesTable1720000000000,
         CreateVisitedInstanceTable1710000000000,
         CreateVisitedInstanceUserEventsTable1710000000001,
-        CreateVisitedInstanceCommonEventsTable1710000000002
+        CreateVisitedInstanceCommonEventsTable1710000000002,
+        CreateAvatarReferencesTable1710000000000
       ]
     })
 
