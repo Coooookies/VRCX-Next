@@ -32,6 +32,7 @@ const categoryType: Record<NotificationGlobalType, NotificationGlobalCategory> =
   [NotificationGlobalType.GroupTransferV2]: NotificationGlobalCategory.Groups,
   [NotificationGlobalType.GroupQueueReadyV2]: NotificationGlobalCategory.Groups,
   [NotificationGlobalType.EventAnnouncementV2]: NotificationGlobalCategory.Others,
+  [NotificationGlobalType.BadgeEarnedV2]: NotificationGlobalCategory.Others,
   [NotificationGlobalType.UnknownV2]: NotificationGlobalCategory.Others
 }
 

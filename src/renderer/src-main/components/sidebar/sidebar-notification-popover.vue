@@ -17,6 +17,7 @@ import NotificationPopoverV2GroupJoinRequest from '../notification/notification-
 import NotificationPopoverV2GroupQueueReady from '../notification/notification-popover-v2-group-queue-ready.vue'
 import NotificationPopoverV2GroupTransfer from '../notification/notification-popover-v2-group-transfer.vue'
 import NotificationPopoverV2EventAnnouncement from '../notification/notification-popover-v2-event-announcement.vue'
+import NotificationPopoverV2BadgeEarned from '../notification/notification-popover-v2-badge-earned.vue'
 import NotificationPopoverV2Unknown from '../notification/notification-popover-v2-unknown.vue'
 import { cn } from '@renderer/shared/utils/style'
 import { computed, ref, shallowReadonly } from 'vue'
@@ -80,6 +81,7 @@ const notificationComponents = shallowReadonly({
   [NotificationGlobalType.GroupQueueReadyV2]: NotificationPopoverV2GroupQueueReady,
   [NotificationGlobalType.GroupTransferV2]: NotificationPopoverV2GroupTransfer,
   [NotificationGlobalType.EventAnnouncementV2]: NotificationPopoverV2EventAnnouncement,
+  [NotificationGlobalType.BadgeEarnedV2]: NotificationPopoverV2BadgeEarned,
   [NotificationGlobalType.UnknownV2]: NotificationPopoverV2Unknown
 } as const satisfies Record<NotificationGlobalType, Component>)
 

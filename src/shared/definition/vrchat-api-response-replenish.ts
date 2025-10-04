@@ -329,7 +329,8 @@ export interface NotificationV2<
 
 export const NotificationV2GroupCategory = {
   SoocialGroup: 'social.group',
-  Event: 'event'
+  Event: 'event',
+  Badge: 'badge'
 } as const
 
 export type NotificationV2GroupCategory =
@@ -348,16 +349,33 @@ export const NotificationV2Type = {
   GroupJoinRequest: 'group.joinRequest',
   GroupTransfer: 'group.transfer',
   GroupQueueReady: 'group.queueReady',
-  EventAnnouncement: 'event.announcement'
+  EventAnnouncement: 'event.announcement',
+  BadgeEarned: 'badge.earned'
 } as const
 
 export type NotificationV2Type = (typeof NotificationV2Type)[keyof typeof NotificationV2Type]
 
 /**
- *
  * @export
- * @enum {string}
+ * @interface NotificationV2DataBadgeEarned
  */
+export interface NotificationV2DataBadgeEarned {
+  /**
+   * @type {string}
+   * @memberof NotificationV2DataBadgeEarned
+   */
+  badgeDescription: string
+  /**
+   * @type {string}
+   * @memberof NotificationV2DataBadgeEarned
+   */
+  badgeId: string
+  /**
+   * @type {string}
+   * @memberof NotificationV2DataBadgeEarned
+   */
+  badgeName: string
+}
 
 /**
  * Notification data structure for group announcement events in version 2.

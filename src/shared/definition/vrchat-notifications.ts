@@ -7,6 +7,7 @@ import {
   NotificationType,
   NotificationV1,
   NotificationV2,
+  NotificationV2DataBadgeEarned,
   NotificationV2DataEventAnnouncement,
   NotificationV2DataGroupAnnouncement,
   NotificationV2DataGroupInvite,
@@ -34,6 +35,7 @@ export const NotificationGlobalType = {
   FriendRequestV1: 'v1.friend-request',
   MessageV1: 'v1.message',
   UnknownV1: 'v1.unknown',
+  BadgeEarnedV2: 'v2.badge-earned',
   GroupAnnouncementV2: 'v2.group-announcement',
   GroupInviteV2: 'v2.group-invite',
   GroupInformativeV2: 'v2.group-informative',
@@ -108,6 +110,11 @@ export type NotificationGlobalRawInformation = {
     typeof NotificationV2Type.EventAnnouncement,
     typeof NotificationV2GroupCategory.Event,
     NotificationV2DataEventAnnouncement
+  >
+  [NotificationGlobalType.BadgeEarnedV2]: NotificationV2<
+    typeof NotificationV2Type.BadgeEarned,
+    typeof NotificationV2GroupCategory.Badge,
+    NotificationV2DataBadgeEarned
   >
   [NotificationGlobalType.UnknownV2]: NotificationV2<unknown, unknown, unknown>
 }

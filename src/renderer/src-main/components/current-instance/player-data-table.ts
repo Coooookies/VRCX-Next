@@ -80,7 +80,7 @@ export const columns: ColumnDef<InstancePlayer>[] = [
       return h('div', { class: 'px-2 flex flex-row items-center gap-0.5 overflow-hidden' }, [
         h(ProfileNameParagraph, {
           class: 'text-[13px] font-semibold truncate',
-          userName: row.original.userName,
+          userName: row.original.user?.displayName || row.original.userName,
           trustRank: row.original.user?.trustRank || UserTrustRank.Visitor,
           as: 'span'
         }),

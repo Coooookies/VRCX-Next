@@ -123,6 +123,11 @@ export function toNotificationV2BaseInformation(
       else senderType = NotificationSenderType.Unknown
       break
     }
+    case NotificationV2Type.BadgeEarned: {
+      type = NotificationGlobalType.BadgeEarnedV2
+      senderType = NotificationSenderType.System
+      break
+    }
   }
 
   return {
