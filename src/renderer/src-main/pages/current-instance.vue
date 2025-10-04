@@ -68,7 +68,7 @@ provide('current-instance:search-value', searchValue)
         v-if="!isGameRunning"
         class="group-has-[*]/right-expanded:pr-[var(--sidebar-padding-right)] group-has-[*]/right-expanded:pl-[var(--sidebar-padding-left)]"
       >
-        <LightRaysBackground class="w-full h-screen" />
+        <LightRaysBackground class="w-full h-screen" rays-color="#B8B8B8" />
       </div>
     </template>
     <div class="@container w-full">

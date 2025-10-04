@@ -20,7 +20,7 @@ const props = defineProps<{
         cn(
           'bg-gradient-to-r from-transparent via-border to-transparent',
           'h-px border-0 w-200',
-          'mt-12 mb-14'
+          'mt-11 mb-13'
         )
       "
     />
