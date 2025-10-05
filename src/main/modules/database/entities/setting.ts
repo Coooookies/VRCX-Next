@@ -4,22 +4,12 @@ import type { SettingNamespace, SettingProperty } from '@shared/definition/setti
 
 @Entity('settings')
 export class SettingEntity {
-  @PrimaryColumn({
-    name: 'key',
-    type: 'varchar'
-  })
+  @PrimaryColumn({ name: 'key', type: 'varchar' })
   declare key: string
 
-  @PrimaryColumn({
-    name: 'namespace',
-    type: 'varchar'
-  })
+  @PrimaryColumn({ name: 'namespace', type: 'varchar' })
   declare namespace: SettingNamespace
 
-  @Column({
-    name: 'value',
-    type: 'text',
-    ...propertyTransformer
-  })
+  @Column({ name: 'value', type: 'text', ...propertyTransformer })
   declare value: SettingProperty
 }

@@ -4,43 +4,22 @@ import { FileType } from '@main/modules/vrchat-files/types'
 
 @Entity('vrchat_cache_analysis_files')
 export class FileAnalysisEntity {
-  @PrimaryColumn({
-    name: 'file_id',
-    type: 'varchar',
-    length: 63
-  })
+  @PrimaryColumn({ name: 'file_id', type: 'varchar', length: 63 })
   declare fileId: string
 
-  @PrimaryColumn({
-    name: 'file_version',
-    type: 'integer'
-  })
+  @PrimaryColumn({ name: 'file_version', type: 'integer' })
   declare fileVersion: number
 
-  @Column({
-    name: 'file_size',
-    type: 'integer'
-  })
+  @Column({ name: 'file_size', type: 'integer' })
   declare fileSize: number
 
-  @Column({
-    name: 'file_uncompressed_size',
-    type: 'integer'
-  })
+  @Column({ name: 'file_uncompressed_size', type: 'integer' })
   declare fileUncompressedSize: number
 
-  @Column({
-    name: 'type',
-    type: 'varchar',
-    length: 31
-  })
+  @Column({ name: 'type', type: 'varchar', length: 31 })
   declare type: FileType
 
-  @Column({
-    name: 'stats',
-    type: 'text',
-    ...propertyTransformer
-  })
+  @Column({ name: 'stats', type: 'text', ...propertyTransformer })
   declare stats: object
 
   @Column({
