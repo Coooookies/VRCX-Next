@@ -21,12 +21,13 @@ import {
 import type { DiffResult } from '@main/utils/object'
 import type { VRChatWorlds } from '../vrchat-worlds'
 import type { VRChatGroups } from '../vrchat-groups'
+import type { VRChatUsers } from '../vrchat-users'
 import type { WorldEntity } from '../database/entities/vrchat-cache-world'
 import type { GroupEntity } from '../database/entities/vrchat-cache-group'
 import type { WorldSummary } from '@shared/definition/vrchat-worlds'
 import type { BaseFriendInformation, FriendInformation } from '@shared/definition/vrchat-friends'
 import type {
-  FriendInformationWithLocationTracking,
+  FriendInformationWithTracking,
   FriendInformationWithRawLocation,
   LocationInstanceWithTracking
 } from './types'
@@ -73,20 +74,21 @@ export class FriendsSessions extends Nanobus<{
     updatedKeys: Readonly<DiffResult<BaseFriendInformation>['keys']>
   ) => void
 }> {
-  private readonly friendSessions = new Map<string, FriendInformationWithLocationTracking>()
+  private readonly friendSessions = new Map<string, FriendInformationWithTracking>()
   private readonly batchRequestQueue = new RequestQueue(CURRENT_INSTANCE_BATCH_QUEUE_LIMIT)
   private readonly requestQueue = new RequestQueue(CURRENT_INSTANCE_QUEUE_LIMIT)
 
   constructor(
     private readonly group: VRChatGroups,
-    private readonly world: VRChatWorlds
+    private readonly world: VRChatWorlds,
+    private readonly users: VRChatUsers
   ) {
     super('VRChatFriends:FriendSessions')
   }
 
   public presentFriends(friends: FriendInformationWithRawLocation[]) {
     const trackSymbols: TrackSymbolReference = {}
-    const details: FriendInformationWithLocationTracking[] = []
+    const details: FriendInformationWithTracking[] = []
 
     for (const friend of friends) {
       const nextLocation = generateLocationTarget(
@@ -95,10 +97,10 @@ export class FriendsSessions extends Nanobus<{
       )
 
       if (nextLocation) {
-        trackSymbols[friend.userId] = nextLocation.__trackSymbol__
+        trackSymbols[friend.userId] = nextLocation.__locationTrackSymbol__
       }
 
-      const detail: FriendInformationWithLocationTracking = {
+      const detail: FriendInformationWithTracking = {
         ...friend,
         location: nextLocation
       }
@@ -112,30 +114,16 @@ export class FriendsSessions extends Nanobus<{
     return details
   }
 
-  public addFriend(friend: FriendInformationWithRawLocation) {
-    const nextLocation = generateLocationTarget(
-      friend.currentLocationRaw,
-      friend.travelingLocationRaw
-    )
-
-    const detail: FriendInformationWithLocationTracking = { ...friend, location: nextLocation }
+  public addFriend(friend: BaseFriendInformation) {
+    const __stateTrackSymbol__ = Symbol()
+    const userId = friend.userId
+    const location = null
+    const detail: FriendInformationWithTracking = { ...friend, location, __stateTrackSymbol__ }
     const updated = toFriendInformationFromTracking(detail)
 
+    this.friendSessions.set(userId, detail)
+    this.batchEnrichFriend(userId, friend, __stateTrackSymbol__)
     this.emit('friend:add', updated)
-
-    if (nextLocation) {
-      const result = this.batchUpdateFriendLocation({
-        [friend.userId]: nextLocation.__trackSymbol__
-      })
-
-      this.emit(
-        'friend:location',
-        friend.userId,
-        updated,
-        toLocationInstanceOverviewFromTracking(nextLocation),
-        buildTrackLocationDetailPromise(result, friend.userId)
-      )
-    }
   }
 
   public deleteFriend(userId: string) {
@@ -165,36 +153,36 @@ export class FriendsSessions extends Nanobus<{
     }
 
     const detail = toFriendInformationFromTracking(existing)
-    existing.state = state
-    existing.platform = platform
+    const nextDetail = updatedFriend ? updatedFriend : detail
 
     if (state === UserState.Offline || state === UserState.Active) {
       existing.location = null
       this.emit('friend:clear-location', userId, detail)
     }
 
-    if (updatedFriend) {
-      this.updateFriendAttributes(userId, {
-        ...updatedFriend
-      })
-    }
+    this.updateFriendAttributes(userId, {
+      ...nextDetail,
+      state,
+      platform
+    })
 
     this.emit('friend:state', userId, detail, state, platform)
   }
 
-  public updateFriendAttributes(userId: string, updatedFriend: BaseFriendInformation) {
+  public updateFriendAttributes(
+    userId: string,
+    updatedFriend: BaseFriendInformation | Omit<BaseFriendInformation, 'state' | 'platform'>
+  ) {
     const existing = this.friendSessions.get(userId)
 
     if (!existing) {
       return
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { state, platform, ...rest } = updatedFriend
     const updatedDetail = {
-      ...rest,
       state: existing.state,
-      platform: existing.platform
+      platform: existing.platform,
+      ...updatedFriend
     }
 
     const { diff: detailDiff, keys: updatedKeys } = diffObjects<BaseFriendInformation>(
@@ -203,7 +191,7 @@ export class FriendsSessions extends Nanobus<{
       FRIEND_UPDATE_COMPARE_KEYS
     )
 
-    const nextDetail: FriendInformationWithLocationTracking = {
+    const nextDetail: FriendInformationWithTracking = {
       ...existing,
       ...updatedDetail
     }
@@ -265,11 +253,13 @@ export class FriendsSessions extends Nanobus<{
       // emit location change when location instance changed
       existing.location = nextLocation
       if (nextLocation) {
+        // use cached world entity if possible
+        nextLocation.referenceWorld = world
+
         const result = this.batchUpdateFriendLocation({
-          [userId]: nextLocation.__trackSymbol__
+          [userId]: nextLocation.__locationTrackSymbol__
         })
 
-        nextLocation.referenceWorld = world
         emitLocation(buildTrackLocationDetailPromise(result, userId))
       } else {
         emitLocation()
@@ -285,7 +275,11 @@ export class FriendsSessions extends Nanobus<{
   ) {
     const existing = this.friendSessions.get(userId)
 
-    if (!existing || !existing.location || existing.location.__trackSymbol__ !== trackSymbol) {
+    if (
+      !existing ||
+      !existing.location ||
+      existing.location.__locationTrackSymbol__ !== trackSymbol
+    ) {
       return null
     }
 
@@ -353,6 +347,45 @@ export class FriendsSessions extends Nanobus<{
     }
 
     return trackerPromise
+  }
+
+  private async batchEnrichFriend(
+    userId: string,
+    friend: BaseFriendInformation,
+    stateTrackSymbol: symbol
+  ) {
+    const existing = this.friendSessions.get(userId)
+    const updatedFriend = await this.users.fetchUser(userId)
+
+    if (!existing || !updatedFriend) {
+      return
+    }
+
+    const location = generateLocationTarget(updatedFriend.locationRawContext || '', '')
+    const updated = toFriendInformationFromTracking(existing)
+
+    // state
+    if (existing.__stateTrackSymbol__ === stateTrackSymbol) {
+      this.updateFriendAttributes(userId, {
+        ...friend,
+        state: updatedFriend.state,
+        platform: updatedFriend.platform
+      })
+    }
+
+    // location
+    if (location) {
+      this.batchUpdateFriendLocation({
+        [userId]: location.__locationTrackSymbol__
+      })
+
+      this.emit(
+        'friend:patch-location',
+        userId,
+        updated,
+        toLocationInstanceOverviewFromTracking(location)
+      )
+    }
   }
 
   public get friends(): FriendInformation[] {

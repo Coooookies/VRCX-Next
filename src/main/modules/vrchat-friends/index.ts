@@ -36,7 +36,7 @@ export class VRChatFriends extends Module {
 
   protected onInit(): void {
     this.fetcher = new FriendsFetcher(this.logger, this.api)
-    this.sessions = new FriendsSessions(this.groups, this.worlds)
+    this.sessions = new FriendsSessions(this.groups, this.worlds, this.users)
     this.coordinator = new FriendsCoordinator(
       this.logger,
       this.pipeline,

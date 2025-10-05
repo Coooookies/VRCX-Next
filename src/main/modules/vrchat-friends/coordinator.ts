@@ -100,12 +100,7 @@ export class FriendsCoordinator {
   }
 
   private async handleFriendAdd({ user }: PipelineEventFriendAdd): Promise<void> {
-    const friend = toBaseFriendInformation(user)
-    this.sessions.addFriend({
-      ...friend,
-      currentLocationRaw: user.location || '',
-      travelingLocationRaw: ''
-    })
+    this.sessions.addFriend(toBaseFriendInformation(user))
   }
 
   private async handleFriendDelete({ userId }: PipelineEventFriendDelete): Promise<void> {
@@ -157,6 +152,8 @@ export class FriendsCoordinator {
   }
 
   private async handleFriendUpdate({ user, userId }: PipelineEventFriendUpdate): Promise<void> {
-    this.sessions.updateFriendAttributes(userId, toBaseFriendInformation(user))
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { state, platform, ...rest } = toBaseFriendInformation(user)
+    this.sessions.updateFriendAttributes(userId, rest)
   }
 }

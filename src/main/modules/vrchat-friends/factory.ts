@@ -21,7 +21,7 @@ import type {
   LocationInstance,
   LocationInstanceOverview
 } from '@shared/definition/vrchat-instances'
-import type { FriendInformationWithLocationTracking, LocationInstanceWithTracking } from './types'
+import type { FriendInformationWithTracking, LocationInstanceWithTracking } from './types'
 import type { BaseFriendInformation, FriendInformation } from '@shared/definition/vrchat-friends'
 import type { LimitedUserFriend, User } from '@shared/definition/vrchat-api-response'
 import type { ReferenceAvatar } from '@shared/definition/vrchat-avatars'
@@ -76,7 +76,7 @@ export function generateLocationTarget(
         category: getLocationInstanceCategory(nextLocationTarget),
         isTraveling,
         arrivedAt: new Date(),
-        __trackSymbol__: trackSymbol
+        __locationTrackSymbol__: trackSymbol
       }
     : null
 }
@@ -124,10 +124,10 @@ export function toBaseFriendInformation(friend: User | LimitedUserFriend): BaseF
 }
 
 export function toFriendInformationFromTracking(
-  friend: FriendInformationWithLocationTracking
+  friend: FriendInformationWithTracking
 ): FriendInformation {
-  const { location, ...rest } = friend
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { location, __stateTrackSymbol__, ...rest } = friend
   return {
     ...rest,
     location: location ? toLocationInstanceOverviewFromTracking(location) : null
@@ -138,7 +138,7 @@ export function toLocationInstanceOverviewFromTracking(
   location: LocationInstanceWithTracking
 ): LocationInstanceOverview {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { __trackSymbol__, ...locationRest } = location
+  const { __locationTrackSymbol__, ...locationRest } = location
   return {
     ...locationRest
   }
