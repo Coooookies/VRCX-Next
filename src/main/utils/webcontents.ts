@@ -1,6 +1,6 @@
 import { LoggerFactory } from '@main/logger'
 import { BrowserWindow, shell } from 'electron'
-import { RENDERER_ENTRY_DEV, RENDERER_ENTRY_PRODUCTION, RENDERER_IS_DEV_ENV } from '@main/constants'
+import { RENDERER_ENTRY_DEV, RENDERER_ENTRY_PRODUCTION, RENDERER_IS_DEV_ENV } from '@main/renderer'
 
 export function registerWebviewConsoloLogger(win: BrowserWindow, logger: LoggerFactory): void {
   win.webContents.on('console-message', ({ level, message }) => {

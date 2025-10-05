@@ -8,7 +8,7 @@ import { BrowserWindow, Session, WebContents } from 'electron'
 import { ProtocolServer } from './protocol-server'
 import { IPCModule } from './ipc'
 import { Dependency, Module } from '@shared/module-constructor'
-import { RENDERER_ENTRY_PRELOAD } from '@main/constants'
+import { RENDERER_ENTRY_PRELOAD } from '@main/renderer'
 import { ElectronModule } from './electron'
 
 export class MainWindow extends Module {
