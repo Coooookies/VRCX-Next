@@ -129,6 +129,7 @@ export interface UserInformation extends UserInformationBase {
   allowAvatarCopying: boolean
   ageVerified: boolean
   ageVerificationStatus: AgeVerificationStatus
+  locationRawContext: string | null
   registeredAt: Date | null
 }
 

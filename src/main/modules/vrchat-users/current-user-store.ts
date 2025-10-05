@@ -29,7 +29,7 @@ export class CurrentUserStore extends Nanobus<{
   ) => void
 }> {
   private $!: UserStoreSharedState
-  private __trackSymbol__: symbol = Symbol('track')
+  private __locationTrackSymbol__: symbol = Symbol('track')
 
   constructor(
     private readonly mobx: MobxState,
@@ -59,8 +59,8 @@ export class CurrentUserStore extends Nanobus<{
     })
 
     if (nextLocation) {
-      this.__trackSymbol__ = nextLocation.__trackSymbol__
-      this.batchUpdateLocation(nextLocation.__trackSymbol__)
+      this.__locationTrackSymbol__ = nextLocation.__locationTrackSymbol__
+      this.batchUpdateLocation(nextLocation.__locationTrackSymbol__)
     }
   }
 
@@ -105,8 +105,8 @@ export class CurrentUserStore extends Nanobus<{
       })
 
       if (nextLocation) {
-        this.__trackSymbol__ = nextLocation.__trackSymbol__
-        this.batchUpdateLocation(nextLocation.__trackSymbol__)
+        this.__locationTrackSymbol__ = nextLocation.__locationTrackSymbol__
+        this.batchUpdateLocation(nextLocation.__locationTrackSymbol__)
       }
     }
 
@@ -116,7 +116,7 @@ export class CurrentUserStore extends Nanobus<{
   private async batchUpdateLocation(trackSymbol: symbol) {
     const location = toJS(this.$.location)
 
-    if (this.__trackSymbol__ !== trackSymbol || !location) {
+    if (this.__locationTrackSymbol__ !== trackSymbol || !location) {
       return
     }
 

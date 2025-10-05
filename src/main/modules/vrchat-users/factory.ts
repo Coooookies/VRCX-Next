@@ -130,11 +130,12 @@ export function toUserInformation(user: User): UserInformation {
     badges: badges || [],
     tags: user.tags,
     trustRank,
-    platform: user.last_platform as Platform,
+    platform: (user.platform || user.last_platform) as Platform,
     languages,
     ageVerified: user.ageVerified,
     ageVerificationStatus: user.ageVerificationStatus,
     registeredAt,
+    locationRawContext: user.location || null,
     isSupporter: supporter,
     isFriend: user.isFriend
   }
