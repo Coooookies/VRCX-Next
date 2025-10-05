@@ -83,7 +83,7 @@ export class Logger extends Nanobus<{
   private get time(): string {
     const now = new Date()
 
-    const pad = (num, size = 2): string => String(num).padStart(size, '0')
+    const pad = (num: number, size = 2): string => String(num).padStart(size, '0')
     const hours = pad(now.getHours())
     const minutes = pad(now.getMinutes())
     const seconds = pad(now.getSeconds())
