@@ -14,7 +14,6 @@
     "composite": true,
     "baseUrl": ".",
     "noEmit": true,
-    "ignoreDeprecations": "6.0",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "moduleResolution": "bundler",

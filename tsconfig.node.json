@@ -9,10 +9,10 @@
   "compilerOptions": {
     "composite": true,
     "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "moduleResolution": "bundler",
     "types": ["electron-vite/node"],
     "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
     "paths": {
       "@shared/*": ["src/shared/*"],
       "@main/*": ["src/main/*"]
