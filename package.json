@@ -74,6 +74,7 @@
     "@electron-toolkit/typed-ipc": "^1.0.2",
     "@electron-toolkit/utils": "^4.0.0",
     "@swc/core": "^1.10.15",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/lodash": "^4.17.20",
     "@types/node": "^22.16.5",
     "@types/set-cookie-parser": "^2.4.10",

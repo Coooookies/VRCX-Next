@@ -19,6 +19,7 @@ import { DBLogger } from './logger'
 
 // Migrations
 import { Auto1759666278579 } from './migrations/1759666278579-auto'
+import type { Database } from 'better-sqlite3'
 
 const STORAGE_DATABASE_PRODUCTION_PATH = join(APP_DATABASE_DIR, 'storage.db')
 const STORAGE_DATABASE_MIGRATION_PATH = join(APP_DATABASE_DIR, 'swmigration.db')
@@ -47,7 +48,7 @@ export default new DataSource({
   ],
   migrations: [Auto1759666278579],
   migrationsTableName: 'migrations',
-  extra: {
-    foreignKeys: true
+  prepareDatabase(db: Database) {
+    db.pragma('foreign_keys = ON')
   }
 })
