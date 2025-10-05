@@ -1,7 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { QueryRunner } from 'typeorm'
 import { LoggerFactory } from '@main/logger'
 
-export class DatabaseLogger extends LoggerFactory {
+export class DBLogger extends LoggerFactory {
+  constructor(context: string) {
+    super(context)
+  }
+
   logQuery(query: string, parameters?: unknown[], _queryRunner?: QueryRunner): void {
     this.debug('Query: ', query, parameters)
   }
