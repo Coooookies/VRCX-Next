@@ -14,18 +14,23 @@ import {
   VisitedInstanceCommonEventEntity,
   VisitedInstanceUserEventEntity
 } from './entities/vrchat-visited-instance'
-import { APP_DATABASE_DIR } from '../../constants'
+import { APP_DATABASE_DIR, IS_TYPEORM_CLI } from '@main/constants'
+import { DBLogger } from './logger'
+
+// Migrations
+import { Auto1759666278579 } from './migrations/1759666278579-auto'
 
 const STORAGE_DATABASE_PRODUCTION_PATH = join(APP_DATABASE_DIR, 'storage.db')
 const STORAGE_DATABASE_MIGRATION_PATH = join(APP_DATABASE_DIR, 'swmigration.db')
 
-const isCLI = process.env.TYPEORM_CLI === 'true'
-const dbPath = isCLI ? STORAGE_DATABASE_MIGRATION_PATH : STORAGE_DATABASE_PRODUCTION_PATH
+const dbPath = IS_TYPEORM_CLI ? STORAGE_DATABASE_MIGRATION_PATH : STORAGE_DATABASE_PRODUCTION_PATH
+const logger = new DBLogger('Database')
 
 export default new DataSource({
-  type: 'better-sqlite3',
+  type: IS_TYPEORM_CLI ? 'sqlite' : 'better-sqlite3',
+  logger,
   database: dbPath,
-  synchronize: true,
+  synchronize: false,
   entities: [
     CredentialEntity,
     GroupEntity,
@@ -40,7 +45,7 @@ export default new DataSource({
     FileAnalysisEntity,
     AvatarReferenceEntity
   ],
-  migrations: [],
+  migrations: [Auto1759666278579],
   migrationsTableName: 'migrations',
   extra: {
     foreignKeys: true

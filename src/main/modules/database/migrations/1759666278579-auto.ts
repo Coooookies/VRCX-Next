@@ -1,0 +1,110 @@
+import { MigrationInterface, QueryRunner } from "typeorm";
+
+export class Auto1759666278579 implements MigrationInterface {
+    name = 'Auto1759666278579'
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`CREATE TABLE "vrchat_credentials" ("user_id" varchar(63) PRIMARY KEY NOT NULL, "user_name" text NOT NULL, "display_name" text NOT NULL, "profile_icon_file_id" text NOT NULL, "profile_icon_file_version" integer NOT NULL, "token" varchar(127) NOT NULL, "two_factor_token" text NOT NULL, "updated_at" datetime NOT NULL DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)))`);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_credentials_user_name" ON "vrchat_credentials" ("user_name") `);
+        await queryRunner.query(`CREATE TABLE "vrchat_cache_worlds" ("world_id" varchar(63) PRIMARY KEY NOT NULL, "world_name" text NOT NULL, "author_user_id" varchar(63) NOT NULL, "author_user_name" text NOT NULL, "description" text NOT NULL, "image_file_id" text NOT NULL, "image_file_version" integer NOT NULL, "organization" text NOT NULL, "release_status" varchar(31) NOT NULL, "updated_at" datetime NOT NULL DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)), "cache_updated_at" datetime NOT NULL DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)))`);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_cache_worlds_world_name" ON "vrchat_cache_worlds" ("world_name") `);
+        await queryRunner.query(`CREATE TABLE "vrchat_cache_groups" ("group_id" varchar(63) PRIMARY KEY NOT NULL, "group_name" text NOT NULL, "short_code" text NOT NULL, "description" text NOT NULL, "icon_file_id" text NOT NULL, "icon_file_version" integer NOT NULL, "banner_file_id" text NOT NULL, "banner_file_version" integer NOT NULL, "owner_user_id" varchar(63) NOT NULL, "is_verified" boolean NOT NULL, "cache_updated_at" datetime NOT NULL DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)))`);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_cache_groups_group_name" ON "vrchat_cache_groups" ("group_name") `);
+        await queryRunner.query(`CREATE TABLE "settings" ("key" varchar NOT NULL, "namespace" varchar NOT NULL, "value" text NOT NULL, PRIMARY KEY ("key", "namespace"))`);
+        await queryRunner.query(`CREATE TABLE "vrchat_cache_users" ("user_id" varchar(63) PRIMARY KEY NOT NULL, "display_name" text NOT NULL, "profile_icon_file_id" text NOT NULL, "profile_icon_file_version" integer NOT NULL, "trust_rank" varchar(31) NOT NULL, "languages" text NOT NULL, "is_supporter" boolean NOT NULL, "cache_updated_at" datetime NOT NULL DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)))`);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_cache_users_user_name" ON "vrchat_cache_users" ("display_name") `);
+        await queryRunner.query(`CREATE TABLE "vrchat_notifications" ("notification_id" varchar(63) NOT NULL, "ref_user_id" varchar(63) NOT NULL, "type" varchar(63) NOT NULL, "title" text NOT NULL, "message" text NOT NULL, "is_read" boolean NOT NULL, "thumbnail_image_url" text, "sender_id" varchar(63), "sender_name" text, "sender_type" varchar(31) NOT NULL, "version" varchar(15) NOT NULL, "raw" text NOT NULL, "created_at" datetime NOT NULL DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)), PRIMARY KEY ("notification_id", "ref_user_id"))`);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_notifications_ref_user_id_created_at" ON "vrchat_notifications" ("ref_user_id", "created_at") `);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_notifications_ref_user_id_sender_type" ON "vrchat_notifications" ("ref_user_id", "sender_type") `);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_notifications_ref_user_id_type" ON "vrchat_notifications" ("ref_user_id", "type") `);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_notifications_ref_user_id_sender_name" ON "vrchat_notifications" ("ref_user_id", "sender_name") `);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_notifications_ref_user_id_sender_id" ON "vrchat_notifications" ("ref_user_id", "sender_id") `);
+        await queryRunner.query(`CREATE TABLE "selection_images" ("selection_id" varchar(63) PRIMARY KEY NOT NULL, "file_name" text NOT NULL, "file_extension" text NOT NULL, "path" text NOT NULL, "macos_bookmark" text, "recorded_at" datetime NOT NULL DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)))`);
+        await queryRunner.query(`CREATE TABLE "vrchat_cache_analysis_files" ("file_id" varchar(63) NOT NULL, "file_version" integer NOT NULL, "file_size" integer NOT NULL, "file_uncompressed_size" integer NOT NULL, "type" varchar(31) NOT NULL, "stats" text NOT NULL, "cache_updated_at" datetime NOT NULL DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)), PRIMARY KEY ("file_id", "file_version"))`);
+        await queryRunner.query(`CREATE TABLE "vrchat_cache_avatar_references" ("file_id" varchar(63) PRIMARY KEY NOT NULL, "avatar_name" text NOT NULL, "author_user_id" varchar(63) NOT NULL, "cache_updated_at" datetime NOT NULL DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)))`);
+        await queryRunner.query(`CREATE TABLE "vrchat_visited_instances" ("record_id" varchar(63) PRIMARY KEY NOT NULL, "world_id" varchar(63) NOT NULL, "world_name" text, "world_version" integer, "ref_user_id" varchar(63) NOT NULL, "owner_id" varchar(63), "owner_name" text, "instance_id" text NOT NULL, "instance_type" varchar(15) NOT NULL, "joined_at" datetime NOT NULL, "left_at" datetime, "recorded_at" datetime NOT NULL DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)))`);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_visited_instances_joined_left" ON "vrchat_visited_instances" ("ref_user_id", "joined_at", "left_at") `);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_visited_instances_instanceType" ON "vrchat_visited_instances" ("ref_user_id", "instance_type") `);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_visited_instances_ownerName" ON "vrchat_visited_instances" ("ref_user_id", "owner_name") `);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_visited_instances_worldName" ON "vrchat_visited_instances" ("ref_user_id", "world_name") `);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_visited_instances_worldId" ON "vrchat_visited_instances" ("ref_user_id", "world_id") `);
+        await queryRunner.query(`CREATE TABLE "vrchat_visited_instance_common_events" ("event_id" varchar(63) PRIMARY KEY NOT NULL, "record_id" varchar(63) NOT NULL, "event_type" varchar(15) NOT NULL, "keyword" text NOT NULL, "raw" text NOT NULL, "recorded_at" datetime NOT NULL DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)))`);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_visited_instance_common_events_record_id" ON "vrchat_visited_instance_common_events" ("record_id") `);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_visited_instance_common_events_record_keyword" ON "vrchat_visited_instance_common_events" ("record_id", "keyword") `);
+        await queryRunner.query(`CREATE TABLE "vrchat_visited_instance_user_events" ("event_id" varchar(63) PRIMARY KEY NOT NULL, "record_id" varchar(63) NOT NULL, "event_type" varchar(15) NOT NULL, "user_id" varchar(63) NOT NULL, "user_name" text NOT NULL, "recorded_at" datetime NOT NULL DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)))`);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_visited_instance_user_events_record_id" ON "vrchat_visited_instance_user_events" ("record_id") `);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_visited_instance_user_events_record_userName" ON "vrchat_visited_instance_user_events" ("record_id", "user_name") `);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_visited_instance_user_events_record_userId" ON "vrchat_visited_instance_user_events" ("record_id", "user_id") `);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_visited_instance_common_events_record_id"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_visited_instance_common_events_record_keyword"`);
+        await queryRunner.query(`CREATE TABLE "temporary_vrchat_visited_instance_common_events" ("event_id" varchar(63) PRIMARY KEY NOT NULL, "record_id" varchar(63) NOT NULL, "event_type" varchar(15) NOT NULL, "keyword" text NOT NULL, "raw" text NOT NULL, "recorded_at" datetime NOT NULL DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)), CONSTRAINT "FK_7388acd69d3da08b8ab569194ec" FOREIGN KEY ("record_id") REFERENCES "vrchat_visited_instances" ("record_id") ON DELETE CASCADE ON UPDATE CASCADE)`);
+        await queryRunner.query(`INSERT INTO "temporary_vrchat_visited_instance_common_events"("event_id", "record_id", "event_type", "keyword", "raw", "recorded_at") SELECT "event_id", "record_id", "event_type", "keyword", "raw", "recorded_at" FROM "vrchat_visited_instance_common_events"`);
+        await queryRunner.query(`DROP TABLE "vrchat_visited_instance_common_events"`);
+        await queryRunner.query(`ALTER TABLE "temporary_vrchat_visited_instance_common_events" RENAME TO "vrchat_visited_instance_common_events"`);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_visited_instance_common_events_record_id" ON "vrchat_visited_instance_common_events" ("record_id") `);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_visited_instance_common_events_record_keyword" ON "vrchat_visited_instance_common_events" ("record_id", "keyword") `);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_visited_instance_user_events_record_id"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_visited_instance_user_events_record_userName"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_visited_instance_user_events_record_userId"`);
+        await queryRunner.query(`CREATE TABLE "temporary_vrchat_visited_instance_user_events" ("event_id" varchar(63) PRIMARY KEY NOT NULL, "record_id" varchar(63) NOT NULL, "event_type" varchar(15) NOT NULL, "user_id" varchar(63) NOT NULL, "user_name" text NOT NULL, "recorded_at" datetime NOT NULL DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)), CONSTRAINT "FK_12f3ae6c4c662359ce2856e7b9e" FOREIGN KEY ("record_id") REFERENCES "vrchat_visited_instances" ("record_id") ON DELETE CASCADE ON UPDATE CASCADE)`);
+        await queryRunner.query(`INSERT INTO "temporary_vrchat_visited_instance_user_events"("event_id", "record_id", "event_type", "user_id", "user_name", "recorded_at") SELECT "event_id", "record_id", "event_type", "user_id", "user_name", "recorded_at" FROM "vrchat_visited_instance_user_events"`);
+        await queryRunner.query(`DROP TABLE "vrchat_visited_instance_user_events"`);
+        await queryRunner.query(`ALTER TABLE "temporary_vrchat_visited_instance_user_events" RENAME TO "vrchat_visited_instance_user_events"`);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_visited_instance_user_events_record_id" ON "vrchat_visited_instance_user_events" ("record_id") `);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_visited_instance_user_events_record_userName" ON "vrchat_visited_instance_user_events" ("record_id", "user_name") `);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_visited_instance_user_events_record_userId" ON "vrchat_visited_instance_user_events" ("record_id", "user_id") `);
+    }
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_visited_instance_user_events_record_userId"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_visited_instance_user_events_record_userName"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_visited_instance_user_events_record_id"`);
+        await queryRunner.query(`ALTER TABLE "vrchat_visited_instance_user_events" RENAME TO "temporary_vrchat_visited_instance_user_events"`);
+        await queryRunner.query(`CREATE TABLE "vrchat_visited_instance_user_events" ("event_id" varchar(63) PRIMARY KEY NOT NULL, "record_id" varchar(63) NOT NULL, "event_type" varchar(15) NOT NULL, "user_id" varchar(63) NOT NULL, "user_name" text NOT NULL, "recorded_at" datetime NOT NULL DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)))`);
+        await queryRunner.query(`INSERT INTO "vrchat_visited_instance_user_events"("event_id", "record_id", "event_type", "user_id", "user_name", "recorded_at") SELECT "event_id", "record_id", "event_type", "user_id", "user_name", "recorded_at" FROM "temporary_vrchat_visited_instance_user_events"`);
+        await queryRunner.query(`DROP TABLE "temporary_vrchat_visited_instance_user_events"`);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_visited_instance_user_events_record_userId" ON "vrchat_visited_instance_user_events" ("record_id", "user_id") `);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_visited_instance_user_events_record_userName" ON "vrchat_visited_instance_user_events" ("record_id", "user_name") `);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_visited_instance_user_events_record_id" ON "vrchat_visited_instance_user_events" ("record_id") `);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_visited_instance_common_events_record_keyword"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_visited_instance_common_events_record_id"`);
+        await queryRunner.query(`ALTER TABLE "vrchat_visited_instance_common_events" RENAME TO "temporary_vrchat_visited_instance_common_events"`);
+        await queryRunner.query(`CREATE TABLE "vrchat_visited_instance_common_events" ("event_id" varchar(63) PRIMARY KEY NOT NULL, "record_id" varchar(63) NOT NULL, "event_type" varchar(15) NOT NULL, "keyword" text NOT NULL, "raw" text NOT NULL, "recorded_at" datetime NOT NULL DEFAULT (strftime('%s', 'now') || substr(strftime('%f', 'now'), 4, 3)))`);
+        await queryRunner.query(`INSERT INTO "vrchat_visited_instance_common_events"("event_id", "record_id", "event_type", "keyword", "raw", "recorded_at") SELECT "event_id", "record_id", "event_type", "keyword", "raw", "recorded_at" FROM "temporary_vrchat_visited_instance_common_events"`);
+        await queryRunner.query(`DROP TABLE "temporary_vrchat_visited_instance_common_events"`);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_visited_instance_common_events_record_keyword" ON "vrchat_visited_instance_common_events" ("record_id", "keyword") `);
+        await queryRunner.query(`CREATE INDEX "IDX_vrchat_visited_instance_common_events_record_id" ON "vrchat_visited_instance_common_events" ("record_id") `);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_visited_instance_user_events_record_userId"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_visited_instance_user_events_record_userName"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_visited_instance_user_events_record_id"`);
+        await queryRunner.query(`DROP TABLE "vrchat_visited_instance_user_events"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_visited_instance_common_events_record_keyword"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_visited_instance_common_events_record_id"`);
+        await queryRunner.query(`DROP TABLE "vrchat_visited_instance_common_events"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_visited_instances_worldId"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_visited_instances_worldName"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_visited_instances_ownerName"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_visited_instances_instanceType"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_visited_instances_joined_left"`);
+        await queryRunner.query(`DROP TABLE "vrchat_visited_instances"`);
+        await queryRunner.query(`DROP TABLE "vrchat_cache_avatar_references"`);
+        await queryRunner.query(`DROP TABLE "vrchat_cache_analysis_files"`);
+        await queryRunner.query(`DROP TABLE "selection_images"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_notifications_ref_user_id_sender_id"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_notifications_ref_user_id_sender_name"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_notifications_ref_user_id_type"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_notifications_ref_user_id_sender_type"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_notifications_ref_user_id_created_at"`);
+        await queryRunner.query(`DROP TABLE "vrchat_notifications"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_cache_users_user_name"`);
+        await queryRunner.query(`DROP TABLE "vrchat_cache_users"`);
+        await queryRunner.query(`DROP TABLE "settings"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_cache_groups_group_name"`);
+        await queryRunner.query(`DROP TABLE "vrchat_cache_groups"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_cache_worlds_world_name"`);
+        await queryRunner.query(`DROP TABLE "vrchat_cache_worlds"`);
+        await queryRunner.query(`DROP INDEX "IDX_vrchat_credentials_user_name"`);
+        await queryRunner.query(`DROP TABLE "vrchat_credentials"`);
+    }
+
+}
