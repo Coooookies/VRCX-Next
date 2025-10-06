@@ -1,7 +1,7 @@
 import { PipelineEvents } from '@shared/definition/vrchat-pipeline'
 import { toWorldEntity } from '../vrchat-worlds/factory'
 import { toBaseFriendInformation } from './factory'
-import { UserState } from '@shared/definition/vrchat-api-response-community'
+import { LoggerFactory } from '@main/logger'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { FriendsFetcher } from './fetcher'
 import type { FriendsSessions } from './friend-sessions'
@@ -15,7 +15,6 @@ import type {
   PipelineEventFriendUpdate,
   PipelineEventMessage
 } from '@shared/definition/vrchat-pipeline'
-import { LoggerFactory } from '@main/logger'
 
 export class FriendsCoordinator {
   private shieldedPipelineEvent = false
@@ -33,7 +32,10 @@ export class FriendsCoordinator {
     // pause pipeline event processing
     this.shieldedPipelineEvent = true
 
-    const result = await this.fetcher.fetchCurrentFriends((f) => this.sessions.presentFriends(f))
+    const result = await this.fetcher.fetchCurrentFriends((friends) => {
+      this.sessions.syncInitialFriends(friends)
+    })
+
     await this.processCachedPipelineEvents()
 
     this.logger.info(
@@ -47,7 +49,7 @@ export class FriendsCoordinator {
   }
 
   public uninitialize() {
-    this.sessions.clear()
+    this.sessions.clearFriends()
   }
 
   public bindEvents() {
@@ -100,11 +102,11 @@ export class FriendsCoordinator {
   }
 
   private async handleFriendAdd({ user }: PipelineEventFriendAdd): Promise<void> {
-    this.sessions.addFriend(toBaseFriendInformation(user))
+    this.sessions.appendFriend(toBaseFriendInformation(user))
   }
 
   private async handleFriendDelete({ userId }: PipelineEventFriendDelete): Promise<void> {
-    this.sessions.deleteFriend(userId)
+    this.sessions.removeFriend(userId)
   }
 
   private async handleFriendOnline({
@@ -117,15 +119,21 @@ export class FriendsCoordinator {
   }: PipelineEventFriendOnline): Promise<void> {
     const worldSummary = world ? toWorldEntity(world) : undefined
     const baseInformation = toBaseFriendInformation(user)
-    this.sessions.updateFriendState(userId, UserState.Online, platform, baseInformation)
-    this.sessions.updateFriendLocation(userId, location, travelingToLocation, worldSummary)
+    this.sessions.updateFriendOnline(
+      userId,
+      baseInformation,
+      platform,
+      location,
+      travelingToLocation,
+      worldSummary
+    )
   }
 
   private async handleFriendOffline({
     userId,
     platform
   }: PipelineEventFriendOffline): Promise<void> {
-    this.sessions.updateFriendState(userId, UserState.Offline, platform)
+    this.sessions.updateFriendOffline(userId, platform)
   }
 
   private async handleFriendActive({
@@ -133,12 +141,7 @@ export class FriendsCoordinator {
     user,
     platform
   }: PipelineEventFriendActive): Promise<void> {
-    this.sessions.updateFriendState(
-      userId,
-      UserState.Active,
-      platform,
-      toBaseFriendInformation(user)
-    )
+    this.sessions.updateFriendWebActive(userId, toBaseFriendInformation(user), platform)
   }
 
   private async handleFriendLocation({
@@ -152,8 +155,6 @@ export class FriendsCoordinator {
   }
 
   private async handleFriendUpdate({ user, userId }: PipelineEventFriendUpdate): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { state, platform, ...rest } = toBaseFriendInformation(user)
-    this.sessions.updateFriendAttributes(userId, rest)
+    this.sessions.updateFriendAttributes(userId, toBaseFriendInformation(user))
   }
 }

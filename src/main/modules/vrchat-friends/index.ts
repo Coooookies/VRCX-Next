@@ -13,7 +13,7 @@ import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatWorlds } from '../vrchat-worlds'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { VRChatAuthentication } from '../vrchat-authentication'
-import { VRChatWorkflowCoordinator } from '../vrchat-workflow-coordinator'
+import type { VRChatWorkflowCoordinator } from '../vrchat-workflow-coordinator'
 import type { FriendSharedState } from '@shared/definition/mobx-shared'
 
 export class VRChatFriends extends Module {
@@ -75,15 +75,31 @@ export class VRChatFriends extends Module {
       this.coordinator.uninitialize()
     })
 
-    this.sessions.on('friend:present', (friends) => {
+    this.sessions.on('sync:present-friends', (friends) => {
       this.users.saveUserEntities(friends.map((f) => toFriendUserEntity(f)))
     })
 
-    this.sessions.on('friend:add', (friend) => {
+    this.sessions.on('event:friend-add', (friend) => {
       this.logger.info(`Friend added: ${friend.displayName} (${friend.userId})`)
     })
 
-    this.sessions.on('friend:update', (friendUserId, friend, diff, keys) => {
+    this.sessions.on('event:friend-delete', (friendUserId, friend) => {
+      this.logger.info(`Friend deleted: ${friend.displayName} (${friendUserId})`)
+    })
+
+    this.sessions.on('event:friend-online', (friendUserId, friend) => {
+      this.logger.info(`Friend online: ${friend.displayName} (${friendUserId})`)
+    })
+
+    this.sessions.on('event:friend-web-active', (friendUserId, friend) => {
+      this.logger.info(`Friend web active: ${friend.displayName} (${friendUserId})`)
+    })
+
+    this.sessions.on('event:friend-offline', (friendUserId, friend) => {
+      this.logger.info(`Friend offline: ${friend.displayName} (${friendUserId})`)
+    })
+
+    this.sessions.on('event:friend-update', (friendUserId, friend, diff, keys) => {
       this.logger.info(
         `Friend updated: ${friend.displayName} (${friendUserId})`,
         ...keys,
@@ -91,15 +107,7 @@ export class VRChatFriends extends Module {
       )
     })
 
-    this.sessions.on('friend:delete', (friendUserId, friend) => {
-      this.logger.info(`Friend deleted: ${friend.displayName} (${friendUserId})`)
-    })
-
-    this.sessions.on('friend:state', (friendUserId, friend, state) => {
-      this.logger.info(`Friend state changed: ${friend.displayName} (${friendUserId}) ${state}`)
-    })
-
-    this.sessions.on('friend:location', (friendUserId, friend, location, detailPromise) => {
+    this.sessions.on('event:friend-location', (friendUserId, friend, location, detailPromise) => {
       this.logger.info(
         `Friend location changed: ${friend.displayName} (${friendUserId}) ${location?.instance.location || 'Private'}`
       )

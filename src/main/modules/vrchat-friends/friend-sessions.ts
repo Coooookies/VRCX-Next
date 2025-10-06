@@ -1,82 +1,61 @@
 import Nanobus from 'nanobus'
 import { diffObjects } from '@main/utils/object'
-import {
-  generateLocationTarget,
-  getLocationInstanceDependency,
-  toFriendInformationFromTracking,
-  toLocationInstanceOverviewFromTracking
-} from './factory'
-import { isGroupInstance, isSameLocationInstance } from '../vrchat-worlds/utils'
-import { RequestQueue } from '@shared/utils/async'
-import { Platform, UserState } from '@shared/definition/vrchat-api-response'
-import {
-  InstanceAccessCategory,
-  LocationInstanceOverview
-} from '@shared/definition/vrchat-instances'
+import { getLocationInstanceDependency, toLocation } from './factory'
+import { isGroupInstance, isSameLocationInstance } from '../vrchat-instances/utils'
 import {
   CURRENT_INSTANCE_BATCH_QUEUE_LIMIT,
   CURRENT_INSTANCE_QUEUE_LIMIT,
   FRIEND_UPDATE_COMPARE_KEYS
 } from './constants'
-import type { DiffResult } from '@main/utils/object'
-import type { VRChatWorlds } from '../vrchat-worlds'
+import { InstanceAccessCategory } from '@shared/definition/vrchat-instances'
+import { UserState } from '@shared/definition/vrchat-api-response-community'
+import { RequestQueue } from '@shared/utils/async'
 import type { VRChatGroups } from '../vrchat-groups'
+import type { VRChatWorlds } from '../vrchat-worlds'
 import type { VRChatUsers } from '../vrchat-users'
+import type { WorldSummary } from '@shared/definition/vrchat-worlds'
 import type { WorldEntity } from '../database/entities/vrchat-cache-world'
 import type { GroupEntity } from '../database/entities/vrchat-cache-group'
-import type { WorldSummary } from '@shared/definition/vrchat-worlds'
+import type { DiffResult } from '@main/utils/object'
+import type { LocationInstanceOverview } from '@shared/definition/vrchat-instances'
 import type { BaseFriendInformation, FriendInformation } from '@shared/definition/vrchat-friends'
-import type {
-  FriendInformationWithTracking,
-  FriendInformationWithRawLocation,
-  LocationInstanceWithTracking
-} from './types'
-
-export type TrackSymbolReference = Record<string, symbol>
-export type TrackLocationResult = Record<string, LocationInstanceOverview | null>
-
-export const buildTrackLocationDetailPromise = (
-  detailPromise: Promise<TrackLocationResult>,
-  userId: string
-) => {
-  return detailPromise
-    .then((response) => (response ? response[userId] || null : null))
-    .catch(() => null)
-}
+import type { FriendInformationWithRawLocation } from './types'
+import type { Platform } from '@shared/definition/vrchat-api-response-replenish'
 
 export class FriendsSessions extends Nanobus<{
-  'friend:clear': () => void
-  'friend:add': (friend: FriendInformation) => void
-  'friend:state': (
-    friendUserId: string,
-    friend: Readonly<FriendInformation>,
-    state: UserState,
-    platform: Platform
-  ) => void
-  'friend:present': (friends: Readonly<FriendInformation>[]) => void
-  'friend:delete': (friendUserId: string, friend: Readonly<FriendInformation>) => void
-  'friend:location': (
-    friendUserId: string,
-    friend: Readonly<FriendInformation>,
+  'sync:present-friends': (friends: Readonly<FriendInformation>[]) => void
+  'sync:append-friend': (friend: Readonly<FriendInformation>) => void
+  'sync:update-friend': (userId: string, data: Readonly<FriendInformation>) => void
+  'sync:update-friends': (data: Readonly<FriendInformation>[]) => void
+  'sync:remove-friend': (userId: string) => void
+  'sync:clear-friends': () => void
+  'event:friend-online': (userId: string, data: Readonly<FriendInformation>) => void
+  'event:friend-web-active': (userId: string, data: Readonly<FriendInformation>) => void
+  'event:friend-offline': (userId: string, data: Readonly<FriendInformation>) => void
+  'event:friend-add': (data: Readonly<FriendInformation>) => void
+  'event:friend-delete': (userId: string, data: Readonly<FriendInformation>) => void
+  'event:friend-location': (
+    userId: string,
+    data: Readonly<FriendInformation>,
     location: Readonly<LocationInstanceOverview> | null,
-    detailPromise?: Readonly<Promise<LocationInstanceOverview | null>>
+    detailPendingPromise?: Readonly<Promise<LocationInstanceOverview | null>>
   ) => void
-  'friend:clear-location': (friendUserId: string, friend: Readonly<FriendInformation>) => void
-  'friend:patch-location': (
-    friendUserId: string,
-    friend: Readonly<FriendInformation>,
-    location: Readonly<LocationInstanceOverview>
-  ) => void
-  'friend:update': (
-    friendUserId: string,
-    friend: Readonly<BaseFriendInformation>,
+  'event:friend-update': (
+    userId: string,
+    data: Readonly<FriendInformation>,
     detailDiff: Readonly<DiffResult<BaseFriendInformation>['diff']>,
     updatedKeys: Readonly<DiffResult<BaseFriendInformation>['keys']>
   ) => void
 }> {
-  private readonly friendSessions = new Map<string, FriendInformationWithTracking>()
-  private readonly batchRequestQueue = new RequestQueue(CURRENT_INSTANCE_BATCH_QUEUE_LIMIT)
-  private readonly requestQueue = new RequestQueue(CURRENT_INSTANCE_QUEUE_LIMIT)
+  private readonly friendSessions = new Map<string, FriendInformation>()
+
+  // tracking symbols
+  private readonly _locationTrackSymbols = new Map<string, symbol>()
+  private readonly _stateTrackSymbols = new Map<string, symbol>()
+
+  // query pool
+  private readonly _batchRequestQueue = new RequestQueue(CURRENT_INSTANCE_BATCH_QUEUE_LIMIT)
+  private readonly _requestQueue = new RequestQueue(CURRENT_INSTANCE_QUEUE_LIMIT)
 
   constructor(
     private readonly group: VRChatGroups,
@@ -86,204 +65,367 @@ export class FriendsSessions extends Nanobus<{
     super('VRChatFriends:FriendSessions')
   }
 
-  public presentFriends(friends: FriendInformationWithRawLocation[]) {
-    const trackSymbols: TrackSymbolReference = {}
-    const details: FriendInformationWithTracking[] = []
+  public async syncInitialFriends(friends: FriendInformationWithRawLocation[]) {
+    const pendingUpdateUserIds = new Set<string>()
+    const details: FriendInformation[] = []
+
+    if (friends.length === 0) {
+      this.emit('sync:present-friends', [])
+      return
+    }
 
     for (const friend of friends) {
-      const nextLocation = generateLocationTarget(
-        friend.currentLocationRaw,
-        friend.travelingLocationRaw
-      )
-
-      if (nextLocation) {
-        trackSymbols[friend.userId] = nextLocation.__locationTrackSymbol__
-      }
-
-      const detail: FriendInformationWithTracking = {
-        ...friend,
-        location: nextLocation
+      const { currentLocationRaw, travelingLocationRaw, ...rest } = friend
+      const location = toLocation(currentLocationRaw, travelingLocationRaw)
+      const detail: FriendInformation = {
+        ...rest,
+        location
       }
 
       details.push(detail)
       this.friendSessions.set(friend.userId, detail)
+
+      if (location) {
+        pendingUpdateUserIds.add(friend.userId)
+      }
     }
 
-    this.batchUpdateFriendLocation(trackSymbols)
-    this.emit('friend:present', details.map(toFriendInformationFromTracking))
-    return details
+    this.emit('sync:present-friends', details)
+
+    const updatedFriends = await this.batchUpdateFriendLocation([...pendingUpdateUserIds])
+    const result = [...updatedFriends.values()].filter((f): f is FriendInformation => !!f)
+
+    if (result.length > 0) {
+      this.emit('sync:update-friends', result)
+    }
   }
 
-  public addFriend(friend: BaseFriendInformation) {
-    const __stateTrackSymbol__ = Symbol()
+  public async appendFriend(friend: BaseFriendInformation) {
     const userId = friend.userId
-    const location = null
-    const detail: FriendInformationWithTracking = { ...friend, location, __stateTrackSymbol__ }
-    const updated = toFriendInformationFromTracking(detail)
+    const detail: FriendInformation = {
+      ...friend,
+      location: null
+    }
 
     this.friendSessions.set(userId, detail)
-    this.batchEnrichFriend(userId, friend, __stateTrackSymbol__)
-    this.emit('friend:add', updated)
-  }
+    this.emit('sync:append-friend', detail)
+    this.emit('event:friend-add', detail)
 
-  public deleteFriend(userId: string) {
-    const existing = this.friendSessions.get(userId)
-
-    if (existing) {
-      this.friendSessions.delete(userId)
-      this.emit('friend:delete', userId, toFriendInformationFromTracking(existing))
+    const updatedStateFriend = await this.batchUpdateFriendState(userId)
+    if (!updatedStateFriend) {
+      return
     }
+
+    this.emit('sync:update-friend', userId, updatedStateFriend)
+
+    if (updatedStateFriend.location) {
+      return
+    }
+
+    const updatedLocationFriend = await this.batchUpdateFriendLocation(userId)
+    if (!updatedLocationFriend) {
+      return
+    }
+
+    this.emit('sync:update-friend', userId, updatedLocationFriend)
   }
 
-  public clear() {
+  public removeFriend(userId: string) {
+    const friend = this.friendSessions.get(userId)
+    if (!friend) {
+      return
+    }
+
+    this._locationTrackSymbols.delete(userId)
+    this._stateTrackSymbols.delete(userId)
+    this.friendSessions.delete(userId)
+    this.emit('sync:remove-friend', userId)
+    this.emit('event:friend-delete', userId, friend)
+  }
+
+  public clearFriends() {
+    this._locationTrackSymbols.clear()
+    this._stateTrackSymbols.clear()
     this.friendSessions.clear()
-    this.emit('friend:clear')
+    this.emit('sync:clear-friends')
   }
 
-  public updateFriendState(
+  public async updateFriendOnline(
     userId: string,
-    state: UserState,
+    updatedData: BaseFriendInformation,
     platform: Platform,
-    updatedFriend?: BaseFriendInformation
+    currentLocationRaw: string,
+    travelingLocationRaw: string,
+    world?: WorldEntity
   ) {
-    const existing = this.friendSessions.get(userId)
-
-    if (!existing || existing.state === state) {
+    const friend = this.friendSessions.get(userId)
+    if (!friend) {
       return
     }
 
-    const detail = toFriendInformationFromTracking(existing)
-    const nextDetail = updatedFriend ? updatedFriend : detail
-
-    if (state === UserState.Offline || state === UserState.Active) {
-      existing.location = null
-      this.emit('friend:clear-location', userId, detail)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { state: _, platform: __, ...rest } = updatedData
+    const location = toLocation(currentLocationRaw, travelingLocationRaw)
+    const newDetail: FriendInformation = {
+      ...friend,
+      ...rest,
+      state: UserState.Online,
+      platform,
+      location
     }
 
-    this.updateFriendAttributes(userId, {
-      ...nextDetail,
-      state,
-      platform
-    })
+    if (location) {
+      location.referenceWorld = world
+    }
 
-    this.emit('friend:state', userId, detail, state, platform)
-  }
+    this.friendSessions.set(userId, newDetail)
+    this.createStateSymbolSnapshot([userId])
 
-  public updateFriendAttributes(
-    userId: string,
-    updatedFriend: BaseFriendInformation | Omit<BaseFriendInformation, 'state' | 'platform'>
-  ) {
-    const existing = this.friendSessions.get(userId)
+    this.emit('sync:update-friend', userId, newDetail)
+    this.emit('event:friend-online', userId, newDetail)
 
-    if (!existing) {
+    if (!location) {
+      this.emit('event:friend-location', userId, newDetail, location)
       return
     }
 
-    const updatedDetail = {
-      state: existing.state,
-      platform: existing.platform,
-      ...updatedFriend
-    }
+    const detailPendingPromise = this.batchUpdateFriendLocation(userId)
 
-    const { diff: detailDiff, keys: updatedKeys } = diffObjects<BaseFriendInformation>(
-      existing,
-      updatedDetail,
-      FRIEND_UPDATE_COMPARE_KEYS
-    )
-
-    const nextDetail: FriendInformationWithTracking = {
-      ...existing,
-      ...updatedDetail
-    }
-
-    this.friendSessions.set(userId, nextDetail)
     this.emit(
-      'friend:update',
+      'event:friend-location',
       userId,
-      toFriendInformationFromTracking(nextDetail),
-      detailDiff,
-      updatedKeys
+      newDetail,
+      location,
+      detailPendingPromise.then((updated) => updated?.location || null)
     )
+
+    const updatedLocationFriend = await detailPendingPromise
+    if (!updatedLocationFriend) {
+      return
+    }
+
+    this.emit('sync:update-friend', userId, updatedLocationFriend)
   }
 
-  public updateFriendLocation(
+  public async updateFriendWebActive(
+    userId: string,
+    updatedData: BaseFriendInformation,
+    platform: Platform
+  ) {
+    const friend = this.friendSessions.get(userId)
+    if (!friend) {
+      return
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { state: _, platform: __, ...rest } = updatedData
+    const newDetail: FriendInformation = {
+      ...friend,
+      ...rest,
+      state: UserState.Active,
+      platform,
+      location: null
+    }
+
+    this.friendSessions.set(userId, newDetail)
+    this.createStateSymbolSnapshot([userId])
+
+    this.emit('sync:update-friend', userId, newDetail)
+    this.emit('event:friend-web-active', userId, newDetail)
+  }
+
+  public async updateFriendOffline(userId: string, platform: Platform) {
+    const friend = this.friendSessions.get(userId)
+    if (!friend) {
+      return
+    }
+
+    const newDetail: FriendInformation = {
+      ...friend,
+      state: UserState.Offline,
+      platform,
+      location: null
+    }
+
+    this.friendSessions.set(userId, newDetail)
+    this.createStateSymbolSnapshot([userId])
+
+    this.emit('sync:update-friend', userId, newDetail)
+    this.emit('event:friend-offline', userId, newDetail)
+  }
+
+  public async updateFriendLocation(
     userId: string,
     currentLocationRaw: string,
     travelingLocationRaw: string,
-    world?: WorldSummary
+    world?: WorldEntity
   ) {
-    const existing = this.friendSessions.get(userId)
-
-    if (!existing) {
+    const location = toLocation(currentLocationRaw, travelingLocationRaw)
+    const friend = this.friendSessions.get(userId)
+    if (!friend) {
       return
     }
 
-    const nextLocation = generateLocationTarget(currentLocationRaw, travelingLocationRaw)
-    const isSameLocation = isSameLocationInstance(
-      existing.location?.instance || null,
-      nextLocation?.instance || null
+    if (isSameLocationInstance(friend.location?.instance || null, location?.instance || null)) {
+      if (friend.location && location) {
+        friend.location.isTraveling = location.isTraveling
+        this.emit('sync:update-friend', userId, friend)
+      }
+      return
+    }
+
+    if (location) {
+      location.referenceWorld = world
+    }
+
+    const newDetail: FriendInformation = {
+      ...friend,
+      location
+    }
+
+    this.friendSessions.set(userId, newDetail)
+    this.emit('sync:update-friend', userId, newDetail)
+
+    if (!location) {
+      this.emit('event:friend-location', userId, newDetail, location)
+      return
+    }
+
+    const detailPendingPromise = this.batchUpdateFriendLocation(userId)
+
+    this.emit(
+      'event:friend-location',
+      userId,
+      newDetail,
+      location,
+      detailPendingPromise.then((updated) => updated?.location || null)
     )
 
-    const emitLocation = (detailPromise?: ReturnType<typeof buildTrackLocationDetailPromise>) => {
-      this.emit(
-        'friend:location',
-        userId,
-        existing,
-        existing.location ? toLocationInstanceOverviewFromTracking(existing.location) : null,
-        detailPromise
-      )
+    const updatedLocationFriend = await detailPendingPromise
+    if (!updatedLocationFriend) {
+      return
     }
 
-    const emitPatchLocation = () => {
-      this.emit(
-        'friend:patch-location',
-        userId,
-        toFriendInformationFromTracking(existing),
-        toLocationInstanceOverviewFromTracking(existing.location!)
-      )
+    this.emit('sync:update-friend', userId, updatedLocationFriend)
+  }
+
+  public updateFriendAttributes(userId: string, updatedData: BaseFriendInformation) {
+    const friend = this.friendSessions.get(userId)
+    if (!friend) {
+      return
     }
 
-    if (isSameLocation) {
-      if (existing.location!.isTraveling !== nextLocation!.isTraveling) {
-        // emit location change only when traveling state changed
-        existing.location!.isTraveling = nextLocation!.isTraveling
-        emitPatchLocation()
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { state: _, platform: __, ...rest } = updatedData
+    const { diff: detailDiff, keys: updatedKeys } = diffObjects<BaseFriendInformation>(
+      friend,
+      updatedData,
+      FRIEND_UPDATE_COMPARE_KEYS
+    )
+
+    const newDetail: FriendInformation = {
+      ...friend,
+      ...rest
+    }
+
+    this.friendSessions.set(userId, newDetail)
+    this.emit('sync:update-friend', userId, newDetail)
+    this.emit('event:friend-update', userId, newDetail, detailDiff, updatedKeys)
+  }
+
+  private async batchUpdateFriendState(userId: string): Promise<FriendInformation | null> {
+    const snapshot = this.createStateSymbolSnapshot([userId])
+    const currentUser = this.friendSessions.get(userId)
+    const fetchedUser = await this.users.fetchUser(userId)
+
+    if (!currentUser || !fetchedUser) {
+      return null
+    }
+
+    const state = fetchedUser.state
+    const platform = fetchedUser.platform
+    const location = toLocation(fetchedUser.locationRawContext || '', '')
+
+    if (!snapshot.isSameSymbol(userId)) {
+      return null
+    }
+
+    currentUser.state = state
+    currentUser.platform = platform
+    currentUser.location = location
+    return currentUser
+  }
+
+  private async batchUpdateFriendLocation(userId: string): Promise<FriendInformation | null>
+  private async batchUpdateFriendLocation(
+    userId: string[]
+  ): Promise<Map<string, FriendInformation | null>>
+  private async batchUpdateFriendLocation(
+    userId: string | string[]
+  ): Promise<FriendInformation | Map<string, FriendInformation | null> | null> {
+    const userIds = Array.isArray(userId) ? userId : [userId]
+    const snapshot = this.createLocationSymbolSnapshot(userIds)
+
+    const friendLocations = userIds
+      .map((id) => this.friendSessions.get(id)!)
+      .map((friend) => friend.location)
+      .filter((location): location is LocationInstanceOverview => location !== null)
+
+    const resolvedWorlds = friendLocations
+      .map((location) => location.referenceWorld)
+      .filter((world): world is WorldSummary => !!world)
+
+    const referenceIds = getLocationInstanceDependency(friendLocations.map((l) => l.instance))
+    const pendingGroupIds = referenceIds.groupIds
+    const pendingWorldIds = referenceIds.worldIds.filter(
+      (id) => !resolvedWorlds.find((w) => w.worldId === id)
+    )
+
+    const batchMode = friendLocations.length > 0
+    const worlds = batchMode
+      ? await this._batchRequestQueue.add(() => this.world.fetchWorldSummaries(pendingWorldIds))
+      : await this._requestQueue.add(() => this.world.fetchWorldSummaries(pendingWorldIds))
+
+    const groups = batchMode
+      ? await this._batchRequestQueue.add(() => this.group.fetchGroupSummaries(pendingGroupIds))
+      : await this._requestQueue.add(() => this.group.fetchGroupSummaries(pendingGroupIds))
+
+    if (Array.isArray(userId)) {
+      const results = new Map<string, FriendInformation | null>()
+
+      for (const userId of userIds) {
+        if (!snapshot.isSameSymbol(userId)) {
+          continue
+        }
+
+        results.set(userId, this.assembleFriendLocationReference(userId, worlds, groups))
       }
+
+      return results
     } else {
-      // emit location change when location instance changed
-      existing.location = nextLocation
-      if (nextLocation) {
-        // use cached world entity if possible
-        nextLocation.referenceWorld = world
-
-        const result = this.batchUpdateFriendLocation({
-          [userId]: nextLocation.__locationTrackSymbol__
-        })
-
-        emitLocation(buildTrackLocationDetailPromise(result, userId))
-      } else {
-        emitLocation()
+      if (!snapshot.isSameSymbol(userId)) {
+        return null
       }
+
+      return this.assembleFriendLocationReference(userId, worlds, groups)
     }
   }
 
   private assembleFriendLocationReference(
     userId: string,
-    trackSymbol: symbol,
     worlds: Map<string, WorldEntity>,
     groups: Map<string, GroupEntity>
-  ) {
+  ): FriendInformation | null {
     const existing = this.friendSessions.get(userId)
 
-    if (
-      !existing ||
-      !existing.location ||
-      existing.location.__locationTrackSymbol__ !== trackSymbol
-    ) {
+    if (!existing || !existing.location) {
       return null
     }
 
-    const location = existing.location
+    const location = {
+      ...existing.location
+    }
+
     const world = worlds.get(location.instance.worldId)
     const group = isGroupInstance(location.instance)
       ? groups.get(location.instance.groupId)
@@ -297,98 +439,35 @@ export class FriendsSessions extends Nanobus<{
       location.referenceGroup = group
     }
 
+    existing.location = location
     return existing
   }
 
-  private async batchUpdateFriendLocation(tracker: TrackSymbolReference) {
-    const friendUserIds = Object.keys(tracker)
-
-    if (friendUserIds.length === 0) {
-      return {}
+  private createLocationSymbolSnapshot = (userIds: string[]) => {
+    const snapshot = new Map<string, symbol>()
+    for (const id of userIds) {
+      const s = Symbol(id)
+      snapshot.set(id, s)
+      this._locationTrackSymbols.set(id, s)
     }
-
-    const friendUserLocations = friendUserIds
-      .map((id) => this.friendSessions.get(id)!)
-      .map((friend) => friend.location)
-      .filter((location): location is LocationInstanceWithTracking => location !== null)
-
-    const resolvedWorlds = friendUserLocations
-      .map((location) => location.referenceWorld)
-      .filter((world): world is WorldSummary => !!world)
-
-    const referenceIds = getLocationInstanceDependency(friendUserLocations.map((l) => l.instance))
-    const pendingGroupIds = referenceIds.groupIds
-    const pendingWorldIds = referenceIds.worldIds.filter(
-      (id) => !resolvedWorlds.find((w) => w.worldId === id)
-    )
-
-    const batchMode = friendUserLocations.length > 0
-    const worlds = batchMode
-      ? await this.batchRequestQueue.add(() => this.world.fetchWorldSummaries(pendingWorldIds))
-      : await this.requestQueue.add(() => this.world.fetchWorldSummaries(pendingWorldIds))
-
-    const groups = batchMode
-      ? await this.batchRequestQueue.add(() => this.group.fetchGroupSummaries(pendingGroupIds))
-      : await this.requestQueue.add(() => this.group.fetchGroupSummaries(pendingGroupIds))
-
-    const trackerPromise: TrackLocationResult = {}
-
-    for (const [userId, trackSymbol] of Object.entries(tracker)) {
-      const result = this.assembleFriendLocationReference(userId, trackSymbol, worlds, groups)
-      if (result && result.location) {
-        trackerPromise[userId] = result.location
-        this.emit(
-          'friend:patch-location',
-          userId,
-          toFriendInformationFromTracking(result),
-          toLocationInstanceOverviewFromTracking(result.location)
-        )
-      }
-    }
-
-    return trackerPromise
-  }
-
-  private async batchEnrichFriend(
-    userId: string,
-    friend: BaseFriendInformation,
-    stateTrackSymbol: symbol
-  ) {
-    const existing = this.friendSessions.get(userId)
-    const updatedFriend = await this.users.fetchUser(userId)
-
-    if (!existing || !updatedFriend) {
-      return
-    }
-
-    const location = generateLocationTarget(updatedFriend.locationRawContext || '', '')
-    const updated = toFriendInformationFromTracking(existing)
-
-    // state
-    if (existing.__stateTrackSymbol__ === stateTrackSymbol) {
-      this.updateFriendAttributes(userId, {
-        ...friend,
-        state: updatedFriend.state,
-        platform: updatedFriend.platform
-      })
-    }
-
-    // location
-    if (location) {
-      this.batchUpdateFriendLocation({
-        [userId]: location.__locationTrackSymbol__
-      })
-
-      this.emit(
-        'friend:patch-location',
-        userId,
-        updated,
-        toLocationInstanceOverviewFromTracking(location)
-      )
+    return {
+      isSameSymbol: (id: string) => this._locationTrackSymbols.get(id) === snapshot.get(id)
     }
   }
 
-  public get friends(): FriendInformation[] {
-    return [...this.friendSessions.values()].map(toFriendInformationFromTracking)
+  private createStateSymbolSnapshot = (userIds: string[]) => {
+    const snapshot = new Map<string, symbol>()
+    for (const id of userIds) {
+      const s = Symbol(id)
+      snapshot.set(id, s)
+      this._stateTrackSymbols.set(id, s)
+    }
+    return {
+      isSameSymbol: (id: string) => this._stateTrackSymbols.get(id) === snapshot.get(id)
+    }
+  }
+
+  public get friends(): Readonly<FriendInformation>[] {
+    return [...this.friendSessions.values()]
   }
 }

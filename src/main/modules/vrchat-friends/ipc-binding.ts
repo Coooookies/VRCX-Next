@@ -11,39 +11,27 @@ export class FriendsIPCBinding {
   }
 
   private bindEvents() {
-    this.sessions.on('friend:present', (friends) => {
+    this.sessions.on('sync:present-friends', (friends) => {
       this.ipc.send('vrchat-friends:friend-sessions:present', friends)
     })
 
-    this.sessions.on('friend:add', (friend) => {
-      this.ipc.send('vrchat-friends:friend-sessions:add', friend)
+    this.sessions.on('sync:append-friend', (friend) => {
+      this.ipc.send('vrchat-friends:friend-sessions:append', friend)
     })
 
-    this.sessions.on('friend:delete', (friendUserId) => {
-      this.ipc.send('vrchat-friends:friend-sessions:delete', friendUserId)
+    this.sessions.on('sync:remove-friend', (friendUserId) => {
+      this.ipc.send('vrchat-friends:friend-sessions:remove', friendUserId)
     })
 
-    this.sessions.on('friend:update', (friendUserId, friend) => {
+    this.sessions.on('sync:update-friend', (friendUserId, friend) => {
       this.ipc.send('vrchat-friends:friend-sessions:update', friendUserId, friend)
     })
 
-    this.sessions.on('friend:state', (friendUserId, _, state, platform) => {
-      this.ipc.send('vrchat-friends:friend-sessions:state', friendUserId, state, platform)
+    this.sessions.on('sync:update-friends', (friends) => {
+      this.ipc.send('vrchat-friends:friend-sessions:updates', friends)
     })
 
-    this.sessions.on('friend:location', (friendUserId, _, location) => {
-      this.ipc.send('vrchat-friends:friend-sessions:location', friendUserId, location)
-    })
-
-    this.sessions.on('friend:patch-location', (friendUserId, _, location) => {
-      this.ipc.send('vrchat-friends:friend-sessions:location', friendUserId, location)
-    })
-
-    this.sessions.on('friend:clear-location', (friendUserId) => {
-      this.ipc.send('vrchat-friends:friend-sessions:location', friendUserId, null)
-    })
-
-    this.sessions.on('friend:clear', () => {
+    this.sessions.on('sync:clear-friends', () => {
       this.ipc.send('vrchat-friends:friend-sessions:clear')
     })
   }

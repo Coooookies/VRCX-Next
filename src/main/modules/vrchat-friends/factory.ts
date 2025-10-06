@@ -1,5 +1,5 @@
 import { parseLocation } from '../vrchat-worlds/location-parser'
-import { isGroupInstance } from '../vrchat-worlds/utils'
+import { isGroupInstance } from '../vrchat-instances/utils'
 
 import {
   getProfileBackgroundUrl,
@@ -21,8 +21,7 @@ import type {
   LocationInstance,
   LocationInstanceOverview
 } from '@shared/definition/vrchat-instances'
-import type { FriendInformationWithTracking, LocationInstanceWithTracking } from './types'
-import type { BaseFriendInformation, FriendInformation } from '@shared/definition/vrchat-friends'
+import type { BaseFriendInformation } from '@shared/definition/vrchat-friends'
 import type { LimitedUserFriend, User } from '@shared/definition/vrchat-api-response'
 import type { ReferenceAvatar } from '@shared/definition/vrchat-avatars'
 
@@ -58,14 +57,12 @@ export function getLocationInstanceDependency(location: LocationInstance | Locat
   }
 }
 
-export function generateLocationTarget(
+export function toLocation(
   currentLocationRaw: string,
   travelingLocationRaw: string
-): LocationInstanceWithTracking | null {
+): LocationInstanceOverview | null {
   const currentLocationTarget = parseLocation(currentLocationRaw)
   const travelingLocationTarget = parseLocation(travelingLocationRaw)
-
-  const trackSymbol = Symbol()
   const isTraveling =
     currentLocationRaw === 'traveling' || currentLocationRaw.startsWith('traveling:')
 
@@ -75,8 +72,7 @@ export function generateLocationTarget(
         instance: nextLocationTarget,
         category: getLocationInstanceCategory(nextLocationTarget),
         isTraveling,
-        arrivedAt: new Date(),
-        __locationTrackSymbol__: trackSymbol
+        arrivedAt: new Date()
       }
     : null
 }
@@ -120,26 +116,5 @@ export function toBaseFriendInformation(friend: User | LimitedUserFriend): BaseF
     lastLoginDate: friend.last_login ? new Date(friend.last_login) : null,
     lastActivityDate: friend.last_activity ? new Date(friend.last_activity) : null,
     isSupporter: supporter
-  }
-}
-
-export function toFriendInformationFromTracking(
-  friend: FriendInformationWithTracking
-): FriendInformation {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { location, __stateTrackSymbol__, ...rest } = friend
-  return {
-    ...rest,
-    location: location ? toLocationInstanceOverviewFromTracking(location) : null
-  }
-}
-
-export function toLocationInstanceOverviewFromTracking(
-  location: LocationInstanceWithTracking
-): LocationInstanceOverview {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { __locationTrackSymbol__, ...locationRest } = location
-  return {
-    ...locationRest
   }
 }
