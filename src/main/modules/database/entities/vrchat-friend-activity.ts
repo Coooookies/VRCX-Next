@@ -3,19 +3,19 @@ import { datetimeDefault, datetimeTransformer } from '../transform'
 import type { FriendActivities } from '@main/modules/vrchat-friends/types'
 import type { LocationInstanceType } from '@shared/definition/vrchat-instances'
 
-@Entity('vrchat_friend_location_activity')
-@Index('IDX_vrchat_friend_location_activity_activity_id', ['refUserId', 'activityId'])
-@Index('IDX_vrchat_friend_location_activity_friend_user_id', ['refUserId', 'friendUserId'])
-@Index('IDX_vrchat_friend_location_activity_friend_user_name', ['refUserId', 'friendUserName'])
-@Index('IDX_vrchat_friend_location_activity_world_id', ['refUserId', 'worldId'])
-@Index('IDX_vrchat_friend_location_activity_world_name', ['refUserId', 'worldName'])
-@Index('IDX_vrchat_friend_location_activity_owner_name', ['refUserId', 'ownerName'])
-@Index('IDX_vrchat_friend_location_activity_instance_type', ['refUserId', 'instanceType'])
+@Entity('vrchat_friend_location_activities')
+@Index('IDX_vrchat_friend_location_activities_activity_id', ['refUserId', 'activityId'])
+@Index('IDX_vrchat_friend_location_activities_friend_user_id', ['refUserId', 'friendUserId'])
+@Index('IDX_vrchat_friend_location_activities_friend_user_name', ['refUserId', 'friendUserName'])
+@Index('IDX_vrchat_friend_location_activities_world_id', ['refUserId', 'worldId'])
+@Index('IDX_vrchat_friend_location_activities_world_name', ['refUserId', 'worldName'])
+@Index('IDX_vrchat_friend_location_activities_owner_name', ['refUserId', 'ownerName'])
+@Index('IDX_vrchat_friend_location_activities_instance_type', ['refUserId', 'instanceType'])
 export class FriendLocationActivityEntity {
   @PrimaryColumn({ name: 'activity_id', type: 'varchar', length: 63 })
   declare activityId: string
 
-  @Index('IDX_vrchat_friend_location_activity_ref_user_id')
+  @Index('IDX_vrchat_friend_location_activities_ref_user_id')
   @Column({ name: 'ref_user_id', type: 'varchar', length: 63 })
   declare refUserId: string
 
@@ -50,16 +50,16 @@ export class FriendLocationActivityEntity {
   declare recordedAt?: Date
 }
 
-@Entity('vrchat_friend_avatar_activity')
-@Index('IDX_vrchat_friend_avatar_activity_activity_id', ['refUserId', 'activityId'])
-@Index('IDX_vrchat_friend_avatar_activity_friend_user_id', ['refUserId', 'friendUserId'])
-@Index('IDX_vrchat_friend_avatar_activity_friend_user_name', ['refUserId', 'friendUserName'])
-@Index('IDX_vrchat_friend_avatar_activity_avatar_name', ['refUserId', 'avatarName'])
+@Entity('vrchat_friend_avatar_activities')
+@Index('IDX_vrchat_friend_avatar_activities_activity_id', ['refUserId', 'activityId'])
+@Index('IDX_vrchat_friend_avatar_activities_friend_user_id', ['refUserId', 'friendUserId'])
+@Index('IDX_vrchat_friend_avatar_activities_friend_user_name', ['refUserId', 'friendUserName'])
+@Index('IDX_vrchat_friend_avatar_activities_avatar_name', ['refUserId', 'avatarName'])
 export class FriendAvatarActivityEntity {
   @PrimaryColumn({ name: 'activity_id', type: 'varchar', length: 63 })
   declare activityId: string
 
-  @Index('IDX_vrchat_friend_avatar_activity_ref_user_id')
+  @Index('IDX_vrchat_friend_avatar_activities_ref_user_id')
   @Column({ name: 'ref_user_id', type: 'varchar', length: 63 })
   declare refUserId: string
 
@@ -82,18 +82,18 @@ export class FriendAvatarActivityEntity {
   declare recordedAt?: Date
 }
 
-@Entity('vrchat_friend_common_activity')
-@Index('IDX_vrchat_friend_common_activity_activity_id', ['refUserId', 'activityId'])
-@Index('IDX_vrchat_friend_common_activity_activity_type', ['refUserId', 'activityType'])
-@Index('IDX_vrchat_friend_common_activity_friend_user_id', ['refUserId', 'friendUserId'])
-@Index('IDX_vrchat_friend_common_activity_friend_user_name', ['refUserId', 'friendUserName'])
-@Index('IDX_vrchat_friend_common_activity_before_value', ['refUserId', 'beforeValue'])
-@Index('IDX_vrchat_friend_common_activity_after_value', ['refUserId', 'afterValue'])
+@Entity('vrchat_friend_common_activities')
+@Index('IDX_vrchat_friend_common_activities_activity_id', ['refUserId', 'activityId'])
+@Index('IDX_vrchat_friend_common_activities_activity_type', ['refUserId', 'activityType'])
+@Index('IDX_vrchat_friend_common_activities_friend_user_id', ['refUserId', 'friendUserId'])
+@Index('IDX_vrchat_friend_common_activities_friend_user_name', ['refUserId', 'friendUserName'])
+@Index('IDX_vrchat_friend_common_activities_before_value', ['refUserId', 'beforeValue'])
+@Index('IDX_vrchat_friend_common_activities_after_value', ['refUserId', 'afterValue'])
 export class FriendCommonActivityEntity {
   @PrimaryColumn({ name: 'activity_id', type: 'varchar', length: 63 })
   declare activityId: string
 
-  @Index('IDX_vrchat_friend_common_activity_ref_user_id')
+  @Index('IDX_vrchat_friend_common_activities_ref_user_id')
   @Column({ name: 'ref_user_id', type: 'varchar', length: 63 })
   declare refUserId: string
 
