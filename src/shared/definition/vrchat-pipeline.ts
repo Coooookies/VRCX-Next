@@ -72,8 +72,8 @@ export interface PipelineEventFriendDelete {
 
 export interface PipelineEventFriendActive {
   userId: string
-  platform: Platform
   user: User
+  platform: Platform
 }
 
 export interface PipelineEventUserUpdate {

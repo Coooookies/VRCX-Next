@@ -1,12 +1,9 @@
-import type { UserState } from '@shared/definition/vrchat-api-response-community'
-import type { Platform } from '@shared/definition/vrchat-api-response-replenish'
 import type { InstanceProperties, SettingDefinition } from '@shared/definition/setting'
 import type { AuthenticationState } from '@shared/definition/vrchat-authentication'
-import type { BaseFriendInformation, FriendInformation } from '@shared/definition/vrchat-friends'
+import type { FriendInformation } from '@shared/definition/vrchat-friends'
 import type {
   InstanceEventMessage,
-  InstanceUserWithInformation,
-  LocationInstanceOverview
+  InstanceUserWithInformation
 } from '@shared/definition/vrchat-instances'
 import type {
   NotificationInformation,
@@ -26,19 +23,10 @@ export type IpcRendererEvent = {
 
   // VRChatFriends
   'vrchat-friends:friend-sessions:present': [friends: FriendInformation[]]
-  'vrchat-friends:friend-sessions:add': [friend: FriendInformation]
-  'vrchat-friends:friend-sessions:delete': [friendUserId: string]
-  'vrchat-friends:friend-sessions:state': [
-    friendUserId: string,
-    state: UserState,
-    platform: Platform
-  ]
-  'vrchat-friends:friend-sessions:update': [friendUserId: string, friend: BaseFriendInformation]
-  'vrchat-friends:friend-sessions:location': [
-    friendUserId: string,
-    location: LocationInstanceOverview | null
-  ]
-
+  'vrchat-friends:friend-sessions:append': [friend: FriendInformation]
+  'vrchat-friends:friend-sessions:remove': [friendUserId: string]
+  'vrchat-friends:friend-sessions:update': [friendUserId: string, friend: FriendInformation]
+  'vrchat-friends:friend-sessions:updates': [friends: FriendInformation[]]
   'vrchat-friends:friend-sessions:clear': []
 
   // VRChatNotifications

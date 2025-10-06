@@ -23,25 +23,11 @@ export class VRChatFriends extends Module {
       this.friends.value.push(...friends)
     })
 
-    this.ipc.listener.on('vrchat-friends:friend-sessions:add', (_, friend) => {
+    this.ipc.listener.on('vrchat-friends:friend-sessions:append', (_, friend) => {
       this.friends.value.push(friend)
     })
 
-    this.ipc.listener.on(
-      'vrchat-friends:friend-sessions:state',
-      (_, friendUserId, state, platform) => {
-        const index = this.friends.value.findIndex((f) => f.userId === friendUserId)
-        if (index !== -1) {
-          this.friends.value[index] = {
-            ...this.friends.value[index],
-            state,
-            platform
-          }
-        }
-      }
-    )
-
-    this.ipc.listener.on('vrchat-friends:friend-sessions:delete', (_, userId) => {
+    this.ipc.listener.on('vrchat-friends:friend-sessions:remove', (_, userId) => {
       this.friends.value.splice(
         this.friends.value.findIndex((f) => f.userId === userId),
         1
@@ -49,28 +35,25 @@ export class VRChatFriends extends Module {
     })
 
     this.ipc.listener.on('vrchat-friends:friend-sessions:update', (_, friendUserId, friend) => {
-      const index = this.friends.value.findIndex((f) => f.userId === friendUserId)
-      if (index !== -1) {
-        this.friends.value[index] = {
-          ...this.friends.value[index],
-          ...friend
-        }
-      }
+      this.updateFriend(friendUserId, friend)
     })
 
-    this.ipc.listener.on('vrchat-friends:friend-sessions:location', (_, friendUserId, location) => {
-      const index = this.friends.value.findIndex((f) => f.userId === friendUserId)
-      if (index !== -1) {
-        this.friends.value[index] = {
-          ...this.friends.value[index],
-          location
-        }
-      }
+    this.ipc.listener.on('vrchat-friends:friend-sessions:updates', (_, friends) => {
+      friends.forEach((friend) => {
+        this.updateFriend(friend.userId, friend)
+      })
     })
 
     this.ipc.listener.on('vrchat-friends:friend-sessions:clear', () => {
       this.friends.value = []
     })
+  }
+
+  private updateFriend(friendUserId: string, friend: FriendInformation) {
+    const index = this.friends.value.findIndex((f) => f.userId === friendUserId)
+    if (index !== -1) {
+      this.friends.value[index] = friend
+    }
   }
 
   public getFriends() {
