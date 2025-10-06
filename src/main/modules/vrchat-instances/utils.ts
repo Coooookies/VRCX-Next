@@ -18,3 +18,23 @@ export function generateEventId(
   const eventKey = `${recordId}:${type}:${keyword}:${timestamp}`
   return `visinstevt_${uuidv5(eventKey, INSTANCE_RECORD_EVENT_NAMESPACE)}`
 }
+
+import { LocationInstanceGroupType } from '@shared/definition/vrchat-instances'
+import type { LocationInstance, LocationInstanceGroup } from '@shared/definition/vrchat-instances'
+
+export function isSameLocationInstance(
+  current: LocationInstance | null,
+  next: LocationInstance | null
+): boolean {
+  if (current === next) return true
+  if (!current || !next) return false
+  return current.location === next.location
+}
+
+export function isGroupInstance(location: LocationInstance): location is LocationInstanceGroup {
+  return (
+    location.type === LocationInstanceGroupType.GroupPublic ||
+    location.type === LocationInstanceGroupType.GroupPlus ||
+    location.type === LocationInstanceGroupType.Group
+  )
+}
