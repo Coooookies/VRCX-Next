@@ -21,6 +21,7 @@ export class VisitedInstanceEntity {
   @Column({ name: 'world_version', type: 'integer', nullable: true })
   declare worldVersion?: number
 
+  @Index('IDX_vrchat_visited_instances_ref_user_id')
   @Column({ name: 'ref_user_id', type: 'varchar', length: 63 })
   declare refUserId: string
 
