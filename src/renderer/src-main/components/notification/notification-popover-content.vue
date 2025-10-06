@@ -22,16 +22,14 @@ const imageFile = computed(() => {
 <template>
   <div v-if="props.messageThumbnailUrl || props.messageContent" class="w-full pb-0.5 space-y-2.5">
     <div v-if="props.messageThumbnailUrl && imageFile" class="w-full pl-14">
-      <ImageRoot class="block w-full rounded-sm overflow-hidden">
+      <ImageRoot class="block w-full rounded-sm inset-ring-1 inset-ring-muted/50 overflow-hidden">
         <ImageVRChatContext
           :file-id="imageFile.fileId"
           :version="imageFile.version"
           :size="420"
           class="w-full"
         />
-        <ImageFallback
-          class="w-full aspect-[1920/1080] bg-muted/50 flex items-center justify-center"
-        >
+        <ImageFallback class="w-full aspect-[1920/1080] flex items-center justify-center">
           <template #default>
             <ImageIcon class="size-8 text-muted-foreground" />
           </template>
