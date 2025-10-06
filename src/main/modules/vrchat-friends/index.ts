@@ -2,6 +2,8 @@ import { createLogger } from '@main/logger'
 import { toFriendUserEntity } from '../vrchat-users/factory'
 import { Dependency, Module } from '@shared/module-constructor'
 import { FriendsSessions } from './friend-sessions'
+import { FriendsActivities } from './friend-activities'
+import { FriendsRepository } from './repository'
 import { FriendsFetcher } from './fetcher'
 import { FriendsCoordinator } from './coordinator'
 import { FriendsIPCBinding } from './ipc-binding'
@@ -15,10 +17,12 @@ import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { VRChatAuthentication } from '../vrchat-authentication'
 import type { VRChatWorkflowCoordinator } from '../vrchat-workflow-coordinator'
 import type { FriendSharedState } from '@shared/definition/mobx-shared'
+import type { Database } from '../database'
 
 export class VRChatFriends extends Module {
   @Dependency('IPCModule') declare private ipc: IPCModule
   @Dependency('MobxState') declare private mobx: MobxState
+  @Dependency('Database') declare private database: Database
   @Dependency('VRChatAPI') declare private api: VRChatAPI
   @Dependency('VRChatAuthentication') declare private auth: VRChatAuthentication
   @Dependency('VRChatWorlds') declare private worlds: VRChatWorlds
@@ -28,15 +32,19 @@ export class VRChatFriends extends Module {
   @Dependency('VRChatWorkflowCoordinator') declare private workflow: VRChatWorkflowCoordinator
 
   private readonly logger = createLogger(this.moduleId)
+  private repository!: FriendsRepository
   private sessions!: FriendsSessions
+  private activities!: FriendsActivities
   private fetcher!: FriendsFetcher
   private coordinator!: FriendsCoordinator
   private ipcBinding!: FriendsIPCBinding
   private $!: FriendSharedState
 
   protected onInit(): void {
+    this.repository = new FriendsRepository(this.database)
     this.fetcher = new FriendsFetcher(this.logger, this.api)
     this.sessions = new FriendsSessions(this.groups, this.worlds, this.users)
+    this.activities = new FriendsActivities(this.repository)
     this.coordinator = new FriendsCoordinator(
       this.logger,
       this.pipeline,
@@ -55,6 +63,7 @@ export class VRChatFriends extends Module {
     this.bindEvents()
 
     void this.ipcBinding
+    void this.activities
   }
 
   private bindEvents(): void {
