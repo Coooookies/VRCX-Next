@@ -1,6 +1,8 @@
 import { v5 as uuidv5 } from 'uuid'
 import { INSTANCE_RECORD_NAMESPACE, INSTANCE_RECORD_EVENT_NAMESPACE } from './constants'
+import { LocationInstanceGroupType } from '@shared/definition/vrchat-instances'
 import type { InstanceEvents } from '@shared/definition/vrchat-instances'
+import type { LocationInstance, LocationInstanceGroup } from '@shared/definition/vrchat-instances'
 
 export function generateRecordId(worldId: string, instanceName: string, date: Date): string {
   const timestamp = date.getTime()
@@ -18,9 +20,6 @@ export function generateEventId(
   const eventKey = `${recordId}:${type}:${keyword}:${timestamp}`
   return `visinstevt_${uuidv5(eventKey, INSTANCE_RECORD_EVENT_NAMESPACE)}`
 }
-
-import { LocationInstanceGroupType } from '@shared/definition/vrchat-instances'
-import type { LocationInstance, LocationInstanceGroup } from '@shared/definition/vrchat-instances'
 
 export function isSameLocationInstance(
   current: LocationInstance | null,
