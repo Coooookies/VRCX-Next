@@ -54,7 +54,7 @@ export class VRChatUsers extends Module {
         // const currentLocationRaw = user.location || ''
         const currentLocationRaw = ''
         const travelingLocationRaw = ''
-        this.currentUser.presentUser(currentUser, currentLocationRaw, travelingLocationRaw)
+        this.currentUser.syncInitialUser(currentUser, currentLocationRaw, travelingLocationRaw)
       }
     })
 

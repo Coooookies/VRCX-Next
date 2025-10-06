@@ -1,12 +1,8 @@
 import Nanobus from 'nanobus'
 import { toJS } from 'mobx'
 import { diffObjects } from '@main/utils/object'
-import {
-  generateLocationTarget,
-  getLocationInstanceDependency,
-  toLocationInstanceOverviewFromTracking
-} from '../vrchat-friends/factory'
-import { isGroupInstance, isSameLocationInstance } from '../vrchat-worlds/utils'
+import { getLocationInstanceDependency, toLocation } from '../vrchat-friends/factory'
+import { isGroupInstance, isSameLocationInstance } from '../vrchat-instances/utils'
 import { USER_UPDATE_COMPARE_KEYS } from './constants'
 import { InstanceAccessCategory } from '@shared/definition/vrchat-instances'
 import type { MobxState } from '../mobx-state'
@@ -21,7 +17,6 @@ const MODULE_NAME = 'VRChatUsers:CurrentUserStore'
 
 export class CurrentUserStore extends Nanobus<{
   'user:location': (location: Readonly<LocationInstanceOverview> | null) => void
-  'user:patch-location': (location: Readonly<LocationInstanceOverview> | null) => void
   'user:update': (
     user: Readonly<CurrentUserInformation>,
     detailDiff: Readonly<DiffResult<CurrentUserInformation>['diff']>,
@@ -47,20 +42,26 @@ export class CurrentUserStore extends Nanobus<{
     )
   }
 
-  public presentUser(
+  public syncInitialUser(
     user: CurrentUserInformation,
     currentLocationRaw: string,
     travelingLocationRaw: string
   ) {
-    const nextLocation = generateLocationTarget(currentLocationRaw, travelingLocationRaw)
+    const nextLocation = toLocation(currentLocationRaw, travelingLocationRaw)
 
     this.mobx.action(() => {
       this.$.user = user
+      this.$.location = nextLocation
     })
 
+    this.emit('user:location', nextLocation)
+
     if (nextLocation) {
-      this.__locationTrackSymbol__ = nextLocation.__locationTrackSymbol__
-      this.batchUpdateLocation(nextLocation.__locationTrackSymbol__)
+      this.batchUpdateLocation().then((location) => {
+        if (location) {
+          this.emit('user:location', location)
+        }
+      })
     }
   }
 
@@ -86,39 +87,43 @@ export class CurrentUserStore extends Nanobus<{
 
   public updateLocation(currentLocationRaw: string, travelingLocationRaw: string) {
     const prevLocation = toJS(this.$.location)
-    const nextLocation = generateLocationTarget(currentLocationRaw, travelingLocationRaw)
+    const nextLocation = toLocation(currentLocationRaw, travelingLocationRaw)
     const isSameLocation = isSameLocationInstance(
       prevLocation?.instance || null,
       nextLocation?.instance || null
     )
 
     if (isSameLocation) {
-      this.mobx.action(() => {
-        this.$.location = {
-          ...prevLocation!,
-          isTraveling: nextLocation!.isTraveling
-        }
-      })
+      if (prevLocation && nextLocation) {
+        prevLocation.isTraveling = nextLocation.isTraveling
+
+        this.mobx.action(() => prevLocation)
+        this.emit('user:location', prevLocation)
+      }
     } else {
-      this.mobx.action(() => {
-        this.$.location = nextLocation ? toLocationInstanceOverviewFromTracking(nextLocation) : null
-      })
+      this.mobx.action(() => (this.$.location = nextLocation))
+      this.emit('user:location', nextLocation)
 
       if (nextLocation) {
-        this.__locationTrackSymbol__ = nextLocation.__locationTrackSymbol__
-        this.batchUpdateLocation(nextLocation.__locationTrackSymbol__)
+        this.batchUpdateLocation().then((location) => {
+          if (location) {
+            this.emit('user:location', location)
+          }
+        })
       }
     }
-
-    this.emit('user:location', toJS(this.$.location))
   }
 
-  private async batchUpdateLocation(trackSymbol: symbol) {
+  private async batchUpdateLocation() {
     const location = toJS(this.$.location)
 
-    if (this.__locationTrackSymbol__ !== trackSymbol || !location) {
+    if (!location) {
       return
     }
+
+    const trackSymbol = Symbol('batch')
+    const isSameSymbol = () => this.__locationTrackSymbol__ === trackSymbol
+    this.__locationTrackSymbol__ = trackSymbol
 
     const referenceIds = getLocationInstanceDependency(location.instance)
     const pendingGroupIds = referenceIds.groupIds
@@ -132,6 +137,10 @@ export class CurrentUserStore extends Nanobus<{
       ? groups.get(location.instance.groupId)
       : undefined
 
+    if (!isSameSymbol()) {
+      return
+    }
+
     if (world) {
       location.referenceWorld = world
     }
@@ -144,7 +153,7 @@ export class CurrentUserStore extends Nanobus<{
       this.$.location = location
     })
 
-    this.emit('user:patch-location', location)
+    return location
   }
 
   public clear() {
