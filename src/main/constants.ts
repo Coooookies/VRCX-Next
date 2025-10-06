@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { env } from 'node:process'
 import { app } from 'electron'
 
-export const TEMP_DIR = tmpdir()
+export const TEMP_DIR = join(tmpdir(), 'vrcx-next/temp')
 export const IS_TYPEORM_CLI = process.env.TYPEORM_CLI === 'true'
 
 export const APP_ID = 'com.mitay.vrcx-next'

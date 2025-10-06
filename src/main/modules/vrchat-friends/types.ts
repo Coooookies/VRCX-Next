@@ -6,3 +6,15 @@ export interface FriendInformationWithRawLocation extends BaseFriendInformation 
 }
 
 export type FriendFetcherProcessHandler = (friends: FriendInformationWithRawLocation[]) => void
+
+export const FriendActivities = {
+  DisplayName: 'displayName',
+  Status: 'status',
+  StatusDescription: 'statusDescription',
+  Bio: 'bio',
+  TrustRank: 'trustRank',
+  IsSupporter: 'isSupporter',
+  ReferenceAvatar: 'referenceAvatar'
+} as const
+
+export type FriendActivities = (typeof FriendActivities)[keyof typeof FriendActivities]
