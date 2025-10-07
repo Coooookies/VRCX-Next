@@ -5,6 +5,7 @@ import { parseLocation } from '../vrchat-worlds/location-parser'
 import { toUserInformationSummary } from '../vrchat-users/factory'
 import { parseInstanceFromEventLogs } from './factory'
 import { CURRENT_INSTANCE_LOG_EVENTS_LIMIT, CURRENT_INSTANCE_USER_QUEUE_LIMIT } from './constants'
+import { InstanceTrackerSharedState } from '@shared/definition/mobx-shared'
 import {
   LogEventContext,
   LogEventMessage,
@@ -34,7 +35,6 @@ import type {
 } from '@shared/definition/vrchat-instances'
 import type { WorldDetail } from '@shared/definition/vrchat-worlds'
 import type { LogInstanceSummary } from './types'
-import { InstanceTrackerSharedState } from '@shared/definition/mobx-shared'
 
 export class InstanceTracker extends Nanobus<{
   'instance:clear': () => void
@@ -57,12 +57,14 @@ export class InstanceTracker extends Nanobus<{
   'instance:event': (recordId: string, events: InstanceEventMessage[]) => void
   'instance:event-patch': (recordId: string, eventId: string, event: InstanceEventMessage) => void
 }> {
-  private requestQueue = new RequestQueue(CURRENT_INSTANCE_USER_QUEUE_LIMIT)
   private players = new Map<string, InstanceUserWithInformation>()
   private events = new Map<string, InstanceEventMessage>()
   private state!: InstanceTrackerSharedState
   private isListening = false
   private bindingUserId: string | null = null
+
+  // query pool
+  private _requestQueue = new RequestQueue(CURRENT_INSTANCE_USER_QUEUE_LIMIT)
 
   constructor(
     private readonly gameProcess: VRChatGameProcess,
@@ -404,7 +406,7 @@ export class InstanceTracker extends Nanobus<{
     this.events.set(eventId, event)
     patcher()
 
-    const information = await this.requestQueue.add(() => this.users.fetchUser(user.userId))
+    const information = await this._requestQueue.add(() => this.users.fetchUser(user.userId))
     const summary = information ? toUserInformationSummary(information) : null
     user.user = information
     eventContent.user = summary
@@ -450,7 +452,7 @@ export class InstanceTracker extends Nanobus<{
     this.emit('instance:player-left', recordId, data.userId)
     patcher()
 
-    const summary = await this.requestQueue.add(() => this.users.fetchUserSummary(data.userId!))
+    const summary = await this._requestQueue.add(() => this.users.fetchUserSummary(data.userId!))
     eventContent.user = summary
     patcher(true)
   }
