@@ -100,7 +100,14 @@ export class FriendsSessions extends Nanobus<{
     }
   }
 
-  public async appendFriend(friend: BaseFriendInformation) {
+  public clearFriends() {
+    this._locationTrackSymbols.clear()
+    this._stateTrackSymbols.clear()
+    this.friendSessions.clear()
+    this.emit('sync:clear-friends')
+  }
+
+  public async handleAppendFriend(friend: BaseFriendInformation) {
     const userId = friend.userId
     const detail: FriendInformation = {
       ...friend,
@@ -130,7 +137,7 @@ export class FriendsSessions extends Nanobus<{
     this.emit('sync:update-friend', userId, updatedLocationFriend)
   }
 
-  public removeFriend(userId: string) {
+  public handleRemoveFriend(userId: string) {
     const friend = this.friendSessions.get(userId)
     if (!friend) {
       return
@@ -143,14 +150,7 @@ export class FriendsSessions extends Nanobus<{
     this.emit('event:friend-delete', userId, friend)
   }
 
-  public clearFriends() {
-    this._locationTrackSymbols.clear()
-    this._stateTrackSymbols.clear()
-    this.friendSessions.clear()
-    this.emit('sync:clear-friends')
-  }
-
-  public async updateFriendOnline(
+  public async handleUpdateFriendOnline(
     userId: string,
     updatedData: BaseFriendInformation,
     platform: Platform,
@@ -207,7 +207,7 @@ export class FriendsSessions extends Nanobus<{
     this.emit('sync:update-friend', userId, updatedLocationFriend)
   }
 
-  public async updateFriendWebActive(
+  public async handleUpdateFriendWebActive(
     userId: string,
     updatedData: BaseFriendInformation,
     platform: Platform
@@ -234,7 +234,7 @@ export class FriendsSessions extends Nanobus<{
     this.emit('event:friend-web-active', userId, newDetail)
   }
 
-  public async updateFriendOffline(userId: string, platform: Platform) {
+  public async handleUpdateFriendOffline(userId: string, platform: Platform) {
     const friend = this.friendSessions.get(userId)
     if (!friend) {
       return
@@ -254,7 +254,7 @@ export class FriendsSessions extends Nanobus<{
     this.emit('event:friend-offline', userId, newDetail)
   }
 
-  public async updateFriendLocation(
+  public async handleUpdateFriendLocation(
     userId: string,
     currentLocationRaw: string,
     travelingLocationRaw: string,
@@ -309,7 +309,7 @@ export class FriendsSessions extends Nanobus<{
     this.emit('sync:update-friend', userId, updatedLocationFriend)
   }
 
-  public updateFriendAttributes(userId: string, updatedData: BaseFriendInformation) {
+  public handleUpdateFriendAttributes(userId: string, updatedData: BaseFriendInformation) {
     const friend = this.friendSessions.get(userId)
     if (!friend) {
       return

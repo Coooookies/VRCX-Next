@@ -102,11 +102,11 @@ export class FriendsCoordinator {
   }
 
   private async handleFriendAdd({ user }: PipelineEventFriendAdd): Promise<void> {
-    this.sessions.appendFriend(toBaseFriendInformation(user))
+    this.sessions.handleAppendFriend(toBaseFriendInformation(user))
   }
 
   private async handleFriendDelete({ userId }: PipelineEventFriendDelete): Promise<void> {
-    this.sessions.removeFriend(userId)
+    this.sessions.handleRemoveFriend(userId)
   }
 
   private async handleFriendOnline({
@@ -119,7 +119,7 @@ export class FriendsCoordinator {
   }: PipelineEventFriendOnline): Promise<void> {
     const worldSummary = world ? toWorldEntity(world) : undefined
     const baseInformation = toBaseFriendInformation(user)
-    this.sessions.updateFriendOnline(
+    this.sessions.handleUpdateFriendOnline(
       userId,
       baseInformation,
       platform,
@@ -133,7 +133,7 @@ export class FriendsCoordinator {
     userId,
     platform
   }: PipelineEventFriendOffline): Promise<void> {
-    this.sessions.updateFriendOffline(userId, platform)
+    this.sessions.handleUpdateFriendOffline(userId, platform)
   }
 
   private async handleFriendActive({
@@ -141,7 +141,7 @@ export class FriendsCoordinator {
     user,
     platform
   }: PipelineEventFriendActive): Promise<void> {
-    this.sessions.updateFriendWebActive(userId, toBaseFriendInformation(user), platform)
+    this.sessions.handleUpdateFriendWebActive(userId, toBaseFriendInformation(user), platform)
   }
 
   private async handleFriendLocation({
@@ -151,10 +151,10 @@ export class FriendsCoordinator {
     travelingToLocation
   }: PipelineEventFriendLocation): Promise<void> {
     const worldSummary = world ? toWorldEntity(world) : undefined
-    this.sessions.updateFriendLocation(userId, location, travelingToLocation, worldSummary)
+    this.sessions.handleUpdateFriendLocation(userId, location, travelingToLocation, worldSummary)
   }
 
   private async handleFriendUpdate({ user, userId }: PipelineEventFriendUpdate): Promise<void> {
-    this.sessions.updateFriendAttributes(userId, toBaseFriendInformation(user))
+    this.sessions.handleUpdateFriendAttributes(userId, toBaseFriendInformation(user))
   }
 }
