@@ -37,7 +37,6 @@ export interface FileAnalysisBase {
   fileVersion: number
   fileSize: number
   fileUncompressedSize: number
-  createdAt: Date
   cacheUpdatedAt?: Date
 }
 

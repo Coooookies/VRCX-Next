@@ -100,7 +100,7 @@ export class FilesFetcher {
     }
 
     return Array.isArray(files)
-      ? <Map<string, FileAnalysisResult>>entities
-      : <FileAnalysisResult | null>(entities.get(`${files.fileId}-${files.version}`) ?? null)
+      ? entities
+      : (entities.get(`${files.fileId}-${files.version}`) ?? null)
   }
 }
