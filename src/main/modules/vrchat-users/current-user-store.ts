@@ -97,7 +97,7 @@ export class CurrentUserStore extends Nanobus<{
       if (prevLocation && nextLocation) {
         prevLocation.isTraveling = nextLocation.isTraveling
 
-        this.mobx.action(() => prevLocation)
+        this.mobx.action(() => (this.$.location = prevLocation))
         this.emit('user:location', prevLocation)
       }
     } else {
