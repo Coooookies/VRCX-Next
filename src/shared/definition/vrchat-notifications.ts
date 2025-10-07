@@ -136,9 +136,9 @@ export type NotificationBaseInformation = {
 }[keyof NotificationGlobalRawInformation]
 
 export type NotificationInformation = NotificationBaseInformation & {
-  senderName: string | null
-  senderAvatarFileId: string | null
-  senderAvatarFileVersion: number | null
+  senderName?: string
+  senderAvatarFileId?: string
+  senderAvatarFileVersion?: number
 }
 
 export type NotificationVersion = 'v1' | 'v2' | 'all'

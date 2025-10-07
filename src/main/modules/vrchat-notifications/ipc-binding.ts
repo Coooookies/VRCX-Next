@@ -1,11 +1,11 @@
 import type { IPCModule } from '../ipc'
-import { NotificationOperation } from './operation'
-import type { NotificationRepository } from './repository'
+import type { NotificationHub } from './notification-hub'
+import type { NotificationOperation } from './operation'
 
 export class NotificationIPCBinding {
   constructor(
     private ipc: IPCModule,
-    private repository: NotificationRepository,
+    private hub: NotificationHub,
     private operation: NotificationOperation
   ) {
     this.bindEvents()
@@ -13,26 +13,30 @@ export class NotificationIPCBinding {
   }
 
   private bindEvents() {
-    this.repository.on('notification:remote:insert', (notifications) => {
-      this.ipc.send('vrchat-notifications:notification:list-insert', notifications)
+    this.hub.on('sync:present-notification', (notifications) => {
+      this.ipc.send('vrchat-notifications:notifications:present', notifications)
     })
 
-    this.repository.on('notification:remote:update', (notifications) => {
-      this.ipc.send('vrchat-notifications:notification:list-update', notifications)
+    this.hub.on('sync:update-notification', (notificationId, notification) => {
+      this.ipc.send('vrchat-notifications:notifications:update', notificationId, notification)
     })
 
-    this.repository.on('notification:remote:delete', (notificationIds) => {
-      this.ipc.send('vrchat-notifications:notification:list-delete', notificationIds)
+    this.hub.on('sync:append-notification', (notification) => {
+      this.ipc.send('vrchat-notifications:notifications:append', notification)
     })
 
-    this.repository.on('notification:remote:clear', (version) => {
-      this.ipc.send('vrchat-notifications:notification:list-clear', version)
+    this.hub.on('sync:remove-notification', (notificationId) => {
+      this.ipc.send('vrchat-notifications:notifications:remove', notificationId)
+    })
+
+    this.hub.on('sync:clear-notification', (version) => {
+      this.ipc.send('vrchat-notifications:notifications:clear', version)
     })
   }
 
   private bindInvokes() {
     this.ipc.listener.handle('vrchat-notifications:get-notifications', () => {
-      return this.repository.getAllNotifications()
+      return this.hub.notifications
     })
 
     this.ipc.listener.handle(

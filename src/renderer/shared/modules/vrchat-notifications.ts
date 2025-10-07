@@ -20,29 +20,31 @@ export class VRChatNotifications extends Module {
   }
 
   private bindEvents() {
-    this.ipc.listener.on('vrchat-notifications:notification:list-insert', (_, notifications) => {
+    this.ipc.listener.on('vrchat-notifications:notifications:present', (_, notifications) => {
       this.notifications.value.push(...notifications)
     })
 
-    this.ipc.listener.on('vrchat-notifications:notification:list-update', (_, notifications) => {
-      notifications.forEach((user) => {
-        const index = this.notifications.value.findIndex(
-          (f) => f.notificationId === user.notificationId
-        )
-
-        if (index !== -1) {
-          this.notifications.value[index] = user
-        }
-      })
+    this.ipc.listener.on('vrchat-notifications:notifications:append', (_, notification) => {
+      this.notifications.value.push(notification)
     })
 
-    this.ipc.listener.on('vrchat-notifications:notification:list-delete', (_, notificationIds) => {
+    this.ipc.listener.on(
+      'vrchat-notifications:notifications:update',
+      (_, notificationId, notification) => {
+        const index = this.notifications.value.findIndex((f) => f.notificationId === notificationId)
+        if (index !== -1) {
+          this.notifications.value[index] = notification
+        }
+      }
+    )
+
+    this.ipc.listener.on('vrchat-notifications:notifications:remove', (_, notificationId) => {
       this.notifications.value = this.notifications.value.filter(
-        (n) => !notificationIds.includes(n.notificationId)
+        (n) => n.notificationId !== notificationId
       )
     })
 
-    this.ipc.listener.on('vrchat-notifications:notification:list-clear', (_, version) => {
+    this.ipc.listener.on('vrchat-notifications:notifications:clear', (_, version) => {
       this.notifications.value =
         version === 'all' ? [] : this.notifications.value.filter((n) => n.version !== version)
     })

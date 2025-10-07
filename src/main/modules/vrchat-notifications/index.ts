@@ -1,10 +1,12 @@
 import { Dependency, Module } from '@shared/module-constructor'
 import { createLogger } from '@main/logger'
-import { NotificationEventBinding } from './event-binding'
+import { NotificationCoordinator } from './coordinator'
 import { NotificationRepository } from './repository'
 import { NotificationFetcher } from './fetcher'
 import { NotificationOperation } from './operation'
 import { NotificationIPCBinding } from './ipc-binding'
+import { NotificationHub } from './notification-hub'
+import { NotificationHistory } from './notification-history'
 import type { IPCModule } from '../ipc'
 import type { VRChatAPI } from '../vrchat-api'
 import type { VRChatPipeline } from '../vrchat-pipeline'
@@ -30,25 +32,23 @@ export class VRChatNotifications extends Module {
   private repository!: NotificationRepository
   private fetcher!: NotificationFetcher
   private operation!: NotificationOperation
-  private eventBinding!: NotificationEventBinding
+  private coordinator!: NotificationCoordinator
+  private history!: NotificationHistory
   private ipcBinding!: NotificationIPCBinding
+  private hub!: NotificationHub
 
   protected onInit(): void {
     this.repository = new NotificationRepository(this.moduleId, this.mobx, this.database)
-    this.operation = new NotificationOperation(this.repository, this.api, this.users)
-    this.fetcher = new NotificationFetcher(
+    this.fetcher = new NotificationFetcher(this.logger, this.api)
+    this.hub = new NotificationHub(this.groups, this.users)
+    this.history = new NotificationHistory(this.repository, this.users)
+    this.operation = new NotificationOperation(this.hub, this.api)
+    this.ipcBinding = new NotificationIPCBinding(this.ipc, this.hub, this.operation)
+    this.coordinator = new NotificationCoordinator(
       this.logger,
-      this.repository,
-      this.api,
-      this.users,
-      this.groups
-    )
-    this.ipcBinding = new NotificationIPCBinding(this.ipc, this.repository, this.operation)
-    this.eventBinding = new NotificationEventBinding(
-      this.logger,
-      this.repository,
       this.fetcher,
-      this.users,
+      this.hub,
+      this.history,
       this.pipeline
     )
 
@@ -57,7 +57,7 @@ export class VRChatNotifications extends Module {
     })
 
     this.workflow.registerPostLogoutTask('notifications-clear', 50, () => {
-      this.repository.clear()
+      this.coordinator.uninitialize()
     })
 
     this.workflow.on('workflow:start', (type) => {
@@ -68,7 +68,7 @@ export class VRChatNotifications extends Module {
 
     // unused protect
     void this.ipcBinding
-    void this.eventBinding
+    void this.history
   }
 
   public async refreshNotifications(force?: boolean) {
@@ -80,7 +80,7 @@ export class VRChatNotifications extends Module {
       this.repository.State.loading = true
     })
 
-    await this.fetcher.initNotifications()
+    await this.coordinator.initialize()
 
     this.mobx.action(() => {
       this.repository.State.loading = false

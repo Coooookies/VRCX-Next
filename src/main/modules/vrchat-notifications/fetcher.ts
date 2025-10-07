@@ -1,51 +1,23 @@
+import { toNotificationV1BaseInformation, toNotificationV2BaseInformation } from './factory'
 import { NOTIFICATIONS_QUERY_SIZE } from './constants'
 import type { VRChatAPI } from '../vrchat-api'
-import type { NotificationRepository } from './repository'
-import { NotificationSenderType } from '@shared/definition/vrchat-notifications'
 import type { LoggerFactory } from '@main/logger'
-import type { VRChatUsers } from '../vrchat-users'
-import type { VRChatGroups } from '../vrchat-groups'
-import type { UserEntity } from '../database/entities/vrchat-cache-users'
-import type { GroupEntity } from '../database/entities/vrchat-cache-group'
-import type {
-  NotificationBaseInformation,
-  NotificationInformation
-} from '@shared/definition/vrchat-notifications'
-import {
-  toNotificationDependency,
-  toNotificationV1BaseInformation,
-  toNotificationV2BaseInformation
-} from './factory'
+import type { NotificationBaseInformation } from '@shared/definition/vrchat-notifications'
 
 export class NotificationFetcher {
   constructor(
     private readonly logger: LoggerFactory,
-    private readonly repository: NotificationRepository,
-    private readonly api: VRChatAPI,
-    private readonly users: VRChatUsers,
-    private readonly groups: VRChatGroups
+    private readonly api: VRChatAPI
   ) {}
 
-  public async initNotifications() {
-    this.repository.clear()
-
-    const notificationsV1 = await this.loadV1Notifications()
-    const notificationsV2 = await this.loadV2Notifications()
-    const notifications = [...notificationsV1, ...notificationsV2]
-    const activeUserId = this.users.activeUser?.userId
-
-    if (activeUserId) {
-      this.repository.saveNotification(notifications, activeUserId)
-    }
-
-    this.logger.info(
-      `Notifications Fetched! ${notifications.length} in total`,
-      `notification-v1: ${notificationsV1.length}, notification-v2: ${notificationsV2.length}`
-    )
+  public async fetchNotifications() {
+    const notificationsV1 = await this.fetchV1Notifications()
+    const notificationsV2 = await this.fetchV2Notifications()
+    return [...notificationsV1, ...notificationsV2]
   }
 
-  private async loadV1Notifications(): Promise<NotificationInformation[]> {
-    const notifications: NotificationInformation[] = []
+  private async fetchV1Notifications(): Promise<NotificationBaseInformation[]> {
+    const notifications: NotificationBaseInformation[] = []
     let startOffset = 0
 
     while (true) {
@@ -55,7 +27,7 @@ export class NotificationFetcher {
       )
 
       if (!result.success) {
-        this.logger.error(`Failed to fetch Notifications, error: ${result.error.message}`)
+        this.logger.error(`Failed to fetch V1 Notifications, error: ${result.error.message}`)
         break
       }
 
@@ -64,17 +36,11 @@ export class NotificationFetcher {
         break
       }
 
-      const informations = notificationsBatch.map((n) => toNotificationV1BaseInformation(n))
-      const { userIds, groupIds } = toNotificationDependency(informations)
-
-      const users = await this.users.fetchUserSummaries(userIds)
-      const groups = await this.groups.fetchGroupSummaries(groupIds)
-      const processedNotifications = this.processNotification(informations, users, groups)
-
-      notifications.push(...processedNotifications)
+      const currentNotifications = notificationsBatch.map((n) => toNotificationV1BaseInformation(n))
+      notifications.push(...currentNotifications)
       startOffset += notificationsBatch.length
 
-      this.logger.info(`Fetched ${notifications.length} Notifications...`)
+      this.logger.info(`Fetched ${notifications.length} V1 Notifications...`)
       if (notificationsBatch.length < NOTIFICATIONS_QUERY_SIZE) {
         break
       }
@@ -83,8 +49,8 @@ export class NotificationFetcher {
     return notifications
   }
 
-  private async loadV2Notifications(): Promise<NotificationInformation[]> {
-    const notifications: NotificationInformation[] = []
+  private async fetchV2Notifications(): Promise<NotificationBaseInformation[]> {
+    const notifications: NotificationBaseInformation[] = []
     let startOffset = 0
 
     while (true) {
@@ -94,7 +60,7 @@ export class NotificationFetcher {
       )
 
       if (!result.success) {
-        this.logger.warn(`Failed to fetch Notifications, error: ${result.error.message}`)
+        this.logger.warn(`Failed to fetch V2 Notifications, error: ${result.error.message}`)
         break
       }
 
@@ -103,17 +69,11 @@ export class NotificationFetcher {
         break
       }
 
-      const informations = notificationsBatch.map((n) => toNotificationV2BaseInformation(n))
-      const { userIds, groupIds } = toNotificationDependency(informations)
-
-      const users = await this.users.fetchUserSummaries(userIds)
-      const groups = await this.groups.fetchGroupSummaries(groupIds)
-      const processedNotifications = this.processNotification(informations, users, groups)
-
-      notifications.push(...processedNotifications)
+      const currentNotifications = notificationsBatch.map((n) => toNotificationV2BaseInformation(n))
+      notifications.push(...currentNotifications)
       startOffset += notificationsBatch.length
 
-      this.logger.info(`Fetched ${notifications.length} Notifications...`)
+      this.logger.info(`Fetched ${notifications.length} V2 Notifications...`)
       if (notificationsBatch.length < NOTIFICATIONS_QUERY_SIZE) {
         break
       }
@@ -122,68 +82,18 @@ export class NotificationFetcher {
     return notifications
   }
 
-  public async fetchNotification(notificationId: string): Promise<NotificationInformation | null> {
+  public async fetchNotification(
+    notificationId: string
+  ): Promise<NotificationBaseInformation | null> {
     const result = await this.api.ref.sessionAPI.notifications.getNotification(notificationId)
     if (!result.success) {
       this.logger.error(
-        `Failed to fetch Notification: ${notificationId}, error: ${result.error.message}`
+        `Failed to fetch V1 Notification: ${notificationId}, error: ${result.error.message}`
       )
       return null
     }
 
     const notification = result.value.body
-    const baseInformation = toNotificationV1BaseInformation(notification)
-    return this.enrichNotificationV1(baseInformation)
-  }
-
-  public processNotification(
-    notifications: NotificationBaseInformation[],
-    users: Map<string, UserEntity>,
-    groups: Map<string, GroupEntity>
-  ): NotificationInformation[] {
-    const results: NotificationInformation[] = []
-
-    for (const notification of notifications) {
-      const senderId = notification.senderId
-      const senderType = notification.senderType
-
-      let senderName: string | null = null
-      let senderAvatarFileId: string | null = null
-      let senderAvatarFileVersion: number | null = null
-
-      if (senderType === NotificationSenderType.User && senderId) {
-        const user = users.get(senderId)
-        if (user) {
-          senderName = user.displayName
-          senderAvatarFileId = user.profileIconFileId
-          senderAvatarFileVersion = user.profileIconFileVersion
-        }
-      } else if (senderType === NotificationSenderType.Group && senderId) {
-        const group = groups.get(senderId)
-        if (group) {
-          senderName = group.groupName
-          senderAvatarFileId = group.iconFileId
-          senderAvatarFileVersion = group.iconFileVersion
-        }
-      }
-
-      results.push({
-        ...notification,
-        senderName,
-        senderAvatarFileId,
-        senderAvatarFileVersion
-      })
-    }
-
-    return results
-  }
-
-  public async enrichNotificationV1(
-    notification: NotificationBaseInformation
-  ): Promise<NotificationInformation> {
-    const { userIds, groupIds } = toNotificationDependency([notification])
-    const users = await this.users.fetchUserSummaries(userIds)
-    const groups = await this.groups.fetchGroupSummaries(groupIds)
-    return this.processNotification([notification], users, groups)[0]
+    return toNotificationV1BaseInformation(notification)
   }
 }

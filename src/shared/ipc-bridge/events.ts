@@ -22,7 +22,7 @@ export type IpcRendererEvent = {
   'vrchat-authentication:state:update': [state: AuthenticationState]
 
   // VRChatFriends
-  'vrchat-friends:friend-sessions:present': [friends: FriendInformation[]]
+  'vrchat-friends:friend-sessions:present': [sfriends: FriendInformation[]]
   'vrchat-friends:friend-sessions:append': [friend: FriendInformation]
   'vrchat-friends:friend-sessions:remove': [friendUserId: string]
   'vrchat-friends:friend-sessions:update': [friendUserId: string, friend: FriendInformation]
@@ -30,10 +30,14 @@ export type IpcRendererEvent = {
   'vrchat-friends:friend-sessions:clear': []
 
   // VRChatNotifications
-  'vrchat-notifications:notification:list-insert': [notifications: NotificationInformation[]]
-  'vrchat-notifications:notification:list-update': [notifications: NotificationInformation[]]
-  'vrchat-notifications:notification:list-delete': [notificationIds: string[]]
-  'vrchat-notifications:notification:list-clear': [version: NotificationVersion]
+  'vrchat-notifications:notifications:present': [notifications: NotificationInformation[]]
+  'vrchat-notifications:notifications:append': [notification: NotificationInformation]
+  'vrchat-notifications:notifications:update': [
+    notificationId: string,
+    notifications: NotificationInformation
+  ]
+  'vrchat-notifications:notifications:remove': [notificationId: string]
+  'vrchat-notifications:notifications:clear': [version: NotificationVersion]
 
   // VRChatInstances
   'vrchat-instances:instance-tracker:append-events': [events: InstanceEventMessage[]]
