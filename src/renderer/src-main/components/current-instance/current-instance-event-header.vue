@@ -16,8 +16,8 @@ const props = defineProps<{
             cn(
               'relative size-3.5',
               'after:absolute after:inset-[3px] after:rounded-full after:bg-primary',
-              'before:absolute before:inset-[3px] before:rounded-full before:bg-primary/20',
-              'before:animate-[animation-timemark-ping_5s_infinite]'
+              'before:absolute before:inset-[3px] before:rounded-full before:bg-primary/20'
+              // 'before:animate-[animation-timemark-ping_5s_infinite]'
             )
           "
         />
