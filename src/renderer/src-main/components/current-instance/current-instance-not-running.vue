@@ -12,7 +12,7 @@ const props = defineProps<{
 <template>
   <div class="relative w-full h-screen flex flex-col items-center justify-center">
     <div class="-space-y-1">
-      <p class="text-base text-primary text-center">Current Instance</p>
+      <p class="text-base text-primary text-center font-semibold">Current Instance</p>
       <InstanceTitleNotRunning />
     </div>
     <hr
