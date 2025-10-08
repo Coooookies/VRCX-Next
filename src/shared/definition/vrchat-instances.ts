@@ -59,57 +59,32 @@ export interface LocationInstanceGroup extends LocationInstanceBase {
 export type LocationInstance = LocationInstancePublic | LocationInstanceUser | LocationInstanceGroup
 
 export interface LocationInstanceBaseOverview {
-  instance: LocationInstance
   isTraveling: boolean
   arrivedAt: Date
   referenceWorld?: WorldSummary
 }
 
 export interface LocationInstanceNormalOverview extends LocationInstanceBaseOverview {
-  category: typeof InstanceAccessCategory.Public | typeof InstanceAccessCategory.User
+  category: typeof InstanceAccessCategory.Public
+  instance: LocationInstancePublic
 }
 
 export interface LocationInstanceGroupOverview extends LocationInstanceBaseOverview {
   category: typeof InstanceAccessCategory.Group
+  instance: LocationInstanceGroup
   referenceGroup?: GroupSummary
+}
+
+export interface LocationInstanceFriendOverview extends LocationInstanceBaseOverview {
+  category: typeof InstanceAccessCategory.Friend
+  instance: LocationInstanceUser
+  referenceUser?: UserSummary
 }
 
 export type LocationInstanceOverview =
   | LocationInstanceNormalOverview
   | LocationInstanceGroupOverview
-
-// interface LocationInstanceBaseSummary {
-//   location: string
-//   worldId: string
-//   worldName: string
-//   worldImageFileId: string
-//   worldImageFileVersion: number
-//   name: string
-//   region?: Region
-// }
-
-// export interface LocationInstancePublicSummary extends LocationInstanceBaseSummary {
-//   type: LocationInstancePublicType
-// }
-
-// export interface LocationInstanceUserSummary extends LocationInstanceBaseSummary {
-//   type: LocationInstanceUserType
-//   userId: string
-// }
-
-// export interface LocationInstanceGroupSummary extends LocationInstanceBaseSummary {
-//   type: LocationInstanceGroupType
-//   groupId: string
-//   groupName: string
-//   groupImageFileId: string
-//   groupImageFileVersion: number
-//   require18yo: boolean
-// }
-
-// export type LocationInstanceSummary =
-//   | LocationInstancePublicSummary
-//   | LocationInstanceUserSummary
-//   | LocationInstanceGroupSummary
+  | LocationInstanceFriendOverview
 
 export interface InstanceEventUser {
   userName: string
@@ -175,7 +150,7 @@ export interface InstanceUserWithInformation extends InstanceUser {
 }
 
 export const InstanceAccessCategory = {
-  User: 'user',
+  Friend: 'friend',
   Group: 'group',
   Public: 'public'
 } as const
@@ -185,7 +160,7 @@ export type InstanceAccessCategory =
 
 export type InstanceOwner =
   | {
-      type: typeof InstanceAccessCategory.User
+      type: typeof InstanceAccessCategory.Friend
       summary: UserSummary | null
     }
   | {

@@ -4,6 +4,7 @@ import type { LocationInstance } from './vrchat-instances'
 export interface WorldSummary {
   worldId: string
   worldName: string
+  version: number
   authorUserId: string
   authorUserName: string
   description: string
