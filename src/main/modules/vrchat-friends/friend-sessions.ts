@@ -10,14 +10,17 @@ import {
 import { InstanceAccessCategory } from '@shared/definition/vrchat-instances'
 import { UserState } from '@shared/definition/vrchat-api-response-community'
 import { RequestQueue } from '@shared/utils/async'
+import { FriendAttributeActivities } from '@shared/definition/vrchat-friends'
 import type { VRChatGroups } from '../vrchat-groups'
 import type { VRChatWorlds } from '../vrchat-worlds'
 import type { VRChatUsers } from '../vrchat-users'
+import type { VRChatAvatars } from '../vrchat-avatars'
 import type { WorldSummary } from '@shared/definition/vrchat-worlds'
 import type { WorldEntity } from '../database/entities/vrchat-cache-world'
 import type { UserEntity } from '../database/entities/vrchat-cache-users'
 import type { GroupEntity } from '../database/entities/vrchat-cache-group'
 import type { DiffResult } from '@main/utils/object'
+import type { UserAvatar } from '@shared/definition/vrchat-avatars'
 import type { LocationInstanceOverview } from '@shared/definition/vrchat-instances'
 import type { BaseFriendInformation, FriendInformation } from '@shared/definition/vrchat-friends'
 import type { FriendInformationWithRawLocation } from './types'
@@ -35,6 +38,12 @@ export class FriendsSessions extends Nanobus<{
   'event:friend-offline': (userId: string, data: Readonly<FriendInformation>) => void
   'event:friend-add': (data: Readonly<FriendInformation>) => void
   'event:friend-delete': (userId: string, data: Readonly<FriendInformation>) => void
+  'event:friend-avatar': (
+    userId: string,
+    data: Readonly<FriendInformation>,
+    avatar: UserAvatar,
+    detailPendingPromise?: Promise<UserAvatar | null>
+  ) => void
   'event:friend-location': (
     userId: string,
     data: Readonly<FriendInformation>,
@@ -53,6 +62,7 @@ export class FriendsSessions extends Nanobus<{
   // tracking symbols
   private readonly _locationTrackSymbols = new Map<string, symbol>()
   private readonly _stateTrackSymbols = new Map<string, symbol>()
+  private readonly _avatarTrackSymbols = new Map<string, symbol>()
 
   // query pool
   private readonly _batchRequestQueue = new RequestQueue(CURRENT_INSTANCE_BATCH_QUEUE_LIMIT)
@@ -61,7 +71,8 @@ export class FriendsSessions extends Nanobus<{
   constructor(
     private readonly group: VRChatGroups,
     private readonly world: VRChatWorlds,
-    private readonly users: VRChatUsers
+    private readonly users: VRChatUsers,
+    private readonly avatars: VRChatAvatars
   ) {
     super('VRChatFriends:FriendSessions')
   }
@@ -310,7 +321,7 @@ export class FriendsSessions extends Nanobus<{
     this.emit('sync:update-friend', userId, updatedLocationFriend)
   }
 
-  public handleUpdateFriendAttributes(userId: string, updatedData: BaseFriendInformation) {
+  public async handleUpdateFriendAttributes(userId: string, updatedData: BaseFriendInformation) {
     const friend = this.friendSessions.get(userId)
     if (!friend) {
       return
@@ -332,6 +343,25 @@ export class FriendsSessions extends Nanobus<{
     this.friendSessions.set(userId, newDetail)
     this.emit('sync:update-friend', userId, newDetail)
     this.emit('event:friend-update', userId, newDetail, detailDiff, updatedKeys)
+
+    if (updatedKeys.includes(FriendAttributeActivities.avatar)) {
+      const detailPendingPromise = this.batchUpdateFriendAvatar(userId)
+
+      this.emit(
+        'event:friend-avatar',
+        userId,
+        newDetail,
+        detailDiff.after.avatar!,
+        detailPendingPromise.then((updated) => updated?.avatar || null)
+      )
+
+      const updatedAvatarFriend = await detailPendingPromise
+      if (!updatedAvatarFriend) {
+        return
+      }
+
+      this.emit('sync:update-friend', userId, newDetail)
+    }
   }
 
   private async batchUpdateFriendState(userId: string): Promise<FriendInformation | null> {
@@ -354,6 +384,26 @@ export class FriendsSessions extends Nanobus<{
     currentUser.state = state
     currentUser.platform = platform
     currentUser.location = location
+    return currentUser
+  }
+
+  private async batchUpdateFriendAvatar(userId: string): Promise<FriendInformation | null> {
+    const snapshot = this.createAvatarSymbolSnapshot([userId])
+    const currentUser = this.friendSessions.get(userId)
+
+    if (!currentUser) {
+      return null
+    }
+
+    const avatarImageId = currentUser.avatar.imageFileId
+    const fetchedReferenceAvatar = await this.avatars.fetchReferenceAvatar(avatarImageId)
+
+    if (!fetchedReferenceAvatar || !snapshot.isSameSymbol(userId)) {
+      return null
+    }
+
+    currentUser.avatar.avatarName = fetchedReferenceAvatar.avatarName
+    currentUser.avatar.ownerUserId = fetchedReferenceAvatar.authorUserId
     return currentUser
   }
 
@@ -466,6 +516,18 @@ export class FriendsSessions extends Nanobus<{
     }
     return {
       isSameSymbol: (id: string) => this._locationTrackSymbols.get(id) === snapshot.get(id)
+    }
+  }
+
+  private createAvatarSymbolSnapshot = (userIds: string[]) => {
+    const snapshot = new Map<string, symbol>()
+    for (const id of userIds) {
+      const s = Symbol(id)
+      snapshot.set(id, s)
+      this._avatarTrackSymbols.set(id, s)
+    }
+    return {
+      isSameSymbol: (id: string) => this._avatarTrackSymbols.get(id) === snapshot.get(id)
     }
   }
 
