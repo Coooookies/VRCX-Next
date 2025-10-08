@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryColumn, Index } from 'typeorm'
 import { datetimeDefault, datetimeTransformer } from '../transform'
-import type { FriendActivities } from '@main/modules/vrchat-friends/types'
 import type { LocationInstanceType } from '@shared/definition/vrchat-instances'
+import type { FriendActivityEvents } from '@shared/definition/vrchat-friends'
 
 @Entity('vrchat_friend_location_activities')
 @Index('IDX_vrchat_friend_location_activities_activity_id', ['refUserId', 'activityId'])
@@ -104,7 +104,7 @@ export class FriendCommonActivityEntity {
   declare friendUserName?: string
 
   @Column({ name: 'activity_type', type: 'varchar', length: 31 })
-  declare activityType: FriendActivities
+  declare activityType: FriendActivityEvents
 
   @Column({ name: 'before_value', type: 'text' })
   declare beforeValue: string

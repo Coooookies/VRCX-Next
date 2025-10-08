@@ -12,6 +12,9 @@ export class WorldEntity implements WorldSummary {
   @Column({ name: 'world_name', type: 'text' })
   declare worldName: string
 
+  @Column({ name: 'version', type: 'integer' })
+  declare version: number
+
   @Column({ name: 'author_user_id', type: 'varchar', length: 63 })
   declare authorUserId: string
 
