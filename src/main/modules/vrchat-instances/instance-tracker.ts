@@ -560,7 +560,7 @@ export class InstanceTracker extends Nanobus<{
       case LocationInstanceUserType.Invite:
       case LocationInstanceUserType.InvitePlus: {
         owner = {
-          type: InstanceAccessCategory.User,
+          type: InstanceAccessCategory.Friend,
           summary: await this.users.fetchUserSummary(location.userId)
         }
         break

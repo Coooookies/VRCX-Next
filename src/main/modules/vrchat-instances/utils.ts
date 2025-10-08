@@ -1,7 +1,10 @@
 import { v5 as uuidv5 } from 'uuid'
 import { INSTANCE_RECORD_NAMESPACE, INSTANCE_RECORD_EVENT_NAMESPACE } from './constants'
-import { LocationInstanceGroupType } from '@shared/definition/vrchat-instances'
-import type { InstanceEvents } from '@shared/definition/vrchat-instances'
+import {
+  LocationInstanceGroupType,
+  LocationInstanceUserType
+} from '@shared/definition/vrchat-instances'
+import type { InstanceEvents, LocationInstanceUser } from '@shared/definition/vrchat-instances'
 import type { LocationInstance, LocationInstanceGroup } from '@shared/definition/vrchat-instances'
 
 export function generateRecordId(worldId: string, instanceName: string, date: Date): string {
@@ -35,5 +38,14 @@ export function isGroupInstance(location: LocationInstance): location is Locatio
     location.type === LocationInstanceGroupType.GroupPublic ||
     location.type === LocationInstanceGroupType.GroupPlus ||
     location.type === LocationInstanceGroupType.Group
+  )
+}
+
+export function isUserInstance(location: LocationInstance): location is LocationInstanceUser {
+  return (
+    location.type === LocationInstanceUserType.Friends ||
+    location.type === LocationInstanceUserType.FriendsPlus ||
+    location.type === LocationInstanceUserType.Invite ||
+    location.type === LocationInstanceUserType.InvitePlus
   )
 }

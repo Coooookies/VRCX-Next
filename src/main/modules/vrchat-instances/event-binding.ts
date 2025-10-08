@@ -6,7 +6,7 @@ import {
 } from '../database/entities/vrchat-visited-instance'
 import type { InstanceTracker } from './instance-tracker'
 import type { InstanceRepository } from './repository'
-import { InstanceEvents } from '@shared/definition/vrchat-instances'
+import { InstanceAccessCategory, InstanceEvents } from '@shared/definition/vrchat-instances'
 
 export class InstanceEventBinding {
   constructor(
@@ -40,10 +40,10 @@ export class InstanceEventBinding {
       let ownerName: string
 
       switch (owner?.type) {
-        case 'user':
+        case InstanceAccessCategory.Friend:
           ownerName = owner.summary?.displayName || ''
           break
-        case 'group':
+        case InstanceAccessCategory.Group:
           ownerName = owner.summary?.groupName || ''
           break
         default:
