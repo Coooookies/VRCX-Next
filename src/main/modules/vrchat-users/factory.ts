@@ -3,7 +3,7 @@ import { UserTrustRank, UserLanguage } from '@shared/definition/vrchat-users'
 import { Platform, UserState } from '@shared/definition/vrchat-api-response'
 import type { UserEntity } from '../database/entities/vrchat-cache-users'
 import type { FriendInformation } from '@shared/definition/vrchat-friends'
-import type { ReferenceAvatar, UserAvatar } from '@shared/definition/vrchat-avatars'
+import type { CurrentUserAvatar, UserAvatar } from '@shared/definition/vrchat-avatars'
 import type { CurrentUser, LimitedUserFriend, User } from '@shared/definition/vrchat-api-response'
 import type {
   CurrentUserInformation,
@@ -49,9 +49,8 @@ export function toCurrentUserInformation(user: CurrentUser): CurrentUserInformat
   const registeredAt = user.date_joined ? new Date(user.date_joined) : null
   const avatarFileInfo = parseFileUrl(user.currentAvatarImageUrl)
   const avatarId = user.currentAvatar
-  const avatar: UserAvatar = {
+  const avatar: CurrentUserAvatar = {
     avatarId,
-    allowCopying: user.allowAvatarCopying,
     imageFileId: avatarFileInfo?.fileId || '',
     imageFileVersion: avatarFileInfo?.version || 0
   }
@@ -106,7 +105,7 @@ export function toUserInformation(user: User): UserInformation {
 
   const registeredAt = user.date_joined ? new Date(user.date_joined) : null
   const avatarFileInfo = parseFileUrl(user.currentAvatarImageUrl)
-  const referenceAvatar: ReferenceAvatar = {
+  const avatar: UserAvatar = {
     imageFileId: avatarFileInfo?.fileId || '',
     imageFileVersion: avatarFileInfo?.version || 0
   }
@@ -124,7 +123,7 @@ export function toUserInformation(user: User): UserInformation {
     profileBackgroundFileVersion: profileBackgroundFileInfo?.version || 0,
     pronouns: user.pronouns,
     allowAvatarCopying: user.allowAvatarCopying,
-    referenceAvatar,
+    avatar,
     bio: user.bio || '',
     bioLinks: user.bioLinks || [],
     badges: badges || [],
