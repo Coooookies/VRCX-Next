@@ -8,7 +8,10 @@ import { cn } from '@renderer/shared/utils/style'
 import { useI18n } from '@renderer/shared/locale'
 import { ElapsedTimerText } from '@renderer/shared/components/timer'
 import { TabsContent } from '@renderer/shared/components/ui/tabs'
-import { LocationInstancePublicType } from '@shared/definition/vrchat-instances'
+import {
+  InstanceAccessCategory,
+  LocationInstancePublicType
+} from '@shared/definition/vrchat-instances'
 import { LOCATION_TYPE_TRANSLATE_KEY } from '@renderer/shared/constants/instance-mapping'
 import type { LocationInstance, InstanceOwner } from '@shared/definition/vrchat-instances'
 
@@ -46,12 +49,12 @@ const currentPlayerCount = computed(() => {
     >
       <CurrentInstanceStatsSkeleton v-if="!props.owner" />
       <CurrentInstanceArrowButton
-        v-else-if="props.owner.type === 'group'"
+        v-else-if="props.owner.type === InstanceAccessCategory.Group"
         label="Group"
         :value="props.owner.summary?.groupName || '-'"
       />
       <CurrentInstanceArrowButton
-        v-else-if="props.owner.type === 'user'"
+        v-else-if="props.owner.type === InstanceAccessCategory.Friend"
         label="Owner"
         :value="props.owner.summary?.displayName || '-'"
       />
