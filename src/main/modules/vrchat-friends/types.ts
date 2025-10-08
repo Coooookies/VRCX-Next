@@ -1,4 +1,11 @@
 import type { BaseFriendInformation } from '@shared/definition/vrchat-friends'
+import type { GroupSummary } from '@shared/definition/vrchat-groups'
+import type { UserSummary } from '@shared/definition/vrchat-users'
+import type {
+  LocationInstanceGroupType,
+  LocationInstancePublicType,
+  LocationInstanceUserType
+} from '@shared/definition/vrchat-instances'
 
 export interface FriendInformationWithRawLocation extends BaseFriendInformation {
   currentLocationRaw: string
@@ -7,14 +14,21 @@ export interface FriendInformationWithRawLocation extends BaseFriendInformation 
 
 export type FriendFetcherProcessHandler = (friends: FriendInformationWithRawLocation[]) => void
 
-export const FriendActivities = {
-  DisplayName: 'displayName',
-  Status: 'status',
-  StatusDescription: 'statusDescription',
-  Bio: 'bio',
-  TrustRank: 'trustRank',
-  IsSupporter: 'isSupporter',
-  ReferenceAvatar: 'referenceAvatar'
-} as const
+export interface FriendLocationActivityNormalReference {
+  instanceType: LocationInstancePublicType
+}
 
-export type FriendActivities = (typeof FriendActivities)[keyof typeof FriendActivities]
+export interface FriendLocationActivityGroupReference {
+  instanceType: LocationInstanceGroupType
+  referenceGroup?: GroupSummary
+}
+
+export interface FriendLocationActivityFriendReference {
+  instanceType: LocationInstanceUserType
+  referenceUser?: UserSummary
+}
+
+export type FriendLocationActivityReference =
+  | FriendLocationActivityNormalReference
+  | FriendLocationActivityGroupReference
+  | FriendLocationActivityFriendReference

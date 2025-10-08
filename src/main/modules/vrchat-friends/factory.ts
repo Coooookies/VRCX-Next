@@ -1,10 +1,11 @@
 import { parseLocation } from '../vrchat-worlds/location-parser'
-import { isGroupInstance } from '../vrchat-instances/utils'
+import { isGroupInstance, isUserInstance } from '../vrchat-instances/utils'
 
 import {
   getProfileBackgroundUrl,
   getProfileIconUrl,
   isSupporter,
+  toFriendUserEntity,
   toUserLanguageTags,
   toUserPlatformState,
   toUserTrustRank
@@ -17,13 +18,19 @@ import {
   LocationInstancePublicType,
   LocationInstanceUserType
 } from '@shared/definition/vrchat-instances'
+import { FriendActivityEvents } from '@shared/definition/vrchat-friends'
 import type {
   LocationInstance,
   LocationInstanceOverview
 } from '@shared/definition/vrchat-instances'
-import type { BaseFriendInformation } from '@shared/definition/vrchat-friends'
+import type {
+  BaseFriendInformation,
+  FriendActivity,
+  FriendInformation
+} from '@shared/definition/vrchat-friends'
 import type { LimitedUserFriend, User } from '@shared/definition/vrchat-api-response'
 import type { ReferenceAvatar } from '@shared/definition/vrchat-avatars'
+import { FriendLocationActivityReference } from './types'
 
 export function getLocationInstanceCategory(location: LocationInstance): InstanceAccessCategory {
   switch (location.type) {
@@ -34,7 +41,7 @@ export function getLocationInstanceCategory(location: LocationInstance): Instanc
     case LocationInstanceUserType.FriendsPlus:
     case LocationInstanceUserType.Invite:
     case LocationInstanceUserType.InvitePlus: {
-      return InstanceAccessCategory.User
+      return InstanceAccessCategory.Friend
     }
     case LocationInstanceGroupType.Group:
     case LocationInstanceGroupType.GroupPlus:
@@ -50,10 +57,14 @@ export function getLocationInstanceDependency(location: LocationInstance | Locat
   const groupIds = locations
     .filter((location) => isGroupInstance(location))
     .map((location) => location.groupId)
+  const userIds = locations
+    .filter((location) => isUserInstance(location))
+    .map((location) => location.userId)
 
   return {
     worldIds: [...new Set(worldIds)],
-    groupIds: [...new Set(groupIds)]
+    groupIds: [...new Set(groupIds)],
+    userIds: [...new Set(userIds)]
   }
 }
 
@@ -67,14 +78,16 @@ export function toLocation(
     currentLocationRaw === 'traveling' || currentLocationRaw.startsWith('traveling:')
 
   const nextLocationTarget = isTraveling ? travelingLocationTarget : currentLocationTarget
-  return nextLocationTarget
-    ? {
-        instance: nextLocationTarget,
-        category: getLocationInstanceCategory(nextLocationTarget),
-        isTraveling,
-        arrivedAt: new Date()
-      }
-    : null
+  return (
+    nextLocationTarget
+      ? {
+          instance: nextLocationTarget,
+          category: getLocationInstanceCategory(nextLocationTarget),
+          isTraveling,
+          arrivedAt: new Date()
+        }
+      : null
+  ) as LocationInstanceOverview | null
 }
 
 export function toBaseFriendInformation(friend: User | LimitedUserFriend): BaseFriendInformation {
@@ -117,4 +130,86 @@ export function toBaseFriendInformation(friend: User | LimitedUserFriend): BaseF
     lastActivityDate: friend.last_activity ? new Date(friend.last_activity) : null,
     isSupporter: supporter
   }
+}
+
+export function toFriendLocationActivity(
+  activityId: string,
+  userId: string,
+  user: FriendInformation,
+  location: LocationInstanceOverview | null
+): FriendActivity {
+  const activityType = FriendActivityEvents.LocationChange
+  const friendUserId = userId
+  const friendUser = toFriendUserEntity(user)
+  const recordedAt = new Date()
+  const baseActivity = {
+    activityId,
+    activityType,
+    friendUserId,
+    friendUser,
+    recordedAt
+  }
+
+  if (!location) {
+    return {
+      ...baseActivity,
+      overview: null
+    }
+  }
+
+  const world = location.referenceWorld
+  const worldId = location.instance.worldId
+  const worldName = location.referenceWorld?.worldName
+  const worldVersion = location.referenceWorld?.version
+
+  const [, instanceId] = location.instance.location.split(':')
+  const instanceType = location.instance.type
+
+  let ownerId: string | undefined
+  let ownerName: string | undefined
+  let reference: FriendLocationActivityReference
+
+  switch (location.category) {
+    case InstanceAccessCategory.Friend: {
+      ownerId = location.instance.userId
+      ownerName = location.referenceUser?.displayName
+      reference = {
+        instanceType: instanceType,
+        referenceUser: location.referenceUser
+      }
+      break
+    }
+    case InstanceAccessCategory.Group: {
+      ownerId = location.instance.groupId
+      ownerName = location.referenceGroup?.groupName
+      reference = {
+        instanceType: instanceType,
+        referenceGroup: location.referenceGroup
+      }
+      break
+    }
+    default: {
+      reference = {
+        instanceType: instanceType
+      }
+    }
+  }
+
+  return {
+    ...baseActivity,
+    overview: {
+      worldId,
+      worldName,
+      worldVersion,
+      ownerId,
+      ownerName,
+      instanceId,
+      referenceWorld: world,
+      ...reference
+    }
+  }
+}
+
+export function toFriendAvatarActivity() {
+  
 }

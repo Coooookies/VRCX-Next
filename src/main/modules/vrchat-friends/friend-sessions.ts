@@ -1,7 +1,7 @@
 import Nanobus from 'nanobus'
 import { diffObjects } from '@main/utils/object'
 import { getLocationInstanceDependency, toLocation } from './factory'
-import { isGroupInstance, isSameLocationInstance } from '../vrchat-instances/utils'
+import { isGroupInstance, isSameLocationInstance, isUserInstance } from '../vrchat-instances/utils'
 import {
   CURRENT_INSTANCE_BATCH_QUEUE_LIMIT,
   CURRENT_INSTANCE_QUEUE_LIMIT,
@@ -15,6 +15,7 @@ import type { VRChatWorlds } from '../vrchat-worlds'
 import type { VRChatUsers } from '../vrchat-users'
 import type { WorldSummary } from '@shared/definition/vrchat-worlds'
 import type { WorldEntity } from '../database/entities/vrchat-cache-world'
+import type { UserEntity } from '../database/entities/vrchat-cache-users'
 import type { GroupEntity } from '../database/entities/vrchat-cache-group'
 import type { DiffResult } from '@main/utils/object'
 import type { LocationInstanceOverview } from '@shared/definition/vrchat-instances'
@@ -377,18 +378,25 @@ export class FriendsSessions extends Nanobus<{
 
     const referenceIds = getLocationInstanceDependency(friendLocations.map((l) => l.instance))
     const pendingGroupIds = referenceIds.groupIds
+    const pendingUserIds = referenceIds.userIds
     const pendingWorldIds = referenceIds.worldIds.filter(
       (id) => !resolvedWorlds.find((w) => w.worldId === id)
     )
 
     const batchMode = friendLocations.length > 0
-    const worlds = batchMode
-      ? await this._batchRequestQueue.add(() => this.world.fetchWorldSummaries(pendingWorldIds))
-      : await this._requestQueue.add(() => this.world.fetchWorldSummaries(pendingWorldIds))
+    const worldQueue = batchMode
+      ? this._batchRequestQueue.add(() => this.world.fetchWorldSummaries(pendingWorldIds))
+      : this._requestQueue.add(() => this.world.fetchWorldSummaries(pendingWorldIds))
 
-    const groups = batchMode
-      ? await this._batchRequestQueue.add(() => this.group.fetchGroupSummaries(pendingGroupIds))
-      : await this._requestQueue.add(() => this.group.fetchGroupSummaries(pendingGroupIds))
+    const groupQueue = batchMode
+      ? this._batchRequestQueue.add(() => this.group.fetchGroupSummaries(pendingGroupIds))
+      : this._requestQueue.add(() => this.group.fetchGroupSummaries(pendingGroupIds))
+
+    const userQueue = batchMode
+      ? this._batchRequestQueue.add(() => this.users.fetchUserSummaries(pendingUserIds))
+      : this._requestQueue.add(() => this.users.fetchUserSummaries(pendingUserIds))
+
+    const [worlds, groups, users] = await Promise.all([worldQueue, groupQueue, userQueue])
 
     if (Array.isArray(userId)) {
       const results = new Map<string, FriendInformation | null>()
@@ -398,7 +406,7 @@ export class FriendsSessions extends Nanobus<{
           continue
         }
 
-        results.set(userId, this.assembleFriendLocationReference(userId, worlds, groups))
+        results.set(userId, this.assembleFriendLocationReference(userId, worlds, groups, users))
       }
 
       return results
@@ -407,14 +415,15 @@ export class FriendsSessions extends Nanobus<{
         return null
       }
 
-      return this.assembleFriendLocationReference(userId, worlds, groups)
+      return this.assembleFriendLocationReference(userId, worlds, groups, users)
     }
   }
 
   private assembleFriendLocationReference(
     userId: string,
     worlds: Map<string, WorldEntity>,
-    groups: Map<string, GroupEntity>
+    groups: Map<string, GroupEntity>,
+    users: Map<string, UserEntity>
   ): FriendInformation | null {
     const existing = this.friendSessions.get(userId)
 
@@ -427,6 +436,7 @@ export class FriendsSessions extends Nanobus<{
     }
 
     const world = worlds.get(location.instance.worldId)
+    const user = isUserInstance(location.instance) ? users.get(location.instance.userId) : undefined
     const group = isGroupInstance(location.instance)
       ? groups.get(location.instance.groupId)
       : undefined
@@ -437,6 +447,10 @@ export class FriendsSessions extends Nanobus<{
 
     if (group && location.category === InstanceAccessCategory.Group) {
       location.referenceGroup = group
+    }
+
+    if (location.category === InstanceAccessCategory.Friend) {
+      location.referenceUser = user
     }
 
     existing.location = location
