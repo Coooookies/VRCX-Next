@@ -1,4 +1,4 @@
-import type { ReferenceAvatar } from './vrchat-avatars'
+import type { UserAvatar } from './vrchat-avatars'
 import type {
   LocationInstanceGroupType,
   LocationInstanceOverview,
@@ -10,7 +10,7 @@ import type { WorldSummary } from './vrchat-worlds'
 import type { GroupSummary } from './vrchat-groups'
 
 export interface BaseFriendInformation extends UserInformationBase {
-  referenceAvatar: ReferenceAvatar
+  avatar: UserAvatar
   order: number
   lastPlatform: string
   lastLoginDate: Date | null
@@ -29,7 +29,7 @@ export const FriendActivityEvents = {
   StatusDescriptionChange: 'status-description-change',
   BioChange: 'bio-change',
   TrustRankChange: 'trust-rank-change',
-  IsSupporterChange: 'is-supporter-change'
+  SupporterChange: 'supporter-change'
 }
 
 export type FriendActivityEvents = (typeof FriendActivityEvents)[keyof typeof FriendActivityEvents]
@@ -41,7 +41,7 @@ export const FriendAttributeActivities = {
   Bio: 'bio',
   TrustRank: 'trustRank',
   IsSupporter: 'isSupporter',
-  ReferenceAvatar: 'referenceAvatar'
+  avatar: 'avatar'
 } as const
 
 export type FriendAttributeActivities =
@@ -81,6 +81,7 @@ export interface FriendAvatarActivityOverview {
   avatarImagefileId: string
   avatarImagefileVersion: number
   avatarName?: string
+  ownerUserId?: string
 }
 
 export interface FriendCommonActivityOverview {
@@ -96,7 +97,7 @@ export type FriendActivityEventDefinition = {
   [FriendActivityEvents.StatusDescriptionChange]: FriendCommonActivityOverview
   [FriendActivityEvents.BioChange]: FriendCommonActivityOverview
   [FriendActivityEvents.TrustRankChange]: FriendCommonActivityOverview
-  [FriendActivityEvents.IsSupporterChange]: FriendCommonActivityOverview
+  [FriendActivityEvents.SupporterChange]: FriendCommonActivityOverview
 }
 
 export type FriendActivity = {

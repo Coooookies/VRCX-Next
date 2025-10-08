@@ -1,16 +1,10 @@
-export interface ReferenceAvatar {
-  imageFileId: string
-  imageFileVersion: number
-}
-
 export interface UserAvatar {
-  avatarId: string
-  allowCopying: boolean
+  avatarName?: string
   imageFileId: string
   imageFileVersion: number
+  ownerUserId?: string
 }
 
-export interface ReferenceAvatarWithDetail extends ReferenceAvatar {
-  avatarName: string
-  ownerUserId: string
+export interface CurrentUserAvatar extends UserAvatar {
+  avatarId: string
 }

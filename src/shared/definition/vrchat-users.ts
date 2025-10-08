@@ -1,4 +1,4 @@
-import type { ReferenceAvatar, UserAvatar } from './vrchat-avatars'
+import type { CurrentUserAvatar, UserAvatar } from './vrchat-avatars'
 import type {
   AgeVerificationStatus,
   DeveloperType,
@@ -125,7 +125,7 @@ export interface UserInformation extends UserInformationBase {
   isFriend: boolean
   badges: UserBadge[]
   developerType: DeveloperType
-  referenceAvatar: ReferenceAvatar
+  avatar: UserAvatar
   allowAvatarCopying: boolean
   ageVerified: boolean
   ageVerificationStatus: AgeVerificationStatus
@@ -137,7 +137,7 @@ export interface CurrentUserInformation extends UserInformationBase {
   pronouns: string
   badges: UserBadge[]
   developerType: DeveloperType
-  avatar: UserAvatar
+  avatar: CurrentUserAvatar
   ageVerified: boolean
   ageVerificationStatus: AgeVerificationStatus
   statusHistory: string[]
