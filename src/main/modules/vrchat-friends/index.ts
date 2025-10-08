@@ -10,6 +10,7 @@ import { FriendsIPCBinding } from './ipc-binding'
 import type { IPCModule } from '../ipc'
 import type { MobxState } from '../mobx-state'
 import type { VRChatAPI } from '../vrchat-api'
+import type { VRChatAvatars } from '../vrchat-avatars'
 import type { VRChatGroups } from '../vrchat-groups'
 import type { VRChatUsers } from '../vrchat-users'
 import type { VRChatWorlds } from '../vrchat-worlds'
@@ -25,6 +26,7 @@ export class VRChatFriends extends Module {
   @Dependency('Database') declare private database: Database
   @Dependency('VRChatAPI') declare private api: VRChatAPI
   @Dependency('VRChatAuthentication') declare private auth: VRChatAuthentication
+  @Dependency('VRChatAvatars') declare private avatars: VRChatAvatars
   @Dependency('VRChatWorlds') declare private worlds: VRChatWorlds
   @Dependency('VRChatPipeline') declare private pipeline: VRChatPipeline
   @Dependency('VRChatUsers') declare private users: VRChatUsers
@@ -43,7 +45,7 @@ export class VRChatFriends extends Module {
   protected onInit(): void {
     this.repository = new FriendsRepository(this.database)
     this.fetcher = new FriendsFetcher(this.logger, this.api)
-    this.sessions = new FriendsSessions(this.groups, this.worlds, this.users)
+    this.sessions = new FriendsSessions(this.groups, this.worlds, this.users, this.avatars)
     this.activities = new FriendsActivities(this.repository)
     this.coordinator = new FriendsCoordinator(
       this.logger,
@@ -114,6 +116,18 @@ export class VRChatFriends extends Module {
         ...keys,
         JSON.stringify(diff)
       )
+    })
+
+    this.sessions.on('event:friend-avatar', (userId, user, avatar, detailPromise) => {
+      this.logger.info(
+        `Friend avatar updated: ${user.displayName} (${userId}) ${avatar.imageFileId || ''}`
+      )
+
+      detailPromise?.then((detail) => {
+        this.logger.info(
+          `Friend avatar detail patched: ${user.displayName} (${userId}) ${detail?.avatarName || ''} ${detail?.ownerUserId === userId ? '(Own)' : '(Public)'}`
+        )
+      })
     })
 
     this.sessions.on('event:friend-location', (friendUserId, friend, location, detailPromise) => {
