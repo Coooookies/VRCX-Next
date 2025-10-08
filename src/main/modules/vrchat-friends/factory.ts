@@ -1,6 +1,5 @@
 import { parseLocation } from '../vrchat-worlds/location-parser'
 import { isGroupInstance, isUserInstance } from '../vrchat-instances/utils'
-
 import {
   getProfileBackgroundUrl,
   getProfileIconUrl,
@@ -18,7 +17,7 @@ import {
   LocationInstancePublicType,
   LocationInstanceUserType
 } from '@shared/definition/vrchat-instances'
-import { FriendActivityEvents } from '@shared/definition/vrchat-friends'
+import { FriendActivityEvents, FriendAttributeActivities } from '@shared/definition/vrchat-friends'
 import type {
   LocationInstance,
   LocationInstanceOverview
@@ -28,9 +27,10 @@ import type {
   FriendActivity,
   FriendInformation
 } from '@shared/definition/vrchat-friends'
+import type { FriendLocationActivityReference } from './types'
 import type { LimitedUserFriend, User } from '@shared/definition/vrchat-api-response'
-import type { ReferenceAvatar } from '@shared/definition/vrchat-avatars'
-import { FriendLocationActivityReference } from './types'
+import type { UserAvatar } from '@shared/definition/vrchat-avatars'
+import type { DiffResult } from '@main/utils/object'
 
 export function getLocationInstanceCategory(location: LocationInstance): InstanceAccessCategory {
   switch (location.type) {
@@ -102,7 +102,7 @@ export function toBaseFriendInformation(friend: User | LimitedUserFriend): BaseF
   const trustRank = toUserTrustRank(friend.tags)
   const state = 'state' in friend ? friend.state : toUserPlatformState(platform)
   const supporter = isSupporter(friend.tags)
-  const referenceAvatar: ReferenceAvatar = {
+  const avatar: UserAvatar = {
     imageFileId: avatarFileInfo?.fileId || '',
     imageFileVersion: avatarFileInfo?.version || 0
   }
@@ -117,7 +117,7 @@ export function toBaseFriendInformation(friend: User | LimitedUserFriend): BaseF
     profileIconFileVersion: profileIconFileInfo?.version || 0,
     profileBackgroundFileId: profileBackgroundFileInfo?.fileId || '',
     profileBackgroundFileVersion: profileBackgroundFileInfo?.version || 0,
-    referenceAvatar,
+    avatar,
     bio: friend.bio || '',
     bioLinks: friend.bioLinks || [],
     tags: friend.tags,
@@ -210,6 +210,109 @@ export function toFriendLocationActivity(
   }
 }
 
-export function toFriendAvatarActivity() {
-  
+export function toFriendAvatarActivity(
+  activityId: string,
+  userId: string,
+  user: FriendInformation,
+  avatar: UserAvatar
+): FriendActivity {
+  const activityType = FriendActivityEvents.AvatarChange
+  const friendUserId = userId
+  const friendUser = toFriendUserEntity(user)
+  const recordedAt = new Date()
+
+  return {
+    activityId,
+    activityType,
+    friendUserId,
+    friendUser,
+    recordedAt,
+    overview: {
+      avatarImagefileId: avatar.imageFileId,
+      avatarImagefileVersion: avatar.imageFileVersion,
+      avatarName: user.avatar.avatarName,
+      ownerUserId: user.avatar.ownerUserId
+    }
+  }
+}
+
+export function toFriendCommonActivities(
+  activityId: string,
+  userId: string,
+  user: FriendInformation,
+  detailDiff: Readonly<DiffResult<BaseFriendInformation>['diff']>,
+  updatedKeys: Readonly<DiffResult<BaseFriendInformation>['keys']>
+): FriendActivity[] {
+  const friendUserId = userId
+  const friendUser = toFriendUserEntity(user)
+  const recordedAt = new Date()
+
+  const activities: FriendActivity[] = []
+  const pushActivity = (type: FriendActivityEvents, beforeValue: string, afterValue: string) => {
+    activities.push({
+      activityId,
+      activityType: type,
+      friendUserId,
+      friendUser,
+      recordedAt,
+      overview: {
+        beforeValue,
+        afterValue
+      }
+    })
+  }
+
+  if (updatedKeys.length === 0) {
+    return activities
+  }
+
+  if (updatedKeys.includes(FriendAttributeActivities.Status)) {
+    pushActivity(
+      FriendActivityEvents.StatusChange,
+      detailDiff.before.status ?? '',
+      detailDiff.after.status ?? ''
+    )
+  }
+
+  if (updatedKeys.includes(FriendAttributeActivities.StatusDescription)) {
+    pushActivity(
+      FriendActivityEvents.StatusDescriptionChange,
+      detailDiff.before.statusDescription ?? '',
+      detailDiff.after.statusDescription ?? ''
+    )
+  }
+
+  if (updatedKeys.includes(FriendAttributeActivities.Bio)) {
+    pushActivity(
+      FriendActivityEvents.BioChange,
+      detailDiff.before.bio ?? '',
+      detailDiff.after.bio ?? ''
+    )
+  }
+
+  if (updatedKeys.includes(FriendAttributeActivities.DisplayName)) {
+    pushActivity(
+      FriendActivityEvents.DisplayNameChange,
+      detailDiff.before.displayName ?? '',
+      detailDiff.after.displayName ?? ''
+    )
+  }
+
+  if (updatedKeys.includes(FriendAttributeActivities.TrustRank)) {
+    pushActivity(
+      FriendActivityEvents.TrustRankChange,
+      detailDiff.before.trustRank ?? '',
+      detailDiff.after.trustRank ?? ''
+    )
+  }
+
+  if (updatedKeys.includes(FriendAttributeActivities.IsSupporter)) {
+    pushActivity(
+      FriendActivityEvents.SupporterChange,
+      String(detailDiff.before.isSupporter ?? false),
+      String(detailDiff.after.isSupporter ?? false)
+    )
+  }
+
+  return activities
 }
