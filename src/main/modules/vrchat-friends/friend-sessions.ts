@@ -33,9 +33,21 @@ export class FriendsSessions extends Nanobus<{
   'sync:update-friends': (data: Readonly<FriendInformation>[]) => void
   'sync:remove-friend': (userId: string) => void
   'sync:clear-friends': () => void
-  'event:friend-online': (userId: string, data: Readonly<FriendInformation>) => void
-  'event:friend-web-active': (userId: string, data: Readonly<FriendInformation>) => void
-  'event:friend-offline': (userId: string, data: Readonly<FriendInformation>) => void
+  'event:friend-online': (
+    userId: string,
+    data: Readonly<FriendInformation>,
+    beforeState: UserState
+  ) => void
+  'event:friend-web-active': (
+    userId: string,
+    data: Readonly<FriendInformation>,
+    beforeState: UserState
+  ) => void
+  'event:friend-offline': (
+    userId: string,
+    data: Readonly<FriendInformation>,
+    beforeState: UserState
+  ) => void
   'event:friend-add': (data: Readonly<FriendInformation>) => void
   'event:friend-delete': (userId: string, data: Readonly<FriendInformation>) => void
   'event:friend-avatar': (
@@ -151,6 +163,7 @@ export class FriendsSessions extends Nanobus<{
 
   public handleRemoveFriend(userId: string) {
     const friend = this.friendSessions.get(userId)
+
     if (!friend) {
       return
     }
@@ -171,6 +184,7 @@ export class FriendsSessions extends Nanobus<{
     world?: WorldEntity
   ) {
     const friend = this.friendSessions.get(userId)
+
     if (!friend) {
       return
     }
@@ -178,6 +192,8 @@ export class FriendsSessions extends Nanobus<{
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { state: _, platform: __, ...rest } = updatedData
     const location = toLocation(currentLocationRaw, travelingLocationRaw)
+
+    const prevState = friend.state
     const newDetail: FriendInformation = {
       ...friend,
       ...rest,
@@ -194,7 +210,7 @@ export class FriendsSessions extends Nanobus<{
     this.createStateSymbolSnapshot([userId])
 
     this.emit('sync:update-friend', userId, newDetail)
-    this.emit('event:friend-online', userId, newDetail)
+    this.emit('event:friend-online', userId, newDetail, prevState)
 
     if (!location) {
       this.emit('event:friend-location', userId, newDetail, location)
@@ -225,12 +241,15 @@ export class FriendsSessions extends Nanobus<{
     platform: Platform
   ) {
     const friend = this.friendSessions.get(userId)
-    if (!friend) {
+
+    if (!friend || friend.state === UserState.Active) {
       return
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { state: _, platform: __, ...rest } = updatedData
+
+    const prevState = friend.state
     const newDetail: FriendInformation = {
       ...friend,
       ...rest,
@@ -243,15 +262,17 @@ export class FriendsSessions extends Nanobus<{
     this.createStateSymbolSnapshot([userId])
 
     this.emit('sync:update-friend', userId, newDetail)
-    this.emit('event:friend-web-active', userId, newDetail)
+    this.emit('event:friend-web-active', userId, newDetail, prevState)
   }
 
   public async handleUpdateFriendOffline(userId: string, platform: Platform) {
     const friend = this.friendSessions.get(userId)
-    if (!friend) {
+
+    if (!friend || friend.state === UserState.Offline) {
       return
     }
 
+    const prevState = friend.state
     const newDetail: FriendInformation = {
       ...friend,
       state: UserState.Offline,
@@ -263,7 +284,7 @@ export class FriendsSessions extends Nanobus<{
     this.createStateSymbolSnapshot([userId])
 
     this.emit('sync:update-friend', userId, newDetail)
-    this.emit('event:friend-offline', userId, newDetail)
+    this.emit('event:friend-offline', userId, newDetail, prevState)
   }
 
   public async handleUpdateFriendLocation(

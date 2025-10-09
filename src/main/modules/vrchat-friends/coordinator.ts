@@ -2,9 +2,11 @@ import { PipelineEvents } from '@shared/definition/vrchat-pipeline'
 import { toWorldEntity } from '../vrchat-worlds/factory'
 import { toBaseFriendInformation } from './factory'
 import { LoggerFactory } from '@main/logger'
+import { UserState } from '@shared/definition/vrchat-api-response'
 import type { VRChatPipeline } from '../vrchat-pipeline'
 import type { FriendsFetcher } from './fetcher'
 import type { FriendsSessions } from './friend-sessions'
+import type { FriendsActivities } from './friend-activities'
 import type {
   PipelineEventFriendActive,
   PipelineEventFriendAdd,
@@ -23,6 +25,7 @@ export class FriendsCoordinator {
     private readonly logger: LoggerFactory,
     private readonly pipeline: VRChatPipeline,
     private readonly sessions: FriendsSessions,
+    private readonly activities: FriendsActivities,
     private readonly fetcher: FriendsFetcher
   ) {
     this.bindEvents()
@@ -59,6 +62,30 @@ export class FriendsCoordinator {
       }
 
       this.handlePipeMessage(message)
+    })
+
+    this.sessions.on('event:friend-avatar', (userId, user, avatar, detailPromise) => {
+      this.activities.handleAvatarChangeActivity(userId, user, avatar, detailPromise)
+    })
+
+    this.sessions.on('event:friend-location', (userId, user, location, detailPromise) => {
+      this.activities.handleLocationChangeActivity(userId, user, location, detailPromise)
+    })
+
+    this.sessions.on('event:friend-update', (userId, user, detailDiff, updatedKeys) => {
+      this.activities.handleAttributeChangeActivities(userId, user, detailDiff, updatedKeys)
+    })
+
+    this.sessions.on('event:friend-online', (userId, user, beforeState) => {
+      this.activities.handleStateChangeActivities(userId, user, beforeState, UserState.Online)
+    })
+
+    this.sessions.on('event:friend-offline', (userId, user, beforeState) => {
+      this.activities.handleStateChangeActivities(userId, user, beforeState, UserState.Offline)
+    })
+
+    this.sessions.on('event:friend-web-active', (userId, user, beforeState) => {
+      this.activities.handleStateChangeActivities(userId, user, beforeState, UserState.Active)
     })
   }
 

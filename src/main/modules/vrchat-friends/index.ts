@@ -46,11 +46,12 @@ export class VRChatFriends extends Module {
     this.repository = new FriendsRepository(this.database)
     this.fetcher = new FriendsFetcher(this.logger, this.api)
     this.sessions = new FriendsSessions(this.groups, this.worlds, this.users, this.avatars)
-    this.activities = new FriendsActivities(this.repository)
+    this.activities = new FriendsActivities(this.users, this.repository)
     this.coordinator = new FriendsCoordinator(
       this.logger,
       this.pipeline,
       this.sessions,
+      this.activities,
       this.fetcher
     )
     this.ipcBinding = new FriendsIPCBinding(this.ipc, this.sessions)
