@@ -1,14 +1,13 @@
 import { FileUrlParsedResult } from '@shared/definition/vrchat-files'
 
 export function parseFileUrl(url: string): FileUrlParsedResult | null {
-  const match = url.match(/(file_[0-9A-Za-z-]+)\/(\d+)/)
+  const match = url.match(/(?<fileid>file_[0-9A-Za-z-]+)\/(?<version>\d+)/)
   if (!match) {
     return null
   }
 
-  const [, fileId, versionStr] = match
   return {
-    fileId,
-    version: parseInt(versionStr, 10) || 1
+    fileId: match.groups?.fileid || '',
+    version: Number(match.groups?.version) || 0
   }
 }
