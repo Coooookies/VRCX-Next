@@ -15,6 +15,7 @@ import { Platform } from '@shared/definition/vrchat-api-response'
 import {
   InstanceAccessCategory,
   LocationInstanceGroupType,
+  LocationInstancePrivateType,
   LocationInstancePublicType,
   LocationInstanceUserType
 } from '@shared/definition/vrchat-instances'
@@ -362,8 +363,8 @@ export function toFriendLocationActivityEntity(
     worldVersion: activity.overview?.worldVersion,
     ownerId: activity.overview?.ownerId,
     ownerName: activity.overview?.ownerName,
-    instanceId: activity.overview?.instanceId || 'private',
-    instanceType: activity.overview?.instanceType,
+    instanceId: activity.overview?.instanceId,
+    instanceType: activity.overview?.instanceType || LocationInstancePrivateType.Private,
     recordedAt: activity.recordedAt
   }
 }
