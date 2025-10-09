@@ -25,12 +25,13 @@ export const FriendActivityEvents = {
   LocationChange: 'location-change',
   AvatarChange: 'avatar-change',
   DisplayNameChange: 'display-name-change',
+  StateChange: 'state-change',
   StatusChange: 'status-change',
   StatusDescriptionChange: 'status-description-change',
   BioChange: 'bio-change',
   TrustRankChange: 'trust-rank-change',
   SupporterChange: 'supporter-change'
-}
+} as const
 
 export type FriendActivityEvents = (typeof FriendActivityEvents)[keyof typeof FriendActivityEvents]
 
@@ -93,6 +94,7 @@ export type FriendActivityEventDefinition = {
   [FriendActivityEvents.AvatarChange]: FriendAvatarActivityOverview
   [FriendActivityEvents.LocationChange]: FriendLocationActivityOverview
   [FriendActivityEvents.DisplayNameChange]: FriendCommonActivityOverview
+  [FriendActivityEvents.StateChange]: FriendCommonActivityOverview
   [FriendActivityEvents.StatusChange]: FriendCommonActivityOverview
   [FriendActivityEvents.StatusDescriptionChange]: FriendCommonActivityOverview
   [FriendActivityEvents.BioChange]: FriendCommonActivityOverview
@@ -110,3 +112,8 @@ export type FriendActivity = {
     recordedAt: Date
   }
 }[FriendActivityEvents]
+
+export type FilterFriendActivity<T extends FriendActivityEvents> = Extract<
+  FriendActivity,
+  { activityType: T }
+>

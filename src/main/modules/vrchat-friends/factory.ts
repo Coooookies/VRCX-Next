@@ -1,4 +1,5 @@
 import { parseLocation } from '../vrchat-worlds/location-parser'
+import { generateFriendActivityId } from './utils'
 import { isGroupInstance, isUserInstance } from '../vrchat-instances/utils'
 import {
   getProfileBackgroundUrl,
@@ -17,6 +18,7 @@ import {
   LocationInstancePublicType,
   LocationInstanceUserType
 } from '@shared/definition/vrchat-instances'
+import { UserState } from '@shared/definition/vrchat-api-response'
 import { FriendActivityEvents, FriendAttributeActivities } from '@shared/definition/vrchat-friends'
 import type {
   LocationInstance,
@@ -24,10 +26,16 @@ import type {
 } from '@shared/definition/vrchat-instances'
 import type {
   BaseFriendInformation,
+  FilterFriendActivity,
   FriendActivity,
   FriendInformation
 } from '@shared/definition/vrchat-friends'
 import type { FriendLocationActivityReference } from './types'
+import type {
+  FriendAvatarActivityEntity,
+  FriendCommonActivityEntity,
+  FriendLocationActivityEntity
+} from '../database/entities/vrchat-friend-activity'
 import type { LimitedUserFriend, User } from '@shared/definition/vrchat-api-response'
 import type { UserAvatar } from '@shared/definition/vrchat-avatars'
 import type { DiffResult } from '@main/utils/object'
@@ -203,7 +211,7 @@ export function toFriendLocationActivity(
       worldVersion,
       ownerId,
       ownerName,
-      instanceId,
+      instanceId: instanceId || 'private',
       referenceWorld: world,
       ...reference
     }
@@ -230,14 +238,37 @@ export function toFriendAvatarActivity(
     overview: {
       avatarImagefileId: avatar.imageFileId,
       avatarImagefileVersion: avatar.imageFileVersion,
-      avatarName: user.avatar.avatarName,
-      ownerUserId: user.avatar.ownerUserId
+      avatarName: avatar.avatarName,
+      ownerUserId: avatar.ownerUserId
+    }
+  }
+}
+
+export function toFriendStateActivityEntity(
+  userId: string,
+  user: FriendInformation,
+  beforeState: UserState,
+  afterState: UserState
+) {
+  const activityId = generateFriendActivityId()
+  const friendUserId = userId
+  const friendUser = toFriendUserEntity(user)
+  const recordedAt = new Date()
+
+  return {
+    activityId,
+    activityType: FriendActivityEvents.StateChange,
+    friendUserId,
+    friendUser,
+    recordedAt,
+    overview: {
+      beforeValue: beforeState,
+      afterValue: afterState
     }
   }
 }
 
 export function toFriendCommonActivities(
-  activityId: string,
   userId: string,
   user: FriendInformation,
   detailDiff: Readonly<DiffResult<BaseFriendInformation>['diff']>,
@@ -249,6 +280,7 @@ export function toFriendCommonActivities(
 
   const activities: FriendActivity[] = []
   const pushActivity = (type: FriendActivityEvents, beforeValue: string, afterValue: string) => {
+    const activityId = generateFriendActivityId()
     activities.push({
       activityId,
       activityType: type,
@@ -259,7 +291,7 @@ export function toFriendCommonActivities(
         beforeValue,
         afterValue
       }
-    })
+    } as FriendActivity)
   }
 
   if (updatedKeys.length === 0) {
@@ -315,4 +347,65 @@ export function toFriendCommonActivities(
   }
 
   return activities
+}
+
+export function toFriendLocationActivityEntity(
+  activity: FilterFriendActivity<typeof FriendActivityEvents.LocationChange>,
+  refUserId: string
+): FriendLocationActivityEntity {
+  return {
+    activityId: activity.activityId,
+    refUserId,
+    friendUserId: activity.friendUserId,
+    friendUserName: activity.friendUser.displayName,
+    worldId: activity.overview?.worldId,
+    worldName: activity.overview?.worldName,
+    worldVersion: activity.overview?.worldVersion,
+    ownerId: activity.overview?.ownerId,
+    ownerName: activity.overview?.ownerName,
+    instanceId: activity.overview?.instanceId || '',
+    instanceType: activity.overview?.instanceType,
+    recordedAt: activity.recordedAt
+  }
+}
+
+export function toFriendAvatarActivityEntity(
+  activity: FilterFriendActivity<typeof FriendActivityEvents.AvatarChange>,
+  refUserId: string
+): FriendAvatarActivityEntity {
+  return {
+    activityId: activity.activityId,
+    refUserId,
+    friendUserId: activity.friendUserId,
+    friendUserName: activity.friendUser.displayName,
+    avatarName: activity.overview.avatarName,
+    avatarImagefileId: activity.overview.avatarImagefileId || '',
+    avatarImagefileVersion: activity.overview.avatarImagefileVersion || 0,
+    ownerUserId: activity.overview.ownerUserId,
+    recordedAt: activity.recordedAt
+  }
+}
+
+export function toFriendCommonActivityEntity(
+  activity: FilterFriendActivity<
+    | typeof FriendActivityEvents.BioChange
+    | typeof FriendActivityEvents.DisplayNameChange
+    | typeof FriendActivityEvents.StateChange
+    | typeof FriendActivityEvents.StatusChange
+    | typeof FriendActivityEvents.StatusDescriptionChange
+    | typeof FriendActivityEvents.TrustRankChange
+    | typeof FriendActivityEvents.SupporterChange
+  >,
+  refUserId: string
+): FriendCommonActivityEntity {
+  return {
+    activityId: activity.activityId,
+    activityType: activity.activityType,
+    refUserId,
+    friendUserId: activity.friendUserId,
+    friendUserName: activity.friendUser.displayName,
+    beforeValue: activity.overview.beforeValue,
+    afterValue: activity.overview.afterValue,
+    recordedAt: activity.recordedAt
+  }
 }
