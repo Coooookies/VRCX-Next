@@ -34,6 +34,13 @@ export type LocationInstanceType =
   | LocationInstanceUserType
   | LocationInstanceGroupType
 
+export const LocationInstancePrivateType = {
+  Private: 'private'
+} as const
+
+export type LocationInstancePrivateType =
+  (typeof LocationInstancePrivateType)[keyof typeof LocationInstancePrivateType]
+
 interface LocationInstanceBase {
   location: string
   worldId: string
