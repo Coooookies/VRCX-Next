@@ -1,10 +1,10 @@
-import type { UserAvatar } from './vrchat-avatars'
 import type {
   LocationInstanceGroupType,
   LocationInstanceOverview,
   LocationInstancePublicType,
   LocationInstanceUserType
 } from './vrchat-instances'
+import type { AvatarReferenceSummary, UserAvatar } from './vrchat-avatars'
 import type { UserInformationBase, UserSummary } from './vrchat-users'
 import type { WorldSummary } from './vrchat-worlds'
 import type { GroupSummary } from './vrchat-groups'
@@ -81,8 +81,7 @@ export type FriendLocationActivityOverview =
 export interface FriendAvatarActivityOverview {
   avatarImagefileId: string
   avatarImagefileVersion: number
-  avatarName?: string
-  ownerUserId?: string
+  referenceAvatarFile?: AvatarReferenceSummary
 }
 
 export interface FriendCommonActivityOverview {
