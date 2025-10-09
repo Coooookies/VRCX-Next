@@ -78,8 +78,8 @@ export class FriendAvatarActivityEntity {
   @Column({ name: 'avatar_name', type: 'text', nullable: true })
   declare avatarName?: string
 
-  @Column({ name: 'owner_user_id', type: 'varchar', length: 63, nullable: true })
-  declare ownerUserId?: string
+  @Column({ name: 'author_user_id', type: 'varchar', length: 63, nullable: true })
+  declare authorUserId?: string
 
   @Column({ name: 'recorded_at', type: 'datetime', ...datetimeTransformer, ...datetimeDefault })
   declare recordedAt?: Date
