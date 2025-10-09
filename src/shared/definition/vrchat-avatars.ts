@@ -1,10 +1,25 @@
+import type { Platform } from './vrchat-api-response'
+
 export interface UserAvatar {
-  avatarName?: string
   imageFileId: string
   imageFileVersion: number
-  ownerUserId?: string
+  referenceAvatarFile?: AvatarReferenceSummary
 }
 
-export interface CurrentUserAvatar extends UserAvatar {
+export interface CurrentUserAvatar {
   avatarId: string
+  imageFileId: string
+  imageFileVersion: number
+}
+
+export interface AvatarReferenceSummary {
+  fileId: string
+  fileName: string
+  authorUserId: string
+  avatarName?: string
+  unityVersion?: string
+  assetVersion?: number
+  platform?: Platform
+  releaseState?: string
+  cacheUpdatedAt?: Date
 }
