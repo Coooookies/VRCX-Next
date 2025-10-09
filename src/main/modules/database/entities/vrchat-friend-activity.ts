@@ -1,7 +1,10 @@
 import { Entity, Column, PrimaryColumn, Index } from 'typeorm'
 import { datetimeDefault, datetimeTransformer } from '../transform'
-import type { LocationInstanceType } from '@shared/definition/vrchat-instances'
 import type { FriendActivityEvents } from '@shared/definition/vrchat-friends'
+import type {
+  LocationInstancePrivateType,
+  LocationInstanceType
+} from '@shared/definition/vrchat-instances'
 
 @Entity('vrchat_friend_location_activities')
 @Index('IDX_vrchat_friend_location_activities_activity_id', ['refUserId', 'activityId'])
@@ -40,11 +43,11 @@ export class FriendLocationActivityEntity {
   @Column({ name: 'owner_name', type: 'text', nullable: true })
   declare ownerName?: string
 
-  @Column({ name: 'instance_id', type: 'text' })
-  declare instanceId: string
+  @Column({ name: 'instance_id', type: 'text', nullable: true })
+  declare instanceId?: string
 
-  @Column({ name: 'instance_type', type: 'varchar', length: 15, nullable: true })
-  declare instanceType?: LocationInstanceType
+  @Column({ name: 'instance_type', type: 'varchar', length: 15 })
+  declare instanceType: LocationInstanceType | LocationInstancePrivateType
 
   @Column({ name: 'recorded_at', type: 'datetime', ...datetimeTransformer, ...datetimeDefault })
   declare recordedAt?: Date
