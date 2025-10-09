@@ -1,11 +1,20 @@
-import { AvatarReferenceEntity } from '../database/entities/vrchat-cache-avatar-reference'
+import { AVATAR_REFERENCE_IMAGE_FILE_PATTERN_REGEXP } from './constants'
+import type { AvatarReferenceEntity } from '../database/entities/vrchat-cache-avatar-reference'
 import type { ModelFile } from '@shared/definition/vrchat-api-response-community'
+import type { Platform } from '@shared/definition/vrchat-api-response-replenish'
 
 export function toAvatarReferenceEntity(data: ModelFile): AvatarReferenceEntity {
+  const regexRes = data.name.match(AVATAR_REFERENCE_IMAGE_FILE_PATTERN_REGEXP)
+
   return {
     fileId: data.id,
-    avatarName: data.name,
+    fileName: data.name,
     authorUserId: data.ownerId,
+    avatarName: regexRes?.groups?.avatarname,
+    unityVersion: regexRes?.groups?.unityversion,
+    assetVersion: Number(regexRes?.groups?.assetversion),
+    platform: regexRes?.groups?.platform as Platform,
+    releaseState: regexRes?.groups?.releasestate,
     cacheUpdatedAt: new Date()
   }
 }
