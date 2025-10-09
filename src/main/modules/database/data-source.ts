@@ -23,9 +23,7 @@ import { APP_DATABASE_DIR, IS_TYPEORM_CLI } from '@main/constants'
 import { DBLogger } from './logger'
 
 // Migrations
-import { Auto1759666278579 } from './migrations/1759666278579-auto'
-import { Auto1759774248112 } from './migrations/1759774248112-auto'
-import { Auto1759927509742 } from './migrations/1759927509742-auto'
+import { Auto1760006250202 } from './migrations/1760006250202-auto'
 import type { Database } from 'better-sqlite3'
 
 const STORAGE_DATABASE_PRODUCTION_PATH = join(APP_DATABASE_DIR, 'storage.db')
@@ -56,7 +54,7 @@ export default new DataSource({
     FriendAvatarActivityEntity,
     FriendCommonActivityEntity
   ],
-  migrations: [Auto1759666278579, Auto1759774248112, Auto1759927509742],
+  migrations: [Auto1760006250202],
   migrationsTableName: 'migrations',
   prepareDatabase(db: Database) {
     db.pragma('foreign_keys = ON')
