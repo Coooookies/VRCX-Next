@@ -13,6 +13,7 @@ import { Button } from '@renderer/shared/components/ui/button'
 import { HoverCard, HoverCardTrigger } from '@renderer/shared/components/ui/hover-card'
 import { ContextMenu, ContextMenuTrigger } from '@renderer/shared/components/ui/context-menu'
 import { STATUS_TRANSLATE_KEY } from '@renderer/shared/constants/profile-mapping'
+import { UserState } from '@shared/definition/vrchat-api-response-community'
 import type { CurrentUserInformation } from '@shared/definition/vrchat-users'
 import type { LocationInstanceOverview } from '@shared/definition/vrchat-instances'
 
@@ -89,7 +90,7 @@ const emits = defineEmits<{
               profileBackgroundFileVersion: props.user.profileBackgroundFileVersion,
               bio: props.user.bio,
               isSupporter: props.user.isSupporter,
-              state: props.user.state,
+              state: UserState.Online,
               status: props.user.status,
               statusDescription: props.user.statusDescription,
               trustRank: props.user.trustRank,
