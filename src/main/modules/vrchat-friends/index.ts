@@ -126,7 +126,7 @@ export class VRChatFriends extends Module {
 
       detailPromise?.then((detail) => {
         this.logger.info(
-          `Friend avatar detail patched: ${user.displayName} (${userId}) ${detail?.avatarName || ''} ${detail?.ownerUserId === userId ? '(Own)' : '(Public)'}`
+          `Friend avatar detail patched: ${user.displayName} (${userId}) ${detail?.referenceAvatarFile?.avatarName || ''} ${detail?.referenceAvatarFile?.authorUserId === userId ? '(Own)' : '(Public)'}`
         )
       })
     })

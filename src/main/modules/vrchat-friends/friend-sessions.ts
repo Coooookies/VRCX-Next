@@ -423,8 +423,7 @@ export class FriendsSessions extends Nanobus<{
       return null
     }
 
-    currentUser.avatar.avatarName = fetchedReferenceAvatar.avatarName
-    currentUser.avatar.ownerUserId = fetchedReferenceAvatar.authorUserId
+    currentUser.avatar.referenceAvatarFile = fetchedReferenceAvatar
     return currentUser
   }
 

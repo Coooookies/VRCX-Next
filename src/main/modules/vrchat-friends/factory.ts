@@ -211,7 +211,7 @@ export function toFriendLocationActivity(
       worldVersion,
       ownerId,
       ownerName,
-      instanceId: instanceId || 'private',
+      instanceId,
       referenceWorld: world,
       ...reference
     }
@@ -238,8 +238,7 @@ export function toFriendAvatarActivity(
     overview: {
       avatarImagefileId: avatar.imageFileId,
       avatarImagefileVersion: avatar.imageFileVersion,
-      avatarName: avatar.avatarName,
-      ownerUserId: avatar.ownerUserId
+      referenceAvatarFile: avatar.referenceAvatarFile
     }
   }
 }
@@ -363,7 +362,7 @@ export function toFriendLocationActivityEntity(
     worldVersion: activity.overview?.worldVersion,
     ownerId: activity.overview?.ownerId,
     ownerName: activity.overview?.ownerName,
-    instanceId: activity.overview?.instanceId || '',
+    instanceId: activity.overview?.instanceId || 'private',
     instanceType: activity.overview?.instanceType,
     recordedAt: activity.recordedAt
   }
@@ -378,10 +377,10 @@ export function toFriendAvatarActivityEntity(
     refUserId,
     friendUserId: activity.friendUserId,
     friendUserName: activity.friendUser.displayName,
-    avatarName: activity.overview.avatarName,
+    avatarName: activity.overview.referenceAvatarFile?.avatarName || '',
     avatarImagefileId: activity.overview.avatarImagefileId || '',
     avatarImagefileVersion: activity.overview.avatarImagefileVersion || 0,
-    ownerUserId: activity.overview.ownerUserId,
+    authorUserId: activity.overview.referenceAvatarFile?.authorUserId || '',
     recordedAt: activity.recordedAt
   }
 }
