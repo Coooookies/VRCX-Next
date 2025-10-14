@@ -34,8 +34,9 @@ import type {
 import type { FriendLocationActivityReference } from './types'
 import type {
   FriendAvatarActivityEntity,
-  FriendCommonActivityEntity,
-  FriendLocationActivityEntity
+  FriendAttributeActivityEntity,
+  FriendLocationActivityEntity,
+  FriendCommonActivityEntity
 } from '../database/entities/vrchat-friend-activity'
 import type { LimitedUserFriend, User } from '@shared/definition/vrchat-api-response'
 import type { UserAvatar } from '@shared/definition/vrchat-avatars'
@@ -244,12 +245,12 @@ export function toFriendAvatarActivity(
   }
 }
 
-export function toFriendStateActivityEntity(
+export function toFriendStateActivity(
   userId: string,
   user: FriendInformation,
   beforeState: UserState,
   afterState: UserState
-) {
+): FriendActivity {
   const activityId = generateFriendActivityId()
   const friendUserId = userId
   const friendUser = toFriendUserEntity(user)
@@ -268,7 +269,27 @@ export function toFriendStateActivityEntity(
   }
 }
 
-export function toFriendCommonActivities(
+export function toFriendCommonActivity(
+  userId: string,
+  user: FriendInformation,
+  activityType: typeof FriendActivityEvents.NewFriend | typeof FriendActivityEvents.RemovedFriend
+): FriendActivity {
+  const activityId = generateFriendActivityId()
+  const friendUserId = userId
+  const friendUser = toFriendUserEntity(user)
+  const recordedAt = new Date()
+
+  return {
+    activityId,
+    activityType,
+    friendUserId,
+    friendUser,
+    recordedAt,
+    overview: {}
+  }
+}
+
+export function toFriendAttributeActivities(
   userId: string,
   user: FriendInformation,
   detailDiff: Readonly<DiffResult<BaseFriendInformation>['diff']>,
@@ -386,7 +407,7 @@ export function toFriendAvatarActivityEntity(
   }
 }
 
-export function toFriendCommonActivityEntity(
+export function toFriendAttributeActivityEntity(
   activity: FilterFriendActivity<
     | typeof FriendActivityEvents.BioChange
     | typeof FriendActivityEvents.DisplayNameChange
@@ -397,7 +418,7 @@ export function toFriendCommonActivityEntity(
     | typeof FriendActivityEvents.SupporterChange
   >,
   refUserId: string
-): FriendCommonActivityEntity {
+): FriendAttributeActivityEntity {
   return {
     activityId: activity.activityId,
     activityType: activity.activityType,
@@ -406,6 +427,22 @@ export function toFriendCommonActivityEntity(
     friendUserName: activity.friendUser.displayName,
     beforeValue: activity.overview.beforeValue,
     afterValue: activity.overview.afterValue,
+    recordedAt: activity.recordedAt
+  }
+}
+
+export function toFriendCommonActivityEntity(
+  activity: FilterFriendActivity<
+    typeof FriendActivityEvents.NewFriend | typeof FriendActivityEvents.RemovedFriend
+  >,
+  refUserId: string
+): FriendCommonActivityEntity {
+  return {
+    activityId: activity.activityId,
+    activityType: activity.activityType,
+    refUserId,
+    friendUserId: activity.friendUserId,
+    friendUserName: activity.friendUser.displayName,
     recordedAt: activity.recordedAt
   }
 }

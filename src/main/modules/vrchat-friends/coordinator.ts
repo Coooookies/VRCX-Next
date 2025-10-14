@@ -87,6 +87,14 @@ export class FriendsCoordinator {
     this.sessions.on('event:friend-web-active', (userId, user, beforeState) => {
       this.activities.handleStateChangeActivities(userId, user, beforeState, UserState.Active)
     })
+
+    this.sessions.on('event:friend-add', (user) => {
+      this.activities.handleFriendAddActivity(user.userId, user)
+    })
+
+    this.sessions.on('event:friend-delete', (userId, user) => {
+      this.activities.handleFriendDeleteActivity(userId, user)
+    })
   }
 
   private processCachedPipelineEvents() {
