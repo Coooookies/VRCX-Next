@@ -1,11 +1,13 @@
 import {
   toFriendAvatarActivity,
-  toFriendAvatarActivityEntity,
-  toFriendCommonActivities,
-  toFriendCommonActivityEntity,
+  toFriendAttributeActivities,
+  toFriendStateActivity,
   toFriendLocationActivity,
+  toFriendAvatarActivityEntity,
+  toFriendAttributeActivityEntity,
   toFriendLocationActivityEntity,
-  toFriendStateActivityEntity
+  toFriendCommonActivityEntity,
+  toFriendCommonActivity
 } from './factory'
 import { generateFriendActivityId } from './utils'
 import { FriendActivityEvents } from '@shared/definition/vrchat-friends'
@@ -22,8 +24,9 @@ import type {
 import type { FriendsRepository } from './repository'
 import type {
   FriendAvatarActivityEntity,
-  FriendCommonActivityEntity,
-  FriendLocationActivityEntity
+  FriendAttributeActivityEntity,
+  FriendLocationActivityEntity,
+  FriendCommonActivityEntity
 } from '../database/entities/vrchat-friend-activity'
 
 export class FriendsActivities {
@@ -36,9 +39,10 @@ export class FriendsActivities {
 
   private async handleActivities(activity: FriendActivity | FriendActivity[]) {
     const activities = Array.isArray(activity) ? activity : [activity]
-    const pendingSaveCommonActivities: FriendCommonActivityEntity[] = []
+    const pendingSaveAttributeActivities: FriendAttributeActivityEntity[] = []
     const pendingSaveAvatarActivities: FriendAvatarActivityEntity[] = []
     const pendingSaveLocationActivities: FriendLocationActivityEntity[] = []
+    const pendingSaveCommonActivities: FriendCommonActivityEntity[] = []
 
     if (activities.length === 0 || !this.users.activeUser) {
       return Promise.resolve()
@@ -58,17 +62,31 @@ export class FriendsActivities {
           pendingSaveAvatarActivities.push(entity)
           break
         }
-        default: {
+        case FriendActivityEvents.BioChange:
+        case FriendActivityEvents.DisplayNameChange:
+        case FriendActivityEvents.StateChange:
+        case FriendActivityEvents.StatusChange:
+        case FriendActivityEvents.StatusDescriptionChange:
+        case FriendActivityEvents.SupporterChange:
+        case FriendActivityEvents.TrustRankChange: {
+          const entity = toFriendAttributeActivityEntity(activity, this.users.activeUser.userId)
+          pendingSaveAttributeActivities.push(entity)
+          break
+        }
+        case FriendActivityEvents.NewFriend:
+        case FriendActivityEvents.RemovedFriend: {
           const entity = toFriendCommonActivityEntity(activity, this.users.activeUser.userId)
           pendingSaveCommonActivities.push(entity)
+          break
         }
       }
     }
 
     return await Promise.all([
-      this.repository.saveCommonActivityEntities(pendingSaveCommonActivities),
+      this.repository.saveAttributeActivityEntities(pendingSaveAttributeActivities),
       this.repository.saveAvatarActivityEntities(pendingSaveAvatarActivities),
-      this.repository.saveLocationActivityEntities(pendingSaveLocationActivities)
+      this.repository.saveLocationActivityEntities(pendingSaveLocationActivities),
+      this.repository.saveCommonActivityEntities(pendingSaveCommonActivities)
     ]).then(() => {})
   }
 
@@ -78,7 +96,7 @@ export class FriendsActivities {
     beforeState: UserState,
     afterState: UserState
   ) {
-    const activity = toFriendStateActivityEntity(userId, user, beforeState, afterState)
+    const activity = toFriendStateActivity(userId, user, beforeState, afterState)
     return this.handleActivities(activity)
   }
 
@@ -126,7 +144,17 @@ export class FriendsActivities {
     detailDiff: Readonly<DiffResult<BaseFriendInformation>['diff']>,
     updatedKeys: Readonly<DiffResult<BaseFriendInformation>['keys']>
   ) {
-    const activities = toFriendCommonActivities(userId, user, detailDiff, updatedKeys)
+    const activities = toFriendAttributeActivities(userId, user, detailDiff, updatedKeys)
     return this.handleActivities(activities)
+  }
+
+  public async handleFriendAddActivity(userId: string, user: Readonly<FriendInformation>) {
+    const activity = toFriendCommonActivity(userId, user, FriendActivityEvents.NewFriend)
+    return this.handleActivities(activity)
+  }
+
+  public async handleFriendDeleteActivity(userId: string, user: Readonly<FriendInformation>) {
+    const activity = toFriendCommonActivity(userId, user, FriendActivityEvents.RemovedFriend)
+    return this.handleActivities(activity)
   }
 }
