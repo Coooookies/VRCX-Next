@@ -1,7 +1,8 @@
 import {
   FriendAvatarActivityEntity,
   FriendLocationActivityEntity,
-  FriendCommonActivityEntity
+  FriendCommonActivityEntity,
+  FriendAttributeActivityEntity
 } from '../database/entities/vrchat-friend-activity'
 import type { Repository } from 'typeorm'
 import type { Database } from '../database'
@@ -15,6 +16,10 @@ export class FriendsRepository {
 
   public get avatarActivityRepository() {
     return this.database.source.getRepository(FriendAvatarActivityEntity)
+  }
+
+  public get attributeActivityRepository() {
+    return this.database.source.getRepository(FriendAttributeActivityEntity)
   }
 
   public get commonActivityRepository() {
@@ -46,6 +51,16 @@ export class FriendsRepository {
   ) {
     const entitiesArr = Array.isArray(entities) ? entities : [entities]
     return this.commonActivityRepository.upsert(entitiesArr, {
+      conflictPaths: ['activityId'],
+      skipUpdateIfNoValuesChanged: true
+    })
+  }
+
+  public async saveAttributeActivityEntities(
+    entities: FriendAttributeActivityEntity | FriendAttributeActivityEntity[]
+  ) {
+    const entitiesArr = Array.isArray(entities) ? entities : [entities]
+    return this.attributeActivityRepository.upsert(entitiesArr, {
       conflictPaths: ['activityId'],
       skipUpdateIfNoValuesChanged: true
     })
