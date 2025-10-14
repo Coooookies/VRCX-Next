@@ -12,7 +12,9 @@ export function toAvatarReferenceEntity(data: ModelFile): AvatarReferenceEntity 
     authorUserId: data.ownerId,
     avatarName: regexRes?.groups?.avatarname,
     unityVersion: regexRes?.groups?.unityversion,
-    assetVersion: Number(regexRes?.groups?.assetversion),
+    assetVersion: regexRes?.groups?.assetversion
+      ? Number(regexRes?.groups?.assetversion)
+      : undefined,
     platform: regexRes?.groups?.platform as Platform,
     releaseState: regexRes?.groups?.releasestate,
     cacheUpdatedAt: new Date()
