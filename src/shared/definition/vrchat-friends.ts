@@ -30,7 +30,9 @@ export const FriendActivityEvents = {
   StatusDescriptionChange: 'status-description-change',
   BioChange: 'bio-change',
   TrustRankChange: 'trust-rank-change',
-  SupporterChange: 'supporter-change'
+  SupporterChange: 'supporter-change',
+  NewFriend: 'new-friend',
+  RemovedFriend: 'removed-friend'
 } as const
 
 export type FriendActivityEvents = (typeof FriendActivityEvents)[keyof typeof FriendActivityEvents]
@@ -99,6 +101,8 @@ export type FriendActivityEventDefinition = {
   [FriendActivityEvents.BioChange]: FriendCommonActivityOverview
   [FriendActivityEvents.TrustRankChange]: FriendCommonActivityOverview
   [FriendActivityEvents.SupporterChange]: FriendCommonActivityOverview
+  [FriendActivityEvents.NewFriend]: {}
+  [FriendActivityEvents.RemovedFriend]: {}
 }
 
 export type FriendActivity = {
