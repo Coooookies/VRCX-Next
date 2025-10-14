@@ -116,7 +116,7 @@ export class InstanceTracker extends Nanobus<{
     const currentInstance = parseInstanceFromEventLogs(logs.toReversed(), userId)
 
     if (currentInstance && currentInstance.isInInstance && !ignoreLatestInstance) {
-      await this.applyLogInstanceSummary(currentInstance)
+      this.applyLogInstanceSummary(currentInstance)
 
       // resume
       this.isListening = true
@@ -161,7 +161,7 @@ export class InstanceTracker extends Nanobus<{
     })
   }
 
-  private async applyLogInstanceSummary(instance: LogInstanceSummary) {
+  private applyLogInstanceSummary(instance: LogInstanceSummary) {
     const locationInstance = instance.locationInstance
     const recordId = instance.recordId
 
@@ -520,7 +520,7 @@ export class InstanceTracker extends Nanobus<{
     this.emit('instance:event', recordId, [event])
   }
 
-  private async resolveLatestInstanceEvents() {
+  private resolveLatestInstanceEvents() {
     return this.gameProcess.resolveBackwardEvents(
       CURRENT_INSTANCE_LOG_EVENTS_LIMIT,
       (data, _, signal) => {
