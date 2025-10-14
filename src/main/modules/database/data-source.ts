@@ -16,15 +16,16 @@ import {
 } from './entities/vrchat-visited-instance'
 import {
   FriendAvatarActivityEntity,
+  FriendAttributeActivityEntity,
   FriendCommonActivityEntity,
   FriendLocationActivityEntity
 } from './entities/vrchat-friend-activity'
 import { APP_DATABASE_DIR, IS_TYPEORM_CLI } from '@main/constants'
 import { DBLogger } from './logger'
+import type { Database } from 'better-sqlite3'
 
 // Migrations
-import { Auto1760006250202 } from './migrations/1760006250202-auto'
-import type { Database } from 'better-sqlite3'
+import { Auto1760450536435 } from './migrations/1760450536435-auto'
 
 const STORAGE_DATABASE_PRODUCTION_PATH = join(APP_DATABASE_DIR, 'storage.db')
 const STORAGE_DATABASE_MIGRATION_PATH = join(APP_DATABASE_DIR, 'swmigration.db')
@@ -52,9 +53,10 @@ export default new DataSource({
     AvatarReferenceEntity,
     FriendLocationActivityEntity,
     FriendAvatarActivityEntity,
+    FriendAttributeActivityEntity,
     FriendCommonActivityEntity
   ],
-  migrations: [Auto1760006250202],
+  migrations: [Auto1760450536435],
   migrationsTableName: 'migrations',
   prepareDatabase(db: Database) {
     db.pragma('foreign_keys = ON')

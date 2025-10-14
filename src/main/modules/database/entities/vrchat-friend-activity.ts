@@ -88,16 +88,19 @@ export class FriendAvatarActivityEntity {
   declare recordedAt?: Date
 }
 
-@Entity('vrchat_friend_common_activities')
-@Index('IDX_vrchat_friend_common_activities_activity_id', ['refUserId', 'activityId'])
-@Index('IDX_vrchat_friend_common_activities_activity_type', ['refUserId', 'activityType'])
-@Index('IDX_vrchat_friend_common_activities_friend_user_id', ['refUserId', 'friendUserId'])
-@Index('IDX_vrchat_friend_common_activities_friend_user_name', ['refUserId', 'friendUserName'])
-@Index('IDX_vrchat_friend_common_activities_before_value', ['refUserId', 'beforeValue'])
-@Index('IDX_vrchat_friend_common_activities_after_value', ['refUserId', 'afterValue'])
-export class FriendCommonActivityEntity {
+@Entity('vrchat_friend_attribute_activities')
+@Index('IDX_vrchat_friend_attribute_activities_activity_id', ['refUserId', 'activityId'])
+@Index('IDX_vrchat_friend_attribute_activities_activity_type', ['refUserId', 'activityType'])
+@Index('IDX_vrchat_friend_attribute_activities_friend_user_id', ['refUserId', 'friendUserId'])
+@Index('IDX_vrchat_friend_attribute_activities_friend_user_name', ['refUserId', 'friendUserName'])
+@Index('IDX_vrchat_friend_attribute_activities_before_value', ['refUserId', 'beforeValue'])
+@Index('IDX_vrchat_friend_attribute_activities_after_value', ['refUserId', 'afterValue'])
+export class FriendAttributeActivityEntity {
   @PrimaryColumn({ name: 'activity_id', type: 'varchar', length: 63 })
   declare activityId: string
+
+  @Column({ name: 'activity_type', type: 'varchar', length: 31 })
+  declare activityType: FriendActivityEvents
 
   @Index('IDX_vrchat_friend_common_activities_ref_user_id')
   @Column({ name: 'ref_user_id', type: 'varchar', length: 63 })
@@ -109,14 +112,37 @@ export class FriendCommonActivityEntity {
   @Column({ name: 'friend_user_name', type: 'text', nullable: true })
   declare friendUserName?: string
 
-  @Column({ name: 'activity_type', type: 'varchar', length: 31 })
-  declare activityType: FriendActivityEvents
-
   @Column({ name: 'before_value', type: 'text' })
   declare beforeValue: string
 
   @Column({ name: 'after_value', type: 'text' })
   declare afterValue: string
+
+  @Column({ name: 'recorded_at', type: 'datetime', ...datetimeTransformer, ...datetimeDefault })
+  declare recordedAt?: Date
+}
+
+@Entity('vrchat_friend_common_activities')
+@Index('IDX_vrchat_friend_common_activities_activity_id', ['refUserId', 'activityId'])
+@Index('IDX_vrchat_friend_common_activities_activity_type', ['refUserId', 'activityType'])
+@Index('IDX_vrchat_friend_common_activities_friend_user_id', ['refUserId', 'friendUserId'])
+@Index('IDX_vrchat_friend_common_activities_friend_user_name', ['refUserId', 'friendUserName'])
+export class FriendCommonActivityEntity {
+  @PrimaryColumn({ name: 'activity_id', type: 'varchar', length: 63 })
+  declare activityId: string
+
+  @Column({ name: 'activity_type', type: 'varchar', length: 31 })
+  declare activityType: FriendActivityEvents
+
+  @Index('IDX_vrchat_friend_common_activities_ref_user_id')
+  @Column({ name: 'ref_user_id', type: 'varchar', length: 63 })
+  declare refUserId: string
+
+  @Column({ name: 'friend_user_id', type: 'varchar', length: 63 })
+  declare friendUserId: string
+
+  @Column({ name: 'friend_user_name', type: 'text', nullable: true })
+  declare friendUserName?: string
 
   @Column({ name: 'recorded_at', type: 'datetime', ...datetimeTransformer, ...datetimeDefault })
   declare recordedAt?: Date
