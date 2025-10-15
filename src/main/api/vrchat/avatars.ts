@@ -28,7 +28,7 @@ export class Avatars {
       userId?: string
     } = {}
   ) {
-    return attempt<Response<Avatar>, HTTPError<Response<ErrorResponse>>>(() =>
+    return attempt<Response<Avatar[]>, HTTPError<Response<ErrorResponse>>>(() =>
       this.client.post('avatars/favorites', {
         responseType: 'json',
         searchParams: {

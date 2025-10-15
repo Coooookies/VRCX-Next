@@ -43,7 +43,7 @@ export class Worlds {
       userId?: string
     } = {}
   ) {
-    return attempt<Response<FavoritedWorld>, HTTPError<Response<ErrorResponse>>>(() =>
+    return attempt<Response<FavoritedWorld[]>, HTTPError<Response<ErrorResponse>>>(() =>
       this.client.get('worlds/favorites', {
         responseType: 'json',
         searchParams: {

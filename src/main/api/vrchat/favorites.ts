@@ -21,7 +21,7 @@ export class Favorites {
       ownerId?: string
     } = {}
   ) {
-    return attempt<Response<FavoriteGroup>, HTTPError<Response<ErrorResponse>>>(() =>
+    return attempt<Response<FavoriteGroup[]>, HTTPError<Response<ErrorResponse>>>(() =>
       this.client.get('favorite/groups', {
         responseType: 'json',
         searchParams: {
