@@ -19,8 +19,8 @@ const props = defineProps<{
       :class="
         cn(
           'bg-gradient-to-r from-transparent via-border to-transparent',
-          'h-px border-0 w-200',
-          'mt-11 mb-13'
+          'h-px border-0 w-160',
+          'mt-9 mb-11 @7xl:mt-11 @7xl:mb-13'
         )
       "
     />
