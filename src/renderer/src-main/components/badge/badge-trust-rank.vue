@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ShieldUserIcon } from 'lucide-vue-next'
 import { useI18n } from '@renderer/shared/locale'
 import { cn } from '@renderer/shared/utils/style'
 import { UserTrustRank } from '@shared/definition/vrchat-users'
@@ -22,8 +23,16 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div :class="cn('relative px-2 py-0 h-5.5 rounded', TrustRankTextColors[props.trustRank])">
-    <span class="block font-medium leading-5.5 text-foreground text-xs">
+  <div
+    :class="
+      cn(
+        'relative pl-1.5 pr-2 py-0 h-5.5 rounded text-foreground flex flex-row items-center gap-0.5',
+        TrustRankTextColors[props.trustRank]
+      )
+    "
+  >
+    <ShieldUserIcon class="size-3.5" />
+    <span class="block font-medium leading-5.5 text-xs">
       {{ t(TRUST_RANK_TRANSLATE_KEY[props.trustRank]) }}
     </span>
   </div>
