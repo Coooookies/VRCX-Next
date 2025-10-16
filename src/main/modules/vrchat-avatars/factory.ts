@@ -1,7 +1,9 @@
+import { parseFileUrl } from '@shared/utils/vrchat-url-parser'
 import { AVATAR_REFERENCE_IMAGE_FILE_PATTERN_REGEXP } from './constants'
 import type { AvatarReferenceEntity } from '../database/entities/vrchat-cache-avatar-reference'
-import type { ModelFile } from '@shared/definition/vrchat-api-response-community'
+import type { Avatar, ModelFile } from '@shared/definition/vrchat-api-response-community'
 import type { Platform } from '@shared/definition/vrchat-api-response-replenish'
+import type { AvatarSummary } from '@shared/definition/vrchat-avatars'
 
 export function toAvatarReferenceEntity(data: ModelFile): AvatarReferenceEntity {
   const regexRes = data.name.match(AVATAR_REFERENCE_IMAGE_FILE_PATTERN_REGEXP)
@@ -18,5 +20,21 @@ export function toAvatarReferenceEntity(data: ModelFile): AvatarReferenceEntity 
     platform: regexRes?.groups?.platform as Platform,
     releaseState: regexRes?.groups?.releasestate,
     cacheUpdatedAt: new Date()
+  }
+}
+
+export function toAvatarEntity(avatar: Avatar): AvatarSummary {
+  const imageFileInfo = parseFileUrl(avatar.imageUrl)
+
+  return {
+    avatarId: avatar.id,
+    avatarName: avatar.name,
+    avatarVersion: avatar.version,
+    authorId: avatar.authorId,
+    authorName: avatar.authorName,
+    description: avatar.description,
+    imageFileId: imageFileInfo?.fileId || '',
+    imageFileVersion: imageFileInfo?.version || 0,
+    releaseStatus: avatar.releaseStatus
   }
 }
