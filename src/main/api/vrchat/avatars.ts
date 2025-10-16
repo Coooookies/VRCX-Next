@@ -29,7 +29,7 @@ export class Avatars {
     } = {}
   ) {
     return attempt<Response<Avatar[]>, HTTPError<Response<ErrorResponse>>>(() =>
-      this.client.post('avatars/favorites', {
+      this.client.get('avatars/favorites', {
         responseType: 'json',
         searchParams: {
           offset,
