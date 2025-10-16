@@ -8,6 +8,7 @@ import type { MobxState } from '../mobx-state'
 import type { Database } from '../database'
 import type { VRChatAPI } from '../vrchat-api'
 import type { VRChatFriends } from '../vrchat-friends'
+import type { VRChatWorkflowCoordinator } from '../vrchat-workflow-coordinator'
 
 export class VRChatFavorites extends Module {
   @Dependency('IPCModule') declare private ipc: IPCModule
@@ -15,6 +16,7 @@ export class VRChatFavorites extends Module {
   @Dependency('Database') declare private database: Database
   @Dependency('VRChatAPI') declare private api: VRChatAPI
   @Dependency('VRChatFriends') declare private friends: VRChatFriends
+  @Dependency('VRChatWorkflowCoordinator') declare private workflow: VRChatWorkflowCoordinator
 
   private logger = createLogger('VRChatFavorites')
   private fetcher!: FavoriteFetcher
@@ -24,8 +26,20 @@ export class VRChatFavorites extends Module {
   protected onInit(): void {
     this.remoteFavorites = new RemoteFavorites()
     this.fetcher = new FavoriteFetcher(this.logger, this.api, this.friends)
-    this.coordinator = new FavoriteCoordinator(this.fetcher, this.remoteFavorites)
+    this.coordinator = new FavoriteCoordinator(this.logger, this.fetcher, this.remoteFavorites)
+
+    this.bindEvents()
 
     void this.coordinator
+  }
+
+  private bindEvents(): void {
+    this.workflow.registerPostLoginTask('friends-resolver', 80, async () => {
+      await this.coordinator.initialize()
+    })
+
+    this.workflow.registerPostLogoutTask('friends-pipeline-shielde', 40, () => {
+      this.coordinator.uninitialize()
+    })
   }
 }

@@ -57,6 +57,8 @@ export class FavoriteFetcher {
       items.push(...result.value.body)
       startOffset += result.value.body.length
 
+      this.logger.info(`Fetched ${items.length} favorite items...`)
+
       if (result.value.body.length < FAVORITE_FRIENDS_QUERY_SIZE) {
         break
       }
@@ -117,6 +119,8 @@ export class FavoriteFetcher {
       worlds.push(...result.value.body)
       startOffset += result.value.body.length
 
+      this.logger.info(`Fetched ${worlds.length} favorite worlds...`)
+
       if (result.value.body.length < FAVORITE_WORLDS_QUERY_SIZE) {
         break
       }
@@ -146,6 +150,8 @@ export class FavoriteFetcher {
 
       avatars.push(...result.value.body)
       startOffset += result.value.body.length
+
+      this.logger.info(`Fetched ${avatars.length} favorite avatars...`)
 
       if (result.value.body.length < FAVORITE_AVATARS_QUERY_SIZE) {
         break

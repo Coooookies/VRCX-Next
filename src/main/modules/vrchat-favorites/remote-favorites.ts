@@ -1,4 +1,3 @@
-import type { FavoritedGroupContainer } from './types'
 import type {
   FavoritedAvatarInfo,
   FavoritedFriendInfo,
@@ -7,35 +6,46 @@ import type {
 } from '@shared/definition/vrchat-favorites'
 
 export class RemoteFavorites {
-  private readonly groups = new Map<string, FavoritedGroupContainer>()
+  private readonly groups = new Map<string, FavoriteGroupSummary>()
+  private readonly groupItems = new Map<string, string[]>()
+
   private readonly worlds = new Map<string, FavoritedWorldInfo>()
   private readonly avatars = new Map<string, FavoritedAvatarInfo>()
   private readonly friends = new Map<string, FavoritedFriendInfo>()
 
-  public syncInitialGroups(groups: FavoriteGroupSummary[], itemGroups: Map<string, string[]>) {
+  public syncInitialGroups(groups: FavoriteGroupSummary[]) {
     for (const group of groups) {
-      this.groups.set(group.favoriteGroupId, {
-        summary: group,
-        itemIds: itemGroups.get(group.favoriteGroupName) ?? []
-      })
+      this.groups.set(group.favoriteGroupId, group)
     }
   }
 
-  public syncInitialWorlds(worlds: FavoritedWorldInfo[]) {
+  public syncInitialWorlds(worlds: FavoritedWorldInfo[], itemGroups: Map<string, string[]>) {
     for (const world of worlds) {
       this.worlds.set(world.worldId, world)
     }
-  }
 
-  public syncInitialAvatars(avatars: FavoritedAvatarInfo[]) {
-    for (const avatar of avatars) {
-      this.avatars.set(avatar.avatarId, avatar)
+    for (const [groupName, itemIds] of itemGroups) {
+      this.groupItems.set(groupName, itemIds)
     }
   }
 
-  public syncInitialFriends(friends: FavoritedFriendInfo[]) {
+  public syncInitialAvatars(avatars: FavoritedAvatarInfo[], itemGroups: Map<string, string[]>) {
+    for (const avatar of avatars) {
+      this.avatars.set(avatar.avatarId, avatar)
+    }
+
+    for (const [groupName, itemIds] of itemGroups) {
+      this.groupItems.set(groupName, itemIds)
+    }
+  }
+
+  public syncInitialFriends(friends: FavoritedFriendInfo[], itemGroups: Map<string, string[]>) {
     for (const friend of friends) {
       this.friends.set(friend.friendUserId, friend)
+    }
+
+    for (const [groupName, itemIds] of itemGroups) {
+      this.groupItems.set(groupName, itemIds)
     }
   }
 
