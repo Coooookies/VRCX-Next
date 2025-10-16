@@ -24,7 +24,7 @@ const props = defineProps<{
     <div class="relative size-14">
       <ImageRoot
         v-if="props.location.referenceWorld"
-        class="block bg-popover size-full rounded-[6px] overflow-hidden"
+        class="block bg-popover size-full rounded overflow-hidden"
         :style="{
           maskImage: thumbnailMask
         }"
