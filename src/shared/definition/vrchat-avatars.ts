@@ -1,4 +1,4 @@
-import type { Platform } from './vrchat-api-response'
+import type { Platform, ReleaseStatus } from './vrchat-api-response'
 
 export interface UserAvatar {
   imageFileId: string
@@ -22,4 +22,16 @@ export interface AvatarReferenceSummary {
   platform?: Platform
   releaseState?: string
   cacheUpdatedAt?: Date
+}
+
+export interface AvatarSummary {
+  avatarId: string
+  avatarName: string
+  avatarVersion: number
+  authorId: string
+  authorName: string
+  description: string
+  imageFileId: string
+  imageFileVersion: number
+  releaseStatus: ReleaseStatus
 }
