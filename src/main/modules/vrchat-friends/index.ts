@@ -143,4 +143,8 @@ export class VRChatFriends extends Module {
       })
     })
   }
+
+  public getFriendSession(userId: string): ReturnType<FriendsSessions['getFriend']> {
+    return this.sessions.getFriend(userId)
+  }
 }

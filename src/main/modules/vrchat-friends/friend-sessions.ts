@@ -566,4 +566,8 @@ export class FriendsSessions extends Nanobus<{
   public get friends(): Readonly<FriendInformation>[] {
     return [...this.friendSessions.values()]
   }
+
+  public getFriend(userId: string): Readonly<FriendInformation> | null {
+    return this.friendSessions.get(userId) || null
+  }
 }
