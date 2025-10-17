@@ -8,7 +8,7 @@ import CurrentInstanceTabInstance from '../components/current-instance/current-i
 import CurrentInstanceTabWorld from '../components/current-instance/current-instance-tab-world.vue'
 import CurrentInstanceNotRunning from '../components/current-instance/current-instance-not-running.vue'
 import CurrentInstanceWaitingForJoin from '../components/current-instance/current-instance-waiting-for-join.vue'
-import LightRaysBackground from '@renderer/shared/components/light-rays-background.vue'
+// import LightRaysBackground from '@renderer/shared/components/light-rays-background.vue'
 import { computed, provide, ref } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
 import { useModule } from '@renderer/shared/hooks/use-module'
@@ -63,41 +63,36 @@ provide('current-instance:search-value', searchValue)
 
 <template>
   <AppRoute>
-    <template #background>
+    <!-- <template #background>
       <div
         v-if="!isGameRunning"
         class="group-has-[*]/right-expanded:pr-[var(--sidebar-padding-right)] group-has-[*]/right-expanded:pl-[var(--sidebar-padding-left)]"
       >
         <LightRaysBackground class="w-full h-screen" rays-color="#B8B8B8" />
       </div>
-    </template>
+    </template> -->
     <div class="@container w-full">
       <template v-if="isGameRunning">
         <div
           v-if="isInInstance"
           :class="
             cn(
-              'relative flex flex-col mx-auto gap-8 w-full px-10',
-              '@7xl:w-300 @7xl:px-0',
-              '@5xl:flex-row'
+              'relative flex flex-row mx-auto gap-6 w-full px-10',
+              '@5xl:gap-8 @7xl:w-300 @7xl:px-0'
             )
           "
         >
-          <div
-            :class="
-              cn('relative w-full pt-19 h-fit z-2', '@5xl:sticky @5xl:top-0 @5xl:w-64', '@7xl:w-70')
-            "
-          >
-            <div :class="cn('h-9 flex flex-row items-center', '@5xl:h-9')">
-              <p :class="cn('font-semibold text-2xl', '@5xl:text-lg')">Location</p>
+          <div :class="cn('sticky top-0 pt-19 w-60 h-fit z-2', '@5xl:w-64 @7xl:w-70')">
+            <div :class="cn('h-9 flex flex-row items-center')">
+              <p :class="cn('font-semibold text-lg')">Location</p>
             </div>
-            <div :class="cn('flex mt-4 flex-row gap-8', '@5xl:flex-col @5xl:gap-4')">
+            <div :class="cn('flex flex-col mt-4 gap-4')">
               <CurrentInstanceLocationThumbnail
                 :detail="currentWorld"
-                :class="cn('w-[unset] h-49.5', '@5xl:w-full @5xl:h-[unset]')"
+                :class="cn('w-full h-[unset]')"
               />
-              <Tabs :default-value="infoTabs[0].value" class="size-full gap-0">
-                <CurrentInstanceInfoTabs :class="cn('w-1/2', '@5xl:w-full')" :tabs="infoTabs" />
+              <Tabs :default-value="infoTabs[0].value" class="size-full gap-1">
+                <CurrentInstanceInfoTabs :class="cn('w-full')" :tabs="infoTabs" />
                 <CurrentInstanceTabInstance
                   :value="infoTabs[0].value"
                   :instance="currentLocation"
@@ -114,7 +109,7 @@ provide('current-instance:search-value', searchValue)
               </Tabs>
             </div>
           </div>
-          <div :class="cn('relative w-full pb-10 -mt-19', '@5xl:mt-0 @5xl:w-[unset] @5xl:flex-1')">
+          <div :class="cn('relative w-[unset] pb-10 mt-0 flex-1')">
             <div class="sticky top-0 z-1 pt-19 pb-4 bg-background">
               <div class="flex flex-row justify-between h-9 pl-1">
                 <CurrentInstancePageTabs

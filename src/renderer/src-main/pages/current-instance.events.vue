@@ -4,6 +4,7 @@ import CurrentInstanceEventHeader from '../components/current-instance/current-i
 import CurrentInstanceEventItemUserJoin from '../components/current-instance/current-instance-event-item-user-join.vue'
 import CurrentInstanceEventItemUserLeave from '../components/current-instance/current-instance-event-item-user-leave.vue'
 import CurrentInstanceEventItemUserPresent from '../components/current-instance/current-instance-event-item-user-present.vue'
+import CurrentInstanceEventItemVideoPlaybackLoad from '../components/current-instance/current-instance-event-item-video-playback-load.vue'
 import { useCurrentInstance } from '../composables/current-instance'
 import { InstanceEvents } from '@shared/definition/vrchat-instances'
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
@@ -98,6 +99,12 @@ const isLastItem = (index: number) => {
               :icon-file-id="item.content.user?.profileIconFileId"
               :icon-file-version="item.content.user?.profileIconFileVersion"
               :user-name="item.content.userName"
+              :recorded-at="item.recordedAt"
+              :last-item="isLastItem(index)"
+            />
+            <CurrentInstanceEventItemVideoPlaybackLoad
+              v-else-if="item.type === InstanceEvents.VideoPlaybackLoad"
+              :video-playback-url="item.content.url"
               :recorded-at="item.recordedAt"
               :last-item="isLastItem(index)"
             />
