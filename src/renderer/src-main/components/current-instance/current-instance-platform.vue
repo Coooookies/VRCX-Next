@@ -14,12 +14,12 @@ const props = defineProps<{
   <div
     :class="
       cn(
-        'w-full h-full flex flex-col gap-1 justify-start flex-1 text-left overflow-hidden',
+        'w-full h-full flex flex-col gap-1.5 justify-start flex-1 text-left overflow-hidden',
         '@5xl:h-fit'
       )
     "
   >
-    <p class="pl-0.5 text-[13px] text-muted-foreground truncate">{{ props.label }}</p>
+    <p class="pl-0.5 text-xs text-muted-foreground truncate">{{ props.label }}</p>
     <div :class="cn('grid grid-cols-2 gap-2 items-center', '@5xl:grid-cols-2')">
       <BadgePlatform
         v-if="Platform.Standalonewindows in platform"

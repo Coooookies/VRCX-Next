@@ -8,6 +8,7 @@ import { computed } from 'vue'
 import { cn } from '@renderer/shared/utils/style'
 import { useI18n } from '@renderer/shared/locale'
 import { TabsContent } from '@renderer/shared/components/ui/tabs'
+import { Skeleton } from '@renderer/shared/components/ui/skeleton'
 import { RELEASE_STATUS_TRANSLATE_KEY } from '@renderer/shared/constants/instance-mapping'
 import type { WorldDetail } from '@shared/definition/vrchat-worlds'
 
@@ -26,26 +27,12 @@ const worldCapacity = computed(() => {
 </script>
 
 <template>
-  <TabsContent :value="props.value" :class="cn('flex flex-1 flex-col', '@5xl:flex-[unset]')">
+  <TabsContent :value="props.value" :class="cn('flex flex-1 flex-col gap-1')">
     <template v-if="props.detail">
-      <div
-        :class="
-          cn(
-            'flex flex-row border-b border-border border-dashed py-5 items-center',
-            '@5xl:flex-[unset] @5xl:py-5.5'
-          )
-        "
-      >
+      <div :class="cn('flex flex-row py-4 items-center')">
         <CurrentInstanceArrowButton label="Creator" :value="props.detail.authorUserName" />
       </div>
-      <div
-        :class="
-          cn(
-            'grid grid-cols-4 gap-5 py-5 items-center',
-            '@5xl:grid-cols-2 @5xl:h-fit @5xl:flex-[unset] @5xl:gap-5.5 @5xl:py-5.5'
-          )
-        "
-      >
+      <div :class="cn('grid grid-cols-2 items-center gap-2')">
         <CurrentInstanceStats
           class="order-1 @5xl:order-1"
           label="Capacity"
@@ -57,39 +44,29 @@ const worldCapacity = computed(() => {
           :value="`${props.detail.version}`"
         />
         <CurrentInstanceStats
-          class="order-4 @5xl:order-3"
+          class="order-3 @5xl:order-3"
           label="Release Status"
           :value="t(RELEASE_STATUS_TRANSLATE_KEY[props.detail.releaseStatus])"
         />
+      </div>
+      <div :class="cn('flex flex-row py-4 items-center')">
         <CurrentInstancePlatform
-          class="order-3 @5xl:order-4 w-full col-span-2 row-span-2 @5xl:row-span-[unset]"
+          class="order-4 @5xl:order-4 w-full col-span-2 row-span-2 @5xl:row-span-[unset]"
           label="Platform"
           :platform="props.detail.packages"
         />
       </div>
     </template>
     <template v-else>
-      <div
-        :class="
-          cn(
-            'flex flex-row border-b border-border border-dashed py-5 items-center',
-            '@5xl:flex-[unset]'
-          )
-        "
-      >
+      <div :class="cn('flex flex-row py-4 items-center')">
         <CurrentInstanceStatsSkeleton />
       </div>
-      <div
-        :class="
-          cn(
-            'grid grid-cols-4 gap-5.5 py-5.5 items-center',
-            '@5xl:gap-5 @5xl:grid-cols-2 @5xl:h-fit @5xl:flex-[unset]'
-          )
-        "
-      >
-        <CurrentInstanceStatsSkeleton class="order-1 @5xl:order-1" />
-        <CurrentInstanceStatsSkeleton class="order-2 @5xl:order-2" />
-        <CurrentInstanceStatsSkeleton class="order-4 @5xl:order-3" />
+      <div :class="cn('grid grid-cols-2 items-center gap-2')">
+        <Skeleton class="w-full h-15 rounded-md" />
+        <Skeleton class="w-full h-15 rounded-md" />
+        <Skeleton class="w-full h-15 rounded-md" />
+      </div>
+      <div :class="cn('flex flex-row py-4 items-center')">
         <CurrentInstancePlatformSkeleton
           class="order-3 @5xl:order-4 w-full col-span-2 row-span-2 @5xl:row-span-[unset]"
         />

@@ -95,7 +95,8 @@ export const columns: ColumnDef<InstancePlayer>[] = [
     id: 'links',
     meta: {
       class: {
-        th: 'w-30'
+        th: 'w-30 hidden @5xl:table-cell',
+        td: 'hidden @5xl:table-cell'
       }
     },
     header: () =>
@@ -117,7 +118,7 @@ export const columns: ColumnDef<InstancePlayer>[] = [
     id: 'languages',
     meta: {
       class: {
-        th: 'w-30'
+        th: 'w-26 @5xl:w-30'
       }
     },
     header: () =>
