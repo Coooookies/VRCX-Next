@@ -21,7 +21,7 @@ export class MainWindow extends Module {
   static MAIN_WINDOW_WIDTH = 1500
   static MAIN_WINDOW_HEIGHT = 840
   static MAIN_WINDOW_MINWIDTH = 1280
-  static MAIN_WINDOW_MINHEIGHT = 740
+  static MAIN_WINDOW_MINHEIGHT = 760
   static MAIN_WINDOW_PARTITION = `partition:${MainWindow.MAIN_WINDOW_PAGE_NAME}`
 
   private readonly logger = createLogger(this.moduleId)
