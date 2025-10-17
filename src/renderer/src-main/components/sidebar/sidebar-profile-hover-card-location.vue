@@ -41,7 +41,7 @@ const props = defineProps<{
             <ImageIcon class="size-4 text-muted-foreground" />
           </template>
           <template #loading>
-            <Skeleton class="size-full" />
+            <Skeleton class="size-full rounded" />
           </template>
         </ImageFallback>
       </ImageRoot>
