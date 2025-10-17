@@ -50,7 +50,7 @@ const uncompressedFileSize = computed(() => {
       </Button>
     </HoverCardTrigger>
     <HoverCardContent class="w-70">
-      <div class="grid gap-4">
+      <div class="grid gap-5">
         <div class="flex flex-row items-center gap-1.5">
           <component
             :is="platformDefinition.icon"
@@ -62,18 +62,22 @@ const uncompressedFileSize = computed(() => {
           />
           <span class="text-sm font-medium leading-none">{{ t(platformDefinition.label) }}</span>
         </div>
-        <div class="grid gap-2">
-          <div class="grid grid-cols-5 items-center gap-4 text-xs">
-            <span class="col-span-2 text-muted-foreground">解压大小</span>
-            <span class="col-span-3">{{ uncompressedFileSize }}</span>
+        <div class="grid gap-4 grid-cols-2">
+          <div class="h-9 flex flex-col justify-center gap-1">
+            <span class="text-muted-foreground text-xs">占用大小</span>
+            <span class="text-[13px]">{{ fileSize }}</span>
           </div>
-          <div class="grid grid-cols-5 items-center gap-4 text-xs">
-            <span class="col-span-2 text-muted-foreground">资源版本</span>
-            <span class="col-span-3">{{ props.package.assetVersion }}</span>
+          <div class="h-9 flex flex-col justify-center gap-1">
+            <span class="text-muted-foreground text-xs">解压大小</span>
+            <span class="text-[13px]">{{ uncompressedFileSize }}</span>
           </div>
-          <div class="grid grid-cols-5 items-center gap-4 text-xs">
-            <span class="col-span-2 text-muted-foreground">Unity版本</span>
-            <span class="col-span-3">{{ props.package.unityVersion }}</span>
+          <div class="h-9 flex flex-col justify-center gap-1">
+            <span class="text-muted-foreground text-xs">资源版本</span>
+            <span class="text-[13px]">{{ props.package.assetVersion }} </span>
+          </div>
+          <div class="h-9 flex flex-col justify-center gap-1">
+            <span class="text-muted-foreground text-xs">Unity版本</span>
+            <span class="text-[13px]">{{ props.package.unityVersion }}</span>
           </div>
         </div>
       </div>
