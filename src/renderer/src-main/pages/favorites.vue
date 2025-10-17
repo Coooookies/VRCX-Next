@@ -1,20 +1,32 @@
 <script setup lang="ts">
-import ImageSelectionContext from '@renderer/shared/components/image-selection-context.vue'
+import FavoriteCollectionButton from '../components/favorite/favorite-collection-button.vue'
+import FavoriteCollectionGroup from '../components/favorite/favorite-collection-group.vue'
 import AppRoute from '../layouts/app-route.vue'
-import { ImageRoot, ImageFallback } from '@renderer/shared/components/ui/image'
+import { cn } from '@renderer/shared/utils/style'
 </script>
 
 <template>
   <AppRoute>
-    <ImageRoot class="block w-200">
-      <ImageSelectionContext
-        selection-id="imgsel_df5dbb9d-a21a-4d47-9e3f-5bf1e8fde8d9"
-        :size="200"
-        class="size-full object-cover"
-      />
-      <ImageFallback class="size-full flex items-center justify-center">
-        <p>none</p>
-      </ImageFallback>
-    </ImageRoot>
+    <div class="@container pt-19 w-full">
+      <div :class="cn('relative mx-auto w-full px-10', '@7xl:w-300 @7xl:px-0')">
+        <h3 class="font-bold text-3xl">Favorites</h3>
+        <div :class="cn('mt-10 grid gap-8 grid-cols-1', '@5xl:grid-cols-2')">
+          <FavoriteCollectionGroup description="Worlds">
+            <FavoriteCollectionButton />
+            <FavoriteCollectionButton />
+            <FavoriteCollectionButton />
+            <FavoriteCollectionButton />
+          </FavoriteCollectionGroup>
+          <FavoriteCollectionGroup description="Friends">
+            <FavoriteCollectionButton />
+            <FavoriteCollectionButton />
+            <FavoriteCollectionButton />
+          </FavoriteCollectionGroup>
+          <FavoriteCollectionGroup description="Avatars">
+            <FavoriteCollectionButton />
+          </FavoriteCollectionGroup>
+        </div>
+      </div>
+    </div>
   </AppRoute>
 </template>
