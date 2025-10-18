@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import { Button } from '@renderer/shared/components/ui/button'
+import { cn } from '@renderer/shared/utils/style'
 import FavoriteWorldIcon from '@shared/assets/vector/favorite-worlds.svg?component'
 </script>
 
 <template>
   <Button
     variant="outline"
-    class="px-4 py-0 has-[>svg]:px-4 h-16 flex flex-row gap-4 justify-start items-center"
+    :class="
+      cn(
+        'px-4 py-0 has-[>svg]:px-4 h-16 flex flex-row gap-4 justify-start items-center',
+        'rounded-md border-x-0 border-b-0'
+      )
+    "
   >
     <FavoriteWorldIcon class="size-6" />
     <div class="text-left">
