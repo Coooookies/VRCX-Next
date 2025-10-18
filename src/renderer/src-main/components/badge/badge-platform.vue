@@ -49,7 +49,7 @@ const uncompressedFileSize = computed(() => {
         <p class="flex-1 text-center text-xs text-muted-foreground">{{ fileSize }}</p>
       </Button>
     </HoverCardTrigger>
-    <HoverCardContent class="w-70">
+    <HoverCardContent class="w-70 rounded-lg" :side-offset="8" :collision-padding="8">
       <div class="grid gap-5">
         <div class="flex flex-row items-center gap-1.5">
           <component
@@ -58,7 +58,7 @@ const uncompressedFileSize = computed(() => {
               fill: platformDefinition.color,
               color: platformDefinition.color
             }"
-            class="size-4.5"
+            class="size-5"
           />
           <span class="text-sm font-medium leading-none">{{ t(platformDefinition.label) }}</span>
         </div>

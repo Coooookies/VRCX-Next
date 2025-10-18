@@ -16,7 +16,7 @@ import {
 </script>
 
 <template>
-  <ContextMenuContent class="w-52">
+  <ContextMenuContent class="w-52" :collision-padding="8">
     <ContextMenuItem inset>
       Back
       <ContextMenuShortcut>⌘[</ContextMenuShortcut>
@@ -30,7 +30,7 @@ import {
       <ContextMenuShortcut>⌘R</ContextMenuShortcut>
     </ContextMenuItem>
     <ContextMenuSub>
-      <ContextMenuSubTrigger inset> More Tools </ContextMenuSubTrigger>
+      <ContextMenuSubTrigger inset>More Tools</ContextMenuSubTrigger>
       <ContextMenuSubContent class="w-48">
         <ContextMenuItem inset>
           Save Page As...
@@ -40,7 +40,7 @@ import {
           <PlusIcon />
           Create Shortcut...
         </ContextMenuItem>
-        <ContextMenuItem inset> Name Window... </ContextMenuItem>
+        <ContextMenuItem inset>Name Window...</ContextMenuItem>
         <ContextMenuSeparator />
         <ContextMenuItem>
           <Code2Icon />
@@ -62,8 +62,8 @@ import {
     <ContextMenuSeparator />
     <ContextMenuRadioGroup model-value="pedro">
       <ContextMenuLabel inset> People </ContextMenuLabel>
-      <ContextMenuRadioItem value="pedro"> Pedro Duarte </ContextMenuRadioItem>
-      <ContextMenuRadioItem value="colm"> Colm Tuite </ContextMenuRadioItem>
+      <ContextMenuRadioItem value="pedro">Pedro Duarte</ContextMenuRadioItem>
+      <ContextMenuRadioItem value="colm">Colm Tuite</ContextMenuRadioItem>
     </ContextMenuRadioGroup>
   </ContextMenuContent>
 </template>
