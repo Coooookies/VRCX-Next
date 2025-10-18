@@ -84,7 +84,7 @@ provide('current-instance:search-value', searchValue)
         >
           <div :class="cn('sticky top-0 pt-19 w-60 h-fit z-2', '@5xl:w-64 @7xl:w-70')">
             <div :class="cn('h-9 flex flex-row items-center')">
-              <p :class="cn('font-semibold text-lg')">Location</p>
+              <p :class="cn('font-semibold text-xl')">Location</p>
             </div>
             <div :class="cn('flex flex-col mt-4 gap-4')">
               <CurrentInstanceLocationThumbnail
