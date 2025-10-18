@@ -9,8 +9,8 @@ import FavoriteWorldIcon from '@shared/assets/vector/favorite-worlds.svg?compone
     variant="outline"
     :class="
       cn(
-        'px-4 py-0 has-[>svg]:px-4 h-16 flex flex-row gap-4 justify-start items-center',
-        'rounded-md border-x-0 border-b-0'
+        'px-4.5 py-0 has-[>svg]:px-4.5 h-16 flex flex-row gap-4 justify-start items-center',
+        'rounded-md border-x-0 border-b-0 pb-px'
       )
     "
   >
