@@ -1,6 +1,14 @@
 import { attempt } from '@shared/utils/async'
 import type { Got, Response, HTTPError } from 'got'
-import type { ErrorResponse, User, UserNote } from '@shared/definition/vrchat-api-response'
+import type {
+  CurrentUser,
+  ErrorResponse,
+  TwoFactorRecoveryCodes,
+  User,
+  UserNote
+} from '@shared/definition/vrchat-api-response'
+
+type LoginResult = CurrentUser & TwoFactorRecoveryCodes
 
 export class Users {
   constructor(private client: Got) {}
@@ -20,6 +28,14 @@ export class Users {
   getUser(userId: string) {
     return attempt<Response<User>, HTTPError<Response<ErrorResponse>>>(() =>
       this.client.get(`users/${userId}`, {
+        responseType: 'json'
+      })
+    )
+  }
+
+  getCurrentUser() {
+    return attempt<Response<LoginResult>, HTTPError<Response<ErrorResponse>>>(() =>
+      this.client.get('auth/user', {
         responseType: 'json'
       })
     )
