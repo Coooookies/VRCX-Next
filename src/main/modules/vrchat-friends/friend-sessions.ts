@@ -102,7 +102,6 @@ export class FriendsSessions extends Nanobus<{
 
     if (friends.length === 0) {
       this.emit('sync:present-friends', [])
-      this._initialSyncCompleted = true
       return
     }
 
@@ -130,7 +129,9 @@ export class FriendsSessions extends Nanobus<{
     if (result.length > 0) {
       this.emit('sync:update-friends', result)
     }
+  }
 
+  public syncInitialFriendsComplete() {
     this._initialSyncCompleted = true
     this.emit('event:initial-friend-sync-complete')
   }
@@ -223,7 +224,7 @@ export class FriendsSessions extends Nanobus<{
   }
 
   public async handleSyncFriendIds(ids: CurrentUserFriendIds) {
-    if (this._compensatorySyncInProgress && !this._initialSyncCompleted) {
+    if (this._compensatorySyncInProgress || !this._initialSyncCompleted) {
       return
     }
 
@@ -231,10 +232,10 @@ export class FriendsSessions extends Nanobus<{
 
     // fetch missing friends
     const sessions = this.friendSessions
-    const messingFriendIds = compareMissingFriends(ids.total, sessions)
+    const missingFriendIds = compareMissingFriends(ids.total, sessions)
 
-    if (messingFriendIds.size > 0) {
-      await this.manualCompleteFriends([...messingFriendIds])
+    if (missingFriendIds.size > 0) {
+      await this.manualCompleteFriends([...missingFriendIds])
     }
 
     const onlineComparedResult = compareFriendStates(ids.online, sessions, UserState.Online)

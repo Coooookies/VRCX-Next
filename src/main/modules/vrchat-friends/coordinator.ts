@@ -41,6 +41,7 @@ export class FriendsCoordinator {
       this.sessions.syncInitialFriends(friends)
     })
 
+    await this.sessions.syncInitialFriendsComplete()
     await this.processCachedPipelineEvents()
 
     this.logger.info(
