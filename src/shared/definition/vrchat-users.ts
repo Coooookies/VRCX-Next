@@ -130,6 +130,9 @@ export interface UserInformation extends UserInformationBase {
   ageVerified: boolean
   ageVerificationStatus: AgeVerificationStatus
   locationRawContext: string | null
+  lastPlatform: string
+  lastLoginDate: Date | null
+  lastActivityDate: Date | null
   registeredAt: Date | null
 }
 
