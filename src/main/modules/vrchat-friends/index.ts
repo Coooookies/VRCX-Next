@@ -50,6 +50,7 @@ export class VRChatFriends extends Module {
     this.coordinator = new FriendsCoordinator(
       this.logger,
       this.pipeline,
+      this.users,
       this.sessions,
       this.activities,
       this.fetcher

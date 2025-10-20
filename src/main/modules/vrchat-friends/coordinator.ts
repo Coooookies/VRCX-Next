@@ -4,6 +4,7 @@ import { toBaseFriendInformation } from './factory'
 import { LoggerFactory } from '@main/logger'
 import { UserState } from '@shared/definition/vrchat-api-response'
 import type { VRChatPipeline } from '../vrchat-pipeline'
+import type { VRChatUsers } from '../vrchat-users'
 import type { FriendsFetcher } from './fetcher'
 import type { FriendsSessions } from './friend-sessions'
 import type { FriendsActivities } from './friend-activities'
@@ -24,6 +25,7 @@ export class FriendsCoordinator {
   constructor(
     private readonly logger: LoggerFactory,
     private readonly pipeline: VRChatPipeline,
+    private readonly users: VRChatUsers,
     private readonly sessions: FriendsSessions,
     private readonly activities: FriendsActivities,
     private readonly fetcher: FriendsFetcher
@@ -94,6 +96,14 @@ export class FriendsCoordinator {
 
     this.sessions.on('event:friend-delete', (userId, user) => {
       this.activities.handleFriendDeleteActivity(userId, user)
+    })
+
+    this.sessions.on('event:initial-friend-sync-complete', () => {
+      this.sessions.handleSyncFriendIds(this.users.activeUserFriendIds)
+    })
+
+    this.users.on('user:friend-ids:update', (friendIds) => {
+      this.sessions.handleSyncFriendIds(friendIds)
     })
   }
 

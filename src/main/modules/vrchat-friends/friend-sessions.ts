@@ -1,5 +1,6 @@
 import Nanobus from 'nanobus'
 import { diffObjects } from '@main/utils/object'
+import { compareFriendStates, compareMissingFriends, transformWhereaboutsOfFriends } from './utils'
 import { getLocationInstanceDependency, toLocation } from './factory'
 import { isGroupInstance, isSameLocationInstance, isUserInstance } from '../vrchat-instances/utils'
 import {
@@ -9,6 +10,7 @@ import {
 } from './constants'
 import { InstanceAccessCategory } from '@shared/definition/vrchat-instances'
 import { UserState } from '@shared/definition/vrchat-api-response-community'
+import { Platform } from '@shared/definition/vrchat-api-response-replenish'
 import { RequestQueue } from '@shared/utils/async'
 import { FriendAttributeActivities } from '@shared/definition/vrchat-friends'
 import type { VRChatGroups } from '../vrchat-groups'
@@ -24,7 +26,7 @@ import type { UserAvatar } from '@shared/definition/vrchat-avatars'
 import type { LocationInstanceOverview } from '@shared/definition/vrchat-instances'
 import type { BaseFriendInformation, FriendInformation } from '@shared/definition/vrchat-friends'
 import type { FriendInformationWithRawLocation } from './types'
-import type { Platform } from '@shared/definition/vrchat-api-response-replenish'
+import type { CurrentUserFriendIds, UserProcessHandler } from '../vrchat-users/types'
 
 export class FriendsSessions extends Nanobus<{
   'sync:present-friends': (friends: Readonly<FriendInformation>[]) => void
@@ -33,6 +35,7 @@ export class FriendsSessions extends Nanobus<{
   'sync:update-friends': (data: Readonly<FriendInformation>[]) => void
   'sync:remove-friend': (userId: string) => void
   'sync:clear-friends': () => void
+  'event:initial-friend-sync-complete': () => void
   'event:friend-online': (
     userId: string,
     data: Readonly<FriendInformation>,
@@ -80,6 +83,10 @@ export class FriendsSessions extends Nanobus<{
   private readonly _batchRequestQueue = new RequestQueue(CURRENT_INSTANCE_BATCH_QUEUE_LIMIT)
   private readonly _requestQueue = new RequestQueue(CURRENT_INSTANCE_QUEUE_LIMIT)
 
+  // state
+  private _initialSyncCompleted = false
+  private _compensatorySyncInProgress = false
+
   constructor(
     private readonly group: VRChatGroups,
     private readonly world: VRChatWorlds,
@@ -95,6 +102,7 @@ export class FriendsSessions extends Nanobus<{
 
     if (friends.length === 0) {
       this.emit('sync:present-friends', [])
+      this._initialSyncCompleted = true
       return
     }
 
@@ -122,13 +130,139 @@ export class FriendsSessions extends Nanobus<{
     if (result.length > 0) {
       this.emit('sync:update-friends', result)
     }
+
+    this._initialSyncCompleted = true
+    this.emit('event:initial-friend-sync-complete')
   }
 
   public clearFriends() {
     this._locationTrackSymbols.clear()
     this._stateTrackSymbols.clear()
     this.friendSessions.clear()
+    this._initialSyncCompleted = false
+    this._compensatorySyncInProgress = false
     this.emit('sync:clear-friends')
+  }
+
+  private manualCompleteFriends(userIds: string[]) {
+    const fetchUserProcessHandler: UserProcessHandler = async (user) => {
+      const userId = user.userId
+      const detail: FriendInformation = {
+        ...user,
+        order: 0,
+        location: null
+      }
+
+      this.friendSessions.set(userId, detail)
+      this.emit('sync:append-friend', detail)
+
+      const updatedStateFriend = await this.batchUpdateFriendState(userId)
+      if (!updatedStateFriend) {
+        return
+      }
+
+      this.emit('sync:update-friend', userId, updatedStateFriend)
+
+      if (!updatedStateFriend.location) {
+        return
+      }
+
+      const updatedLocationFriend = await this.batchUpdateFriendLocation(userId)
+      if (!updatedLocationFriend) {
+        return
+      }
+
+      this.emit('sync:update-friend', userId, updatedLocationFriend)
+    }
+
+    return this._batchRequestQueue.add(() =>
+      this.users.fetchUsers(userIds, fetchUserProcessHandler)
+    )
+  }
+
+  private async manualSyncFriendAsOnline(userId: string) {
+    const currentUser = this.friendSessions.get(userId)
+    const fetchedUser = await this._requestQueue.add(() => this.users.fetchUser(userId))
+
+    if (!currentUser || !fetchedUser || currentUser.state === UserState.Online) {
+      return null
+    }
+
+    const user = { ...fetchedUser, order: 0 }
+    const platform = currentUser.platform
+    const currentLocationRaw = fetchedUser.locationRawContext || ''
+    const travelingLocationRaw = ''
+
+    return this.handleUpdateFriendOnline(
+      userId,
+      user,
+      platform,
+      currentLocationRaw,
+      travelingLocationRaw
+    )
+  }
+
+  private manualSyncFriendAsOffline(userId: string) {
+    const currentUser = this.friendSessions.get(userId)
+
+    if (!currentUser || currentUser.state === UserState.Offline) {
+      return
+    }
+
+    const platform = Platform.Unknown
+    return this.handleUpdateFriendOffline(userId, platform)
+  }
+
+  private async manualSyncFriendAsWebActive(userId: string) {
+    const currentUser = this.friendSessions.get(userId)
+    const fetchedUser = await this._requestQueue.add(() => this.users.fetchUser(userId))
+
+    if (!currentUser || !fetchedUser || currentUser.state === UserState.Active) {
+      return null
+    }
+
+    const user = { ...fetchedUser, order: 0 }
+    const platform = Platform.Web
+    return this.handleUpdateFriendWebActive(userId, user, platform)
+  }
+
+  public async handleSyncFriendIds(ids: CurrentUserFriendIds) {
+    if (this._compensatorySyncInProgress && !this._initialSyncCompleted) {
+      return
+    }
+
+    this._compensatorySyncInProgress = true
+
+    // fetch missing friends
+    const sessions = this.friendSessions
+    const messingFriendIds = compareMissingFriends(ids.total, sessions)
+
+    if (messingFriendIds.size > 0) {
+      await this.manualCompleteFriends([...messingFriendIds])
+    }
+
+    const onlineComparedResult = compareFriendStates(ids.online, sessions, UserState.Online)
+    const offlineComparedResult = compareFriendStates(ids.offline, sessions, UserState.Offline)
+    const activeComparedResult = compareFriendStates(ids.active, sessions, UserState.Active)
+    const transformedWhereabouts = transformWhereaboutsOfFriends({
+      online: onlineComparedResult,
+      offline: offlineComparedResult,
+      active: activeComparedResult
+    })
+
+    for (const userId of transformedWhereabouts.online) {
+      this.manualSyncFriendAsOnline(userId)
+    }
+
+    for (const userId of transformedWhereabouts.offline) {
+      this.manualSyncFriendAsOffline(userId)
+    }
+
+    for (const userId of transformedWhereabouts.active) {
+      this.manualSyncFriendAsWebActive(userId)
+    }
+
+    this._compensatorySyncInProgress = false
   }
 
   public async handleAppendFriend(friend: BaseFriendInformation) {
@@ -149,7 +283,7 @@ export class FriendsSessions extends Nanobus<{
 
     this.emit('sync:update-friend', userId, updatedStateFriend)
 
-    if (updatedStateFriend.location) {
+    if (!updatedStateFriend.location) {
       return
     }
 
@@ -388,7 +522,7 @@ export class FriendsSessions extends Nanobus<{
   private async batchUpdateFriendState(userId: string): Promise<FriendInformation | null> {
     const snapshot = this.createStateSymbolSnapshot([userId])
     const currentUser = this.friendSessions.get(userId)
-    const fetchedUser = await this.users.fetchUser(userId)
+    const fetchedUser = await this._requestQueue.add(() => this.users.fetchUser(userId))
 
     if (!currentUser || !fetchedUser) {
       return null
@@ -417,7 +551,9 @@ export class FriendsSessions extends Nanobus<{
     }
 
     const avatarImageId = currentUser.avatar.imageFileId
-    const fetchedReferenceAvatar = await this.avatars.fetchReferenceAvatar(avatarImageId)
+    const fetchedReferenceAvatar = await this._requestQueue.add(() =>
+      this.avatars.fetchReferenceAvatar(avatarImageId)
+    )
 
     if (!fetchedReferenceAvatar || !snapshot.isSameSymbol(userId)) {
       return null
@@ -453,7 +589,7 @@ export class FriendsSessions extends Nanobus<{
       (id) => !resolvedWorlds.find((w) => w.worldId === id)
     )
 
-    const batchMode = friendLocations.length > 0
+    const batchMode = friendLocations.length > 1
     const worldQueue = batchMode
       ? this._batchRequestQueue.add(() => this.world.fetchWorldSummaries(pendingWorldIds))
       : this._requestQueue.add(() => this.world.fetchWorldSummaries(pendingWorldIds))
