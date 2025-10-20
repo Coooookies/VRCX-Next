@@ -9,7 +9,7 @@ const randomWidth = (min: number, max: number) => {
 </script>
 
 <template>
-  <div class="">
+  <div class="w-full">
     <Skeleton class="h-10 rounded-md" />
     <div class="pt-1.5">
       <div
@@ -42,7 +42,7 @@ const randomWidth = (min: number, max: number) => {
             }"
           />
         </div>
-        <div class="w-30 flex flex-row items-center gap-1">
+        <div class="w-30 flex-row items-center hidden @5xl:flex">
           <Skeleton
             class="h-4 rounded-sm"
             :style="{
