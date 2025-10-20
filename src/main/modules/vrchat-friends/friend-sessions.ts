@@ -147,23 +147,19 @@ export class FriendsSessions extends Nanobus<{
   private manualCompleteFriends(userIds: string[]) {
     const fetchUserProcessHandler: UserProcessHandler = async (user) => {
       const userId = user.userId
+      const currentLocationRaw = user.locationRawContext || ''
+      const travelingLocationRaw = ''
+      const location = toLocation(currentLocationRaw, travelingLocationRaw)
       const detail: FriendInformation = {
         ...user,
         order: 0,
-        location: null
+        location
       }
 
       this.friendSessions.set(userId, detail)
       this.emit('sync:append-friend', detail)
 
-      const updatedStateFriend = await this.batchUpdateFriendState(userId)
-      if (!updatedStateFriend) {
-        return
-      }
-
-      this.emit('sync:update-friend', userId, updatedStateFriend)
-
-      if (!updatedStateFriend.location) {
+      if (!location) {
         return
       }
 
