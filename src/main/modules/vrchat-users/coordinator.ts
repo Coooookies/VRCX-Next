@@ -13,7 +13,7 @@ import type {
   PipelineEventUserUpdate
 } from '@shared/definition/vrchat-pipeline'
 
-export class UsersEventBinding {
+export class UsersCoordinator {
   constructor(
     private readonly logger: LoggerFactory,
     private readonly repository: UsersRepository,

@@ -1,6 +1,6 @@
 import { UsersFetcher } from './fetcher'
 import { UsersRepository } from './repository'
-import { UsersEventBinding } from './event-binding'
+import { UsersCoordinator } from './coordinator'
 import { Dependency, Module } from '@shared/module-constructor'
 import { CurrentUserStore } from './current-user-store'
 import { createLogger } from '@main/logger'
@@ -13,8 +13,11 @@ import type { VRChatGroups } from '../vrchat-groups'
 import type { VRChatWorlds } from '../vrchat-worlds'
 import type { MobxState } from '../mobx-state'
 import type { Database } from '../database'
+import type { CurrentUserFriendIds } from './types'
 
-export class VRChatUsers extends Module {
+export class VRChatUsers extends Module<{
+  'user:friend-ids:update': (friendIds: Readonly<CurrentUserFriendIds>) => void
+}> {
   @Dependency('VRChatAPI') declare private api: VRChatAPI
   @Dependency('VRChatAuthentication') declare private auth: VRChatAuthentication
   @Dependency('VRChatWorkflowCoordinator') declare private workflow: VRChatWorkflowCoordinator
@@ -26,15 +29,15 @@ export class VRChatUsers extends Module {
 
   private readonly logger = createLogger(this.moduleId)
   private repository!: UsersRepository
-  private eventBinding!: UsersEventBinding
+  private coordinator!: UsersCoordinator
   private currentUser!: CurrentUserStore
   private fetcher!: UsersFetcher
 
   protected onInit(): void {
     this.repository = new UsersRepository(this.database)
-    this.currentUser = new CurrentUserStore(this.mobx, this.groups, this.worlds)
     this.fetcher = new UsersFetcher(this.logger, this.repository, this.api)
-    this.eventBinding = new UsersEventBinding(
+    this.currentUser = new CurrentUserStore(this.mobx, this.fetcher, this.groups, this.worlds)
+    this.coordinator = new UsersCoordinator(
       this.logger,
       this.repository,
       this.pipeline,
@@ -43,7 +46,7 @@ export class VRChatUsers extends Module {
     this.bindEvents()
 
     // unused protect
-    void this.eventBinding
+    void this.coordinator
   }
 
   private bindEvents(): void {
@@ -51,15 +54,31 @@ export class VRChatUsers extends Module {
       if (this.auth.currentState.type === 'authenticated') {
         const user = this.auth.currentState.userInfo
         const currentUser = toCurrentUserInformation(user)
+        const friendIds: CurrentUserFriendIds = {
+          total: new Set(user.friends || []),
+          online: new Set(user.onlineFriends || []),
+          offline: new Set(user.offlineFriends || []),
+          active: new Set(user.activeFriends || [])
+        }
         // const currentLocationRaw = user.location || ''
         const currentLocationRaw = ''
         const travelingLocationRaw = ''
-        this.currentUser.syncInitialUser(currentUser, currentLocationRaw, travelingLocationRaw)
+
+        this.currentUser.syncInitialUser(
+          currentUser,
+          friendIds,
+          currentLocationRaw,
+          travelingLocationRaw
+        )
       }
     })
 
     this.workflow.registerPostLogoutTask('user-clear', 40, () => {
-      this.currentUser.clear()
+      this.currentUser.logout()
+    })
+
+    this.currentUser.on('user:friend-ids:update', (friendIds) => {
+      this.emit('user:friend-ids:update', friendIds)
     })
 
     this.currentUser.on('user:location', (location) => {
@@ -96,5 +115,9 @@ export class VRChatUsers extends Module {
 
   public get activeUser() {
     return this.currentUser.activeUser
+  }
+
+  public get activeUserFriendIds() {
+    return this.currentUser.activeFriendIds
   }
 }

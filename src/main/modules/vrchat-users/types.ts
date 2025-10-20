@@ -14,3 +14,15 @@ export type UserUpdateDiff = {
   before: Partial<CurrentUserInformation>
   after: Partial<CurrentUserInformation>
 }
+
+export interface CurrentUserWithFriendIds {
+  user: CurrentUserInformation
+  friendIds: CurrentUserFriendIds
+}
+
+export interface CurrentUserFriendIds {
+  total: Set<string>
+  online: Set<string>
+  offline: Set<string>
+  active: Set<string>
+}

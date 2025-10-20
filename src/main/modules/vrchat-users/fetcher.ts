@@ -1,12 +1,16 @@
 import type { LoggerFactory } from '@main/logger'
 import type { UsersRepository } from './repository'
 import type { VRChatAPI } from '../vrchat-api'
-import type { UserEntityProcessHandler, UserProcessHandler } from './types'
+import type {
+  CurrentUserWithFriendIds,
+  UserEntityProcessHandler,
+  UserProcessHandler
+} from './types'
 import type { UserInformation } from '@shared/definition/vrchat-users'
 // import type { UserNote } from '@shared/definition/vrchat-api-response'
 import type { UserEntity } from '../database/entities/vrchat-cache-users'
 import { limitedAllSettled } from '@shared/utils/async'
-import { toUserEntity, toUserInformation } from './factory'
+import { toCurrentUserInformation, toUserEntity, toUserInformation } from './factory'
 import {
   SAVED_USER_ENTITY_EXPIRE_DELAY,
   USER_ENTITIES_QUERY_THREAD_SIZE
@@ -192,6 +196,31 @@ export class UsersFetcher {
 
     await this.repository.saveUserEntities([...entities.values()])
     return users
+  }
+
+  public async fetchCurrentUser(): Promise<CurrentUserWithFriendIds | null> {
+    const { success, value, error } = await this.api.ref.sessionAPI.users.getCurrentUser()
+
+    if (success && !value.body.requiresTwoFactorAuth) {
+      const user = value.body
+      const detail = toCurrentUserInformation(user)
+      const entity = toUserEntity(user)
+      await this.repository.saveUserEntities(entity)
+
+      return {
+        user: detail,
+        friendIds: {
+          total: new Set(user.friends || []),
+          online: new Set(value.body.onlineFriends || []),
+          offline: new Set(value.body.offlineFriends || []),
+          active: new Set(value.body.activeFriends || [])
+        }
+      }
+    } else {
+      this.logger.error(`Failed to fetch current user, error: ${error?.message || error}`)
+    }
+
+    return null
   }
 
   // public async fetchUserLocation(userId: string): Promise<string | null> {

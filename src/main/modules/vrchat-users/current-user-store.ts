@@ -4,6 +4,7 @@ import { diffObjects } from '@main/utils/object'
 import { getLocationInstanceDependency, toLocation } from '../vrchat-friends/factory'
 import { isGroupInstance, isSameLocationInstance } from '../vrchat-instances/utils'
 import { USER_UPDATE_COMPARE_KEYS } from './constants'
+import { Scheduler } from '@shared/utils/timer'
 import { InstanceAccessCategory } from '@shared/definition/vrchat-instances'
 import type { MobxState } from '../mobx-state'
 import type { VRChatGroups } from '../vrchat-groups'
@@ -12,10 +13,15 @@ import type { UserStoreSharedState } from '@shared/definition/mobx-shared'
 import type { CurrentUserInformation } from '@shared/definition/vrchat-users'
 import type { LocationInstanceOverview } from '@shared/definition/vrchat-instances'
 import type { DiffResult } from '@main/utils/object'
+import type { UsersFetcher } from './fetcher'
+import type { CurrentUserFriendIds } from './types'
 
 const MODULE_NAME = 'VRChatUsers:CurrentUserStore'
 
 export class CurrentUserStore extends Nanobus<{
+  'user:login': (user: Readonly<CurrentUserInformation>) => void
+  'user:logout': () => void
+  'user:friend-ids:update': (friendIds: Readonly<CurrentUserFriendIds>) => void
   'user:location': (location: Readonly<LocationInstanceOverview> | null) => void
   'user:update': (
     user: Readonly<CurrentUserInformation>,
@@ -24,10 +30,20 @@ export class CurrentUserStore extends Nanobus<{
   ) => void
 }> {
   private $!: UserStoreSharedState
+  private scheduler = new Scheduler()
+  private friendIds: CurrentUserFriendIds = {
+    total: new Set(),
+    online: new Set(),
+    offline: new Set(),
+    active: new Set()
+  }
+
   private __locationTrackSymbol__: symbol = Symbol('track')
+  private __userUpdateTrackSymbol__: symbol = Symbol('track')
 
   constructor(
     private readonly mobx: MobxState,
+    private readonly fetcher: UsersFetcher,
     private readonly group: VRChatGroups,
     private readonly world: VRChatWorlds
   ) {
@@ -44,17 +60,22 @@ export class CurrentUserStore extends Nanobus<{
 
   public syncInitialUser(
     user: CurrentUserInformation,
+    friendIds: CurrentUserFriendIds,
     currentLocationRaw: string,
     travelingLocationRaw: string
   ) {
     const nextLocation = toLocation(currentLocationRaw, travelingLocationRaw)
 
+    this.friendIds = friendIds
     this.mobx.action(() => {
       this.$.user = user
       this.$.location = nextLocation
     })
 
+    this.emit('user:login', user)
     this.emit('user:location', nextLocation)
+    this.emit('user:friend-ids:update', friendIds)
+    this.startScheduler()
 
     if (nextLocation) {
       this.batchUpdateLocation().then((location) => {
@@ -63,6 +84,10 @@ export class CurrentUserStore extends Nanobus<{
         }
       })
     }
+  }
+
+  private startScheduler() {
+    this.__userUpdateTrackSymbol__ = this.scheduler.addTask(this.handleUpdateUser, 1e3 * 60 * 5)
   }
 
   public updateUser(user: CurrentUserInformation) {
@@ -156,7 +181,22 @@ export class CurrentUserStore extends Nanobus<{
     return location
   }
 
-  public clear() {
+  private handleUpdateUser = async () => {
+    const result = await this.fetcher.fetchCurrentUser()
+
+    if (!result) {
+      return
+    }
+
+    const { user, friendIds } = result
+    this.friendIds = friendIds
+    this.updateUser(user)
+    this.emit('user:friend-ids:update', friendIds)
+  }
+
+  public logout() {
+    this.emit('user:logout')
+    this.scheduler.removeTask(this.__userUpdateTrackSymbol__)
     this.mobx.action(() => {
       this.$.user = null
       this.$.location = null
@@ -169,5 +209,14 @@ export class CurrentUserStore extends Nanobus<{
 
   public get activeUser() {
     return toJS(this.$.user)
+  }
+
+  public get activeFriendIds(): CurrentUserFriendIds {
+    return {
+      total: new Set(this.friendIds.total),
+      online: new Set(this.friendIds.online),
+      offline: new Set(this.friendIds.offline),
+      active: new Set(this.friendIds.active)
+    }
   }
 }
