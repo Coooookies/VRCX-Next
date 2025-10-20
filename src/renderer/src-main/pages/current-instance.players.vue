@@ -14,10 +14,6 @@ const isInstancePreloading = computed(() => {
 </script>
 
 <template>
-  <CurrentInstancePlayerTable
-    v-if="!isInstancePreloading"
-    :players="instancePlayers"
-    :search-value="searchValue"
-  />
-  <CurrentInstancePlayerTableSkeleton v-else />
+  <CurrentInstancePlayerTableSkeleton v-if="isInstancePreloading" />
+  <CurrentInstancePlayerTable v-else :players="instancePlayers" :search-value="searchValue" />
 </template>
