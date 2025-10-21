@@ -35,7 +35,6 @@ export class FriendsSessions extends Nanobus<{
   'sync:update-friends': (data: Readonly<FriendInformation>[]) => void
   'sync:remove-friend': (userId: string) => void
   'sync:clear-friends': () => void
-  'event:initial-friend-sync-complete': () => void
   'event:friend-online': (
     userId: string,
     data: Readonly<FriendInformation>,
@@ -131,9 +130,9 @@ export class FriendsSessions extends Nanobus<{
     }
   }
 
-  public syncInitialFriendsComplete() {
+  public syncInitialFriendsComplete(ids: CurrentUserFriendIds) {
     this._initialSyncCompleted = true
-    this.emit('event:initial-friend-sync-complete')
+    this.handleSyncFriendIds(ids)
   }
 
   public clearFriends() {
@@ -182,7 +181,7 @@ export class FriendsSessions extends Nanobus<{
     const fetchedUser = await this._requestQueue.add(() => this.users.fetchUser(userId))
 
     if (!currentUser || !fetchedUser || currentUser.state === UserState.Online) {
-      return null
+      return
     }
 
     const user = { ...fetchedUser, order: 0 }
@@ -190,7 +189,7 @@ export class FriendsSessions extends Nanobus<{
     const currentLocationRaw = fetchedUser.locationRawContext || ''
     const travelingLocationRaw = ''
 
-    return this.handleUpdateFriendOnline(
+    await this.handleUpdateFriendOnline(
       userId,
       user,
       platform,
@@ -215,12 +214,13 @@ export class FriendsSessions extends Nanobus<{
     const fetchedUser = await this._requestQueue.add(() => this.users.fetchUser(userId))
 
     if (!currentUser || !fetchedUser || currentUser.state === UserState.Active) {
-      return null
+      return
     }
 
     const user = { ...fetchedUser, order: 0 }
     const platform = Platform.Web
-    return this.handleUpdateFriendWebActive(userId, user, platform)
+    await this.handleUpdateFriendLocation(userId, '', '')
+    await this.handleUpdateFriendWebActive(userId, user, platform)
   }
 
   public async handleSyncFriendIds(ids: CurrentUserFriendIds) {

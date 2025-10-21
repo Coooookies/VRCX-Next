@@ -41,7 +41,7 @@ export class FriendsCoordinator {
       this.sessions.syncInitialFriends(friends)
     })
 
-    await this.sessions.syncInitialFriendsComplete()
+    await this.sessions.syncInitialFriendsComplete(this.users.activeUserFriendIds)
     await this.processCachedPipelineEvents()
 
     this.logger.info(
@@ -97,10 +97,6 @@ export class FriendsCoordinator {
 
     this.sessions.on('event:friend-delete', (userId, user) => {
       this.activities.handleFriendDeleteActivity(userId, user)
-    })
-
-    this.sessions.on('event:initial-friend-sync-complete', () => {
-      this.sessions.handleSyncFriendIds(this.users.activeUserFriendIds)
     })
 
     this.users.on('user:friend-ids:update', (friendIds) => {
